@@ -78,5 +78,11 @@ namespace AdventToolkit.Extensions
         {
             return (center.Y - p.y + center.X, p.x - center.X + center.Y);
         }
+
+        public static bool Contains(this (int a, int b) range, int i, bool inclusive = false)
+        {
+            if (inclusive) return i >= range.a && i <= range.b;
+            return i >= range.a && i < range.b;
+        }
     }
 }
