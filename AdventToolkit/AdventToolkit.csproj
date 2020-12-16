@@ -4,4 +4,8 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="RegExtract" Version="1.0.7-beta" />
+    </ItemGroup>
+
 </Project>

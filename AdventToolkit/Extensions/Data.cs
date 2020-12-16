@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using RegExtract;
 
 namespace AdventToolkit.Extensions
 {
@@ -21,6 +22,11 @@ namespace AdventToolkit.Extensions
                 b.Append(c);
             }
             return b.ToString();
+        }
+
+        public static string[] Csv(this string s, bool space = false)
+        {
+            return space ? s.Split(", ") : s.Split(',');
         }
 
         public static IEnumerable<int> Ints(this IEnumerable<string> strings)
@@ -57,6 +63,11 @@ namespace AdventToolkit.Extensions
             var t = arr[a];
             arr[a] = arr[b];
             arr[b] = t;
+        }
+        
+        public static IEnumerable<T> FromFormat<T>(this IEnumerable<string> strings, string regex)
+        {
+            return strings.Select(s => s.Extract<T>(regex));
         }
     }
 }
