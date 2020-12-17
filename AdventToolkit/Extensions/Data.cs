@@ -64,6 +64,13 @@ namespace AdventToolkit.Extensions
             arr[a] = arr[b];
             arr[b] = t;
         }
+
+        public static void Swap<T>(ref T a, ref T b)
+        {
+            var t = a;
+            a = b;
+            b = t;
+        }
         
         public static IEnumerable<T> FromFormat<T>(this IEnumerable<string> strings, string regex)
         {
