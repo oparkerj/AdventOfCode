@@ -15,12 +15,22 @@ namespace AdventToolkit.Data
 
         public static implicit operator Pos((int x, int y) p)
         {
-            return new Pos(p.x, p.y);
+            return new(p.x, p.y);
         }
 
         public static implicit operator (int x, int y)(Pos p)
         {
             return (p.X, p.Y);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Pos p && p.X == X && p.Y == Y;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X.GetHashCode(), Y.GetHashCode());
         }
 
         public override string ToString()
