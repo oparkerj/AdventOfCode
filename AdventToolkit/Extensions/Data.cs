@@ -76,5 +76,11 @@ namespace AdventToolkit.Extensions
         {
             return strings.Select(s => s.Extract<T>(regex));
         }
+
+        public static bool Search<T>(this T[] arr, T t, out int i)
+        {
+            i = Array.IndexOf(arr, t);
+            return i > -1;
+        }
     }
 }
