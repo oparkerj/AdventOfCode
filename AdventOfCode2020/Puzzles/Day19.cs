@@ -9,7 +9,6 @@ namespace AdventOfCode2020.Puzzles
 {
     public class Day19 : Puzzle
     {
-
         public string[][] Groups;
         public Dictionary<int, string> Rules = new();
 
@@ -36,6 +35,7 @@ namespace AdventOfCode2020.Puzzles
                 if (rule == 8) return $"({ToRegex(42)})+";
                 if (rule == 11)
                 {
+                    // Brute force every possible number of repetitions within the input
                     var longest = Groups[1].Select(s => s.Length).Max();
                     var counts = Enumerable.Range(0, longest).Select(c =>
                     {
@@ -57,7 +57,7 @@ namespace AdventOfCode2020.Puzzles
             part = part.Trim();
             if (part.StartsWith('"')) return part[1].ToString();
             var parts = part.Split(' ');
-            return $"{string.Concat(parts.Select(int.Parse).Select(i => ToRegex(i, part2)))}";
+            return string.Concat(parts.Select(int.Parse).Select(i => ToRegex(i, part2)));
         }
         
         public override void PartOne()
