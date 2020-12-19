@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Extensions;
+using RegExtract;
 
 namespace AdventOfCode2020.Puzzles
 {
@@ -20,7 +21,7 @@ namespace AdventOfCode2020.Puzzles
 
         public void ReadRules()
         {
-            var rules = Groups[0].FromFormat<(string, int, int, int, int)>(@"(.+): (\d+)-(\d+) or (\d+)-(\d+)");
+            var rules = Groups[0].Extract<(string, int, int, int, int)>(@"(.+): (\d+)-(\d+) or (\d+)-(\d+)");
             foreach (var (name, a, b, c, d) in rules)
             {
                 Rules[name] = new[] {(a, b), (c, d)};
