@@ -89,5 +89,17 @@ namespace AdventToolkit.Extensions
             i = s.IndexOf(c);
             return i > -1;
         }
+        
+        public static int GetEndParen(this string s, int start)
+        {
+            var level = 0;
+            for (var i = start; i < s.Length; i++)
+            {
+                if (s[i] == '(') level++;
+                if (s[i] == ')') level--;
+                if (level == 0) return i;
+            }
+            return -1;
+        }
     }
 }
