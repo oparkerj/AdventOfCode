@@ -101,5 +101,10 @@ namespace AdventToolkit.Extensions
             }
             return -1;
         }
+
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> ie)
+        {
+            return ie.SelectMany(e => e);
+        }
     }
 }
