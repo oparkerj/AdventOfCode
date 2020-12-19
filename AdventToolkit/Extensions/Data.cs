@@ -71,11 +71,6 @@ namespace AdventToolkit.Extensions
             a = b;
             b = t;
         }
-        
-        public static IEnumerable<T> FromFormat<T>(this IEnumerable<string> strings, string regex)
-        {
-            return strings.Select(s => s.Extract<T>(regex));
-        }
 
         public static bool Search<T>(this T[] arr, T t, out int i)
         {
