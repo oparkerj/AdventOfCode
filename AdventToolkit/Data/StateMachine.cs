@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Data
 {
@@ -68,31 +69,39 @@ namespace AdventToolkit.Data
         public int Match(IEnumerable<TUpdate> updates)
         {
             var current = 0;
-            var count = 0;
+            var index = 0;
             foreach (var update in updates)
             {
                 if (!Table.TryGetValue((current, update), out var states)) return -1;
                 if (states.Count > 1) throw new Exception("Automaton is non-deterministic.");
                 current = states.First();
-                if (AcceptingStates.Contains(current)) return count + 1;
-                count++;
+                if (AcceptingStates.Contains(current)) return index + 1;
+                index++;
             }
             if (!AcceptingStates.Contains(current)) return -1;
-            return count;
+            return index;
         }
 
         public (int count, int end) Count(IEnumerable<TUpdate> updates)
         {
+            var current = 0;
+            var index = 0;
             var count = 0;
             var end = 0;
-            var u = updates.ToArray();
-            while (true)
+            foreach (var update in updates)
             {
-                var i = Match(u);
-                if (i > -1) u = u[i..];
-                else break;
-                count++;
-                end += i;
+                if (!Table.TryGetValue((current, update), out var states)) break;
+                if (states.Count > 1) throw new Exception("Automaton is non-deterministic.");
+                current = states.First();
+                if (AcceptingStates.Contains(current))
+                {
+                    count++;
+                    end += index + 1;
+                    index = 0;
+                    current = 0;
+                    continue;
+                }
+                index++;
             }
             return (count, end);
         }
@@ -114,7 +123,7 @@ namespace AdventToolkit.Data
                 {
                     var newState = state.Select(i => Table[(i, input)])
                         .Where(set => set != null)
-                        .SelectMany(set => set)
+                        .Flatten()
                         .OrderBy(i => i)
                         .ToArray();
                     var pairs = sets.Where(pair => pair.Value.SequenceEqual(newState)).ToList();
@@ -131,11 +140,9 @@ namespace AdventToolkit.Data
                     }
                 }
             }
-            var accepting = sets.Where(pair => pair.Value.Any(i => AcceptingStates.Contains(i)));
-            foreach (var pair in accepting)
-            {
-                dfa.AcceptingStates.Add(pair.Key);
-            }
+            var accepting = sets.Where(pair => pair.Value.Any(i => AcceptingStates.Contains(i)))
+                .Select(pair => pair.Key);
+            dfa.AcceptingStates.UnionWith(accepting);
             return dfa;
         }
     }
