@@ -77,5 +77,17 @@ namespace AdventToolkit.Extensions
             i = Array.IndexOf(arr, t);
             return i > -1;
         }
+
+        public static bool Search(this string s, string n, out int i)
+        {
+            i = s.IndexOf(n, StringComparison.Ordinal);
+            return i > -1;
+        }
+        
+        public static bool Search(this string s, char c, out int i)
+        {
+            i = s.IndexOf(c);
+            return i > -1;
+        }
     }
 }
