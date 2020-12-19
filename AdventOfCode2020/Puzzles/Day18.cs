@@ -13,18 +13,6 @@ namespace AdventOfCode2020.Puzzles
             Part = 2;
         }
 
-        public int GetEnd(string s, int start)
-        {
-            var level = 0;
-            for (var i = start; i < s.Length; i++)
-            {
-                if (s[i] == '(') level++;
-                if (s[i] == ')') level--;
-                if (level == 0) return i;
-            }
-            return -1;
-        }
-
         public IEnumerable<string> ExpressionSplit(string s)
         {
             var b = new StringBuilder();
@@ -37,7 +25,7 @@ namespace AdventOfCode2020.Puzzles
                 }
                 else if (s[i] == '(')
                 {
-                    var end = GetEnd(s, i);
+                    var end = s.GetEndParen(i);
                     yield return s[(i + 1)..end];
                     i = end;
                     b.Length = 0;
