@@ -86,17 +86,24 @@ namespace AdventOfCode2020.Puzzles
             return from;
         }
 
+        public StateMachine<char> StateMachineFor(int rule)
+        {
+            var machine = new StateMachine<char>();
+            machine.NewState(); // initial state
+            var ends = ToStates(ToRegex(rule), new[] {0}, machine);
+            machine.AcceptingStates.UnionWith(ends);
+            if (machine.IsNfa()) machine = machine.NfaToDfa("ab");
+            return machine;
+        }
+
         public override void PartOne()
         {
             var regex = ToRegex(0);
 
-            var machine = new StateMachine<char>();
-            machine.NewState(); // initial state
-            var ends = ToStates(regex, new[] {0}, machine);
-            machine.AcceptingStates.UnionWith(ends);
-            if (machine.IsNfa()) machine = machine.NfaToDfa("ab");
+            var machine = StateMachineFor(0);
             WriteLn(Groups[1].Count(machine.Test));
 
+            // Old solution using regex
             var r = new Regex($"^{regex}$", RegexOptions.Compiled);
             var result = Groups[1].Count(r.IsMatch);
             WriteLn(result);
@@ -104,17 +111,8 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartTwo()
         {
-            var rule42 = new StateMachine<char>();
-            rule42.NewState(); // initial state
-            var ends = ToStates(ToRegex(42), new[] {0}, rule42);
-            rule42.AcceptingStates.UnionWith(ends);
-            if (rule42.IsNfa()) rule42 = rule42.NfaToDfa("ab");
-
-            var rule31 = new StateMachine<char>();
-            rule31.NewState();
-            ends = ToStates(ToRegex(31), new[] {0}, rule31);
-            rule31.AcceptingStates.UnionWith(ends);
-            if (rule31.IsNfa()) rule31 = rule31.NfaToDfa("ab");
+            var rule42 = StateMachineFor(42);
+            var rule31 = StateMachineFor(31);
 
             // Count number of times rule 42 matches followed by number
             // of times rule 31 matches. The string matches if rule 42
