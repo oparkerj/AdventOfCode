@@ -45,7 +45,7 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartTwo()
         {
-            var possible = new Dictionary<int, string[]>();
+            var possible = new Dictionary<int, HashSet<string>>();
             // Every range of values
             var ranges = Rules.Values.SelectMany(tuples => tuples).ToList();
             // Every valid ticket
@@ -56,7 +56,7 @@ namespace AdventOfCode2020.Puzzles
             for (var i = 0; i < size; i++)
             {
                 // Any position could be any rule at the start
-                possible[i] = Rules.Keys.ToArray();
+                possible[i] = Rules.Keys.ToHashSet();
             }
             // Filter out rules based on ranges
             foreach (var ticket in tickets)
@@ -67,26 +67,13 @@ namespace AdventOfCode2020.Puzzles
                     var updated = Rules.Where(pair => pair.Value.Any(range => range.Contains(v, true)))
                         .Select(pair => pair.Key)
                         .Intersect(possible[i])
-                        .ToArray();
+                        .ToHashSet();
                     possible[i] = updated;
                 }
             }
-            // Filter remaining rules by looking at positions with only 1 possibility
-            var done = new HashSet<int>();
-            for (var i = 0; i < size - 1; i++)
-            {
-                // Get the position that has not been checked yet with only 1 possibility
-                var (key, value) = possible.Single(pair => !done.Contains(pair.Key) && pair.Value.Length == 1);
-                done.Add(key);
-                var r = value[0];
-                for (var j = 0; j < size; j++)
-                {
-                    if (j == key) continue;
-                    possible[j] = possible[j].Where(s => s != r).ToArray();
-                }
-            }
+            possible.MakeSingles();
             var myTicket = Groups[1][1].Csv().Ints().ToArray();
-            var result = possible.Where(pair => pair.Value[0].StartsWith("departure"))
+            var result = possible.Where(pair => pair.Value.First().StartsWith("departure"))
                 .Select(pair => myTicket[pair.Key])
                 .LongProduct();
             WriteLn(result);

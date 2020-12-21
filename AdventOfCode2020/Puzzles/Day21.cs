@@ -50,7 +50,7 @@ namespace AdventOfCode2020.Puzzles
         public override void PartOne()
         {
             var possible = new Dictionary<string, List<string>>();
-            var all = AllIngredients().ToArray();
+            var all = AllIngredients().Distinct().ToArray();
             foreach (var ing in all)
             {
                 possible[ing] = AllAllergens().ToList();
@@ -86,21 +86,8 @@ namespace AdventOfCode2020.Puzzles
             {
                 possible.Remove(ing);
             }
-
-            var remain = possible.Keys.ToArray();
-            var done = new HashSet<string>();
-            for (var i = 0; i < possible.Count - 1; i++)
-            {
-                var (key, value) = possible.Single(pair => !done.Contains(pair.Key) && pair.Value.Count == 1);
-                done.Add(key);
-                var r = value.First();
-                foreach (var ing in remain)
-                {
-                    if (ing == key) continue;
-                    possible[ing].Remove(r);
-                }
-            }
-
+            
+            possible.MakeSingles();
             var ingredients = possible.OrderBy(pair => pair.Value.First()).Select(pair => pair.Key);
             WriteLn(string.Join(',', ingredients));
         }
