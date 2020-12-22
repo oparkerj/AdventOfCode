@@ -132,31 +132,31 @@ namespace AdventToolkit.Data
             }
         }
 
-        public GridFilter<T> ToIndexFilter(Array array, bool yInvert = false)
+        public GridFilter<T> ToIndexFilter(Array array, bool yUp = true)
         {
             return (ref int x, ref int y, ref T _) =>
             {
                 x -= Bounds.MinX;
-                if (yInvert) y = array.GetLength(1) - 1 - (y - Bounds.MinY);
+                if (yUp) y = array.GetLength(1) - 1 - (y - Bounds.MinY);
                 else y -= Bounds.MinY;
             };
         }
 
-        public T[,] ToArray(bool yInvert = false)
+        public T[,] ToArray(bool yUp = true)
         {
             var arr = new T[Bounds.Width, Bounds.Height];
-            return ToArray(arr, yInvert);
+            return ToArray(arr, yUp);
         }
 
-        public T[,] ToArray(T[,] arr, bool yInvert = false)
+        public T[,] ToArray(T[,] arr, bool yUp = true)
         {
-            ForEach((x, y, t) => arr[x, y] = t, ToIndexFilter(arr, yInvert));
+            ForEach((x, y, t) => arr[x, y] = t, ToIndexFilter(arr, yUp));
             return arr;
         }
 
-        public void ToArray<TO>(TO[,] arr, Func<T, TO> func, bool yInvert = false)
+        public void ToArray<TO>(TO[,] arr, Func<T, TO> func, bool yUp = true)
         {
-            ForEach((x, y, o) => arr[x, y] = o, ToIndexFilter(arr, yInvert), func);
+            ForEach((x, y, o) => arr[x, y] = o, ToIndexFilter(arr, yUp), func);
         }
 
     }
