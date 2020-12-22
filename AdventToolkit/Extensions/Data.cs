@@ -106,5 +106,28 @@ namespace AdventToolkit.Extensions
         {
             return ie.SelectMany(e => e);
         }
+
+        public static IEnumerator<int> GetEnumerator(this Range range)
+        {
+            if (range.Start.IsFromEnd || range.End.IsFromEnd) throw new Exception("Range has indices from end.");
+            return Enumerable.Range(range.Start.Value, range.End.Value - range.Start.Value).GetEnumerator();
+        }
+
+        public static Range On(this Range range, int elements)
+        {
+            return new(range.Start.GetOffset(elements), range.End.GetOffset(elements));
+        }
+
+        public static string AsString(this IEnumerable<bool> bools)
+        {
+            return bools.Select(b => b ? '1' : '0').Str();
+        }
+        
+        public static string Reversed(this string s)
+        {
+            var c = s.ToCharArray();
+            Array.Reverse(c);
+            return new string(c);
+        }
     }
 }
