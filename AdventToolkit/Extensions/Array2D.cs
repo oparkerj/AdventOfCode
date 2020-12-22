@@ -1,20 +1,44 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AdventToolkit.Data;
 
 namespace AdventToolkit.Extensions
 {
     public static class Array2D
     {
-        public static IEnumerable<T> All<T>(this T[,] t)
+        public static IEnumerable<Pos> Indices<T>(this T[,] arr, bool yInvert = false)
         {
-            for (var i = 0; i < t.GetLength(0); i++)
+            if (yInvert)
             {
-                for (var j = 0; j < t.GetLength(1); j++)
+                for (var j = arr.GetLength(1) - 1; j >= 0; j--)
                 {
-                    yield return t[i, j];
+                    for (var i = 0; i < arr.GetLength(0); i++)
+                    {
+                        yield return (i, j);
+                    }
                 }
             }
+            else
+            {
+                for (var j = 0; j < arr.GetLength(1); j++)
+                {
+                    for (var i = 0; i < arr.GetLength(0); i++)
+                    {
+                        yield return (i, j);
+                    }
+                }
+            }
+        }
+        
+        public static IEnumerable<T> All<T>(this T[,] t, bool yInvert = false)
+        {
+            return t.Indices(yInvert).Select(t.Get);
+        }
+        
+        public static IEnumerable<TU> All<T, TU>(this T[,] t, Func<T, TU> func, bool yInvert = false)
+        {
+            return t.Indices(yInvert).Select(pos => func(t.Get(pos)));
         }
 
         public static bool Has<T>(this T[,] t, Pos p)
@@ -34,17 +58,25 @@ namespace AdventToolkit.Extensions
             return t.Has(p) ? t[p.X, p.Y] : def;
         }
         
-        public static IEnumerable<Pos> Adjacent(this Pos p)
+        public static IEnumerable<Pos> Adjacent(this Pos p, bool yUp = false)
         {
+            if (yUp)
+            {
+                yield return (p.X, p.Y + 1);
+                yield return (p.X + 1, p.Y);
+                yield return (p.X, p.Y - 1);
+                yield return (p.X - 1, p.Y);
+                yield break;
+            }
             yield return (p.X, p.Y - 1);
             yield return (p.X + 1, p.Y);
             yield return (p.X, p.Y + 1);
             yield return (p.X - 1, p.Y);
         }
 
-        public static IEnumerable<Pos> Adjacent(this (int x, int y) p)
+        public static IEnumerable<Pos> Adjacent(this (int x, int y) p, bool yUp = false)
         {
-            return Adjacent((Pos) p);
+            return Adjacent((Pos) p, yUp);
         }
 
         public static IEnumerable<Pos> Around(this Pos p)
@@ -83,6 +115,30 @@ namespace AdventToolkit.Extensions
         {
             if (inclusive) return i >= range.a && i <= range.b;
             return i >= range.a && i < range.b;
+        }
+
+        public static IEnumerable<T> Flatten<T>(this T[,] arr, T sep)
+        {
+            for (var j = arr.GetLength(1) - 1; j >= 0; j--)
+            {
+                for (var i = 0; i < arr.GetLength(0); i++)
+                {
+                    yield return arr[i, j];
+                }
+                if (j > 0) yield return sep;
+            }
+        }
+        
+        public static IEnumerable<TU> Flatten<T, TU>(this T[,] arr, Func<T, TU> func, TU sep)
+        {
+            for (var j = arr.GetLength(1) - 1; j >= 0; j--)
+            {
+                for (var i = 0; i < arr.GetLength(0); i++)
+                {
+                    yield return func(arr[i, j]);
+                }
+                if (j > 0) yield return sep;
+            }
         }
     }
 }
