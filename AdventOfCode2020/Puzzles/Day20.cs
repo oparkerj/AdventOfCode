@@ -214,11 +214,11 @@ namespace AdventOfCode2020.Puzzles
             var count = pattern.ToString().Count(c => c == '1');
             var success = full.TryAllOrientations(grid =>
             {
-                var s = grid.ToArray().All(true).Str();
+                var s = grid.ToArray().All().Str();
                 return pattern.IsMatch(s);
             });
             if (!success) throw new Exception("No sea monsters found.");
-            var str = full.ToArray().All(true).Str();
+            var str = full.ToArray().All().Str();
             var monsters = pattern.Matches(str).Count;
             var result = str.Count(c => c == '1') - monsters * count;
             WriteLn(result);
