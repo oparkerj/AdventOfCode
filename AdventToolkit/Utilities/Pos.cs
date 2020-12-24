@@ -1,6 +1,6 @@
 using System;
 
-namespace AdventToolkit.Data
+namespace AdventToolkit.Utilities
 {
     public readonly struct Pos
     {

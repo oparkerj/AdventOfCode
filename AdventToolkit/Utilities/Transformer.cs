@@ -1,8 +1,7 @@
 using System;
 using System.Linq;
-using AdventToolkit.Extensions;
 
-namespace AdventToolkit.Data
+namespace AdventToolkit.Utilities
 {
     public interface ITransformer<T, TC>
     {

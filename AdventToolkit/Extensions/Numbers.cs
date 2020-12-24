@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 
 namespace AdventToolkit.Extensions
@@ -39,6 +40,16 @@ namespace AdventToolkit.Extensions
         public static int Lcm(this int a, int b)
         {
             return a / a.Gcd(b) * b;
+        }
+
+        public static void Times(this int i, Action action)
+        {
+            for (var j = 0; j < i; j++) action();
+        }
+        
+        public static void Times(this int i, Action<int> action)
+        {
+            for (var j = 0; j < i; j++) action(j);
         }
     }
 }

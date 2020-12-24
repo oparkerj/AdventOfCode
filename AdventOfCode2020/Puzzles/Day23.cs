@@ -11,7 +11,7 @@ namespace AdventOfCode2020.Puzzles
         public int Max = -1;
         
         public int Current;
-        public readonly Dictionary<int, Cup> Cups = new();
+        public readonly Dictionary<int, int> Next = new();
 
         public Day23()
         {
@@ -22,113 +22,59 @@ namespace AdventOfCode2020.Puzzles
         public void ReadInput()
         {
             var cups = Input[0].Select(c => c.ToString()).Ints().ToArray();
-            Cup prev = null;
+            var prev = cups[^1];
             foreach (var cup in cups)
             {
                 if (cup < Min || Min == -1) Min = cup;
                 if (cup > Max || Max == -1) Max = cup;
-                var c = new Cup(cup);
-                Cups[cup] = c;
-                if (prev != null) prev.Next = c;
-                c.Prev = prev;
-                prev = c;
+                Next[prev] = cup;
+                prev = cup;
             }
             Current = cups[0];
-            Cups[Current].Prev = Cups[cups[^1]];
-            Cups[cups[^1]].Next = Cups[Current];
-        }
-
-        public class Cup
-        {
-            public readonly int Id;
-            public Cup Prev, Next;
-
-            public Cup(int id)
-            {
-                Id = id;
-            }
-
-            public Cup this[int i]
-            {
-                get
-                {
-                    var c = this;
-                    if (i > 0)
-                    {
-                        while (i-- > 0) c = c.Next;
-                    }
-                    else if (i < 0)
-                    {
-                        while (i++ < 0) c = c.Prev;
-                    }
-                    return c;
-                }
-            }
-        }
-
-        public Cup Remove(int cup)
-        {
-            var c = Cups[cup];
-            c.Prev.Next = c.Next;
-            c.Next.Prev = c.Prev;
-            c.Prev = c.Next = null;
-            return c;
-        }
-
-        public void Insert(Cup cup, Cup at)
-        {
-            at.Prev.Next = cup;
-            cup.Prev = at.Prev;
-            at.Prev = cup;
-            cup.Next = at;
         }
 
         public void Move()
         {
-            var c = Cups[Current];
-            var remove = new[] {c[1], c[2], c[3]}.Select(cup => cup.Id).ToArray();
-            var cups = remove.Select(Remove).ToArray();
-            var dest = c.Id - 1;
-            if (dest < Min) dest = Max;
-            while (remove.Contains(dest))
+            var a = Next[Current];
+            var b = Next[a];
+            var c = Next[b];
+            Next[Current] = Next[c];
+            var dest = Current;
+            do
             {
                 dest--;
                 if (dest < Min) dest = Max;
-            }
-            var insert = Cups[dest];
-            for (var i = 0; i < 3; i++)
-            {
-                Insert(cups[i], insert[i + 1]);
-            }
-            Current = Cups[Current][1].Id;
+            } while (a == dest || b == dest || c == dest);
+            Next[c] = Next[dest];
+            Next[dest] = a;
+            Current = Next[Current];
         }
         
         public override void PartOne()
         {
-            foreach (var _ in ..100)
+            100.Times(Move);
+            var result = "";
+            var c = 1;
+            foreach (var _ in ..(Max - 1))
             {
-                Move();
+                result += c = Next[c];
             }
-            var start = Cups[1];
-            var cups = Enumerable.Range(0, Max - 1).Select(i => start[i + 1]).Select(cup => cup.Id.ToString());
-            WriteLn(string.Concat(cups));
+            WriteLn(result);
         }
 
         public override void PartTwo()
         {
-            var start = Cups[Current];
-            for (var i = Max + 1; i <= 1000000; i++)
+            var last = Next.Single(pair => pair.Value == Current).Key;
+            for (var i = Max + 1; i <= 1_000_000; i++)
             {
-                var c = new Cup(i);
-                Cups[i] = c;
-                Insert(c, start);
+                Next[last] = i;
+                last = i;
             }
-            Max = 1000000;
-            foreach (var _ in ..10_000_000)
-            {
-                Move();
-            }
-            var result = (long) Cups[1][1].Id * Cups[1][2].Id;
+            Next[1_000_000] = Current;
+            Max = 1_000_000;
+            10_000_000.Times(Move);
+            var a = Next[1];
+            var result = (long) a * Next[a];
             WriteLn(result);
         }
     }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace AdventToolkit.Data
+namespace AdventToolkit.Utilities
 {
     public class DefaultDict<TKey, TValue> : Dictionary<TKey, TValue>
     {

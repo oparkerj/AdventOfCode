@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Extensions;
+using RegExtract;
 
 namespace AdventOfCode2020.Puzzles
 {
@@ -10,35 +13,31 @@ namespace AdventOfCode2020.Puzzles
             Part = 2;
         }
 
-        public bool IsValid(string entry)
+        public record Policy(int Lower, int Upper, char Letter, string Password);
+
+        public IEnumerable<Policy> Policies()
         {
-            var parts = entry.Split(' ');
-            var bounds = parts[0].Split('-');
-            var lower = int.Parse(bounds[0]);
-            var upper = int.Parse(bounds[1]);
-            var c = parts[1][0]; // get char
-            var count = parts[2].Count(ch => ch == c);
-            return count >= lower && count <= upper;
+            return Input.Extract<Policy>(@"^(\d+)-(\d+) (.): (.+)$");
+        }
+
+        public bool IsValid(Policy policy)
+        {
+            return InRange(policy.Password.Count(policy.Letter), policy.Lower, policy.Upper, true);
         }
         
         public override void PartOne()
         {
-            WriteLn(Input.Count(IsValid));
+            WriteLn(Policies().Count(IsValid));
         }
         
-        public bool IsValid2(string entry)
+        public bool IsValid2(Policy policy)
         {
-            var parts = entry.Split(' ');
-            var bounds = parts[0].Split('-');
-            var lower = int.Parse(bounds[0]) - 1;
-            var upper = int.Parse(bounds[1]) - 1;
-            var c = parts[1][0]; // get char
-            return parts[2][lower] == c ^ parts[2][upper] == c;
+            return policy.Password[policy.Lower - 1] == policy.Letter ^ policy.Password[policy.Upper - 1] == policy.Letter;
         }
 
         public override void PartTwo()
         {
-            WriteLn(Input.Count(IsValid2));
+            WriteLn(Policies().Count(IsValid2));
         }
     }
 }

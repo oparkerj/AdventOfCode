@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using AdventToolkit;
 using AdventToolkit.Extensions;
+using RegExtract;
 
 namespace AdventOfCode2020.Puzzles
 {
@@ -14,7 +15,7 @@ namespace AdventOfCode2020.Puzzles
             Part = 2;
         }
 
-        private Dictionary<long, long> memory = new Dictionary<long, long>();
+        public Dictionary<long, long> Memory = new();
 
         public long Zeroes(string mask)
         {
@@ -42,15 +43,13 @@ namespace AdventOfCode2020.Puzzles
                 }
                 else
                 {
-                    var i = line.IndexOf(']');
-                    var addr = int.Parse(line[4..i]);
-                    var v = long.Parse(line[(i + 4)..]);
+                    var (addr, v) = line.Extract<(int, long)>(@"^mem\[(\d+)\] = (.+)$");
                     v &= zeroes;
                     v |= ones;
-                    memory[addr] = v;
+                    Memory[addr] = v;
                 }
             }
-            WriteLn(memory.Values.Sum());
+            WriteLn(Memory.Values.Sum());
         }
 
         public string Modify(string mask, long addr)
@@ -71,22 +70,20 @@ namespace AdventOfCode2020.Puzzles
                 }
                 else
                 {
-                    var i = line.IndexOf(']');
-                    var a = line[4..i];
-                    var addr = long.Parse(a);
-                    var v = long.Parse(line[(i + 4)..]);
+                    var (addr, v) = line.Extract<(int, long)>(@"^mem\[(\d+)\] = (.+)$");
                     var tm = Modify(mask, addr);
                     foreach (var p in Permutations(tm))
                     {
-                        memory[Convert.ToInt64(p, 2)] = v;
+                        Memory[Convert.ToInt64(p, 2)] = v;
                     }
                 }
             }
-            WriteLn(memory.Values.Sum());
+            WriteLn(Memory.Values.Sum());
         }
 
         public IEnumerable<string> Permutations(string mask)
         {
+            // TODO make custom permutation function
             var pos = mask.Select((c, i) => i).Where(i => mask[i] == 'X').ToArray();
             foreach (var seq in printSequences(2, pos.Length))
             {

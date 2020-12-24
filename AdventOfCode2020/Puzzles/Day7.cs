@@ -9,14 +9,15 @@ namespace AdventOfCode2020.Puzzles
     {
         public Day7()
         {
+            ReadBags();
             Part = 2;
         }
 
-        private Dictionary<string, (string, int)[]> bags;
+        public Dictionary<string, (string, int)[]> Bags;
 
         public void ReadBags()
         {
-            bags = new Dictionary<string, (string, int)[]>();
+            Bags = new Dictionary<string, (string, int)[]>();
             foreach (var type in Input)
             {
                 var i = type.IndexOf(" bags", StringComparison.Ordinal);
@@ -24,7 +25,7 @@ namespace AdventOfCode2020.Puzzles
                 var content = type[(i + 14)..^1];
                 if (content == "no other bags")
                 {
-                    bags[name] = null;
+                    Bags[name] = null;
                     continue;
                 }
                 var contains = content.Split(", ");
@@ -35,14 +36,14 @@ namespace AdventOfCode2020.Puzzles
                     var end = amount > 1 ? 5 : 4;
                     return (s[(j + 1)..^end], amount);
                 }).ToArray();
-                bags[name] = holds;
+                Bags[name] = holds;
             }
         }
 
         public Dictionary<string, int> GetContents(string type)
         {
             var content = new Dictionary<string, int>();
-            var types = bags[type];
+            var types = Bags[type];
             if (types == null) return content;
             foreach (var (name, amount) in types)
             {
@@ -60,14 +61,12 @@ namespace AdventOfCode2020.Puzzles
         
         public override void PartOne()
         {
-            ReadBags();
-            var count = bags.Keys.Select(GetContents).Count(content => content.ContainsKey("shiny gold"));
+            var count = Bags.Keys.Select(GetContents).Count(content => content.ContainsKey("shiny gold"));
             WriteLn(count);
         }
 
         public override void PartTwo()
         {
-            ReadBags();
             var sum = GetContents("shiny gold").Values.Sum();
             WriteLn(sum);
         }

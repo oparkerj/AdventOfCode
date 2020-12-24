@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdventToolkit.Data;
+using AdventToolkit.Utilities;
 
 namespace AdventToolkit.Extensions
 {
@@ -139,6 +139,39 @@ namespace AdventToolkit.Extensions
                 }
                 if (j > 0) yield return sep;
             }
+        }
+
+        public static IEnumerable<((int x, int y) Pos, char Char)> As2D(this IEnumerable<IEnumerable<char>> source)
+        {
+            var y = 0;
+            foreach (var row in source)
+            {
+                var x = 0;
+                foreach (var c in row)
+                {
+                    yield return ((x, y), c);
+                    x++;
+                }
+                y++;
+            }
+        }
+
+        public static Pos Trace(this Pos start, Pos dir, Func<(int x, int y), bool> func)
+        {
+            var (x, y) = start;
+            var (dx, dy) = dir;
+            while (true)
+            {
+                x += dx;
+                y += dy;
+                if (func((x, y))) break;
+            }
+            return (x, y);
+        }
+
+        public static (int x, int y) Trace(this (int x, int y) start, (int x, int y) dir, Func<(int x, int y), bool> func)
+        {
+            return ((Pos) start).Trace(dir, func);
         }
     }
 }

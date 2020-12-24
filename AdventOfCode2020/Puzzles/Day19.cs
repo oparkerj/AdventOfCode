@@ -1,16 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using AdventToolkit;
-using AdventToolkit.Data;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities;
 using RegExtract;
 
 namespace AdventOfCode2020.Puzzles
 {
     public class Day19 : Puzzle
     {
-        public string[][] Groups;
+        public new string[][] Groups;
         public Dictionary<int, string> Rules = new();
 
         public Day19()
@@ -98,15 +97,8 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartOne()
         {
-            var regex = ToRegex(0);
-
             var machine = StateMachineFor(0);
             WriteLn(Groups[1].Count(machine.Test));
-
-            // Old solution using regex
-            var r = new Regex($"^{regex}$", RegexOptions.Compiled);
-            var result = Groups[1].Count(r.IsMatch);
-            WriteLn(result);
         }
 
         public override void PartTwo()
@@ -127,27 +119,6 @@ namespace AdventOfCode2020.Puzzles
                 })
                 .Count();
             WriteLn(count);
-        }
-
-        public void OldPartTwo()
-        {
-            Rules[8] = "\":\"";
-            Rules[11] = "\";\"";
-            var regex = ToRegex(0);
-            
-            regex = regex.Replace(":", $"({ToRegex(42)})+");
-            
-            // Brute force every possible number of repetitions within the input
-            var longest = Groups[1].Select(s => s.Length).Max();
-            var counts = Enumerable.Range(0, longest).Select(c =>
-            {
-                return $"{ToRegex(42)}{{{c + 1}}}{ToRegex(31)}{{{c + 1}}}";
-            });
-            regex = regex.Replace(";", $"({string.Join('|', counts)})");
-            
-            var r = new Regex($"^{regex}$", RegexOptions.Compiled);
-            var result = Groups[1].Count(r.IsMatch);
-            WriteLn(result);
         }
     }
 }
