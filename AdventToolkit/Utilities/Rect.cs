@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AdventToolkit.Data
+namespace AdventToolkit.Utilities
 {
     public class Rect
     {

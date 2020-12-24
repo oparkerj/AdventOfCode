@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace AdventToolkit
 {
@@ -72,19 +71,15 @@ namespace AdventToolkit
             }
         }
 
-        public bool Range(int i, int lower, int upper)
+        public bool InRange(int i, int lower, int upper, bool inclusive = false)
         {
+            if (inclusive) return i >= lower && i <= upper;
             return i >= lower && i < upper;
         }
 
-        public bool Range(string s, int lower, int upper)
+        public bool InRange(string s, int lower, int upper)
         {
-            return Range(int.Parse(s), lower, upper);
-        }
-
-        public bool MatchAll(string s, string regex)
-        {
-            return Regex.IsMatch(s, "^" + regex + "$");
+            return InRange(int.Parse(s), lower, upper);
         }
     }
 }

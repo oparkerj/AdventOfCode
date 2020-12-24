@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
 using AdventToolkit;
-using AdventToolkit.Data;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities;
 
 namespace AdventOfCode2020.Puzzles
 {
@@ -15,74 +13,32 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartOne()
         {
-            var width = Input[0].Length;
-            var height = Input.Length;
-            var grid = new DefaultDict<(int, int, int), bool>();
-            var temp = new DefaultDict<(int, int, int), bool>();
-            for (var i = 0; i < width; i++)
+            var game = new GameOfLife<(int, int, int)>()
+                .WithNeighborFunction(pos => pos.Around())
+                .WithLivingDeadRules(i => i < 2 || i > 3, i => i == 3)
+                .WithExpansion()
+                .WithKeepDead(false);
+            foreach (var ((x, y), c) in Input.As2D())
             {
-                for (var j = 0; j < height; j++)
-                {
-                    grid[(i, j, 0)] = Input[j][i] == '#';
-                }
+                game[(x, y, 0)] = c == '#';
             }
-            
-            for (var i = 0; i < 6; i++)
-            {
-                temp.Clear();
-                var consider = grid.SelectMany(pair => pair.Key.Around()).Concat(grid.Keys).ToHashSet();
-                foreach (var pos in consider)
-                {
-                    if (grid[pos])
-                    {
-                        if (pos.Around().Count(p => grid[p]) is 2 or 3) temp[pos] = true;
-                        else temp[pos] = false;
-                    }
-                    else
-                    {
-                        if (pos.Around().Count(p => grid[p]) == 3) temp[pos] = true;
-                        else temp[pos] = false;
-                    }
-                }
-                Data.Swap(ref grid, ref temp);
-            }
-            WriteLn(grid.Count(pair => pair.Value));
+            game.Step(6);
+            WriteLn(game.CountActive());
         }
 
         public override void PartTwo()
         {
-            var width = Input[0].Length;
-            var height = Input.Length;
-            var grid = new DefaultDict<(int, int, int, int), bool>();
-            var temp = new DefaultDict<(int, int, int, int), bool>();
-            for (var i = 0; i < width; i++)
+            var game = new GameOfLife<(int, int, int, int)>()
+                .WithNeighborFunction(pos => pos.Around())
+                .WithLivingDeadRules(i => i < 2 || i > 3, i => i == 3)
+                .WithExpansion()
+                .WithKeepDead(false);
+            foreach (var ((x, y), c) in Input.As2D())
             {
-                for (var j = 0; j < height; j++)
-                {
-                    grid[(i, j, 0, 0)] = Input[j][i] == '#';
-                }
+                game[(x, y, 0, 0)] = c == '#';
             }
-            
-            for (var i = 0; i < 6; i++)
-            {
-                temp.Clear();
-                var consider = grid.SelectMany(pair => pair.Key.Around()).Concat(grid.Keys).ToHashSet();
-                foreach (var pos in consider)
-                {
-                    if (grid.GetValueOrDefault(pos))
-                    {
-                        if (pos.Around().Count(p => grid[p]) is 2 or 3) temp[pos] = true;
-                        else temp[pos] = false;
-                    }
-                    else
-                    {
-                        if (pos.Around().Count(p => grid[p]) == 3) temp[pos] = true;
-                        else temp[pos] = false;
-                    }
-                }
-                Data.Swap(ref grid, ref temp);
-            }
-            WriteLn(grid.Count(pair => pair.Value));
+            game.Step(6);
+            WriteLn(game.CountActive());
         }
     }
 }

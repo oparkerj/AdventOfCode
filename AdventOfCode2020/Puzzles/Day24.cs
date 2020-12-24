@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
-using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 using RegExtract;
 
@@ -11,7 +10,6 @@ namespace AdventOfCode2020.Puzzles
     public class Day24 : Puzzle
     {
         public DefaultDict<(int, int, int), bool> Tiles = new();
-        public DefaultDict<(int, int, int), bool> Temp = new();
         public (int, int, int)[] Relative;
 
         public Day24()
@@ -33,12 +31,6 @@ namespace AdventOfCode2020.Puzzles
             };
         }
 
-        public IEnumerable<(int, int, int)> Around((int, int, int) p)
-        {
-            if (Relative == null) Relative = GetParts("ewnenwsesw").Select(GetRelative).ToArray();
-            return Relative.Select(tuple => Add(tuple, p));
-        }
-
         public (int, int, int) Add((int a, int b, int c) a, (int a, int b, int c) b)
         {
             return (a.a + b.a, a.b + b.b, a.c + b.c);
@@ -58,27 +50,27 @@ namespace AdventOfCode2020.Puzzles
             }
             WriteLn(Tiles.Count(pair => pair.Value));
         }
-
-        public void Cycle()
+        
+        public IEnumerable<(int, int, int)> Around((int, int, int) p)
         {
-            var where = Tiles.Keys.SelectMany(Around).ToHashSet();
-            foreach (var at in where)
-            {
-                var count = Around(at).Count(tuple => Tiles[tuple]);
-                var flip = Tiles[at];
-                if (flip && count is 0 or > 2) Temp[at] = false;
-                else if (!flip && count == 2) Temp[at] = true;
-                else Temp[at] = flip;
-            }
-            Data.Swap(ref Tiles, ref Temp);
-            Temp.Clear();
+            if (Relative == null) Relative = GetParts("ewnenwsesw").Select(GetRelative).ToArray();
+            return Relative.Select(tuple => Add(tuple, p));
         }
 
         public override void PartTwo()
         {
             PartOne();
-            100.Times(Cycle);
-            WriteLn(Tiles.Count(pair => pair.Value));
+            var game = new GameOfLife<(int, int, int)>()
+                .WithNeighborFunction(Around)
+                .WithLivingDeadRules(i => i is 0 or > 2, i => i == 2)
+                .WithExpansion()
+                .WithKeepDead(false);
+            foreach (var (pos, flip) in Tiles)
+            {
+                game[pos] = flip;
+            }
+            game.Step(100);
+            WriteLn(game.CountActive());
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Extensions;
 
 namespace AdventOfCode2020.Puzzles
 {
@@ -13,7 +14,7 @@ namespace AdventOfCode2020.Puzzles
         public override void PartOne()
         {
             var width = Input[0].Length;
-            var count = Input.Select((s, i) => s[(i * 3) % width]).Count(c => c == '#');
+            var count = Input.Select((s, i) => s[(i * 3) % width]).Count('#');
             WriteLn(count);
         }
 
