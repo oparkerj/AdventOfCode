@@ -66,16 +66,6 @@ namespace AdventOfCode2020.Puzzles
                 WriteLn(range.Max() + range.Min());
                 return;
             }
-            // while (true)
-            // {
-            //     var sum = input[start..end].Sum();
-            //     if (sum < target) end++;
-            //     if (sum > target) start++;
-            //     if (sum != target) continue;
-            //     var range = input[start..end];
-            //     WriteLn(range.Max() + range.Min());
-            //     return;
-            // }
         }
     }
 }

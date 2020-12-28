@@ -18,7 +18,7 @@ namespace AdventOfCode2020.Puzzles
 
         public void ReadInput()
         {
-            var foods = Input.Extract<(List<string>, List<string>)>("(?:(\\w+) )+\\(contains (?:(\\w+)\\W+)+");
+            var foods = Input.Extract<(List<string>, List<string>)>(@"(?:(\w+) )+\(contains (?:(\w+)\W+)+");
             foreach (var food in foods)
             {
                 Foods.Add(food);

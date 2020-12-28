@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AdventToolkit;
-using AdventToolkit.Data;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities;
 
 namespace AdventOfCode2020.Puzzles
 {
     public class Day20 : Puzzle
     {
-        public const int Size = 10;
         public Dictionary<int, Grid<bool>> Tiles = new();
         
         public Day20()
@@ -24,15 +23,10 @@ namespace AdventOfCode2020.Puzzles
             foreach (var group in Groups)
             {
                 var id = int.Parse(group[0][5..^1]);
-                var width = group[0].Length;
-                var height = group.Length - 1;
                 var grid = new Grid<bool>();
-                for (var i = 0; i < width; i++)
+                foreach (var ((x, y), c) in group.Skip(1).As2D())
                 {
-                    for (var j = 0; j < height; j++)
-                    {
-                        grid[i, -j] = group[j + 1][i] == '#';
-                    }
+                    grid[x, -y] = c == '#';
                 }
                 Tiles[id] = grid;
             }
@@ -211,7 +205,7 @@ namespace AdventOfCode2020.Puzzles
 
             // Find sea monsters
             var pattern = new Regex($"1(?=.{{{width - 19}}}1.{{4}}11.{{4}}11.{{4}}111.{{{width - 19}}}1.{{2}}1.{{2}}1.{{2}}1.{{2}}1.{{2}}1)", RegexOptions.Compiled);
-            var count = pattern.ToString().Count(c => c == '1');
+            var count = pattern.ToString().Count('1');
             var success = full.TryAllOrientations(grid =>
             {
                 var s = grid.ToArray().All().Str();
@@ -220,7 +214,7 @@ namespace AdventOfCode2020.Puzzles
             if (!success) throw new Exception("No sea monsters found.");
             var str = full.ToArray().All().Str();
             var monsters = pattern.Matches(str).Count;
-            var result = str.Count(c => c == '1') - monsters * count;
+            var result = str.Count('1') - monsters * count;
             WriteLn(result);
         }
     }

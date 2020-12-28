@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using AdventToolkit;
 using AdventToolkit.Extensions;
 
@@ -16,27 +13,38 @@ namespace AdventOfCode2020.Puzzles
             Part = 2;
         }
 
+        [Flags]
+        public enum Field
+        {
+            None = 0,
+            Byr = 1,
+            Iyr = 1 << 1,
+            Eyr = 1 << 2,
+            Hgt = 1 << 3,
+            Hcl = 1 << 4,
+            Ecl = 1 << 5,
+            Pid = 1 << 6,
+            Cid = 1 << 7,
+            All = 255
+        }
+
         public bool Valid(string passport)
         {
             var parts = passport.Split(' ');
-            byte valid = 0;
-            foreach (var part in parts)
-            {
-                var strings = part.Split(':');
-                valid = (byte) (valid | strings[0] switch
+            var valid = parts.Select(part => part.Split(':')[0])
+                .Aggregate(Field.None, (current, field) => current | field switch
                 {
-                    "byr" => 1,
-                    "iyr" => 1 << 1,
-                    "eyr" => 1 << 2,
-                    "hgt" => 1 << 3,
-                    "hcl" => 1 << 4,
-                    "ecl" => 1 << 5,
-                    "pid" => 1 << 6,
-                    "cid" => 1 << 7,
-                    _ => 0
+                    "byr" => Field.Byr,
+                    "iyr" => Field.Iyr,
+                    "eyr" => Field.Eyr,
+                    "hgt" => Field.Hgt,
+                    "hcl" => Field.Hcl,
+                    "ecl" => Field.Ecl,
+                    "pid" => Field.Pid,
+                    "cid" => Field.Cid,
+                    _ => Field.None
                 });
-            }
-            return (valid | (1 << 7)) == 255;
+            return (valid | Field.Cid) == Field.All;
         }
 
         public override void PartOne()
@@ -62,61 +70,38 @@ namespace AdventOfCode2020.Puzzles
         public bool Valid2(string passport)
         {
             var parts = passport.Split(' ');
-            byte valid = 0;
+            var valid = Field.None;
             foreach (var part in parts)
             {
                 var strings = part.Split(':');
-                byte p = strings[0] switch
+                var p = strings[0] switch
                 {
-                    "byr" when Range(strings[1], 1920, 2003) => 1,
-                    "iyr" when Range(strings[1], 2010, 2021) => 1 << 1,
-                    "eyr" when Range(strings[1], 2020, 2031) => 1 << 2,
-                    "hgt" when ValidHeight(strings[1]) => 1 << 3,
-                    "hcl" when MatchAll(strings[1], "#[0-9a-fA-F]{6}") => 1 << 4,
-                    "ecl" when "amb blu brn gry grn hzl oth".Contains(strings[1]) => 1 << 5,
-                    "pid" when MatchAll(strings[1], "\\d{9}") => 1 << 6,
-                    "cid" => 1 << 7,
-                    _ => 0
+                    "byr" when InRange(strings[1], 1920, 2003) => Field.Byr,
+                    "iyr" when InRange(strings[1], 2010, 2021) => Field.Iyr,
+                    "eyr" when InRange(strings[1], 2020, 2031) => Field.Eyr,
+                    "hgt" when ValidHeight(strings[1]) => Field.Hgt,
+                    "hcl" when strings[1].Matches("^#[0-9a-fA-F]{6}$") => Field.Hcl,
+                    "ecl" when "amb blu brn gry grn hzl oth".Contains(strings[1]) => Field.Ecl,
+                    "pid" when strings[1].Matches("^\\d{9}$") => Field.Pid,
+                    "cid" => Field.Cid,
+                    _ => Field.None
                 };
-                if (p == 0 && strings[0] != "cid") return false;
+                if (p == Field.None && strings[0] != "cid") return false;
                 valid |= p;
             }
-            return (valid | (1 << 7)) == 255;
-        }
-
-        public bool Valid3(string passport)
-        {
-            var parts = passport.Split(' ');
-            var values = new Dictionary<string, string>();
-            foreach (var part in parts)
-            {
-                var p = part.Split(':');
-                values[p[0]] = p[1];
-            }
-            bool Has(string key, Func<string, bool> valid)
-            {
-                return values.TryGetValue(key, out var value) && valid(value);
-            }
-
-            return Has("byr", s => Range(s, 1920, 2003)) &&
-                   Has("iyr", s => Range(s, 2010, 2021)) &&
-                   Has("eyr", s => Range(s, 2020, 2031)) &&
-                   Has("hgt", ValidHeight) &&
-                   Has("hcl", s => s[0] == '#' && int.TryParse(s[1..], NumberStyles.HexNumber, null, out _)) &&
-                   Has("ecl", s => "amb blu brn gry grn hzl oth".Contains(s)) &&
-                   Has("pid", s => s.Length == 9 && int.TryParse(s, out _));
+            return (valid | Field.Cid) == Field.All;
         }
 
         public bool ValidHeight(string height)
         {
-            if (height.EndsWith("cm")) return Range(height[..^2], 150, 194);
-            if (height.EndsWith("in")) return Range(height[..^2], 59, 77);
+            if (height.EndsWith("cm")) return InRange(height[..^2], 150, 194);
+            if (height.EndsWith("in")) return InRange(height[..^2], 59, 77);
             return false;
         }
 
         public override void PartTwo()
         {
-            WriteLn(Groups.Join(" ").Count(Valid2));
+            WriteLn(Groups.JoinEach(" ").Count(Valid2));
         }
     }
 }
