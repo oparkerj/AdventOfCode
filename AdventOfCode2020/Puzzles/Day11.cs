@@ -1,12 +1,16 @@
-using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities;
 
 namespace AdventOfCode2020.Puzzles
 {
     public class Day11 : Puzzle
     {
+        public const int Floor = 0;
+        public const int Empty = 1;
+        public const int Taken = 2;
+        
         public Day11()
         {
             Part = 2;
@@ -14,107 +18,34 @@ namespace AdventOfCode2020.Puzzles
 
         public int Map(char c)
         {
-            return c == 'L' ? 1 : 0;
+            return c == 'L' ? Empty : Floor;
         }
-
-        public void ReadInput()
-        {
-            var height = Input.Length;
-            var width = Input[0].Length;
-            Seats = new int[width, height];
-            for (var y = 0; y < height; y++)
-            {
-                for (var x = 0; x < width; x++)
-                {
-                    Seats[x, y] = Map(Input[y][x]);
-                }
-            }
-        }
-
-        public int Step()
-        {
-            var c = 0;
-            var next = (int[,]) Seats.Clone();
-            for (var i = 0; i < Seats.GetLength(0); i++)
-            {
-                for (var j = 0; j < Seats.GetLength(1); j++)
-                {
-                    var count = (i, j).Around().Count(p => Seats.GetOrDefault(p) == 2);
-                    if (Seats[i, j] == 1 && count == 0)
-                    {
-                        next[i, j] = 2;
-                        c++;
-                    }
-                    else if (Seats[i, j] == 2 && count >= 4)
-                    {
-                        next[i, j] = 1;
-                        c++;
-                    }
-                }
-            }
-            Seats = next;
-            return c;
-        }
-
-        public int[,] Seats;
 
         public override void PartOne()
         {
-            ReadInput();
-            while (true)
+            var game = new GameOfLife<Pos, int>(Empty, Taken)
+                .WithNeighborFunction(pos => pos.Around())
+                .WithLivingDeadRules(i => i >= 4, i => i == 0);
+            foreach (var (pos, c) in Input.As2D())
             {
-                if (Step() == 0) break;
+                game[pos] = Map(c);
             }
-            WriteLn(Seats.All().Count(i => i == 2));
-        }
-
-        public int Trace((int x, int y) p, (int x, int y) dir)
-        {
-            var (x, y) = p;
-            var (dx, dy) = dir;
-            while (true)
-            {
-                x += dx;
-                y += dy;
-                if (!Seats.Has((x, y))) return 0;
-                if (Seats[x, y] > 0) return Seats[x, y];
-            }
-        }
-
-        public int Step2()
-        {
-            var dirs = (0, 0).Around().ToArray();
-            var c = 0;
-            var next = (int[,]) Seats.Clone();
-            for (var i = 0; i < Seats.GetLength(0); i++)
-            {
-                for (var j = 0; j < Seats.GetLength(1); j++)
-                {
-                    var count = dirs.Count(d => Trace((i, j), d) == 2);
-                    if (Seats[i, j] == 1 && count == 0)
-                    {
-                        next[i, j] = 2;
-                        c++;
-                    }
-                    else if (Seats[i, j] == 2 && count >= 5)
-                    {
-                        next[i, j] = 1;
-                        c++;
-                    }
-                }
-            }
-            Seats = next;
-            return c;
+            game.StepUntil(i => i == 0);
+            WriteLn(game.CountValues(Taken));
         }
 
         public override void PartTwo()
         {
-            ReadInput();
-            while (true)
+            var dirs = (0, 0).Around().ToArray();
+            var game = new GameOfLife<Pos, int>(Empty, Taken);
+            game.WithNeighborFunction(pos => dirs.Select(p => pos.Trace(p, loc => !game.Has(loc) || game[loc] > Floor)))
+                .WithLivingDeadRules(i => i >= 5, i => i == 0);
+            foreach (var (pos, c) in Input.As2D())
             {
-                if (Step2() == 0) break;
+                game[pos] = Map(c);
             }
-            WriteLn(Seats.All().Count(i => i == 2));
+            game.StepUntil(i => i == 0);
+            WriteLn(game.CountValues(Taken));
         }
     }
 }

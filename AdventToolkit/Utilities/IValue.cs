@@ -1,4 +1,4 @@
-namespace AdventToolkit.Data
+namespace AdventToolkit.Utilities
 {
     public interface IContextValue<out T, in TContext>
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit.Extensions;
 
-namespace AdventToolkit.Data
+namespace AdventToolkit.Utilities
 {
     public class StateMachine<TUpdate>
     {

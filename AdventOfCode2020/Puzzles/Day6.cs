@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Extensions;
@@ -14,7 +13,7 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartOne()
         {
-            var sum = Groups.Join().Select(s => s.Distinct().Count()).Sum();
+            var sum = Groups.JoinEach().Select(s => s.Distinct().Count()).Sum();
             WriteLn(sum);
         }
 

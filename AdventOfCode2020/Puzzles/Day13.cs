@@ -15,9 +15,9 @@ namespace AdventOfCode2020.Puzzles
         public override void PartOne()
         {
             var time = int.Parse(Input[0]);
-            var id = Input[1].Split(',')
+            var id = Input[1].Csv()
                 .Where(s => s != "x")
-                .Select(int.Parse)
+                .Ints()
                 .Select(i => (i, i - time % i))
                 .OrderBy(tuple => tuple.Item2)
                 .Select(tuple => tuple.i * tuple.Item2)
@@ -28,7 +28,7 @@ namespace AdventOfCode2020.Puzzles
         public override void PartTwo()
         {
             var busses = new List<(int id, int i)>();
-            var schedule = Input[1].Split(',').ToArray();
+            var schedule = Input[1].Csv().ToArray();
             for (var i = 0; i < schedule.Length; i++)
             {
                 if (schedule[i] == "x") continue;

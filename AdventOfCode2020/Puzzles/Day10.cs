@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using AdventToolkit;
+using AdventToolkit.Extensions;
 
 namespace AdventOfCode2020.Puzzles
 {
@@ -15,7 +14,7 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartOne()
         {
-            var adapters = Input.Select(int.Parse).ToList();
+            var adapters = Input.Ints().ToList();
             adapters.Sort();
             var diff = new int[3];
             var current = 0;
@@ -25,13 +24,13 @@ namespace AdventOfCode2020.Puzzles
                 diff[d - 1]++;
                 current = adapter;
             }
-            diff[2]++;
+            diff[2]++; // Add one for your own device
             WriteLn(diff[0] * diff[2]);
         }
 
         public override void PartTwo()
         {
-            var adapters = Input.Select(int.Parse).ToList();
+            var adapters = Input.Ints().ToList();
             var arr = adapters.Append(adapters.Max() + 3).Prepend(0).OrderBy(i => i).ToArray();
             var path = new Dictionary<int, long> {[0] = 1};
             foreach (var i in arr.Skip(1))

@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using RegExtract;
+using System.Text.RegularExpressions;
 
 namespace AdventToolkit.Extensions
 {
     public static class Data
     {
-        public static IEnumerable<string> Join(this IEnumerable<string[]> ie, string sep = null)
+        public static IEnumerable<string> JoinEach(this IEnumerable<string[]> ie, string sep = null)
         {
             if (sep == null) return ie.Select(strings => string.Concat(strings));
             return ie.Select(strings => string.Join(sep, strings));
@@ -56,6 +56,11 @@ namespace AdventToolkit.Extensions
         public static IEnumerable<T> Get<T>(this T[] t, IEnumerable<int> indices)
         {
             return indices.Select(i => t[i]);
+        }
+
+        public static IEnumerable<T> GetFrom<T>(this IEnumerable<int> indices, T[] t)
+        {
+            return t.Get(indices);
         }
 
         public static void Swap<T>(this T[] arr, int a, int b)
@@ -128,6 +133,26 @@ namespace AdventToolkit.Extensions
             var c = s.ToCharArray();
             Array.Reverse(c);
             return new string(c);
+        }
+
+        public static int Count(this IEnumerable<char> s, char c)
+        {
+            return s.Count(ch => ch == c);
+        }
+
+        public static int CountValues<T, TV>(this IEnumerable<KeyValuePair<T, TV>> pairs, TV value)
+        {
+            return pairs.Count(pair => Equals(pair.Value, value));
+        }
+        
+        public static int CountValues<T, TV>(this IEnumerable<KeyValuePair<T, TV>> pairs, Func<TV, bool> func)
+        {
+            return pairs.Count(pair => func(pair.Value));
+        }
+        
+        public static bool Matches(this string s, string regex)
+        {
+            return Regex.IsMatch(s, regex);
         }
     }
 }

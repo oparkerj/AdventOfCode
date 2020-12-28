@@ -8,8 +8,7 @@ namespace AdventOfCode2020.Puzzles
 {
     public class Day16 : Puzzle
     {
-
-        public string[][] Groups;
+        public new string[][] Groups;
         public Dictionary<string, (int, int)[]> Rules = new();
 
         public Day16()

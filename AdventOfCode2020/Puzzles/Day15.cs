@@ -7,12 +7,11 @@ namespace AdventOfCode2020.Puzzles
 {
     public class Day15 : Puzzle
     {
-        
         public int[] Start;
 
         public Day15()
         {
-            Start = Input[0].Split(',').Ints().ToArray();
+            Start = Input[0].Csv().Ints().ToArray();
             Part = 1;
         }
 
@@ -41,13 +40,13 @@ namespace AdventOfCode2020.Puzzles
         public override void PartOne()
         {
             var find = 2020;
-            WriteLn(Sequence().Skip(find - 1).First());
+            WriteLn(Sequence().ElementAt(find - 1));
         }
 
         public override void PartTwo()
         {
-            var find = 30000000;
-            WriteLn(Sequence().Skip(find - 1).First());
+            var find = 30_000_000;
+            WriteLn(Sequence().ElementAt(find - 1));
         }
     }
 }

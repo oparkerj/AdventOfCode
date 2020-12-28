@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AdventToolkit.Data
+namespace AdventToolkit.Utilities
 {
     public class Grid<T> : IEnumerable<KeyValuePair<(int x, int y), T>>
     {

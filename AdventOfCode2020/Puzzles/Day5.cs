@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
 
@@ -33,6 +32,7 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartTwo()
         {
+            // Find the missing id in the given min/max range
             var total = 0;
             var min = int.MaxValue;
             var max = 0;
@@ -42,6 +42,8 @@ namespace AdventOfCode2020.Puzzles
                 if (i < min) min = i;
                 if (i > max) max = i;
             }
+            // Result is sum of values that should exist minus
+            // sum of values that actually exist
             WriteLn((max - min + 1) * (min + max) / 2 - total);
         }
     }
