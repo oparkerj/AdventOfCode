@@ -23,12 +23,7 @@ namespace AdventOfCode2020.Puzzles
             foreach (var group in Groups)
             {
                 var id = int.Parse(group[0][5..^1]);
-                var grid = new Grid<bool>();
-                foreach (var ((x, y), c) in group.Skip(1).As2D())
-                {
-                    grid[x, -y] = c == '#';
-                }
-                Tiles[id] = grid;
+                Tiles[id] = group.Skip(1).Select2D(c => c == '#').ToGrid();
             }
         }
 
