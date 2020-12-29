@@ -57,6 +57,11 @@ namespace AdventToolkit.Extensions
         {
             return t.Has(p) ? t[p.X, p.Y] : def;
         }
+
+        public static IEnumerable<IEnumerable<TO>> Select2D<TI, TO>(this IEnumerable<IEnumerable<TI>> ie, Func<TI, TO> func)
+        {
+            return ie.Select(items => items.Select(func));
+        }
         
         public static IEnumerable<Pos> Adjacent(this Pos p, bool yUp = false)
         {
@@ -154,6 +159,24 @@ namespace AdventToolkit.Extensions
                 }
                 y++;
             }
+        }
+
+        public static Grid<T> ToGrid<T>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
+        {
+            var grid = new Grid<T>();
+            var y = 0;
+            foreach (var row in source)
+            {
+                var x = 0;
+                foreach (var t in row)
+                {
+                    grid[x, y] = t;
+                    x++;
+                }
+                if (decreaseY) y--;
+                else y++;
+            }
+            return grid;
         }
 
         public static Pos Trace(this Pos start, Pos dir, Func<(int x, int y), bool> func)
