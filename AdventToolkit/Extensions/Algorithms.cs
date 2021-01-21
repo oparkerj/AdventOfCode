@@ -60,24 +60,19 @@ namespace AdventToolkit.Extensions
             while (i[0] < ints.Length - n + 1)
             {
                 if (ints.Get(i).Sum() == target) return i;
-                for (var j = n - 1; j >= 0; j--)
+                var j = n - 1;
+                i[j]++;
+                if (i[j] < ints.Length - (n - 1 - j)) continue;
+                var k = j;
+                while (true)
                 {
-                    i[j]++;
-                    if (i[j] >= ints.Length - (n - 1 - j))
+                    k--;
+                    if (k < 0) return null;
+                    if (i[k] >= ints.Length - (n - k)) continue;
+                    var v = ++i[k];
+                    for (var m = 1; m < j - k + 1; m++)
                     {
-                        var k = j;
-                        while (true)
-                        {
-                            k--;
-                            if (k < 0) return null;
-                            if (i[k] >= ints.Length - (n - k)) continue;
-                            var v = ++i[k];
-                            for (var m = 1; m < j - k + 1; m++)
-                            {
-                                i[k + m] = v + m;
-                            }
-                            break;
-                        }
+                        i[k + m] = v + m;
                     }
                     break;
                 }
