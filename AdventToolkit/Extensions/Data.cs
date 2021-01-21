@@ -154,5 +154,16 @@ namespace AdventToolkit.Extensions
         {
             return Regex.IsMatch(s, regex);
         }
+
+        public static IEnumerable<T> EnumerateSingle<T>(this T t)
+        {
+            yield return t;
+        }
+
+        public static TV GetOrSetValue<T, TV>(this Dictionary<T, TV> dict, T key, Func<TV> func)
+        {
+            if (dict.TryGetValue(key, out var value)) return value;
+            return dict[key] = func();
+        }
     }
 }
