@@ -165,5 +165,23 @@ namespace AdventToolkit.Extensions
             if (dict.TryGetValue(key, out var value)) return value;
             return dict[key] = func();
         }
+
+        public static IEnumerable<(TA, TB)[]> Split<TA, TB>(this (TA, TB)[] pairs, TA a, TB b, bool purgeEmpty = true)
+        {
+            var last = 0;
+            for (var i = 0; i < pairs.Length; i++)
+            {
+                var (pa, pb) = pairs[i];
+                if (pa.Equals(a) && pb.Equals(b))
+                {
+                    if (i > last || !purgeEmpty)
+                    {
+                        yield return pairs[last..i];
+                    }
+                    last = i + 1;
+                }
+            }
+            if (last < pairs.Length) yield return pairs[last..];
+        }
     }
 }
