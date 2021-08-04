@@ -4,58 +4,58 @@ using System.Text;
 
 namespace AdventToolkit.Extensions
 {
+    public enum TokenType
+    {
+        None,
+        Number,
+        Word,
+        Symbol,
+        Whitespace,
+    }
+
     public static class Tokens
     {
-        public enum Type
-        {
-            None,
-            Number,
-            Word,
-            Symbol,
-            Whitespace,
-        }
-
-        private static Type TypeOf(char c)
+        private static TokenType TypeOf(char c)
         {
             return c switch
             {
-                { } when char.IsDigit(c) => Type.Number,
-                { } when char.IsLetter(c) => Type.Word,
-                { } when char.IsWhiteSpace(c) => Type.Whitespace,
-                _ => Type.Symbol
+                { } when char.IsDigit(c) => TokenType.Number,
+                { } when char.IsLetter(c) => TokenType.Word,
+                { } when char.IsWhiteSpace(c) => TokenType.Whitespace,
+                _ => TokenType.Symbol
             };
         }
 
         public static IEnumerable<string> TokenSplit(this string s)
         {
-            return Tokenize(s).Select(tuple => tuple.Item1);
+            return Tokenize(s).Select(tuple => tuple.token);
         }
         
-        public static IEnumerable<(string, Type)> Tokenize(this string s)
+        public static IEnumerable<(string token, TokenType type)> Tokenize(this string s)
         {
             var b = new StringBuilder();
-            var type = Type.None;
+            var type = TokenType.None;
             foreach (var c in s)
             {
                 var t = TypeOf(c);
-                if (t == Type.Whitespace)
+                if (t == TokenType.Whitespace)
                 {
                     if (b.Length > 0) yield return (b.ToString(), type);
                     b.Length = 0;
-                    type = Type.None;
+                    type = TokenType.None;
                     continue;
                 }
-                if (type == Type.None)
+                if (type == TokenType.None)
                 {
                     type = t;
                     b.Append(c);
                     continue;
                 }
-                if (type == Type.Number && t == Type.Symbol && c == '.')
+                if (type == TokenType.Number && t == TokenType.Symbol && c == '.')
                 {
-                    t = Type.Number;
+                    t = TokenType.Number;
                 }
-                if (type == t && type != Type.Symbol)
+                if (type == t && type != TokenType.Symbol)
                 {
                     b.Append(c);
                     continue;
