@@ -108,6 +108,30 @@ namespace AdventToolkit.Extensions
             return -1;
         }
 
+        public static IEnumerable<int> IndicesOf(this string s, char c)
+        {
+            var i = 0;
+            while (true)
+            {
+                i = s.IndexOf(c, i);
+                if (i < 0) yield break;
+                yield return i;
+                i++;
+            }
+        }
+        
+        public static IEnumerable<int> IndicesOf(this string s, string sub, bool overlap = false)
+        {
+            var i = 0;
+            while (true)
+            {
+                i = s.IndexOf(sub, i, StringComparison.Ordinal);
+                if (i < 0) yield break;
+                yield return i;
+                i += overlap ? 1 : sub.Length;
+            }
+        }
+
         public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> ie)
         {
             return ie.SelectMany(e => e);

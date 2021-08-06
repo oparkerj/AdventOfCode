@@ -83,76 +83,16 @@ namespace AdventOfCode2020.Puzzles
 
         public IEnumerable<string> Permutations(string mask)
         {
-            // TODO make custom permutation function
-            var pos = mask.Select((c, i) => i).Where(i => mask[i] == 'X').ToArray();
-            foreach (var seq in printSequences(2, pos.Length))
+            var variables = mask.IndicesOf('X').ToArray();
+            var str = mask.ToCharArray();
+            foreach (var combination in Algorithms.Sequences(variables.Length, 2, true))
             {
-                var s = seq.Select(i => i - 1).ToArray();
-                var values = pos.Select((i, ind) => (i, s[ind])).ToArray();
-                var str = mask.Select((c, i) => pos.Contains(i) ? values.First(tuple => tuple.i == i).Item2.ToString()[0] : c).Str();
-                yield return str;
+                for (var i = 0; i < variables.Length; i++)
+                {
+                    str[variables[i]] = combination[i].ToString()[0];
+                }
+                yield return new string(str);
             }
         }
-
-        static int getSuccessor(int[] arr, int k, int n)  
-        { 
-            /* start from the rightmost side and 
-            find the first number less than n */
-            int p = k - 1; 
-            while (arr[p] == n) 
-            { 
-                p--; 
-                if (p < 0) 
-                { 
-                    break; 
-                } 
-            } 
-  
-            /* If all numbers are n in the array 
-            then there is no successor, return 0 */
-            if (p < 0) 
-            { 
-                return 0; 
-            } 
-  
-            /* Update []arr so that it contains successor */
-            arr[p] = arr[p] + 1; 
-            for (int i = p + 1; i < k; i++)  
-            {
-                arr[i] = 1;
-            }
-            return 1; 
-        } 
-  
-        /* The main function that prints all 
-        sequences from 1, 1, ..1 to n, n, ..n */
-        static IEnumerable<int[]> printSequences(int n, int k)  
-        { 
-            int[] arr = new int[k]; 
-  
-            /* Initialize the current sequence as  
-            the first sequence to be printed */
-            for (int i = 0; i < k; i++)  
-            { 
-                arr[i] = 1; 
-            } 
-  
-            /* The loop breaks when there are  
-            no more successors to be printed */
-            while (true)  
-            { 
-                /* Print the current sequence */
-                yield return arr;
-  
-                /* Update []arr so that it contains  
-                next sequence to be printed. And if 
-                there are no more sequences then 
-                break the loop */
-                if (getSuccessor(arr, k, n) == 0) 
-                { 
-                    break; 
-                } 
-            } 
-        } 
     }
 }
