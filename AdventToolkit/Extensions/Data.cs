@@ -184,5 +184,15 @@ namespace AdventToolkit.Extensions
             }
             if (last < pairs.Length) yield return pairs[last..];
         }
+
+        public static IEnumerable<T[]> MakeUnique<T>(this IEnumerable<T[]> arr)
+        {
+            foreach (var a in arr)
+            {
+                var copy = new T[a.Length];
+                Array.Copy(a, copy, copy.Length);
+                yield return copy;
+            }
+        }
     }
 }

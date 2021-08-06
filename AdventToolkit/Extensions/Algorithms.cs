@@ -92,28 +92,8 @@ namespace AdventToolkit.Extensions
         /// <returns>Indices of N integers that sum to the target value.</returns>
         public static int[] NSum(this int[] ints, int n, int target)
         {
-            var i = Enumerable.Range(0, n).ToArray();
-            while (i[0] < ints.Length - n + 1)
-            {
-                if (ints.Get(i).Sum() == target) return i;
-                var j = n - 1;
-                i[j]++;
-                if (i[j] < ints.Length - (n - 1 - j)) continue;
-                var k = j;
-                while (true)
-                {
-                    k--;
-                    if (k < 0) return null;
-                    if (i[k] >= ints.Length - (n - k)) continue;
-                    var v = ++i[k];
-                    for (var m = 1; m < j - k + 1; m++)
-                    {
-                        i[k + m] = v + m;
-                    }
-                    break;
-                }
-            }
-            return null;
+            return SequencesIncreasing(n, ints.Length, true)
+                .FirstOrDefault(indices => ints.Get(indices).Sum() == target);
         }
 
         // Narrow a set of possibilities using options that only have one possible outcome
@@ -141,6 +121,60 @@ namespace AdventToolkit.Extensions
                 if (hit(pos)) break;
             }
             return pos;
+        }
+
+        // Returns all sequences of a given length from {1,1,...,1} to {n,n,...,n}
+        // The array yielded by this method is the same array each time.
+        // index = true makes the sequence start from 0 and n is exclusive
+        public static IEnumerable<int[]> Sequences(int length, int n, bool index = false)
+        {
+            if (n < (index ? 0 : 1)) yield break;
+            var arr = new int[length];
+            Array.Fill(arr, index ? 0 : 1);
+            Main:
+            yield return arr;
+            for (var i = 0; i < arr.Length; i++)
+            {
+                if (arr[i] == (index ? n - 1 : n)) arr[i] = index ? 0 : 1;
+                else
+                {
+                    arr[i]++;
+                    goto Main;
+                }
+            }
+        }
+
+        // Generates all sequences of a given length
+        // from {1, 2, 3, ..., length} to {..., n - 2, n - 1, n}
+        // The array yielded by this method is the same array each time.
+        // index = true makes the sequence start from 0 and n is exclusive
+        public static IEnumerable<int[]> SequencesIncreasing(int length, int n, bool index = false)
+        {
+            if (n < (index ? length - 1 : length)) yield break;
+            var arr = Enumerable.Range(index ? 0 : 1, length).ToArray();
+            while (true)
+            {
+                yield return arr;
+                // Increase last
+                var i = length - 1;
+                arr[i]++;
+                if (arr[i] <= (index ? n - 1 : n)) continue;
+                // On overflow, find next index from end to increase
+                var j = i;
+                do
+                {
+                    j--;
+                    if (j < 0) yield break;
+                }
+                while (arr[j] >= (index ? n - 1 : n) - (length - j - 1));
+                // Increment current index and set indexes
+                // after to increasing numbers.
+                var v = ++arr[j];
+                for (var m = 1; m < length - j; m++)
+                {
+                    arr[j + m] = v + m;
+                }
+            }
         }
     }
 }
