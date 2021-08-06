@@ -15,7 +15,7 @@ namespace AdventToolkit.Extensions
                 {
                     for (var i = 0; i < arr.GetLength(0); i++)
                     {
-                        yield return (i, j);
+                        yield return new Pos(i, j);
                     }
                 }
             }
@@ -25,7 +25,7 @@ namespace AdventToolkit.Extensions
                 {
                     for (var i = 0; i < arr.GetLength(0); i++)
                     {
-                        yield return (i, j);
+                        yield return new Pos(i, j);
                     }
                 }
             }
@@ -38,7 +38,8 @@ namespace AdventToolkit.Extensions
         
         public static IEnumerable<TU> All<T, TU>(this T[,] t, Func<T, TU> func, bool yInvert = false)
         {
-            return t.Indices(yInvert).Select(pos => func(t.Get(pos)));
+            return t.All(yInvert).Select(func);
+            // return t.Indices(yInvert).Select(pos => func(t.Get(pos)));
         }
 
         public static bool Has<T>(this T[,] t, Pos p)
@@ -101,21 +102,6 @@ namespace AdventToolkit.Extensions
             return Around((Pos) p);
         }
 
-        public static int MDist(this (int x, int y) p, (int x, int y) other)
-        {
-            return Math.Abs(p.x - other.x) + Math.Abs(p.y - other.y);
-        }
-
-        public static Pos Clockwise(this (int x, int y) p, Pos center = default)
-        {
-            return (p.y - center.Y + center.X, center.X - p.x + center.Y);
-        }
-        
-        public static Pos CounterClockwise(this (int x, int y) p, Pos center = default)
-        {
-            return (center.Y - p.y + center.X, p.x - center.X + center.Y);
-        }
-
         public static bool Contains(this (int a, int b) range, int i, bool inclusive = false)
         {
             if (inclusive) return i >= range.a && i <= range.b;
@@ -146,7 +132,7 @@ namespace AdventToolkit.Extensions
             }
         }
 
-        public static IEnumerable<((int x, int y) Pos, char Char)> As2D(this IEnumerable<IEnumerable<char>> source)
+        public static IEnumerable<(Pos Pos, char Char)> As2D(this IEnumerable<IEnumerable<char>> source)
         {
             var y = 0;
             foreach (var row in source)
@@ -154,7 +140,7 @@ namespace AdventToolkit.Extensions
                 var x = 0;
                 foreach (var c in row)
                 {
-                    yield return ((x, y), c);
+                    yield return (new Pos(x, y), c);
                     x++;
                 }
                 y++;
@@ -179,22 +165,17 @@ namespace AdventToolkit.Extensions
             return grid;
         }
 
-        public static Pos Trace(this Pos start, Pos dir, Func<(int x, int y), bool> func)
-        {
-            var (x, y) = start;
-            var (dx, dy) = dir;
-            while (true)
-            {
-                x += dx;
-                y += dy;
-                if (func((x, y))) break;
-            }
-            return (x, y);
-        }
-
-        public static (int x, int y) Trace(this (int x, int y) start, (int x, int y) dir, Func<(int x, int y), bool> func)
-        {
-            return ((Pos) start).Trace(dir, func);
-        }
+        // public static Pos Trace(this Pos start, Pos dir, Func<Pos, bool> func)
+        // {
+        //     var (x, y) = start;
+        //     var (dx, dy) = dir;
+        //     while (true)
+        //     {
+        //         x += dx;
+        //         y += dy;
+        //         if (func(new Pos(x, y))) break;
+        //     }
+        //     return new Pos(x, y);
+        // }
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Utilities
@@ -81,11 +80,12 @@ namespace AdventToolkit.Utilities
             return _locations.ContainsKey(loc);
         }
 
-        public void Step(int times)
+        public void Step(int count)
         {
-            times.Times(() => Step());
+            count.Times(Step);
         }
 
+        // Step the game once and return the number of cells that changed states
         public int Step()
         {
             var c = 0;
@@ -124,6 +124,7 @@ namespace AdventToolkit.Utilities
             return c;
         }
 
+        // Step until the number of cells changed passes the predicate
         public void StepUntil(Func<int, bool> func)
         {
             var last = 0;
@@ -141,21 +142,5 @@ namespace AdventToolkit.Utilities
         public GameOfLife(bool dead, bool alive) : base(dead, alive) { }
     }
 
-    public static class GameOfLifeExtensions
-    {
-        public static int CountActive<T>(this GameOfLife<T, bool> game)
-        {
-            return game.Count(pair => pair.Value);
-        }
-        
-        public static Grid<T> ToGrid<T>(this GameOfLife<Pos, T> game)
-        {
-            var grid = new Grid<T>();
-            foreach (var (pos, value) in game)
-            {
-                grid[pos] = value;
-            }
-            return grid;
-        }
-    }
+    
 }

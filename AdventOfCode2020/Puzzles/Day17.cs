@@ -15,7 +15,7 @@ namespace AdventOfCode2020.Puzzles
         {
             var game = new GameOfLife<(int, int, int)>()
                 .WithNeighborFunction(pos => pos.Around())
-                .WithLivingDeadRules(i => i < 2 || i > 3, i => i == 3)
+                .WithLivingDeadRules(i => i is < 2 or > 3, i => i == 3)
                 .WithExpansion()
                 .WithKeepDead(false);
             foreach (var ((x, y), c) in Input.As2D())
@@ -30,12 +30,12 @@ namespace AdventOfCode2020.Puzzles
         {
             var game = new GameOfLife<(int, int, int, int)>()
                 .WithNeighborFunction(pos => pos.Around())
-                .WithLivingDeadRules(i => i < 2 || i > 3, i => i == 3)
+                .WithLivingDeadRules(i => i is < 2 or > 3, i => i == 3)
                 .WithExpansion()
                 .WithKeepDead(false);
             foreach (var ((x, y), c) in Input.As2D())
             {
-                game[(x, y, 0, 0)] = c == '#';
+                game[(x, y, 0, 0)] = (c == '#');
             }
             game.Step(6);
             WriteLn(game.CountActive());
