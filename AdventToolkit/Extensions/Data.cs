@@ -34,6 +34,7 @@ namespace AdventToolkit.Extensions
             return strings.Select(int.Parse);
         }
 
+        // Repeatedly apply a function to a value
         public static T Repeat<T>(this T t, Func<T, T> func, int amount)
         {
             for (var i = 0; i < amount; i++)

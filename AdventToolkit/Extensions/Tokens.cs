@@ -31,6 +31,11 @@ namespace AdventToolkit.Extensions
             return Tokenize(s).Select(tuple => tuple.token);
         }
         
+        // Separate a string into tokens.
+        // The tokens consist of:
+        // Words: start with a letter and contain letters, numbers, and underscores.
+        // Numbers: contain numbers and periods.
+        // Symbol: any single character that doesn't fit into the other categories.
         public static IEnumerable<(string token, TokenType type)> Tokenize(this string s)
         {
             var b = new StringBuilder();
@@ -56,6 +61,12 @@ namespace AdventToolkit.Extensions
                     t = TokenType.Number;
                 }
                 if (type == t && type != TokenType.Symbol)
+                {
+                    b.Append(c);
+                    continue;
+                }
+                // Allow words to be alphanumeric
+                if (type == TokenType.Word && (t == TokenType.Number || c == '_'))
                 {
                     b.Append(c);
                     continue;

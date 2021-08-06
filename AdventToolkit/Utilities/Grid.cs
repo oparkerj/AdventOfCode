@@ -1,15 +1,23 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Utilities
 {
-    public class Grid<T> : IEnumerable<KeyValuePair<(int x, int y), T>>
+    public class Grid<T> : AlignedSpace<Pos, T>
     {
-        public readonly Dictionary<(int x, int y), T> Data = new();
         private Rect _bounds;
-        public T Default = default; // default value is configurable
+        private bool _includeCorners;
+
+        public Grid(bool includeCorners = false)
+        {
+            _includeCorners = includeCorners;
+        }
+
+        public static Func<Pos, IEnumerable<Pos>> Adjacent() => pos => pos.Adjacent();
+
+        public static Func<Pos, IEnumerable<Pos>> Around() => pos => pos.Around();
 
         public Rect Bounds
         {
@@ -17,50 +25,25 @@ namespace AdventToolkit.Utilities
             set => _bounds = value;
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public T this[Pos p, bool fitBounds = true]
         {
-            return GetEnumerator();
-        }
-
-        public IEnumerator<KeyValuePair<(int x, int y), T>> GetEnumerator()
-        {
-            return Data.GetEnumerator();
-        }
-
-        public T this[(int x, int y) p, bool fitBounds = true]
-        {
-            get => Data.TryGetValue(p, out var t) ? t : Default;
+            get => base[p];
             set
             {
                 if (fitBounds) Bounds.Fit(p);
-                Data[p] = value;
+                base[p] = value;
             }
         }
 
         public T this[int x, int y]
         {
-            get => this[(x, y)];
-            set => this[(x, y)] = value;
+            get => this[new Pos(x, y)];
+            set => this[new Pos(x, y)] = value;
         }
 
-        public bool Remove((int x, int y) p)
+        public override IEnumerable<Pos> GetNeighbors(Pos pos)
         {
-            return Data.Remove(p);
-        }
-
-        public void Clear()
-        {
-            Data.Clear();
-        }
-
-        public bool ContainsValue(T value)
-        {
-            return Data.ContainsValue(value);
-        }
-
-        public (int dx, int dy) GetOffset((int x, int y) p)
-        {
-            return (p.x - Bounds.MinX, p.y - Bounds.MinY);
+            return _includeCorners ? pos.Around() : pos.Adjacent();
         }
 
         public IEnumerable<T> GetSide(Side side)
@@ -101,44 +84,25 @@ namespace AdventToolkit.Utilities
             }
         }
 
+        // Re-align bounding box
         public void ResetBounds()
         {
             Bounds.Initialized = false;
-            foreach (var pos in Data.Keys)
+            foreach (var pos in Points.Keys)
             {
                 Bounds.Fit(pos);
             }
         }
 
-        public void ForEach(Action<int, int, T> action, GridFilter<T> filter = null)
+        public SpaceExtensions.SpaceFilter<Pos, T> ToIndexFilter(Array array, bool yUp = true)
         {
-            ForEach(action, filter, arg => arg);
-        }
-
-        public void ForEach<TO>(Action<int, int, TO> action, GridFilter<T> filter = null, Func<T, TO> func = null)
-        {
-            func ??= _ => default;
-            for (var j = Bounds.MinY; j <= Bounds.MaxY; j++)
+            return (ref Pos pos, ref T _) =>
             {
-                for (var i = Bounds.MinX; i <= Bounds.MaxX; i++)
-                {
-                    var value = Data[(i, j)];
-                    var (x, y) = (i, j);
-                    var t = value;
-                    filter?.Invoke(ref x, ref y, ref t);
-                    var o = func(t);
-                    action(x, y, o);
-                }
-            }
-        }
-
-        public GridFilter<T> ToIndexFilter(Array array, bool yUp = true)
-        {
-            return (ref int x, ref int y, ref T _) =>
-            {
+                var (x, y) = pos;
                 x -= Bounds.MinX;
                 if (yUp) y = array.GetLength(1) - 1 - (y - Bounds.MinY);
                 else y -= Bounds.MinY;
+                pos = new Pos(x, y);
             };
         }
 
@@ -150,19 +114,14 @@ namespace AdventToolkit.Utilities
 
         public T[,] ToArray(T[,] arr, bool yUp = true)
         {
-            ForEach((x, y, t) => arr[x, y] = t, ToIndexFilter(arr, yUp));
+            foreach (var ((x, y), val) in this.Select(ToIndexFilter(arr, yUp)))
+            {
+                arr[x, y] = val;
+            }
             return arr;
         }
-
-        public void ToArray<TO>(TO[,] arr, Func<T, TO> func, bool yUp = true)
-        {
-            ForEach((x, y, o) => arr[x, y] = o, ToIndexFilter(arr, yUp), func);
-        }
-
     }
 
-    public delegate void GridFilter<T>(ref int x, ref int y, ref T t);
-    
     public enum Side
     {
         Top,

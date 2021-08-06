@@ -22,12 +22,12 @@ namespace AdventToolkit.Utilities
             MaxY = maxY;
         }
 
-        public Rect((int x, int y) a, (int x, int y) b)
+        public Rect(Pos a, Pos b)
         {
-            MinX = Math.Min(a.x, b.x);
-            MinY = Math.Min(a.y, b.y);
-            MaxX = Math.Max(a.x, b.x);
-            MaxY = Math.Max(a.y, b.y);
+            MinX = Math.Min(a.X, b.X);
+            MinY = Math.Min(a.Y, b.Y);
+            MaxX = Math.Max(a.X, b.X);
+            MaxY = Math.Max(a.Y, b.Y);
         }
 
         public Rect(int maxX, int maxY)
@@ -45,6 +45,12 @@ namespace AdventToolkit.Utilities
             maxX = MaxX;
             maxY = MaxY;
         }
+
+        public void Deconstruct(out Pos min, out Pos max)
+        {
+            min = Min;
+            max = Max;
+        }
         
         public int Width => MaxX - MinX + 1;
 
@@ -54,25 +60,29 @@ namespace AdventToolkit.Utilities
 
         public double MidY => (MinY + MaxY) / 2d;
 
+        public Pos Min => new(MinX, MinY);
+
+        public Pos Max => new(MaxX, MaxY);
+
         public (double x, double y) Mid => (MidX, MidY);
 
-        public Rect Fit((int x, int y) p)
+        public Rect Fit(Pos p)
         {
             var set = !Initialized;
-            if (p.x < MinX || set) MinX = p.x;
-            if (p.x > MaxX || set) MaxX = p.x;
-            if (p.y < MinY || set) MinY = p.y;
-            if (p.y > MaxY || set) MaxY = p.y;
+            if (p.X < MinX || set) MinX = p.X;
+            if (p.X > MaxX || set) MaxX = p.X;
+            if (p.Y < MinY || set) MinY = p.Y;
+            if (p.Y > MaxY || set) MaxY = p.Y;
             Initialized = true;
             return this;
         }
 
-        public IEnumerable<(int x, int y)> Corners()
+        public IEnumerable<Pos> Corners()
         {
-            yield return (MinX, MinY);
-            yield return (MaxX, MinY);
-            yield return (MaxX, MaxY);
-            yield return (MinX, MaxY);
+            yield return new Pos(MinX, MinY);
+            yield return new Pos(MaxX, MinY);
+            yield return new Pos(MaxX, MaxY);
+            yield return new Pos(MinX, MaxY);
         }
         
     }

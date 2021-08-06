@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Extensions;
 
 namespace AdventOfCode2020.Puzzles
 {
@@ -33,18 +34,10 @@ namespace AdventOfCode2020.Puzzles
         public override void PartTwo()
         {
             // Find the missing id in the given min/max range
-            var total = 0;
-            var min = int.MaxValue;
-            var max = 0;
-            foreach (var i in Input.Select(ToInt).Select(GetId))
-            {
-                total += i;
-                if (i < min) min = i;
-                if (i > max) max = i;
-            }
+            var total = Input.Select(ToInt).Select(GetId).Sum(out var min, out var max);
             // Result is sum of values that should exist minus
             // sum of values that actually exist
-            WriteLn((max - min + 1) * (min + max) / 2 - total);
+            WriteLn(Algorithms.SumRange(min, max) - total);
         }
     }
 }

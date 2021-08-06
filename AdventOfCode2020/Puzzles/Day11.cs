@@ -24,7 +24,7 @@ namespace AdventOfCode2020.Puzzles
         public override void PartOne()
         {
             var game = new GameOfLife<Pos, int>(Empty, Taken)
-                .WithNeighborFunction(pos => pos.Around())
+                .WithNeighborFunction(Grid<int>.Around())
                 .WithLivingDeadRules(i => i >= 4, i => i == 0);
             foreach (var (pos, c) in Input.As2D())
             {
@@ -36,9 +36,9 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartTwo()
         {
-            var dirs = (0, 0).Around().ToArray();
+            Pos[] dirs = (0, 0).Around().ToArray();
             var game = new GameOfLife<Pos, int>(Empty, Taken);
-            game.WithNeighborFunction(pos => dirs.Select(p => pos.Trace(p, loc => !game.Has(loc) || game[loc] > Floor)))
+            game.WithNeighborFunction(pos => dirs.ToTrace(pos, game, (_, i) => i > Floor))
                 .WithLivingDeadRules(i => i >= 5, i => i == 0);
             foreach (var (pos, c) in Input.As2D())
             {

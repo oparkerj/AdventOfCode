@@ -34,7 +34,7 @@ namespace AdventOfCode2020.Puzzles
                 else if (a == 'R') dir = (dir + v / 90) % Dirs.Length;
                 else if (a == 'F') at += Dirs[dir] * v;
             }
-            WriteLn((0, 0).MDist(at));
+            WriteLn(Pos.Origin.MDist(at));
         }
 
         public override void PartTwo()
@@ -53,7 +53,7 @@ namespace AdventOfCode2020.Puzzles
                 else if (a == 'R') point = point.Repeat(p => p.Clockwise(), v / 90);
                 else if (a == 'F') at += point * v;
             }
-            WriteLn((0, 0).MDist(at));
+            WriteLn(Pos.Origin.MDist(at));
         }
     }
 }

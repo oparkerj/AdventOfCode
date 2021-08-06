@@ -5,7 +5,7 @@ namespace AdventToolkit.Utilities
 {
     public interface ITransformer<T, TC>
     {
-        (int x, int y) Transform((int x, int y) p, TC context);
+        Pos Transform(Pos p, TC context);
 
         void PostTransform(TC context);
     }
@@ -57,20 +57,20 @@ namespace AdventToolkit.Utilities
 
     public class SimpleGridTransformer<T> : ITransformer<T, Grid<T>>
     {
-        public readonly Func<Grid<T>, (int x, int y), (int x, int y)> Transformer;
+        public readonly Func<Grid<T>, Pos, Pos> Transformer;
         public readonly Action<Grid<T>> PostTransformer;
 
-        public SimpleGridTransformer(Func<Grid<T>, (int x, int y), (int x, int y)> transformer, Action<Grid<T>> postTransformer = null)
+        public SimpleGridTransformer(Func<Grid<T>, Pos, Pos> transformer, Action<Grid<T>> postTransformer = null)
         {
             Transformer = transformer;
             PostTransformer = postTransformer;
         }
 
-        public (int x, int y) Transform((int x, int y) p, Grid<T> grid) => Transformer(grid, p);
+        public Pos Transform(Pos p, Grid<T> grid) => Transformer(grid, p);
 
         public void PostTransform(Grid<T> grid) => PostTransformer?.Invoke(grid);
 
-        public static ITransformer<T, Grid<T>> Translate(int x, int y) => new SimpleGridTransformer<T>((_, p) => (p.x + x, p.y + y), grid =>
+        public static ITransformer<T, Grid<T>> Translate(int x, int y) => new SimpleGridTransformer<T>((_, p) => p + new Pos(x, y), grid =>
         {
             grid.Bounds.MinX += x;
             grid.Bounds.MinY += y;
@@ -78,7 +78,7 @@ namespace AdventToolkit.Utilities
             grid.Bounds.MaxY += y;
         });
 
-        public static ITransformer<T, Grid<T>> ToFirstQuadrant() => new SimpleGridTransformer<T>((grid, p) => (p.x - grid.Bounds.MinX, p.y - grid.Bounds.MinY), grid =>
+        public static ITransformer<T, Grid<T>> ToFirstQuadrant() => new SimpleGridTransformer<T>((grid, p) => p - grid.Bounds.Min, grid =>
         {
             grid.Bounds.MaxX -= grid.Bounds.MinX;
             grid.Bounds.MaxY -= grid.Bounds.MinY;
@@ -88,19 +88,19 @@ namespace AdventToolkit.Utilities
 
         public static ITransformer<T, Grid<T>> FlipH => new SimpleGridTransformer<T>((grid, p) =>
         {
-            var d = grid.Bounds.MidX - p.x;
-            return ((int, int)) (p.x + d * 2, p.y);
+            var d = grid.Bounds.MidX - p.X;
+            return new Pos((int) (p.X + d * 2), p.Y);
         });
 
         public static ITransformer<T, Grid<T>> FlipV => new SimpleGridTransformer<T>((grid, p) =>
         {
-            var d = grid.Bounds.MidY - p.y;
-            return ((int, int)) (p.x, p.y + d * 2);
+            var d = grid.Bounds.MidY - p.Y;
+            return new Pos(p.X, (int) (p.Y + d * 2));
         });
 
-        public static ITransformer<T, Grid<T>> FlipSym => new SimpleGridTransformer<T>((_, p) => (p.y, p.x));
+        public static ITransformer<T, Grid<T>> FlipSym => new SimpleGridTransformer<T>((_, p) => p.Flip());
 
-        public static ITransformer<T, Grid<T>> RotateRight => new SimpleGridTransformer<T>((_, p) => (p.y, -p.x), grid =>
+        public static ITransformer<T, Grid<T>> RotateRight => new SimpleGridTransformer<T>((_, p) => (p.Y, -p.X), grid =>
         {
             var mnx = grid.Bounds.MinX;
             var mxx = grid.Bounds.MaxX;
@@ -110,7 +110,7 @@ namespace AdventToolkit.Utilities
             grid.Bounds.MaxY = -mnx;
         });
 
-        public static ITransformer<T, Grid<T>> RotateLeft => new SimpleGridTransformer<T>((_, p) => (-p.y, p.x), grid =>
+        public static ITransformer<T, Grid<T>> RotateLeft => new SimpleGridTransformer<T>((_, p) => (-p.Y, p.X), grid =>
         {
             var mnx = grid.Bounds.MinX;
             var mxx = grid.Bounds.MaxX;

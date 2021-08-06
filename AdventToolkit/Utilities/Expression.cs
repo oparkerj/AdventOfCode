@@ -5,22 +5,26 @@ using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Utilities
 {
+    // Wrapper for the root value of an expression
     public class Expression<T, TContext> : IContextValue<T, TContext>
     {
         private IContextValue<T, TContext> _root;
 
         internal Expression(IContextValue<T, TContext> root) => _root = root;
 
-        public T GetValue(TContext context) => _root.GetValue(context);
+        public T GetValue(TContext context = default) => _root.GetValue(context);
 
         public static ExpressionReader<T, TContext> Reader() => new();
     }
 
+    // Wrapper for when an expression doesn't need a context
     public class Expression<T> : Expression<T, int>
     {
         internal Expression(IContextValue<T, int> root) : base(root) { }
     }
 
+    // Methods to help create an expression reader, such as adding definitions
+    // for common operators (add, sub, multiply, divide, negate).
     public static class ExpressionHelpers
     {
         public static ExpressionReader<int, T> WithOps<T>(this ExpressionReader<int, T> reader)
@@ -59,6 +63,8 @@ namespace AdventToolkit.Utilities
             return reader;
         }
 
+        // Set up the reader for all values in the expression being constants,
+        // using the provided function to parse them from strings.
         public static ExpressionReader<T, TC> ForConstants<T, TC>(this ExpressionReader<T, TC> reader, Func<string, T> func)
         {
             return reader.SetReader((s, _) => new Constant<T, TC>(func(s)));
@@ -74,6 +80,8 @@ namespace AdventToolkit.Utilities
             return reader.ForConstants(long.Parse);
         }
 
+        // Set up the reader for values to be read as variables, using the provided
+        // function to get the value of a variable from the context.
         public static ExpressionReader<T, TC> ForVariables<T, TC>(this ExpressionReader<T, TC> reader, Func<string, TC, T> func)
         {
             return reader.SetReader((s, _) => new Variable<T, TC>(c => func(s, c)));
@@ -81,6 +89,8 @@ namespace AdventToolkit.Utilities
 
         public delegate bool FallbackParser<T, TC>(string s, TokenType type, out Func<string, TC, T> func);
         
+        // Set up the reader to try and read a value as a variable, but fallback to the
+        // original reader on failure.
         public static ExpressionReader<T, TC> AndVariables<T, TC>(this ExpressionReader<T, TC> reader, FallbackParser<T, TC> parser)
         {
             var fallback = reader.ValueReader;
@@ -113,6 +123,12 @@ namespace AdventToolkit.Utilities
             reader.Functions.Add((name, args), new FunctionType<T, TC>(name, args, action));
             return reader;
         }
+        
+        public static ExpressionReader<T, TC> AddFunction<T, TC>(this ExpressionReader<T, TC> reader, string name, int args, Func<T[], T> action)
+        {
+            reader.Functions.Add((name, args), new FunctionType<T, TC>(name, args, (p, _) => action(p)));
+            return reader;
+        }
     }
 
     public class ExpressionReader<T, TC>
@@ -141,6 +157,7 @@ namespace AdventToolkit.Utilities
             ValueReader = other.ValueReader;
         }
 
+        // Find ending parenthesis
         private int FindEnd((string, TokenType)[] parts, int start)
         {
             var level = 0;
@@ -163,12 +180,18 @@ namespace AdventToolkit.Utilities
             return BinaryOperators.Single(type => type.Symbol == symbol);
         }
 
-        private void ReadGroup((string, TokenType)[] sections, int index, out Group<T, TC> exp, out int end)
+        // Read a sub expression that's inside parenthesis.
+        private bool ReadGroup((string, TokenType)[] sections, int index, out Group<T, TC> exp, out int end)
         {
             end = FindEnd(sections, index);
+            exp = default;
+            if (end < 0) return false;
             exp = new Group<T, TC>(new ExpressionReader<T, TC>(this).Read(sections[(index + 1)..end]));
+            return true;
         }
 
+        // If the reader is currently representing a valid expression.
+        // This is false if an operator still needs an associated value.
         private bool ValidState()
         {
             if (_current is UnaryOperator<T, TC> {Child: { }}) return true;
@@ -179,6 +202,8 @@ namespace AdventToolkit.Utilities
 
         public Expression<T, TC> Read(string expr) => Read(expr.Tokenize().ToArray());
 
+        // Turn a sequence of tokens into an expression.
+        // Read and construct an expression tree in one pass.
         public Expression<T, TC> Read((string token, TokenType type)[] sections)
         {
             _root = _current = null;
@@ -186,43 +211,12 @@ namespace AdventToolkit.Utilities
             for (var i = 0; i < sections.Length; i++)
             {
                 var (section, type) = sections[i];
-                if (_current == null)
-                {
-                    if (type == TokenType.Symbol && section != "(")
-                    {
-                        _current = new UnaryOperator<T, TC>(GetUnaryType(section));
-                    }
-                    else
-                    {
-                        if (section == "(")
-                        {
-                            ReadGroup(sections, i, out var exp, out i);
-                            _current = exp;
-                        }
-                        else if (type == TokenType.Word && i + 1 < sections.Length && sections[i + 1].token == "(")
-                        {
-                            var end = FindEnd(sections, i + 1);
-                            var args = sections[(i + 2)..end].Split(",", TokenType.Symbol).Select(arg => new ExpressionReader<T, TC>(this).Read(arg)).ToArray();
-                            if (Functions.TryGetValue((section, args.Length), out var funcType))
-                            {
-                                _current = new Function<T, TC>(funcType) {Parameters = args};
-                            }
-                            else throw new Exception($"Function {section}[{args.Length}] does not exist.");
-                        }
-                        else
-                        {
-                            _current = ValueReader(section, type);
-                        }
-                        _next = Component.Binary;
-                    }
-                    _root = _current;
-                }
-                else if (_next == Component.UnaryOrValue)
+                if (_next == Component.UnaryOrValue)
                 {
                     if (type == TokenType.Symbol && section != "(")
                     {
                         var uOp = new UnaryOperator<T, TC>(GetUnaryType(section));
-                        _current.AddChild(uOp);
+                        _current?.AddChild(uOp);
                         _current = uOp;
                     }
                     else
@@ -242,22 +236,26 @@ namespace AdventToolkit.Utilities
                                 value = new Function<T, TC>(funcType) {Parameters = args};
                             }
                             else throw new Exception($"Function {section}[{args.Length}] does not exist.");
+                            i = end;
                         }
                         else
                         {
                             value = ValueReader(section, type);
                         }
-                        _current.AddChild(value);
+                        _current?.AddChild(value);
                         _current = value;
+                        // Navigate to the top of a chain of unary operators
                         while (_current.Parent is UnaryOperator<T, TC>) _current = _current.Parent;
                         _next = Component.Binary;
                     }
+                    _root ??= _current;
                 }
                 else if (_next == Component.Binary)
                 {
                     if (type == TokenType.Symbol && section != "(")
                     {
                         var op = new BinaryOperator<T, TC>(GetBinaryType(section));
+                        // Find the correct spot to insert the operator.
                         while (_current.Parent?.HigherPrecedenceThan(op) == true)
                         {
                             _current = _current.Parent;
@@ -428,6 +426,27 @@ namespace AdventToolkit.Utilities
         }
     }
 
+    public class Function<T, TC> : Leaf<T, TC>
+    {
+        public readonly string Symbol;
+        public readonly int ParameterCount;
+        public readonly Func<T[], TC, T> Action;
+
+        public Expression<T, TC>[] Parameters;
+        
+        public Function(FunctionType<T, TC> type)
+        {
+            Symbol = type.Symbol;
+            ParameterCount = type.Parameters;
+            Action = type.Action;
+        }
+        
+        public override T GetValue(TC context)
+        {
+            return Action(Parameters.Select(exp => exp.GetValue(context)).ToArray(), context);
+        }
+    }
+
     public class BinaryOperatorType<T, TC>
     {
         public readonly string Symbol;
@@ -453,27 +472,6 @@ namespace AdventToolkit.Utilities
         {
             Symbol = symbol;
             Action = action;
-        }
-    }
-
-    public class Function<T, TC> : Leaf<T, TC>
-    {
-        public readonly string Symbol;
-        public readonly int ParameterCount;
-        public readonly Func<T[], TC, T> Action;
-
-        public Expression<T, TC>[] Parameters;
-        
-        public Function(FunctionType<T, TC> type)
-        {
-            Symbol = type.Symbol;
-            ParameterCount = type.Parameters;
-            Action = type.Action;
-        }
-        
-        public override T GetValue(TC context)
-        {
-            return Action(Parameters.Select(exp => exp.GetValue(context)).ToArray(), context);
         }
     }
 
