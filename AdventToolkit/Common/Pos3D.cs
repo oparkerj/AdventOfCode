@@ -15,7 +15,13 @@ namespace AdventToolkit.Utilities
             Z = z;
         }
 
-        public static Pos3D Origin = new();
+        public static Pos3D Origin => new();
+        public static Pos3D Up => new(0, 1, 0);
+        public static Pos3D Right = new(1, 0, 0);
+        public static Pos3D Down = new(0, -1, 0);
+        public static Pos3D Left = new(-1, 0, 0);
+        public static Pos3D Forward = new(0, 0, 1);
+        public static Pos3D Backward = new(0, 0, -1);
 
         public static implicit operator Pos3D((int x, int y, int z) p) => new(p.x, p.y, p.z);
 

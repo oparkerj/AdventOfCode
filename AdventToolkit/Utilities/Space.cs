@@ -11,7 +11,7 @@ namespace AdventToolkit.Utilities
         public bool UseDefault = true;
         public TVal Default = default;
 
-        public TVal this[TPos pos]
+        public virtual TVal this[TPos pos, bool sideEffects = true]
         {
             get => Points.TryGetValue(pos, out var val) ? val : UseDefault ? Default : throw new Exception("Point doesn't exist.");
             set => Points.Add(pos, value);

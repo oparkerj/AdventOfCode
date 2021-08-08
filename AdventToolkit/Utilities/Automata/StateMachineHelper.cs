@@ -5,6 +5,7 @@ using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Utilities.Automata
 {
+    // Keeps track of the last-used states to assist in state machine creation.
     public class StateMachineHelper<T>
     {
         public readonly StateMachine<T> Machine;
@@ -21,6 +22,9 @@ namespace AdventToolkit.Utilities.Automata
             ToNext.Add(Machine.InitialState);
         }
 
+        // Connect two state machines.
+        // This is done by copying the links from the second state machine into the first.
+        //
         public static int Concat(StateMachine<T> a, IEnumerable<int> from, HashSet<int> lazy, StateMachine<T> b, HashSet<int> bLazy)
         {
             var offset = a.Length - 1;
@@ -75,6 +79,8 @@ namespace AdventToolkit.Utilities.Automata
 
         public StateMachine<T> Build() => Finish().Machine;
 
+        // Finalize a state machine by setting the accepting states
+        // and adding links for any lazy states.
         public StateMachineHelper<T> Finish()
         {
             if (_finished) return this;
@@ -84,13 +90,14 @@ namespace AdventToolkit.Utilities.Automata
             if (ToNext.Intersect(Lazy).Any())
             {
                 move = new Move<T>(Machine.NewState());
+                Machine.AcceptingStates.Add(move.To);
             }
             foreach (var i in ToNext)
             {
                 if (Lazy.Contains(i))
                 {
                     Machine[i].Add(move, true);
-                    Machine.AcceptingStates.Add(move!.To);
+                    // Machine.AcceptingStates.Add(move!.To);
                 }
                 else
                 {
@@ -100,6 +107,8 @@ namespace AdventToolkit.Utilities.Automata
             return this;
         }
 
+        // Prepare to continue adding to a state machine.
+        // This removes the special links that are added for lazy states.
         public StateMachineHelper<T> Continue()
         {
             if (!_finished) return this;
@@ -113,6 +122,7 @@ namespace AdventToolkit.Utilities.Automata
             return this;
         }
 
+        // Rewind the helper so that future links are added to the initial state.
         public StateMachineHelper<T> Rewind()
         {
             ToNext.Clear();
@@ -120,6 +130,7 @@ namespace AdventToolkit.Utilities.Automata
             return this;
         }
 
+        // Use the creation function and add the link to all open states.
         public StateMachineHelper<T> AddLink(Func<int, Link<T>> func)
         {
             var next = Machine.NewState();
@@ -133,15 +144,19 @@ namespace AdventToolkit.Utilities.Automata
             return this;
         }
 
+        // Assert that the current position is at the beginning of the input
         public StateMachineHelper<T> Beginning() => AddLink(next => new Beginning<T>(next));
         
+        // Assert that the current position is at the end of the input
         public StateMachineHelper<T> Ending() => AddLink(next => new End<T>(next));
 
+        // Assert that the next input is the specified value
         public StateMachineHelper<T> Then(T update)
         {
             return AddLink(next => new Single<T>(update, next));
         }
 
+        // Insert a sequence of updates
         public StateMachineHelper<T> Then(IEnumerable<T> updates)
         {
             foreach (var update in updates)
@@ -151,6 +166,7 @@ namespace AdventToolkit.Utilities.Automata
             return this;
         }
         
+        // Assert that the next input matches the predicate
         public StateMachineHelper<T> Then(Func<T, bool> matcher)
         {
             return AddLink(next => new Class<T>(matcher, next));
