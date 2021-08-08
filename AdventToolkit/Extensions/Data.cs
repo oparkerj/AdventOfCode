@@ -29,6 +29,11 @@ namespace AdventToolkit.Extensions
             return b.ToString();
         }
 
+        public static IEnumerable<string> ToStrings<T>(this IEnumerable<T> items)
+        {
+            return items.Select(arg => arg.ToString());
+        }
+
         public static string[] Csv(this string s, bool space = false)
         {
             return space ? s.Split(", ") : s.Split(',');
@@ -183,6 +188,11 @@ namespace AdventToolkit.Extensions
         public static int CountValues<T, TV>(this IEnumerable<KeyValuePair<T, TV>> pairs, Func<TV, bool> func)
         {
             return pairs.Count(pair => func(pair.Value));
+        }
+
+        public static IEnumerable<T> Sorted<T>(this IEnumerable<T> items)
+        {
+            return items.OrderBy(arg => arg);
         }
         
         public static bool Matches(this string s, string regex)

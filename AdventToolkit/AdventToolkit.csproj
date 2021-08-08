@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="morelinq" Version="3.3.2" />
       <PackageReference Include="RegExtract" Version="1.0.12-beta" />
     </ItemGroup>
 
