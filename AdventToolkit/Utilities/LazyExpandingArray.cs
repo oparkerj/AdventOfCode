@@ -5,6 +5,10 @@ using System.Linq;
 
 namespace AdventToolkit.Utilities
 {
+    // Class behaves like an array up to an initial capacity.
+    // When reading/writing past the initial capacity, the data is stored
+    // sparsely. When requested, the array can be resized and the sparse
+    // data will be written into the main array.
     public class LazyExpandingArray<T> : IEnumerable<T>
     {
         private T[] _content;
