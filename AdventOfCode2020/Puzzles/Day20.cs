@@ -54,7 +54,7 @@ namespace AdventOfCode2020.Puzzles
 
             public Tile(Grid<bool> data) => Data = data;
 
-            public void Transform(ITransformer<bool, Grid<bool>> transformer) => transformer.ApplyTo(Data);
+            public void Transform(ITransformer<Pos, Grid<bool>> transformer) => transformer.ApplyTo(Data);
 
             public void AlignTo(Tile tile, Side side)
             {

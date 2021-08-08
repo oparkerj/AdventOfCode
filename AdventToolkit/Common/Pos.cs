@@ -13,7 +13,13 @@ namespace AdventToolkit.Utilities
             Y = y;
         }
 
-        public static Pos Origin = new();
+        public static Pos Origin => new();
+        public static Pos Up => new(0, 1);
+        public static Pos Right => new(1, 0);
+        public static Pos Down => new(0, -1);
+        public static Pos Left => new(-1, 0);
+        public static Pos ConsoleUp => Down;
+        public static Pos ConsoleDown => Up;
 
         public static implicit operator Pos((int x, int y) p) => new(p.x, p.y);
 

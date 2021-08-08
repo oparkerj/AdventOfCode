@@ -25,13 +25,13 @@ namespace AdventToolkit.Utilities
             set => _bounds = value;
         }
 
-        public T this[Pos p, bool fitBounds = true]
+        public override T this[Pos p, bool fitBounds = true]
         {
-            get => base[p];
+            get => base[p, fitBounds];
             set
             {
                 if (fitBounds) Bounds.Fit(p);
-                base[p] = value;
+                base[p, fitBounds] = value;
             }
         }
 
