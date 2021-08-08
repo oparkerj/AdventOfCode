@@ -10,31 +10,26 @@ namespace AdventOfCode2020.Puzzles
 {
     public class Day24 : Puzzle
     {
-        public DefaultDict<(int, int, int), bool> Tiles = new();
-        public (int, int, int)[] Relative;
+        public DefaultDict<Pos3D, bool> Tiles = new();
+        public Pos3D[] Relative;
 
         public Day24()
         {
             Part = 2;
         }
 
-        public (int, int, int) GetRelative(string spec)
+        public Pos3D GetRelative(string spec)
         {
             return spec switch
             {
-                "e" => (1, 0, -1),
-                "w" => (-1, 0, 1),
-                "ne" => (1, -1, 0),
-                "sw" => (-1, 1, 0),
-                "nw" => (0, -1, 1),
-                "se" => (0, 1, -1),
+                "e" => new Pos3D(1, 0, -1),
+                "w" => new Pos3D(-1, 0, 1),
+                "ne" => new Pos3D(1, -1, 0),
+                "sw" => new Pos3D(-1, 1, 0),
+                "nw" => new Pos3D(0, -1, 1),
+                "se" => new Pos3D(0, 1, -1),
                 _ => throw new Exception()
             };
-        }
-
-        public (int, int, int) Add((int a, int b, int c) a, (int a, int b, int c) b)
-        {
-            return (a.a + b.a, a.b + b.b, a.c + b.c);
         }
 
         public IEnumerable<string> GetParts(string rel)
@@ -46,22 +41,22 @@ namespace AdventOfCode2020.Puzzles
         {
             foreach (var s in Input)
             {
-                var at = GetParts(s).Select(GetRelative).Aggregate((0, 0, 0), Add);
+                var at = GetParts(s).Select(GetRelative).Aggregate(Pos3D.Origin, (a, b) => a + b);
                 Tiles[at] = !Tiles[at];
             }
             WriteLn(Tiles.Count(pair => pair.Value));
         }
         
-        public IEnumerable<(int, int, int)> Around((int, int, int) p)
+        public IEnumerable<Pos3D> Around(Pos3D p)
         {
             if (Relative == null) Relative = GetParts("ewnenwsesw").Select(GetRelative).ToArray();
-            return Relative.Select(tuple => Add(tuple, p));
+            return Relative.Select(dir => p + dir);
         }
 
         public override void PartTwo()
         {
             PartOne();
-            var game = new GameOfLife<(int, int, int)>()
+            var game = new GameOfLife<Pos3D>()
                 .WithNeighborFunction(Around)
                 .WithLivingDeadRules(i => i is 0 or > 2, i => i == 2)
                 .WithExpansion()
