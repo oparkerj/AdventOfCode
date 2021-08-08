@@ -25,9 +25,11 @@ namespace AdventToolkit.Utilities
 
         // public static implicit operator (int x, int y)(Pos p) => (p.X, p.Y);
 
+        public bool Equals(Pos p) => X == p.X && Y == p.Y;
+
         public override bool Equals(object obj)
         {
-            return obj is Pos (var x, var y) && x == X && y == Y;
+            return obj is Pos p && Equals(p);
         }
 
         public override int GetHashCode()
@@ -56,6 +58,12 @@ namespace AdventToolkit.Utilities
         public static Pos operator *(Pos p, int s) => new(p.X * s, p.Y * s);
 
         public static Pos operator *(int s, Pos p) => p * s;
+
+        public static bool operator ==(Pos a, Pos b) => a.Equals(b);
+        
+        public static bool operator !=(Pos a, Pos b) => !a.Equals(b);
+
+        public Pos Normalize() => new(Math.Sign(X), Math.Sign(Y));
 
         public Pos Clockwise(Pos center = default) => new(Y - center.Y + center.X, center.X - X + center.Y);
 
