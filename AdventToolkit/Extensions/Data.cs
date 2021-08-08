@@ -49,6 +49,11 @@ namespace AdventToolkit.Extensions
             return strings.Select(long.Parse);
         }
 
+        public static IEnumerable<long> Longs(this IEnumerable<int> ints)
+        {
+            return ints.Select(i => (long) i);
+        }
+
         public static int Pow(this int i, int power)
         {
             var pow = (uint) power;
