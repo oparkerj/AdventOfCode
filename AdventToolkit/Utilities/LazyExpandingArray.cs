@@ -36,7 +36,7 @@ namespace AdventToolkit.Utilities
             get => index <= _max ? _content[index] : _extra[index];
             set
             {
-                if (index <= _max) _content[index] = value;
+                if (index < _content.Length) _content[index] = value;
                 else
                 {
                     _extra[index] = value;
@@ -57,6 +57,7 @@ namespace AdventToolkit.Utilities
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        // Enumerates the contents, which are only ordered up to FastLength
         public IEnumerator<T> GetEnumerator()
         {
             return _content.Concat(_extra.Values).GetEnumerator();
