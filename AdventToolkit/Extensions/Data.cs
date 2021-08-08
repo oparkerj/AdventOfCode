@@ -49,6 +49,19 @@ namespace AdventToolkit.Extensions
             return strings.Select(long.Parse);
         }
 
+        public static int Pow(this int i, int power)
+        {
+            var pow = (uint) power;
+            var ret = 1;
+            while (pow != 0)
+            {
+                if ((pow & 1) == 1) ret *= i;
+                i *= i;
+                pow >>= 1;
+            }
+            return ret;
+        }
+
         // Repeatedly apply a function to a value
         public static T Repeat<T>(this T t, Func<T, T> func, int amount)
         {

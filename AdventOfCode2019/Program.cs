@@ -1,4 +1,4 @@
 ﻿using AdventOfCode2019.Puzzles;
 using AdventToolkit;
 
-Puzzle.Run<Day4>();
+Puzzle.Run<Day5>();
