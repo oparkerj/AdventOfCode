@@ -25,9 +25,11 @@ namespace AdventToolkit.Utilities
 
         public static implicit operator Pos3D((int x, int y, int z) p) => new(p.x, p.y, p.z);
 
+        public bool Equals(Pos3D p) => X == p.X && Y == p.Y && Z == p.Z;
+
         public override bool Equals(object obj)
         {
-            return obj is Pos3D (var x, var y, var z) && x == X && y == Y && z == Z;
+            return obj is Pos3D p && Equals(p);
         }
 
         public override int GetHashCode()

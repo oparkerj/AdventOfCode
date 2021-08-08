@@ -8,6 +8,11 @@ namespace AdventToolkit.Extensions
 {
     public static class Data
     {
+        public static IEnumerable<T> Without<T>(this IEnumerable<T> enumerable, T value)
+        {
+            return enumerable.Where(item => !Equals(item, value));
+        }
+        
         public static IEnumerable<string> JoinEach(this IEnumerable<string[]> ie, string sep = null)
         {
             if (sep == null) return ie.Select(strings => string.Concat(strings));
@@ -222,6 +227,17 @@ namespace AdventToolkit.Extensions
                 Array.Copy(a, copy, copy.Length);
                 yield return copy;
             }
+        }
+
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<(TKey key, TValue value)> pairs)
+        {
+            var dict = new Dictionary<TKey, TValue>();
+            foreach (var (key, value) in pairs)
+            {
+                if (dict.ContainsKey(key)) continue;
+                dict[key] = value;
+            }
+            return dict;
         }
     }
 }
