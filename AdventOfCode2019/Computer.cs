@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 
@@ -16,6 +17,7 @@ namespace AdventOfCode2019
         public Action<long> LineOut;
         
         private int _pointer = 0;
+        private int _interrupt = 0;
 
         public Computer(long[] program)
         {
@@ -23,10 +25,9 @@ namespace AdventOfCode2019
             AddOpcodes();
         }
 
-        public static Computer From(string input)
-        {
-            return new(input.Csv().Longs().ToArray());
-        }
+        public static long[] Parse(string input) => input.Csv().Longs().ToArray();
+
+        public static Computer From(string input) => new(Parse(input));
 
         public static Func<long> ConsoleReader()
         {
@@ -58,6 +59,12 @@ namespace AdventOfCode2019
             set => Interlocked.Exchange(ref _pointer, value);
         }
 
+        public bool Interrupt
+        {
+            get => _interrupt != 0;
+            set => Interlocked.Exchange(ref _interrupt, value ? 1 : 0);
+        }
+
         public long this[int pos]
         {
             get => Program[pos];
@@ -71,7 +78,26 @@ namespace AdventOfCode2019
                 var op = (int) Program[Pointer];
                 op %= 100;
                 _ops[op]();
+                if (!Interrupt) continue;
+                Interrupt = false;
+                break;
             }
+        }
+
+        public Task ExecuteAsync()
+        {
+            return Task.Run(Execute);
+        }
+
+        public long NextOutput()
+        {
+            var oldOutput = LineOut;
+            var data = new DataLink();
+            LineOut = data.Input;
+            Execute();
+            LineOut = oldOutput;
+            data.TryTake(out var result);
+            return result;
         }
 
         private void Advance(int args = 0) => Pointer += args + 1;

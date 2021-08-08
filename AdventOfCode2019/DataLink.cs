@@ -14,6 +14,19 @@ namespace AdventOfCode2019
             FallbackOutput = fallbackOutput;
         }
 
+        public DataLink(Computer computer, Func<long> fallbackOutput = null) : this(fallbackOutput)
+        {
+            computer.LineIn = Output;
+        }
+
+        public void Link(Computer output, Computer input)
+        {
+            output.LineOut = Input;
+            input.LineIn = Output;
+        }
+
+        public bool TryTake(out long data) => _data.TryTake(out data);
+
         public void Insert(long data) => _data.Add(data);
 
         public long Output()
