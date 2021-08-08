@@ -34,6 +34,11 @@ namespace AdventToolkit.Extensions
             return strings.Select(int.Parse);
         }
 
+        public static IEnumerable<long> Longs(this IEnumerable<string> strings)
+        {
+            return strings.Select(long.Parse);
+        }
+
         // Repeatedly apply a function to a value
         public static T Repeat<T>(this T t, Func<T, T> func, int amount)
         {

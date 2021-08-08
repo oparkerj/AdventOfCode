@@ -27,7 +27,9 @@ namespace AdventToolkit.Utilities
 
         public void Clear() => Points.Clear();
 
-        public IEnumerable<TPos> AllPoints => Points.Keys;
+        public IEnumerable<TPos> Positions => Points.Keys;
+
+        public IEnumerable<TVal> Values => Points.Values;
 
         IEnumerator IEnumerable.GetEnumerator()
         {

@@ -52,6 +52,8 @@ namespace AdventToolkit
             set => _input = value;
         }
 
+        public string InputLine => Input[0];
+
         public IEnumerable<string[]> Groups
         {
             get
