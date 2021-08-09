@@ -33,7 +33,7 @@ namespace AdventToolkit.Utilities
 
         public T this[int index]
         {
-            get => index <= _max ? _content[index] : _extra[index];
+            get => index < _content.Length ? _content[index] : _extra[index];
             set
             {
                 if (index < _content.Length) _content[index] = value;

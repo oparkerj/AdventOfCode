@@ -18,6 +18,7 @@ namespace AdventOfCode2019
         
         private int _pointer = 0;
         private int _interrupt = 0;
+        private int _relativeBase = 0;
 
         public Computer(long[] program)
         {
@@ -49,6 +50,7 @@ namespace AdventOfCode2019
             _ops[6] = JumpIfFalse;
             _ops[7] = LessThan;
             _ops[8] = Equals;
+            _ops[9] = SetRelativeBase;
             _ops[99] = Halt;
             _ops.TrimExcess();
         }
@@ -63,6 +65,12 @@ namespace AdventOfCode2019
         {
             get => _interrupt != 0;
             set => Interlocked.Exchange(ref _interrupt, value ? 1 : 0);
+        }
+
+        public int RelativeBase
+        {
+            get => _relativeBase;
+            set => Interlocked.Exchange(ref _relativeBase, value);
         }
 
         public long this[int pos]
@@ -102,16 +110,24 @@ namespace AdventOfCode2019
 
         private void Advance(int args = 0) => Pointer += args + 1;
 
+        private int ParameterMode(int relative) => (int) Program[Pointer] / 10.Pow(relative + 1) % 10;
+
         private long Arg(int relative)
         {
-            var mode = Program[Pointer] / 10.Pow(relative + 1) % 10;
-            if (mode == 0) return Program[Addr(relative)];
+            var mode = ParameterMode(relative);
+            if (mode is 0 or 2) return Program[Addr(relative)];
             return Program[Pointer + relative];
+        }
+
+        private int Addr(int relative, int mode)
+        {
+            if (mode == 0) return (int) Program[Pointer + relative];
+            return (int) Program[Pointer + relative] + RelativeBase;
         }
 
         private int Addr(int relative)
         {
-            return (int) Program[Pointer + relative];
+            return Addr(relative, ParameterMode(relative));
         }
 
         private void Add()
@@ -162,6 +178,12 @@ namespace AdventOfCode2019
             var write = Arg(1) == Arg(2) ? 1 : 0;
             Program[Addr(3)] = write;
             Advance(3);
+        }
+
+        private void SetRelativeBase()
+        {
+            RelativeBase += (int) Arg(1);
+            Advance(1);
         }
 
         private void Halt()

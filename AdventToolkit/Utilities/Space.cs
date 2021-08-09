@@ -14,7 +14,7 @@ namespace AdventToolkit.Utilities
         public virtual TVal this[TPos pos, bool sideEffects = true]
         {
             get => Points.TryGetValue(pos, out var val) ? val : UseDefault ? Default : throw new Exception("Point doesn't exist.");
-            set => Points.Add(pos, value);
+            set => Points[pos] = value;
         }
 
         public abstract IEnumerable<TPos> GetNeighbors(TPos pos);
