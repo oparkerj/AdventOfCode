@@ -19,6 +19,8 @@ namespace AdventToolkit.Utilities
 
         public abstract IEnumerable<TPos> GetNeighbors(TPos pos);
 
+        public int Count => Points.Count;
+
         public bool Lookup(TPos pos, out TVal val) => Points.TryGetValue(pos, out val);
 
         public bool Has(TPos pos) => Points.ContainsKey(pos);

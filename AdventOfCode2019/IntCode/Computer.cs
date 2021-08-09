@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 
-namespace AdventOfCode2019
+namespace AdventOfCode2019.IntCode
 {
     public class Computer
     {
         public readonly LazyExpandingArray<long> Program;
         private readonly Dictionary<int, Action> _ops = new();
+        private readonly DataLink _internalLink = new();
 
         public Func<long> LineIn;
         public Action<long> LineOut;
@@ -79,9 +80,11 @@ namespace AdventOfCode2019
             set => Program[pos] = value;
         }
 
+        public bool Ready => Pointer >= 0 && Pointer < Program.Length;
+
         public void Execute()
         {
-            while (Pointer >= 0 && Pointer < Program.Length)
+            while (Ready)
             {
                 var op = (int) Program[Pointer];
                 op %= 100;
@@ -100,13 +103,16 @@ namespace AdventOfCode2019
         public long NextOutput()
         {
             var oldOutput = LineOut;
-            var data = new DataLink();
-            LineOut = data.Input;
+            LineOut = _internalLink.Input;
             Execute();
             LineOut = oldOutput;
-            data.TryTake(out var result);
+            _internalLink.TryTake(out var result);
             return result;
         }
+
+        public int NextInt() => (int) NextOutput();
+
+        public bool NextBool() => NextOutput() != 0;
 
         private void Advance(int args = 0) => Pointer += args + 1;
 

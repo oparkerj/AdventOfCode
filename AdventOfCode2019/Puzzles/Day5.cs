@@ -1,3 +1,4 @@
+using AdventOfCode2019.IntCode;
 using AdventToolkit;
 
 namespace AdventOfCode2019.Puzzles

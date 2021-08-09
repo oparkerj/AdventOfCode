@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 
-namespace AdventOfCode2019
+namespace AdventOfCode2019.IntCode
 {
     public class DataLink
     {

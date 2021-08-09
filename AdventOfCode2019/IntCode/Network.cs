@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AdventOfCode2019
+namespace AdventOfCode2019.IntCode
 {
     public class Network
     {
