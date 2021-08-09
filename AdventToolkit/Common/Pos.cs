@@ -1,4 +1,5 @@
 using System;
+using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Utilities
 {
@@ -59,11 +60,22 @@ namespace AdventToolkit.Utilities
 
         public static Pos operator *(int s, Pos p) => p * s;
 
+        public static Pos operator /(Pos p, int s) => new(p.X / s, p.Y / s);
+        
+        public static Pos operator /(int s, Pos p) => new(s / p.X, s / p.Y);
+
         public static bool operator ==(Pos a, Pos b) => a.Equals(b);
         
         public static bool operator !=(Pos a, Pos b) => !a.Equals(b);
 
         public Pos Normalize() => new(Math.Sign(X), Math.Sign(Y));
+        
+        public Pos Towards(Pos other)
+        {
+            var delta = other - this;
+            if (delta.X == 0 || delta.Y == 0) return delta.Normalize();
+            return delta / delta.X.Gcd(delta.Y);
+        }
 
         public Pos Clockwise(Pos center = default) => new(Y - center.Y + center.X, center.X - X + center.Y);
 
@@ -75,5 +87,10 @@ namespace AdventToolkit.Utilities
         }
 
         public Pos Flip() => new(Y, X);
+
+        public int Cross(Pos other)
+        {
+            return X * other.Y - Y * other.X;
+        }
     }
 }

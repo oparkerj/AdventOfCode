@@ -70,6 +70,11 @@ namespace AdventToolkit.Extensions
             return source.Select(arg => Equals(arg, value) ? equal : notEqual);
         }
 
+        public static IEnumerable<IEnumerable<TU>> QuickMap<T, TU>(this IEnumerable<IEnumerable<T>> source, T value, TU equal, TU notEqual)
+        {
+            return source.Select(items => items.QuickMap(value, equal, notEqual));
+        }
+
         public static int Pow(this int i, int power)
         {
             var pow = (uint) power;

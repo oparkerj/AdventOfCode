@@ -28,18 +28,33 @@ namespace AdventToolkit.Extensions
 
         public static int Gcd(this int a, int b)
         {
-            while (true)
+            a = Math.Abs(a);
+            b = Math.Abs(b);
+            while (b > 0)
             {
-                if (a == 0) return b;
-                var a1 = a;
-                a = b % a;
-                b = a1;
+                var rem = a % b;
+                a = b;
+                b = rem;
             }
+            return a;
+        }
+        
+        public static long Gcd(this long a, long b)
+        {
+            a = Math.Abs(a);
+            b = Math.Abs(b);
+            while (b > 0)
+            {
+                var rem = a % b;
+                a = b;
+                b = rem;
+            }
+            return a;
         }
 
         public static int Lcm(this int a, int b)
         {
-            return a / a.Gcd(b) * b;
+            return a / Gcd(a, b) * b;
         }
 
         public static void Times(this int i, Action action)
