@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using MoreLinq;
 
 namespace AdventToolkit.Extensions
 {
@@ -44,6 +45,11 @@ namespace AdventToolkit.Extensions
             return strings.Select(int.Parse);
         }
 
+        public static IEnumerable<int> Ints(this IEnumerable<char> chars)
+        {
+            return chars.Select(c => c - '0');
+        }
+
         public static IEnumerable<long> Longs(this IEnumerable<string> strings)
         {
             return strings.Select(long.Parse);
@@ -52,6 +58,16 @@ namespace AdventToolkit.Extensions
         public static IEnumerable<long> Longs(this IEnumerable<int> ints)
         {
             return ints.Select(i => (long) i);
+        }
+
+        public static IEnumerable<KeyValuePair<T, int>> Frequencies<T>(this IEnumerable<T> source)
+        {
+            return source.CountBy(arg => arg);
+        }
+
+        public static IEnumerable<TU> QuickMap<T, TU>(this IEnumerable<T> source, T value, TU equal, TU notEqual)
+        {
+            return source.Select(arg => Equals(arg, value) ? equal : notEqual);
         }
 
         public static int Pow(this int i, int power)
