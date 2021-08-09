@@ -147,24 +147,6 @@ namespace AdventToolkit.Extensions
             }
         }
 
-        public static Grid<T> ToGrid<T>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
-        {
-            var grid = new Grid<T>();
-            var y = 0;
-            foreach (var row in source)
-            {
-                var x = 0;
-                foreach (var t in row)
-                {
-                    grid[x, y] = t;
-                    x++;
-                }
-                if (decreaseY) y--;
-                else y++;
-            }
-            return grid;
-        }
-
         // public static Pos Trace(this Pos start, Pos dir, Func<Pos, bool> func)
         // {
         //     var (x, y) = start;
