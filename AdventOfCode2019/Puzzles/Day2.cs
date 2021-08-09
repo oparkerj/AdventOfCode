@@ -1,4 +1,5 @@
 using System.Linq;
+using AdventOfCode2019.IntCode;
 using AdventToolkit;
 using AdventToolkit.Extensions;
 
