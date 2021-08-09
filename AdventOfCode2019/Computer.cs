@@ -115,7 +115,7 @@ namespace AdventOfCode2019
         private long Arg(int relative)
         {
             var mode = ParameterMode(relative);
-            if (mode is 0 or 2) return Program[Addr(relative)];
+            if (mode is 0 or 2) return Program[Addr(relative, mode)];
             return Program[Pointer + relative];
         }
 
