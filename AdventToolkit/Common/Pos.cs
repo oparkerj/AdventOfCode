@@ -1,9 +1,10 @@
 using System;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities.Arithmetic;
 
 namespace AdventToolkit.Utilities
 {
-    public readonly struct Pos : IAdd<Pos>
+    public readonly struct Pos : IAdd<Pos>, ISub<Pos>
     {
         public readonly int X;
         public readonly int Y;
@@ -55,6 +56,7 @@ namespace AdventToolkit.Utilities
         public Pos Add(Pos other) => this + other;
 
         public static Pos operator -(Pos a, Pos b) => new(a.X - b.X, a.Y - b.Y);
+        public Pos Sub(Pos other) => this - other;
 
         public static Pos operator *(Pos p, int s) => new(p.X * s, p.Y * s);
 

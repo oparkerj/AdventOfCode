@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit.Utilities;
+using AdventToolkit.Utilities.Arithmetic;
 
 namespace AdventToolkit.Extensions
 {

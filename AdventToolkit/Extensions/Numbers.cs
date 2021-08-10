@@ -56,6 +56,11 @@ namespace AdventToolkit.Extensions
         {
             return a / Gcd(a, b) * b;
         }
+        
+        public static long Lcm(this long a, long b)
+        {
+            return a / Gcd(a, b) * b;
+        }
 
         public static void Times(this int i, Action action)
         {
