@@ -164,5 +164,10 @@ namespace AdventToolkit.Utilities
             if (decreaseY) SimpleGridTransformer<T>.FlipV.ApplyTo(grid);
             return grid;
         }
+
+        public static Pos Find<T>(this Grid<T> grid, T value)
+        {
+            return grid.WhereValue(value).First().Key;
+        }
     }
 }
