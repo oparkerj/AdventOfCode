@@ -1,8 +1,9 @@
 using System;
+using AdventToolkit.Utilities.Arithmetic;
 
 namespace AdventToolkit.Utilities
 {
-    public readonly struct Pos3D : IAdd<Pos3D>
+    public readonly struct Pos3D : IAdd<Pos3D>, ISub<Pos3D>
     {
         public readonly int X;
         public readonly int Y;
@@ -55,10 +56,21 @@ namespace AdventToolkit.Utilities
         public Pos3D Add(Pos3D other) => this + other;
 
         public static Pos3D operator -(in Pos3D a, in Pos3D b) => new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        public Pos3D Sub(Pos3D other) => this - other;
 
         public static Pos3D operator *(in Pos3D p, int s) => new(p.X * s, p.Y * s, p.Z * s);
 
         public static Pos3D operator *(int s, in Pos3D p) => p * s;
+
+        public static Pos3D operator /(in Pos3D p, int s) => new(p.X / s, p.Y / s, p.Z / s);
+        
+        public static Pos3D operator /(int s, in Pos3D p) => new(s / p.X, s / p.Y, s / p.Z);
+
+        public static bool operator ==(Pos3D a, Pos3D b) => a.Equals(b);
+        
+        public static bool operator !=(Pos3D a, Pos3D b) => !a.Equals(b);
+
+        public Pos3D Normalize() => new(Math.Sign(X), Math.Sign(Y), Math.Sign(Z));
 
         public int MDist(in Pos3D p)
         {

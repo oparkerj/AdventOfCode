@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdventToolkit.Utilities;
+using AdventToolkit.Utilities.Arithmetic;
+using MoreLinq;
 
 namespace AdventToolkit.Extensions
 {
@@ -175,6 +176,32 @@ namespace AdventToolkit.Extensions
                     arr[j + m] = v + m;
                 }
             }
+        }
+
+        public static long CommonCycle<T, TC>(T data, Func<T, IEnumerable<TC>> cycles, Action<T> step)
+        {
+            var initial = new Dictionary<int, long>();
+            var state = new List<TC>();
+            foreach (var (i, cycle) in cycles(data).Index())
+            {
+                initial[i] = -1;
+                state.Add(cycle);
+            }
+            var steps = 0L;
+            while (true)
+            {
+                if (initial.Values.All(cycle => cycle > -1)) break;
+                step(data);
+                steps++;
+                foreach (var (i, cycle) in cycles(data).Index())
+                {
+                    if (initial[i] == -1 && Equals(cycle, state[i]))
+                    {
+                        initial[i] = steps;
+                    }
+                }
+            }
+            return initial.Values.Aggregate((a, b) => a.Lcm(b));
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Utilities.Arithmetic
 {
     public interface IAdd<T>
     {
