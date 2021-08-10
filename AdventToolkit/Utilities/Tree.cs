@@ -5,76 +5,95 @@ using System.Linq;
 
 namespace AdventToolkit.Utilities
 {
-    public class Tree<T> : IEnumerable<Tree<T>.Node<T>>
+    public abstract class Tree<T, TNode, TLink> : IEnumerable<TNode>
+        where TNode : Node<T, TLink>
     {
-        private readonly Dictionary<T, Node<T>> _nodes = new();
+        protected readonly Dictionary<T, TNode> Nodes = new();
 
-        public Node<T> this[T item] => GetNode(item);
-
-        public bool TryGet(T item, out Node<T> node)
+        public bool TryGet(T item, out TNode node)
         {
-            return _nodes.TryGetValue(item, out node);
-        }
-
-        public Node<T> GetNode(T item)
-        {
-            if (TryGet(item, out var node)) return node;
-            return _nodes[item] = new Node<T>(item);
-        }
-
-        public void Link(T parent, T child)
-        {
-            var p = GetNode(parent);
-            var c = GetNode(child);
-            p.Children.Add(c);
-            c.Parent = p;
+            return Nodes.TryGetValue(item, out node);
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<Node<T>> GetEnumerator() => _nodes.Values.GetEnumerator();
+        public IEnumerator<TNode> GetEnumerator() => Nodes.Values.GetEnumerator();
+    }
 
-        public class Node<TN> : IEnumerable<Node<TN>>
+    public abstract class Node<T, TLink> : IEnumerable<Node<T, TLink>>
+    {
+        public Node<T, TLink> Parent;
+        protected readonly List<TLink> Children = new(2);
+
+        public readonly T Value;
+
+        public Node(T value) => Value = value;
+
+        public abstract Node<T, TLink> LinkChild(TLink link);
+
+        public virtual void AddChild(TLink child)
         {
-            public Node<TN> Parent;
-            public readonly List<Node<TN>> Children = new(2);
-            
-            public readonly TN Value;
+            Children.Add(child);
+        }
 
-            public Node(TN value) => Value = value;
-
-            public int Height
+        public int Height
+        {
+            get
             {
-                get
+                var height = 0;
+                var parent = Parent;
+                while (parent != null)
                 {
-                    var height = 0;
-                    var parent = Parent;
-                    while (parent != null)
-                    {
-                        height++;
-                        parent = parent.Parent;
-                    }
-                    return height;
+                    height++;
+                    parent = parent.Parent;
+                }
+                return height;
+            }
+        }
+        
+        public IEnumerable<Node<T, TLink>> Parents
+        {
+            get
+            {
+                var parent = Parent;
+                while (parent != null)
+                {
+                    yield return parent;
+                    parent = parent.Parent;
                 }
             }
+        }
 
-            public IEnumerable<Node<TN>> Parents
-            {
-                get
-                {
-                    
-                    var parent = Parent;
-                    while (parent != null)
-                    {
-                        yield return parent;
-                        parent = parent.Parent;
-                    }
-                }
-            }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public IEnumerator<Node<T, TLink>> GetEnumerator() => Children.Select(LinkChild).GetEnumerator();
+    }
 
-            public IEnumerator<Node<TN>> GetEnumerator() => Children.GetEnumerator();
+    public class Node<T> : Node<T, Node<T>>
+    {
+        public Node(T value) : base(value) { }
+
+        public override Node<T, Node<T>> LinkChild(Node<T> link) => link;
+
+        public new IEnumerable<Node<T>> Parents => base.Parents.Cast<Node<T>>();
+    }
+
+    public class Tree<T> : Tree<T, Node<T>, Node<T>>
+    {
+        public Node<T> this[T item] => GetNode(item);
+        
+        public Node<T> GetNode(T item)
+        {
+            if (TryGet(item, out var node)) return node;
+            return Nodes[item] = new Node<T>(item);
+        }
+        
+        public void Link(T parent, T child)
+        {
+            var p = GetNode(parent);
+            var c = GetNode(child);
+            p.AddChild(c);
+            c.Parent = p;
         }
     }
 
@@ -101,12 +120,12 @@ namespace AdventToolkit.Utilities
             return tree;
         }
 
-        public static IEnumerable<T> Values<T>(this IEnumerable<Tree<T>.Node<T>> nodes)
+        public static IEnumerable<T> Values<T, TLink>(this IEnumerable<Node<T, TLink>> nodes)
         {
             return nodes.Select(node => node.Value);
         }
 
-        public static Tree<T>.Node<T> CommonAncestor<T>(this Tree<T> tree, T a, T b)
+        public static Node<T> CommonAncestor<T>(this Tree<T> tree, T a, T b)
         {
             if (!tree.TryGet(a, out var an) || !tree.TryGet(b, out var bn)) return null;
             var seen = new HashSet<T>(an.Parents.Values());
