@@ -10,6 +10,11 @@ namespace AdventToolkit.Utilities
     {
         protected readonly Dictionary<T, TNode> Nodes = new();
 
+        public void Add(TNode node)
+        {
+            Nodes[node.Value] = node;
+        }
+
         public bool TryGet(T item, out TNode node)
         {
             return Nodes.TryGetValue(item, out node);
@@ -20,10 +25,10 @@ namespace AdventToolkit.Utilities
         public IEnumerator<TNode> GetEnumerator() => Nodes.Values.GetEnumerator();
     }
 
-    public abstract class Node<T, TLink> : IEnumerable<Node<T, TLink>>
+    public abstract class Node<T, TLink> : IEnumerable<TLink>
     {
         public Node<T, TLink> Parent;
-        protected readonly List<TLink> Children = new(2);
+        protected readonly List<TLink> Links = new(2);
 
         public readonly T Value;
 
@@ -33,8 +38,10 @@ namespace AdventToolkit.Utilities
 
         public virtual void AddChild(TLink child)
         {
-            Children.Add(child);
+            Links.Add(child);
         }
+
+        public int Count => Links.Count;
 
         public int Height
         {
@@ -64,9 +71,11 @@ namespace AdventToolkit.Utilities
             }
         }
 
+        public IEnumerable<Node<T, TLink>> Children => Links.Select(LinkChild);
+
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<Node<T, TLink>> GetEnumerator() => Children.Select(LinkChild).GetEnumerator();
+        public IEnumerator<TLink> GetEnumerator() => Links.GetEnumerator();
     }
 
     public class Node<T> : Node<T, Node<T>>
