@@ -41,6 +41,11 @@ namespace AdventToolkit.Utilities
             Links.Add(child);
         }
 
+        public bool HasChild(T value)
+        {
+            return AllChildren.Any(node => Equals(node.Value, value));
+        }
+
         public int Count => Links.Count;
 
         public int Height
@@ -72,6 +77,15 @@ namespace AdventToolkit.Utilities
         }
 
         public IEnumerable<Node<T, TLink>> Children => Links.Select(LinkChild);
+
+        public IEnumerable<Node<T, TLink>> AllChildren => Children.Concat(Children.SelectMany(node => node.AllChildren));
+
+        public IEnumerable<TLink> AllLinks => Links.Concat(Links.Select(LinkChild).SelectMany(node => node.AllLinks));
+
+        public IEnumerable<(TLink link, TData data)> AllLinksWith<TData>(TData initial, Func<TData, TLink, TData> next)
+        {
+            return Links.Select(link => (link, initial)).Concat(Links.SelectMany(link => LinkChild(link).AllLinksWith(next(initial, link), next)));
+        }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

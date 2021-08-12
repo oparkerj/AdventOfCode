@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using AdventToolkit;
 using AdventToolkit.Utilities;
-using RegExtract;
 
 namespace AdventOfCode2019.Puzzles
 {
@@ -14,27 +13,21 @@ namespace AdventOfCode2019.Puzzles
             Part = 2;
         }
 
-        public void BuildTree(Reaction reaction, QuantityTreeHelper<string> helper)
+        public QuantityTree<string> GetReactions()
         {
-            helper.Add(reaction.Output, reaction.Amount);
-            foreach (var (amount, type) in reaction.Inputs)
-            {
-                helper.AddChild(type, amount);
-            }
+            return Input.ToQuantityTree(@"(?<Children>(\d+) (\w+)(?:, )?)+ => (?<Amount>\d+) (?<Value>\w+)");
         }
-        
+
         public override void PartOne()
         {
-            var tree = Input.Extract<Reaction>(@"((\d+) (\w+)(?:, )?)+ => (\d+) (\w+)")
-                .ToQuantityTree<Reaction, string>(BuildTree);
-            var counts = tree.Produce("FUEL", 1);
+            var tree = GetReactions();
+            var counts = tree.Produce("FUEL");
             WriteLn(counts["ORE"]);
         }
 
         public override void PartTwo()
         {
-            var tree = Input.Extract<Reaction>(@"((\d+) (\w+)(?:, )?)+ => (\d+) (\w+)")
-                .ToQuantityTree<Reaction, string>(BuildTree);
+            var tree = GetReactions();
             var amount = tree.ProduceUsing("FUEL", "ORE", 1_000_000_000_000);
             WriteLn(amount);
         }
