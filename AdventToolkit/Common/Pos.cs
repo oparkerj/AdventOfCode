@@ -4,7 +4,7 @@ using AdventToolkit.Utilities.Arithmetic;
 
 namespace AdventToolkit.Utilities
 {
-    public readonly struct Pos : IAdd<Pos>, ISub<Pos>
+    public readonly struct Pos : IAdd<Pos>, ISub<Pos>, INegate<Pos>
     {
         public readonly int X;
         public readonly int Y;
@@ -51,6 +51,7 @@ namespace AdventToolkit.Utilities
         }
 
         public static Pos operator -(Pos p) => new(-p.X, -p.Y);
+        public Pos Negate() => -this;
 
         public static Pos operator +(Pos a, Pos b) => new(a.X + b.X, a.Y + b.Y);
         public Pos Add(Pos other) => this + other;

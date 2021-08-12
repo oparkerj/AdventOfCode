@@ -3,7 +3,7 @@ using AdventToolkit.Utilities.Arithmetic;
 
 namespace AdventToolkit.Utilities
 {
-    public readonly struct Pos3D : IAdd<Pos3D>, ISub<Pos3D>
+    public readonly struct Pos3D : IAdd<Pos3D>, ISub<Pos3D>, INegate<Pos3D>
     {
         public readonly int X;
         public readonly int Y;
@@ -51,6 +51,7 @@ namespace AdventToolkit.Utilities
         }
 
         public static Pos3D operator -(in Pos3D p) => new(-p.X, -p.Y, -p.Z);
+        public Pos3D Negate() => -this;
 
         public static Pos3D operator +(in Pos3D a, in Pos3D b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         public Pos3D Add(Pos3D other) => this + other;

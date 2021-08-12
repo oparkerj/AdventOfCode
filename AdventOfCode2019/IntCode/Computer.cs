@@ -104,8 +104,10 @@ namespace AdventOfCode2019.IntCode
         {
             var oldOutput = LineOut;
             LineOut = _internalLink.Input;
+            _ops[4] = OutputInterrupt;
             Execute();
             LineOut = oldOutput;
+            _ops[4] = Output;
             _internalLink.TryTake(out var result);
             return result;
         }
@@ -158,6 +160,13 @@ namespace AdventOfCode2019.IntCode
         {
             LineOut(Arg(1));
             Advance(1);
+        }
+
+        private void OutputInterrupt()
+        {
+            LineOut(Arg(1));
+            Advance(1);
+            Interrupt = true;
         }
 
         private void JumpIfTrue()

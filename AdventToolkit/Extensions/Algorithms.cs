@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdventToolkit.Utilities;
 using AdventToolkit.Utilities.Arithmetic;
 using MoreLinq;
 
@@ -178,6 +179,8 @@ namespace AdventToolkit.Extensions
             }
         }
 
+        // Find the cycle time for individual components of an object and calculate how often
+        // all cycles align.
         public static long CommonCycle<T, TC>(T data, Func<T, IEnumerable<TC>> cycles, Action<T> step)
         {
             var initial = new Dictionary<int, long>();
@@ -202,6 +205,74 @@ namespace AdventToolkit.Extensions
                 }
             }
             return initial.Values.Aggregate((a, b) => a.Lcm(b));
+        }
+
+        public static int ExploreAll<TPos, TVal>(this IExploreDrone<TPos, TVal> drone, Func<TPos, bool> seen)
+            where TPos : ISub<TPos>, INegate<TPos>
+        {
+            var max = 0;
+            var path = new Stack<TPos>();
+            while (true)
+            {
+                var neighbors = drone.GetNeighbors().Where(pos => !seen(pos)).Select(pos => pos.Sub(drone.Position)).ToList();
+                if (neighbors.Count == 0 || !neighbors.First(drone.TryMove, out var offset))
+                {
+                    if (path.Count == 0) return max;
+                    drone.TryMove(path.Pop().Negate());
+                    continue;
+                }
+                path.Push(offset);
+                max = Math.Max(max, path.Count);
+            }
+        }
+        
+        // TODO Generic search method so that either queue or stack can be used.
+
+        public static int ShortestPathBfs<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, TPos to, Func<TPos, bool> valid)
+        {
+            var visited = new HashSet<TPos>();
+            var queue = new Queue<(TPos pos, int dist)>();
+            queue.Enqueue((from, 0));
+            visited.Add(from);
+            while (queue.Count > 0)
+            {
+                var (pos, dist) = queue.Dequeue();
+                if (Equals(pos, to)) return dist;
+                var near = space.GetNeighbors(pos)
+                    .Where(valid)
+                    .Where(p => !visited.Contains(p))
+                    .Select(p => (p, dist + 1));
+                foreach (var next in near)
+                {
+                    queue.Enqueue(next);
+                    visited.Add(next.p);
+                }
+            }
+            return -1;
+        }
+
+        public static int LongestPathBfs<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, Func<TPos, bool> valid)
+        {
+            var visited = new HashSet<TPos>();
+            var queue = new Queue<(TPos pos, int dist)>();
+            queue.Enqueue((from, 0));
+            visited.Add(from);
+            var max = 0;
+            while (queue.Count > 0)
+            {
+                var (pos, dist) = queue.Dequeue();
+                max = Math.Max(max, dist);
+                var near = space.GetNeighbors(pos)
+                    .Where(valid)
+                    .Where(p => !visited.Contains(p))
+                    .Select(p => (p, dist + 1));
+                foreach (var next in near)
+                {
+                    queue.Enqueue(next);
+                    visited.Add(next.p);
+                }
+            }
+            return max;
         }
     }
 }
