@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RegExtract;
 
 namespace AdventToolkit.Utilities
 {
@@ -45,7 +46,7 @@ namespace AdventToolkit.Utilities
             }
         }
         
-        public Dictionary<T, long> Produce(T item, long quantity)
+        public Dictionary<T, long> Produce(T item, long quantity = 1)
         {
             return Produce(item, quantity, out _);
         }
@@ -109,6 +110,11 @@ namespace AdventToolkit.Utilities
         {
             AddChild(new CountLink<T>(child, amount));
         }
+
+        public long SumBranches()
+        {
+            return AllLinks.Select(link => link.Amount).Sum();
+        }
     }
 
     public class CountLink<T>
@@ -170,6 +176,13 @@ namespace AdventToolkit.Utilities
         }
     }
 
+    public class QuantityItem<T>
+    {
+        public int Amount { get; set; } = 1;
+        public T Value { get; set; }
+        public List<(int Amount, T Item)> Children { get; set; }
+    }
+
     public static class QuantityTreeExtensions
     {
         public static QuantityTree<TT> ToQuantityTree<T, TT>(this IEnumerable<T> items, Action<T, QuantityTreeHelper<TT>> action)
@@ -192,6 +205,26 @@ namespace AdventToolkit.Utilities
                 action(func(item), helper);
             }
             return tree;
+        }
+
+        // Create a quantity tree from a format string.
+        // The format string is a regex that must contain the following groups:
+        // Named group <Value>: the parent node
+        // Named group <Children>: Group quantified by * or + that contains the children
+        //      this group must contain two groups that represent the quantity and name
+        //      of the child node.
+        // (Optional) Named group <Amount>: The number of parent objects produced.
+        public static QuantityTree<string> ToQuantityTree(this IEnumerable<string> items, string format)
+        {
+            return items.Extract<QuantityItem<string>>(format)
+                .ToQuantityTree<QuantityItem<string>, string>((item, helper) =>
+                {
+                    helper.Add(item.Value, item.Amount);
+                    foreach (var (amount, child) in item.Children)
+                    {
+                        helper.AddChild(child, amount);
+                    }
+                });
         }
     }
 }
