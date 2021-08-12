@@ -288,5 +288,17 @@ namespace AdventToolkit.Extensions
             }
             return dict;
         }
+
+        public static bool First<T>(this IEnumerable<T> source, Func<T, bool> func, out T first)
+        {
+            foreach (var item in source)
+            {
+                if (!func(item)) continue;
+                first = item;
+                return true;
+            }
+            first = default;
+            return false;
+        }
     }
 }
