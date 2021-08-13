@@ -225,8 +225,6 @@ namespace AdventToolkit.Extensions
                 max = Math.Max(max, path.Count);
             }
         }
-        
-        // TODO Generic search method so that either queue or stack can be used.
 
         public static int ShortestPathBfs<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, TPos to, Func<TPos, bool> valid)
         {

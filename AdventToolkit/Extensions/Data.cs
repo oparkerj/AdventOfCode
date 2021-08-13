@@ -30,6 +30,11 @@ namespace AdventToolkit.Extensions
             return b.ToString();
         }
 
+        public static string Str<T>(this IEnumerable<T> source)
+        {
+            return string.Concat(source);
+        }
+
         public static IEnumerable<string> ToStrings<T>(this IEnumerable<T> items)
         {
             return items.Select(arg => arg.ToString());
@@ -50,6 +55,11 @@ namespace AdventToolkit.Extensions
             return chars.Select(c => c - '0');
         }
 
+        public static int AsInt<T>(this IEnumerable<T> source)
+        {
+            return int.Parse(source.Str());
+        }
+
         public static IEnumerable<long> Longs(this IEnumerable<string> strings)
         {
             return strings.Select(long.Parse);
@@ -58,6 +68,21 @@ namespace AdventToolkit.Extensions
         public static IEnumerable<long> Longs(this IEnumerable<int> ints)
         {
             return ints.Select(i => (long) i);
+        }
+
+        public static IEnumerable<int> Digits(this int i)
+        {
+            i = Math.Abs(i);
+            if (i == 0)
+            {
+                yield return 0;
+                yield break;
+            }
+            while (i > 0)
+            {
+                yield return i % 10;
+                i /= 10;
+            }
         }
 
         public static IEnumerable<KeyValuePair<T, int>> Frequencies<T>(this IEnumerable<T> source)
