@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using MoreLinq;
 
 namespace AdventOfCode2019.IntCode
 {
@@ -19,6 +22,10 @@ namespace AdventOfCode2019.IntCode
             computer.LineIn = Output;
         }
 
+        public int Count => _data.Count;
+
+        public bool HasNext => _data.Count > 0;
+
         public void Link(Computer output, Computer input)
         {
             output.LineOut = Input;
@@ -28,6 +35,10 @@ namespace AdventOfCode2019.IntCode
         public bool TryTake(out long data) => _data.TryTake(out data);
 
         public void Insert(long data) => _data.Add(data);
+
+        public void InsertMany(IEnumerable<long> data) => data.ForEach(Insert);
+
+        public void InsertAscii(string s) => InsertMany(s.Select(c => (long) c));
 
         public long Output()
         {

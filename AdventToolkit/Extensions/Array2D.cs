@@ -155,26 +155,26 @@ namespace AdventToolkit.Extensions
             return string.Join(rowSep, source.Select(row => string.Join(colSep, row)));
         }
 
-        public static string Stringify<T>(this T[,] arr, bool yUp = true, string rowSep = null, string colSep = null)
+        public static string Stringify<T>(this T[,] arr, bool yInvert = false, string rowSep = null, string colSep = null)
         {
-            return arr.Stringify(item => item, yUp, rowSep, colSep);
+            return arr.Stringify(item => item, yInvert, rowSep, colSep);
         }
         
-        public static string Stringify<T, TU>(this T[,] arr, Func<T, TU> func, bool yUp = true, string rowSep = null, string colSep = null)
+        public static string Stringify<T, TU>(this T[,] arr, Func<T, TU> func, bool yInvert = false, string rowSep = null, string colSep = null)
         {
             rowSep ??= Environment.NewLine;
             colSep ??= "";
             var width = arr.GetLength(0);
             var height = arr.GetLength(1);
             var b = new StringBuilder();
-            for (var y = yUp ? height - 1 : 0; yUp ? y >= 0 : y < height; y += yUp ? -1 : 1)
+            for (var y = yInvert ? height - 1 : 0; yInvert ? y >= 0 : y < height; y += yInvert ? -1 : 1)
             {
                 for (var x = 0; x < width; x++)
                 {
                     b.Append(func(arr[x, y]));
                     if (x < width - 1) b.Append(colSep);
                 }
-                if (yUp && y > 0 || !yUp && y < height - 1) b.Append(rowSep);
+                if (yInvert && y > 0 || !yInvert && y < height - 1) b.Append(rowSep);
             }
             return b.ToString();
         }

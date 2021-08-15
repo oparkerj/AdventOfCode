@@ -19,6 +19,11 @@ namespace AdventToolkit.Extensions
             if (sep == null) return ie.Select(strings => string.Concat(strings));
             return ie.Select(strings => string.Join(sep, strings));
         }
+
+        public static bool AllEqual<T>(this IEnumerable<T> source, T value)
+        {
+            return source.All(arg => Equals(arg, value));
+        }
         
         public static string Str(this IEnumerable<char> chars)
         {
@@ -324,6 +329,42 @@ namespace AdventToolkit.Extensions
             }
             first = default;
             return false;
+        }
+
+        public static IEnumerable<IList<T>> Subsequences<T>(this IEnumerable<T> source)
+        {
+            var list = source.ToList();
+            for (var i = 1; i <= list.Count; i++)
+            {
+                for (var j = 0; j < list.Count - (i - 1); j++)
+                {
+                    yield return list.GetRange(j, i);
+                }
+            }
+        }
+
+        public static IEnumerable<T> WithoutSequence<T>(this IEnumerable<T> source, IEnumerable<T> other)
+        {
+            var section = other.ToList();
+            var main = new List<T>(section.Count);
+            foreach (var item in source)
+            {
+                if (main.Count < section.Count) main.Add(item);
+                if (main.Count < section.Count) continue;
+                for (var i = 1; i <= section.Count; i++)
+                {
+                    if (!Equals(main[^i], section[^i])) goto Advance;
+                }
+                main.Clear();
+                continue;
+                Advance:
+                yield return main[0];
+                main.RemoveAt(0);
+            }
+            foreach (var item in main)
+            {
+                yield return item;
+            }
         }
     }
 }

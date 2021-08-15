@@ -27,6 +27,15 @@ namespace AdventToolkit
 
         public virtual void PartTwo() => PartOne();
 
+        // Execute the provided action with no console output
+        public void Run(Action action)
+        {
+            var old = Console.Out;
+            Console.SetOut(TextWriter.Null);
+            action();
+            Console.SetOut(old);
+        }
+
         public void WriteLn(object o)
         {
             Console.WriteLine(o);

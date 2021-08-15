@@ -272,5 +272,92 @@ namespace AdventToolkit.Extensions
             }
             return max;
         }
+
+        public static IEnumerable<T> LongestRepeatedSequence<T>(this IEnumerable<T> source, int max = -1)
+        {
+            var list = source.ToList();
+            var table = new Grid<int>();
+            for (var i = 1; i <= list.Count; i++)
+            {
+                for (var j = i + 1; j < list.Count; j++)
+                {
+                    if (Equals(list[i - 1], list[j - 1]) && table[i - 1, j - 1] < (j - i))
+                    {
+                        table[i, j] = table[i - 1, j - 1] + 1;
+                    }
+                    else table[i, j] = 0;
+                }
+            }
+            
+            var ((a, _), len) = table.Where(pair => max <= 0 || pair.Value <= max).OrderByDescending(pair => pair.Value).FirstOrDefault();
+            if (len > 0) return list.GetRange(a - len, len);
+            return Enumerable.Empty<T>();
+        }
+        
+        public static IEnumerable<T> LongestRepeatFromStart<T>(this IEnumerable<T> source, int max = -1)
+        {
+            var list = source.ToList();
+            var table = new Grid<int>();
+            for (var i = 1; i <= list.Count; i++)
+            {
+                for (var j = i + 1; j < list.Count; j++)
+                {
+                    if (Equals(list[i - 1], list[j - 1]) && table[i - 1, j - 1] < (j - i))
+                    {
+                        table[i, j] = table[i - 1, j - 1] + 1;
+                    }
+                    else table[i, j] = 0;
+                }
+            }
+            
+            var (_, len) = table.Where(pair => max <= 0 || pair.Value <= max)
+                .Where(pair => pair.Key.X - pair.Value == 0)
+                .OrderByDescending(pair => pair.Value)
+                .FirstOrDefault();
+            if (len > 0) return list.GetRange(0, len);
+            return Enumerable.Empty<T>();
+        }
+
+        public static IEnumerable<TO> GetSequenceOrder<T, TO>(this IEnumerable<T> source, List<T>[] sequences, IEnumerable<TO> symbols)
+        {
+            var outputs = symbols.ToList();
+            if (outputs.Count < sequences.Length) throw new Exception("Not enough output symbols.");
+            var len = sequences.Max(list => list.Count);
+            var main = new List<T>();
+            foreach (var item in source)
+            {
+                if (main.Count < len) main.Add(item);
+                if (main.Count < len) continue;
+                foreach (var (index, sequence) in sequences.Index())
+                {
+                    for (var i = 1; i <= sequence.Count; i++)
+                    {
+                        if (!Equals(main[sequence.Count - i], sequence[^i])) goto TryNext;
+                    }
+                    yield return outputs[index];
+                    main.RemoveRange(0, sequence.Count);
+                    goto Advance;
+                    TryNext: ;
+                }
+                main.RemoveAt(0);
+                continue;
+                Advance: ;
+            }
+            if (main.Count > 0)
+            {
+                foreach (var (index, sequence) in sequences.Index())
+                {
+                    if (main.Count < sequence.Count) continue;
+                    for (var i = 1; i <= sequence.Count; i++)
+                    {
+                        if (!Equals(main[sequence.Count - i], sequence[^i])) goto TryNext;
+                    }
+                    yield return outputs[index];
+                    main.RemoveRange(0, sequence.Count);
+                    break;
+                    TryNext: ;
+                }
+            }
+        }
     }
 }
