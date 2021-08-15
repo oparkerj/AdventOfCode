@@ -116,6 +116,17 @@ namespace AdventOfCode2019.IntCode
 
         public bool NextBool() => NextOutput() != 0;
 
+        public long LastOutput()
+        {
+            var oldOutput = LineOut;
+            LineOut = _internalLink.Input;
+            Execute();
+            LineOut = oldOutput;
+            while (_internalLink.Count > 1) _internalLink.TryTake(out _);
+            _internalLink.TryTake(out var result);
+            return result;
+        }
+
         private void Advance(int args = 0) => Pointer += args + 1;
 
         private int ParameterMode(int relative) => (int) Program[Pointer] / 10.Pow(relative + 1) % 10;

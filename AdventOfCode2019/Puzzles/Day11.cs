@@ -38,7 +38,7 @@ namespace AdventOfCode2019.Puzzles
         {
             Map[Bot] = 1;
             RunBot();
-            WriteLn(Map.ToArray(false).Stringify(i => i == 1 ? '#' : ' '));
+            WriteLn(Map.ToArray().Stringify(i => i == 1 ? '#' : ' '));
         }
     }
 }
