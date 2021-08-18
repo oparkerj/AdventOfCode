@@ -4,6 +4,7 @@ using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
+using MoreLinq;
 
 namespace AdventOfCode2019.Puzzles
 {
@@ -81,9 +82,9 @@ namespace AdventOfCode2019.Puzzles
             }
         }
 
-        public IEnumerable<(Pos pos, int dist)> WithDistances()
+        public IEnumerable<KeyValuePair<Pos, int>> WithDistances()
         {
-            return this.Select((pos, i) => (pos, i));
+            return this.Select((pos, i) => new KeyValuePair<Pos, int>(pos, i));
         }
     }
 }

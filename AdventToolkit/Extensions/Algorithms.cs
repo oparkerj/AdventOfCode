@@ -179,6 +179,11 @@ namespace AdventToolkit.Extensions
             }
         }
 
+        public static IEnumerable<int[]> ExclusivePairs(int n, bool index = false)
+        {
+            return Sequences(2, n, index).Where(ints => ints[0] != ints[1]);
+        }
+
         // Find the cycle time for individual components of an object and calculate how often
         // all cycles align.
         public static long CommonCycle<T, TC>(T data, Func<T, IEnumerable<TC>> cycles, Action<T> step)
@@ -223,6 +228,27 @@ namespace AdventToolkit.Extensions
                 }
                 path.Push(offset);
                 max = Math.Max(max, path.Count);
+            }
+        }
+
+        public static IEnumerable<TPos> Bfs<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, Func<TPos, bool> valid, Func<TPos, bool> notify, bool includeInvalid = false)
+        {
+            var visited = new HashSet<TPos>();
+            var queue = new Queue<TPos>();
+            queue.Enqueue(from);
+            visited.Add(from);
+            while (queue.Count > 0)
+            {
+                var pos = queue.Dequeue();
+                var near = space.GetNeighbors(pos).Where(p => !visited.Contains(p));
+                foreach (var next in near)
+                {
+                    var v = valid(next);
+                    if ((v || includeInvalid) && notify(next)) yield return next;
+                    if (!v) continue;
+                    queue.Enqueue(next);
+                    visited.Add(next);
+                }
             }
         }
 
@@ -271,6 +297,11 @@ namespace AdventToolkit.Extensions
                 }
             }
             return max;
+        }
+
+        public static bool IsReachable<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, TPos target, Func<TPos, bool> valid)
+        {
+            return space.ShortestPathBfs(from, target, valid) > -1;
         }
 
         public static IEnumerable<T> LongestRepeatedSequence<T>(this IEnumerable<T> source, int max = -1)

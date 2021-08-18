@@ -36,7 +36,7 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartTwo()
         {
-            Pos[] dirs = (0, 0).Around().ToArray();
+            var dirs = Pos.Origin.Around().ToArray();
             var game = new GameOfLife<Pos, int>(Empty, Taken);
             game.WithNeighborFunction(pos => dirs.ToTrace(pos, game, (_, i) => i > Floor))
                 .WithLivingDeadRules(i => i >= 5, i => i == 0);

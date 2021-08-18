@@ -16,6 +16,15 @@ namespace AdventToolkit.Utilities
             _includeCorners = includeCorners;
         }
 
+        public Grid(Grid<T> other) : this(other._includeCorners)
+        {
+            _bounds = other._bounds == null ? null : new Rect(other._bounds);
+            foreach (var (pos, value) in other)
+            {
+                this[pos] = value;
+            }
+        }
+
         public static Func<Pos, IEnumerable<Pos>> Adjacent() => pos => pos.Adjacent();
 
         public static Func<Pos, IEnumerable<Pos>> Around() => pos => pos.Around();
@@ -163,11 +172,6 @@ namespace AdventToolkit.Utilities
             }
             if (decreaseY) SimpleGridTransformer<T>.FlipV.ApplyTo(grid);
             return grid;
-        }
-
-        public static Pos Find<T>(this Grid<T> grid, T value)
-        {
-            return grid.WhereValue(value).First().Key;
         }
     }
 }
