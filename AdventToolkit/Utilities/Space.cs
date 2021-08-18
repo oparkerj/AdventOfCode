@@ -25,6 +25,8 @@ namespace AdventToolkit.Utilities
 
         public bool Has(TPos pos) => Points.ContainsKey(pos);
 
+        public bool HasValue(TVal val) => Points.ContainsValue(val);
+
         public bool Remove(TPos pos) => Points.Remove(pos);
 
         public void Clear() => Points.Clear();

@@ -38,5 +38,10 @@ namespace AdventToolkit.Extensions
         {
             return pos.Neighbors(space).GetFrom(space);
         }
+        
+        public static TPos Find<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TVal value)
+        {
+            return space.WhereValue(value).First().Key;
+        }
     }
 }

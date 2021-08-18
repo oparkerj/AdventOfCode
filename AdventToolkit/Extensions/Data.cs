@@ -308,17 +308,6 @@ namespace AdventToolkit.Extensions
             }
         }
 
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<(TKey key, TValue value)> pairs)
-        {
-            var dict = new Dictionary<TKey, TValue>();
-            foreach (var (key, value) in pairs)
-            {
-                if (dict.ContainsKey(key)) continue;
-                dict[key] = value;
-            }
-            return dict;
-        }
-
         public static bool First<T>(this IEnumerable<T> source, Func<T, bool> func, out T first)
         {
             foreach (var item in source)
