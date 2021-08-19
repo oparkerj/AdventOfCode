@@ -34,6 +34,8 @@ namespace AdventOfCode2019.IntCode
 
         public bool TryTake(out long data) => _data.TryTake(out data);
 
+        public long Take() => _data.Take();
+
         public void Insert(long data) => _data.Add(data);
 
         public void InsertMany(IEnumerable<long> data) => data.ForEach(Insert);
