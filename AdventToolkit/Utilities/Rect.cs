@@ -38,6 +38,11 @@ namespace AdventToolkit.Utilities
 
         public Rect(Rect other) : this(other.MinX, other.MinY, other.MaxX, other.MaxY) { }
 
+        public static Rect Size(int width, int height)
+        {
+            return new Rect(width - 1, height - 1);
+        }
+
         public void Deconstruct(out int minX, out int minY, out int maxX, out int maxY)
         {
             minX = MinX;
@@ -64,8 +69,6 @@ namespace AdventToolkit.Utilities
 
         public Pos Max => new(MaxX, MaxY);
 
-        public (double x, double y) Mid => (MidX, MidY);
-
         public Rect Fit(Pos p)
         {
             var set = !Initialized;
@@ -84,6 +87,56 @@ namespace AdventToolkit.Utilities
             yield return new Pos(MaxX, MaxY);
             yield return new Pos(MinX, MaxY);
         }
-        
+
+        public IEnumerable<Pos> Positions()
+        {
+            for (var y = MinY; y <= MaxY; y++)
+            {
+                for (var x = MinX; x <= MaxX; x++)
+                {
+                    yield return new Pos(x, y);
+                }
+            }
+        }
+
+        public IEnumerable<Pos> GetSidePositions(Side side)
+        {
+            if (side == Side.Top)
+            {
+                for (var i = MinX; i <= MaxX; i++)
+                {
+                    yield return (i, MaxY);
+                }
+            }
+            else if (side == Side.Right)
+            {
+                for (var i = MinY; i <= MaxY; i++)
+                {
+                    yield return (MaxX, i);
+                }
+            }
+            else if (side == Side.Bottom)
+            {
+                for (var i = MinX; i <= MaxX; i++)
+                {
+                    yield return (i, MinY);
+                }
+            }
+            else if (side == Side.Left)
+            {
+                for (var i = MinY; i <= MaxY; i++)
+                {
+                    yield return (MinX, i);
+                }
+            }
+        }
+    }
+    
+    public enum Side
+    {
+        Top,
+        Right,
+        Bottom,
+        Left
     }
 }

@@ -249,6 +249,11 @@ namespace AdventToolkit.Extensions
             return s.Count(ch => ch == c);
         }
 
+        public static int Count<T>(this IEnumerable<T> source, T item)
+        {
+            return source.Count(i => Equals(i, item));
+        }
+
         public static int CountValues<T, TV>(this IEnumerable<KeyValuePair<T, TV>> pairs, TV value)
         {
             return pairs.Count(pair => Equals(pair.Value, value));

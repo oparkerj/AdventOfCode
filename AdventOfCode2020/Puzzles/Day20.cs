@@ -173,7 +173,7 @@ namespace AdventOfCode2020.Puzzles
             {
                 foreach (var side in Sides())
                 {
-                    foreach (var pos in tile.Value.GetSidePositions(side))
+                    foreach (var pos in tile.Value.Bounds.GetSidePositions(side))
                     {
                         tile.Value.Remove(pos);
                     }

@@ -56,42 +56,10 @@ namespace AdventToolkit.Utilities
             return _includeCorners ? pos.Around() : pos.Adjacent();
         }
 
-        public IEnumerable<T> GetSide(Side side)
+        public IEnumerable<T> GetSide(Side side, Rect rect = null)
         {
-            return GetSidePositions(side).Select(pos => this[pos]);
-        }
-        
-        public IEnumerable<Pos> GetSidePositions(Side side)
-        {
-            var b = Bounds;
-            if (side == Side.Top)
-            {
-                for (var i = b.MinX; i <= b.MaxX; i++)
-                {
-                    yield return (i, b.MaxY);
-                }
-            }
-            else if (side == Side.Right)
-            {
-                for (var i = b.MinY; i <= b.MaxY; i++)
-                {
-                    yield return (b.MaxX, i);
-                }
-            }
-            else if (side == Side.Bottom)
-            {
-                for (var i = b.MinX; i <= b.MaxX; i++)
-                {
-                    yield return (i, b.MinY);
-                }
-            }
-            else if (side == Side.Left)
-            {
-                for (var i = b.MinY; i <= b.MaxY; i++)
-                {
-                    yield return (b.MinX, i);
-                }
-            }
+            rect ??= Bounds;
+            return rect.GetSidePositions(side).Select(pos => this[pos]);
         }
 
         // Re-align bounding box
@@ -130,14 +98,6 @@ namespace AdventToolkit.Utilities
             }
             return arr;
         }
-    }
-
-    public enum Side
-    {
-        Top,
-        Right,
-        Bottom,
-        Left
     }
 
     public static class GridExtensions
