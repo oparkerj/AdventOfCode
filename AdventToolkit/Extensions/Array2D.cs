@@ -64,42 +64,6 @@ namespace AdventToolkit.Extensions
         {
             return ie.Select(items => items.Select(func));
         }
-        
-        public static IEnumerable<Pos> Adjacent(this Pos p, bool yUp = false)
-        {
-            if (yUp)
-            {
-                yield return new Pos(p.X, p.Y + 1);
-                yield return new Pos(p.X + 1, p.Y);
-                yield return new Pos(p.X, p.Y - 1);
-                yield return new Pos(p.X - 1, p.Y);
-                yield break;
-            }
-            yield return new Pos(p.X, p.Y - 1);
-            yield return new Pos(p.X + 1, p.Y);
-            yield return new Pos(p.X, p.Y + 1);
-            yield return new Pos(p.X - 1, p.Y);
-        }
-
-        public static IEnumerable<Pos> Around(this Pos p)
-        {
-            yield return new Pos(p.X, p.Y - 1);
-            yield return new Pos(p.X + 1, p.Y - 1);
-            yield return new Pos(p.X + 1, p.Y);
-            yield return new Pos(p.X + 1, p.Y + 1);
-            yield return new Pos(p.X, p.Y + 1);
-            yield return new Pos(p.X - 1, p.Y + 1);
-            yield return new Pos(p.X - 1, p.Y);
-            yield return new Pos(p.X - 1, p.Y - 1);
-        }
-
-        public static IEnumerable<Pos> Corners(this Pos p)
-        {
-            yield return new Pos(p.X + 1, p.Y + 1);
-            yield return new Pos(p.X - 1, p.Y + 1);
-            yield return new Pos(p.X + 1, p.Y - 1);
-            yield return new Pos(p.X - 1, p.Y - 1);
-        }
 
         public static bool Contains(this (int a, int b) range, int i, bool inclusive = false)
         {

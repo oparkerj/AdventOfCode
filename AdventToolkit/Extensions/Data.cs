@@ -279,6 +279,17 @@ namespace AdventToolkit.Extensions
             yield return t;
         }
 
+        public delegate bool Selection<in T, TOut>(T input, out TOut output);
+
+        public static IEnumerable<TOut> SelectWhere<T, TOut>(this IEnumerable<T> source, Selection<T, TOut> selection)
+        {
+            foreach (var item in source)
+            {
+                if (!selection(item, out var output)) continue;
+                yield return output;
+            }
+        }
+
         public static TV GetOrSetValue<T, TV>(this Dictionary<T, TV> dict, T key, Func<TV> func)
         {
             if (dict.TryGetValue(key, out var value)) return value;

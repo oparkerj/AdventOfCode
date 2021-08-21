@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,8 +6,9 @@ using System.Text;
 
 namespace AdventToolkit.Utilities
 {
-    public class Graph<T, TVertex> : IEnumerable<TVertex>
+    public class Graph<T, TVertex, TEdge> : IEnumerable<TVertex>
         where TVertex : Vertex<T>
+        where TEdge : Edge<T>
     {
         private int _counter;
         
@@ -57,7 +59,7 @@ namespace AdventToolkit.Utilities
         }
     }
     
-    public class Graph<T> : Graph<T, Vertex<T>> { }
+    public class Graph<T> : Graph<T, Vertex<T>, Edge<T>> { }
 
     public class Vertex<T>
     {
@@ -164,10 +166,11 @@ namespace AdventToolkit.Utilities
         }
     }
 
-    public class UniqueGraph<T, TVertex> : Graph<T, TVertex>
+    public class UniqueGraph<T, TVertex, TEdge> : Graph<T, TVertex, TEdge>
         where TVertex : Vertex<T>
+        where TEdge : Edge<T>
     {
-        private new readonly Dictionary<T, Vertex<T>> _vertices = new();
+        private new readonly Dictionary<T, TVertex> _vertices = new();
 
         public override void AddVertex(TVertex vertex)
         {
@@ -181,6 +184,12 @@ namespace AdventToolkit.Utilities
             _vertices.Remove(vertex.Value);
         }
 
-        public Vertex<T> Get(T val) => _vertices[val];
+        public TVertex Get(T val) => _vertices[val];
+
+        public TVertex GetOrCreate(T val, Func<T, TVertex> cons)
+        {
+            if (_vertices.TryGetValue(val, out var vertex)) return vertex;
+            return _vertices[val] = cons(val);
+        }
     }
 }

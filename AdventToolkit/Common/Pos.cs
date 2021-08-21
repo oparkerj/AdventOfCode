@@ -91,6 +91,8 @@ namespace AdventToolkit.Utilities
 
         public Pos Flip() => new(Y, X);
 
+        public int Dot(Pos other) => X * other.X + Y * other.Y;
+
         public int Cross(Pos other)
         {
             return X * other.Y - Y * other.X;

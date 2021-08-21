@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AdventToolkit.Utilities
 {
-    public abstract class AlignedSpace<TPos, TVal> : IEnumerable<KeyValuePair<TPos, TVal>>
+    public abstract class AlignedSpace<TPos, TVal> : IEnumerable<KeyValuePair<TPos, TVal>>, IDijkstra<TPos, TPos>
     {
         public readonly Dictionary<TPos, TVal> Points = new();
 
@@ -30,6 +30,10 @@ namespace AdventToolkit.Utilities
         public bool Remove(TPos pos) => Points.Remove(pos);
 
         public void Clear() => Points.Clear();
+
+        public virtual int GetWeight(TPos mid) => 1;
+
+        public TPos GetNeighbor(TPos from, TPos mid) => mid;
 
         public IEnumerable<TPos> Positions => Points.Keys;
 
