@@ -10,6 +10,8 @@ namespace AdventToolkit.Utilities
     {
         private Rect _bounds;
         private bool _includeCorners;
+        
+        public Grid() : this(false) { }
 
         public Grid(bool includeCorners = false)
         {
@@ -102,9 +104,10 @@ namespace AdventToolkit.Utilities
 
     public static class GridExtensions
     {
-        public static Grid<T> ToGrid<T>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
+        public static TGrid ToGrid<T, TGrid>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
+            where TGrid : Grid<T>, new()
         {
-            var grid = new Grid<T>();
+            var grid = new TGrid();
             var y = 0;
             foreach (var row in source)
             {
@@ -118,6 +121,11 @@ namespace AdventToolkit.Utilities
                 else y++;
             }
             return grid;
+        }
+        
+        public static Grid<T> ToGrid<T>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
+        {
+            return source.ToGrid<T, Grid<T>>(decreaseY);
         }
 
         public static Grid<T> ToGridRows<T>(this IEnumerable<T> source, int width, bool decreaseY = false)

@@ -65,6 +65,8 @@ namespace AdventToolkit.Utilities
 
         public double MidY => (MinY + MaxY) / 2d;
 
+        public Pos MidPos => new((MinX + MaxX) / 2, (MinY + MaxY) / 2);
+
         public Pos Min => new(MinX, MinY);
 
         public Pos Max => new(MaxX, MaxY);

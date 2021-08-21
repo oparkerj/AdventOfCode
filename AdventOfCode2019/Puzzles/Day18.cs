@@ -23,9 +23,9 @@ namespace AdventOfCode2019.Puzzles
         }
 
         // Build graph from grid
-        public UniqueGraph<char, Vertex<char>> MakeGraph()
+        public UniqueGraph<char, Vertex<char>, WeightedEdge<char>> MakeGraph()
         {
-            var graph = new UniqueGraph<char, Vertex<char>>();
+            var graph = new UniqueGraph<char, Vertex<char>, WeightedEdge<char>>();
             foreach (var key in Map.Values.Where(c => char.IsLetter(c) || char.IsNumber(c)))
             {
                 graph.AddVertex(new Vertex<char>(key));
@@ -45,7 +45,7 @@ namespace AdventOfCode2019.Puzzles
             return graph;
         }
 
-        public int Solve<TPos>(UniqueGraph<char, Vertex<char>> graph, State<TPos> initial, Func<State<TPos>, IEnumerable<(TPos Pos, char Key, int Travel)>> possibilities)
+        public int Solve<TPos>(UniqueGraph<char, Vertex<char>, WeightedEdge<char>> graph, State<TPos> initial, Func<State<TPos>, IEnumerable<(TPos Pos, char Key, int Travel)>> possibilities)
         {
             // Perform a dijkstra search on (position, keys)
             var keyCount = graph.Values.Where(char.IsLower).Count();
@@ -90,7 +90,7 @@ namespace AdventOfCode2019.Puzzles
 
             var result = Solve(graph, new State<Vertex<char>>(start, 0, ""), state =>
             {
-                var search = graph.DijkstraWhere(state.Pos, vertex => char.IsLower(vertex.Value) || state.Keys.Contains(char.ToLower(vertex.Value)) || vertex.Value == You);
+                var search = graph.ToDijkstra().ComputeWhere(state.Pos, vertex => char.IsLower(vertex.Value) || state.Keys.Contains(char.ToLower(vertex.Value)) || vertex.Value == You);
                 var useless = search.Keys.Where(vertex => char.IsUpper(vertex.Value) || state.Keys.Contains(vertex.Value) || vertex.Value == You).ToList();
                 foreach (var vertex in useless)
                 {
@@ -137,7 +137,7 @@ namespace AdventOfCode2019.Puzzles
                 var bots = state.Pos.Positions;
                 for (var i = 0; i < bots.Length; i++)
                 {
-                    var search = graph.DijkstraWhere(bots[i], vertex => char.IsLower(vertex.Value) || char.IsNumber(vertex.Value) || state.Keys.Contains(char.ToLower(vertex.Value)));
+                    var search = graph.ToDijkstra().ComputeWhere(bots[i], vertex => char.IsLower(vertex.Value) || char.IsNumber(vertex.Value) || state.Keys.Contains(char.ToLower(vertex.Value)));
                     var useless = search.Keys.Where(vertex => char.IsUpper(vertex.Value) || char.IsNumber(vertex.Value) || state.Keys.Contains(vertex.Value)).ToList();
                     foreach (var vertex in useless)
                     {
