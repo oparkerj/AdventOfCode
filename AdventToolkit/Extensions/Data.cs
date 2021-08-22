@@ -371,5 +371,33 @@ namespace AdventToolkit.Extensions
                 yield return item;
             }
         }
+
+        public static IEnumerable<T> Endless<T>(this IEnumerable<T> source)
+        {
+            var list = new List<T>();
+            foreach (var item in source)
+            {
+                yield return item;
+                list.Add(item);
+            }
+            while (true)
+            {
+                foreach (var item in list)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        public static T FirstRepeat<T>(this IEnumerable<T> source)
+        {
+            var seen = new HashSet<T>();
+            foreach (var item in source)
+            {
+                if (seen.Contains(item)) return item;
+                seen.Add(item);
+            }
+            return default;
+        }
     }
 }
