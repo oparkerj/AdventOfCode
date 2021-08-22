@@ -82,7 +82,7 @@ namespace AdventToolkit.Utilities
 
         public void Step(int count)
         {
-            count.Times(Step);
+            count.Times(() => Step());
         }
 
         // Step the game once and return the number of cells that changed states

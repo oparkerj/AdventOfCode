@@ -66,10 +66,5 @@ namespace AdventToolkit.Extensions
         {
             for (var j = 0; j < i; j++) action();
         }
-        
-        public static void Times(this int i, Action<int> action)
-        {
-            for (var j = 0; j < i; j++) action(j);
-        }
     }
 }
