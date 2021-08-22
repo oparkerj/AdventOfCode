@@ -9,7 +9,7 @@ namespace AdventOfCode2019.IntCode
     public class DataLink
     {
         private readonly BlockingCollection<long> _data = new();
-
+        
         public Func<long> FallbackOutput;
 
         public DataLink(Func<long> fallbackOutput = null)
@@ -40,7 +40,7 @@ namespace AdventOfCode2019.IntCode
 
         public void InsertMany(IEnumerable<long> data) => data.ForEach(Insert);
 
-        public void InsertAscii(string s) => InsertMany(s.Select(c => (long) c));
+        public void InsertAscii(string s) => InsertMany(s.Where(c => c != '\r').Select(c => (long) c));
 
         public long Output()
         {
