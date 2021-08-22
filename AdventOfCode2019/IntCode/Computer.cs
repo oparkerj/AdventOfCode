@@ -36,9 +36,25 @@ namespace AdventOfCode2019.IntCode
             return () => long.Parse(Console.ReadLine() ?? "0");
         }
 
+        public static Func<long> AsciiReader()
+        {
+            return () =>
+            {
+                Read:
+                var d = Console.Read();
+                if (d == '\r') goto Read;
+                return d;
+            };
+        }
+
         public static Action<long> ConsoleOutput()
         {
-            return data => Console.WriteLine(data);
+            return Console.WriteLine;
+        }
+
+        public static Action<long> AsciiOutput()
+        {
+            return data => Console.Write((char) data);
         }
 
         private void AddOpcodes()
