@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using AdventToolkit.Extensions;
 
 namespace AdventOfCode2019.IntCode
 {
@@ -10,8 +12,17 @@ namespace AdventOfCode2019.IntCode
         private readonly List<Computer> _computers = new();
         private readonly Dictionary<int, DataLink> _inputs = new();
         private Action<Network, Dictionary<int, DataLink>> _setup;
+        private int _running;
+
+        public bool Running
+        {
+            get => _running != 0;
+            set => Interlocked.Exchange(ref _running, value ? 1 : 0);
+        }
 
         public int Count => _computers.Count;
+
+        public IReadOnlyDictionary<int, DataLink> Inputs => _inputs;
 
         public int Add(string program)
         {
@@ -39,6 +50,20 @@ namespace AdventOfCode2019.IntCode
             Link(count - 1, 0);
         }
 
+        public void AddCount(string program, int count, bool addInput = false, Action<DataLink> action = null)
+        {
+            count.Times(() =>
+            {
+                var id = Add(program);
+                if (addInput)
+                {
+                    var data = new DataLink(_computers[id]);
+                    _inputs[id] = data;
+                    action?.Invoke(data);
+                }
+            });
+        }
+
         private DataLink LinkInternal(int a, int b)
         {
             var data = new DataLink();
@@ -50,6 +75,20 @@ namespace AdventOfCode2019.IntCode
         public void Link(int a, int b) => LinkInternal(a, b);
 
         public void Link(int a, int b, long initial) => LinkInternal(a, b).Insert(initial);
+
+        public DataLink GetLink(int id)
+        {
+            if (_inputs.TryGetValue(id, out var link)) return link;
+            return _inputs[id] = new DataLink();
+        }
+
+        public void SetOutput(Func<Action<long>> outputs)
+        {
+            foreach (var computer in _computers)
+            {
+                computer.LineOut = outputs();
+            }
+        }
 
         public static Action<Network, Dictionary<int, DataLink>> Insert(IList<long> data, bool create = true)
         {
@@ -93,6 +132,26 @@ namespace AdventOfCode2019.IntCode
             return this;
         }
 
+        public void SendPacket(int id, params long[] data)
+        {
+            Console.WriteLine(id);
+            if (_inputs.TryGetValue(id, out var link))
+            {
+                foreach (var d in data)
+                {
+                    link.Insert(d);
+                }
+            }
+        }
+
+        public void StopAll()
+        {
+            foreach (var c in _computers)
+            {
+                c.Interrupt = true;
+            }
+        }
+
         public long RunSeries()
         {
             _setup?.Invoke(this, _inputs);
@@ -117,6 +176,30 @@ namespace AdventOfCode2019.IntCode
                 output.TryTake(out var result);
                 return result;
             });
+        }
+
+        public Task<long> RunUntilOutputAsync(int id, int skip = 0)
+        {
+            if (!_inputs.TryGetValue(id, out var link))
+            {
+                link = _inputs[id] = new DataLink();
+            }
+            _setup?.Invoke(this, _inputs);
+            return Task.Run(async () =>
+            {
+                var computers = Task.WhenAll(_computers.Select(c => c.ExecuteAsync()));
+                long result = 0;
+                while (skip-- + 1 > 0) result = link.Take();
+                StopAll();
+                await computers;
+                return result;
+            });
+        }
+
+        public Task RunAllAsync()
+        {
+            _setup?.Invoke(this, _inputs);
+            return Task.WhenAll(_computers.Select(c => c.ExecuteAsync()));
         }
     }
 }
