@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities;
 using RegExtract;
 
 namespace AdventOfCode2020.Puzzles
@@ -9,7 +10,7 @@ namespace AdventOfCode2020.Puzzles
     public class Day16 : Puzzle
     {
         public new string[][] Groups;
-        public Dictionary<string, (int, int)[]> Rules = new();
+        public Dictionary<string, IntRange[]> Rules = new();
 
         public Day16()
         {
@@ -23,7 +24,7 @@ namespace AdventOfCode2020.Puzzles
             var rules = Groups[0].Extract<(string, int, int, int, int)>(@"(.+): (\d+)-(\d+) or (\d+)-(\d+)");
             foreach (var (name, a, b, c, d) in rules)
             {
-                Rules[name] = new[] {(a, b), (c, d)};
+                Rules[name] = new[] {new IntRange(a, b), new IntRange(c, d)};
             }
         }
 
@@ -34,47 +35,32 @@ namespace AdventOfCode2020.Puzzles
         
         public override void PartOne()
         {
-            var ranges = Rules.Values.SelectMany(tuples => tuples).ToList();
+            var ranges = Rules.Values.Flatten().ToList();
             var count = AllTickets()
-                .SelectMany(ints => ints)
-                .Where(i => !ranges.Any(range => range.Contains(i, true)))
+                .Flatten()
+                .Where(i => !ranges.Any(range => range.ContainsInclusive(i)))
                 .Sum();
             WriteLn(count);
         }
 
         public override void PartTwo()
         {
-            var possible = new Dictionary<int, HashSet<string>>();
-            // Every range of values
-            var ranges = Rules.Values.SelectMany(tuples => tuples).ToList();
-            // Every valid ticket
-            var tickets = AllTickets()
-                .Where(ticket => ticket.All(i => ranges.Any(range => range.Contains(i, true))))
-                .ToArray();
-            var size = tickets[0].Length;
-            for (var i = 0; i < size; i++)
+            var ranges = Rules.Values.Flatten().ToList();
+            var tickets = AllTickets().Where(ticket => ticket.All(value => ranges.Any(range => range.ContainsInclusive(value)))).ToList();
+            
+            var possible = new OneToOne<int, string>();
+            possible.AddKeys(Enumerable.Range(0, tickets[0].Length));
+            possible.AddValues(Rules.Keys);
+            
+            possible.ReduceWithValid(i =>
             {
-                // Any position could be any rule at the start
-                possible[i] = Rules.Keys.ToHashSet();
-            }
-            // Filter out rules based on ranges
-            foreach (var ticket in tickets)
-            {
-                for (var i = 0; i < size; i++)
-                {
-                    var v = ticket[i];
-                    var updated = Rules.Where(pair => pair.Value.Any(range => range.Contains(v, true)))
-                        .Select(pair => pair.Key)
-                        .Intersect(possible[i])
-                        .ToHashSet();
-                    possible[i] = updated;
-                }
-            }
-            possible.MakeSingles();
+                var values = tickets.Select(ticket => ticket[i]).ToList();
+                return Rules.WhereValue(posRanges => values.All(value => posRanges.Any(range => range.ContainsInclusive(value)))).Keys();
+            });
+            possible.ReduceToSingles();
+
             var myTicket = Groups[1][1].Csv().Ints().ToArray();
-            var result = possible.Where(pair => pair.Value.First().StartsWith("departure"))
-                .Select(pair => myTicket[pair.Key])
-                .LongProduct();
+            var result = myTicket.Get(possible.Results.WhereValue(field => field.StartsWith("departure")).Keys()).LongProduct();
             WriteLn(result);
         }
     }

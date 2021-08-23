@@ -98,22 +98,6 @@ namespace AdventToolkit.Extensions
                 .FirstOrDefault(indices => ints.Get(indices).Sum() == target);
         }
 
-        // Narrow a set of possibilities using options that only have one possible outcome
-        public static void MakeSingles<T, TV>(this Dictionary<T, HashSet<TV>> possible)
-        {
-            var done = new HashSet<T>();
-            for (var i = 0; i < possible.Count - 1; i++)
-            {
-                var (key, value) = possible.Single(pair => !done.Contains(pair.Key) && pair.Value.Count == 1);
-                done.Add(key);
-                var remove = value.First();
-                foreach (var k in possible.Keys.Where(k => !k.Equals(key)))
-                {
-                    possible[k].Remove(remove);
-                }
-            }
-        }
-
         public static T Trace<T>(this T pos, T delta, Func<T, bool> hit)
             where T : IAdd<T>
         {
