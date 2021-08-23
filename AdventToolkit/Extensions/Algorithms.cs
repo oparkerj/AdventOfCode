@@ -36,6 +36,12 @@ namespace AdventToolkit.Extensions
             }
             return sum;
         }
+
+        public static T Sum<T>(this IEnumerable<T> source)
+            where T : IAdd<T>
+        {
+            return source.Aggregate((a, b) => a.Add(b));
+        }
         
         public static int ExtendedEuclidean(this (int a, int m) p, out int x, out int y)
         {
@@ -373,6 +379,11 @@ namespace AdventToolkit.Extensions
                     TryNext: ;
                 }
             }
+        }
+
+        public static int FirstDifference<T>(this IEnumerable<T> source, IEnumerable<T> other)
+        {
+            return source.ZipShortest(other, (a, b) => Equals(a, b)).TakeWhile(b => b).Count();
         }
     }
 }
