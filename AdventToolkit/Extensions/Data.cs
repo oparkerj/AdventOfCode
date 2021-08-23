@@ -70,6 +70,12 @@ namespace AdventToolkit.Extensions
             return int.Parse(source.Str());
         }
 
+        public static int AsInt(this bool b) => b ? 1 : 0;
+
+        public static bool AsBool(this int i) => i != 0;
+        
+        public static bool AsBool(this long i) => i != 0;
+
         public static IEnumerable<long> Longs(this IEnumerable<string> strings)
         {
             return strings.Select(long.Parse);
