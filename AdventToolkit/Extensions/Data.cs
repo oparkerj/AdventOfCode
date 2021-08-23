@@ -50,6 +50,11 @@ namespace AdventToolkit.Extensions
             return space ? s.Split(", ") : s.Split(',');
         }
 
+        public static string ToCsv<T>(this IEnumerable<T> source)
+        {
+            return string.Join(',', source);
+        }
+
         public static IEnumerable<int> Ints(this IEnumerable<string> strings)
         {
             return strings.Select(int.Parse);
@@ -135,7 +140,7 @@ namespace AdventToolkit.Extensions
 
         public static long LongProduct(this IEnumerable<int> ints)
         {
-            return ints.Select(i => (long) i).Aggregate((a, b) => a * b);
+            return ints.Longs().Aggregate((a, b) => a * b);
         }
 
         public static IEnumerable<T> Get<T>(this T[] t, IEnumerable<int> indices)
@@ -150,16 +155,12 @@ namespace AdventToolkit.Extensions
 
         public static void Swap<T>(this T[] arr, int a, int b)
         {
-            var t = arr[a];
-            arr[a] = arr[b];
-            arr[b] = t;
+            (arr[a], arr[b]) = (arr[b], arr[a]);
         }
 
         public static void Swap<T>(ref T a, ref T b)
         {
-            var t = a;
-            a = b;
-            b = t;
+            (a, b) = (b, a);
         }
 
         public static bool Search<T>(this T[] arr, T t, out int i)
@@ -398,6 +399,11 @@ namespace AdventToolkit.Extensions
                 seen.Add(item);
             }
             return default;
+        }
+
+        public static Func<T, bool> Not<T>(this Func<T, bool> func)
+        {
+            return arg => !func(arg);
         }
     }
 }

@@ -65,12 +65,6 @@ namespace AdventToolkit.Extensions
             return ie.Select(items => items.Select(func));
         }
 
-        public static bool Contains(this (int a, int b) range, int i, bool inclusive = false)
-        {
-            if (inclusive) return i >= range.a && i <= range.b;
-            return i >= range.a && i < range.b;
-        }
-
         public static IEnumerable<T> Flatten<T>(this T[,] arr, T sep)
         {
             for (var j = arr.GetLength(1) - 1; j >= 0; j--)
