@@ -126,6 +126,35 @@ namespace AdventToolkit.Utilities
                 }
             }
         }
+        
+        public bool OnSide(Pos pos)
+        {
+            return pos.X == MinX || pos.X == MaxX && pos.Y == MinY || pos.Y == MaxY;
+        }
+
+        public IEnumerable<Pos> GetAllSides()
+        {
+            // Top
+            for (var i = MinX; i < MaxX; i++)
+            {
+                yield return (i, MaxY);
+            }
+            // Right
+            for (var i = MinY + 1; i <= MaxY; i++)
+            {
+                yield return (MaxX, i);
+            }
+            // Bottom
+            for (var i = MinX + 1; i <= MaxX; i++)
+            {
+                yield return (i, MinY);
+            }
+            // Left
+            for (var i = MinY; i < MaxY; i++)
+            {
+                yield return (MinX, i);
+            }
+        }
 
         public IEnumerable<Pos> GetSidePositions(Side side)
         {

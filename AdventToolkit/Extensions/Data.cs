@@ -407,11 +407,6 @@ namespace AdventToolkit.Extensions
             return default;
         }
 
-        public static Func<T, bool> Not<T>(this Func<T, bool> func)
-        {
-            return arg => !func(arg);
-        }
-
         public static LinkedList<T> ToLinkedList<T>(this IEnumerable<T> source)
         {
             var list = new LinkedList<T>();
@@ -420,6 +415,40 @@ namespace AdventToolkit.Extensions
                 list.AddLast(item);
             }
             return list;
+        }
+
+        public static T SelectMin<T, TCompare>(this IEnumerable<T> source, Func<T, TCompare> compare)
+            where TCompare : IComparable<TCompare>
+        {
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) throw new Exception("Source contains no elements.");
+            var min = e.Current;
+            var value = compare(min);
+            while (e.MoveNext())
+            {
+                var compareValue = compare(e.Current);
+                if (compareValue.CompareTo(value) >= 0) continue;
+                min = e.Current;
+                value = compareValue;
+            }
+            return min;
+        }
+        
+        public static T SelectMax<T, TCompare>(this IEnumerable<T> source, Func<T, TCompare> compare)
+            where TCompare : IComparable<TCompare>
+        {
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) throw new Exception("Source contains no elements.");
+            var min = e.Current;
+            var value = compare(min);
+            while (e.MoveNext())
+            {
+                var compareValue = compare(e.Current);
+                if (compareValue.CompareTo(value) <= 0) continue;
+                min = e.Current;
+                value = compareValue;
+            }
+            return min;
         }
     }
 }

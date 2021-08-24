@@ -25,7 +25,12 @@ namespace AdventToolkit.Utilities
 
         public static implicit operator Pos((int x, int y) p) => new(p.x, p.y);
 
-        // public static implicit operator (int x, int y)(Pos p) => (p.X, p.Y);
+        public static Pos Parse(string s)
+        {
+            if (s.StartsWith('(') && s.EndsWith(')')) s = s[1..^1];
+            var parts = s.Csv();
+            return new Pos(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()));
+        }
 
         public bool Equals(Pos p) => X == p.X && Y == p.Y;
 

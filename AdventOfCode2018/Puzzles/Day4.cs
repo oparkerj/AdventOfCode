@@ -41,8 +41,8 @@ namespace AdventOfCode2018.Puzzles
         {
             var schedule = GetSchedule();
 
-            var (guard, minutes) = schedule.OrderByDescending(pair => pair.Value.Values.Sum()).First();
-            var minute = minutes.OrderByDescending(pair => pair.Value).First().Key;
+            var (guard, minutes) = schedule.SelectMax(pair => pair.Value.Values.Sum());
+            var minute = minutes.SelectMax(pair => pair.Value).Key;
             WriteLn(guard * minute);
         }
 
@@ -50,8 +50,8 @@ namespace AdventOfCode2018.Puzzles
         {
             var schedule = GetSchedule();
 
-            var (guard, minutes) = schedule.OrderByDescending(pair => pair.Value.Values.DefaultIfEmpty().Max()).First();
-            var minute = minutes.OrderByDescending(pair => pair.Value).First().Key;
+            var (guard, minutes) = schedule.SelectMax(pair => pair.Value.Values.DefaultIfEmpty().Max());
+            var minute = minutes.SelectMax(pair => pair.Value).Key;
             WriteLn(guard * minute);
         }
 
