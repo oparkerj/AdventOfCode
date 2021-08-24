@@ -83,6 +83,10 @@ namespace AdventToolkit.Utilities
 
         public Pos Max => new(MaxX, MaxY);
 
+        public bool IsEmpty => Width == 0 || Height == 0;
+
+        public bool NonEmpty => !IsEmpty;
+
         public Rect Fit(Pos p)
         {
             var set = !Initialized;
@@ -104,7 +108,7 @@ namespace AdventToolkit.Utilities
 
         public IEnumerable<Pos> Corners()
         {
-            if (Width == 0 || Height == 0) yield break;
+            if (IsEmpty) yield break;
             yield return new Pos(MinX, MinY);
             yield return new Pos(MaxX, MinY);
             yield return new Pos(MaxX, MaxY);
@@ -113,7 +117,7 @@ namespace AdventToolkit.Utilities
 
         public IEnumerable<Pos> Positions()
         {
-            if (Width == 0 || Height == 0) yield break;
+            if (IsEmpty) yield break;
             for (var y = MinY; y <= MaxY; y++)
             {
                 for (var x = MinX; x <= MaxX; x++)
@@ -125,7 +129,7 @@ namespace AdventToolkit.Utilities
 
         public IEnumerable<Pos> GetSidePositions(Side side)
         {
-            if (Width == 0 || Height == 0) yield break;
+            if (IsEmpty) yield break;
             if (side == Side.Top)
             {
                 for (var i = MinX; i <= MaxX; i++)

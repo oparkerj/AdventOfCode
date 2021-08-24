@@ -1,3 +1,5 @@
+using System;
+
 namespace AdventToolkit.Utilities
 {
     public readonly struct Interval
@@ -23,7 +25,7 @@ namespace AdventToolkit.Utilities
         {
             var (a, b) = (this, other);
             if (b.Start < a.Start) (a, b) = (b, a);
-            if (b.Start < a.End) return new Interval(b.Start, a.End - b.Start);
+            if (b.Start < a.End) return new Interval(b.Start, Math.Min(a.End - b.Start, b.Length));
             return new Interval();
         }
     }

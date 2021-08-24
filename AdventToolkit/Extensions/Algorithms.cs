@@ -385,5 +385,10 @@ namespace AdventToolkit.Extensions
         {
             return source.ZipShortest(other, (a, b) => Equals(a, b)).TakeWhile(b => b).Count();
         }
+
+        public static IEnumerable<(T, T)> Pairs<T>(this IList<T> source)
+        {
+            return SequencesIncreasing(2, source.Count, true).Select(pair => (source[pair[0]], source[pair[1]]));
+        }
     }
 }
