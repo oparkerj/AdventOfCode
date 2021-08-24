@@ -411,5 +411,15 @@ namespace AdventToolkit.Extensions
         {
             return arg => !func(arg);
         }
+
+        public static LinkedList<T> ToLinkedList<T>(this IEnumerable<T> source)
+        {
+            var list = new LinkedList<T>();
+            foreach (var item in source)
+            {
+                list.AddLast(item);
+            }
+            return list;
+        }
     }
 }
