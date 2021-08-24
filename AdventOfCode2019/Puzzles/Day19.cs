@@ -27,7 +27,7 @@ namespace AdventOfCode2019.Puzzles
         public override void PartOne()
         {
             const int Size = 50;
-            var count = Rect.Size(Size, Size).Positions().Count(Pulls);
+            var count = new Rect(Size, Size).Positions().Count(Pulls);
             WriteLn(count);
         }
 

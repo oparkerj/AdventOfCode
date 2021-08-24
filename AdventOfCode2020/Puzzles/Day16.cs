@@ -10,7 +10,7 @@ namespace AdventOfCode2020.Puzzles
     public class Day16 : Puzzle
     {
         public new string[][] Groups;
-        public Dictionary<string, IntRange[]> Rules = new();
+        public Dictionary<string, Interval[]> Rules = new();
 
         public Day16()
         {
@@ -24,7 +24,7 @@ namespace AdventOfCode2020.Puzzles
             var rules = Groups[0].Extract<(string, int, int, int, int)>(@"(.+): (\d+)-(\d+) or (\d+)-(\d+)");
             foreach (var (name, a, b, c, d) in rules)
             {
-                Rules[name] = new[] {new IntRange(a, b), new IntRange(c, d)};
+                Rules[name] = new[] {Interval.Range(a, b), Interval.Range(c, d)};
             }
         }
 
