@@ -42,6 +42,18 @@ namespace AdventToolkit.Extensions
         {
             return source.Aggregate((a, b) => a.Add(b));
         }
+
+        public static T Min<T>(this T a, T b)
+            where T : IComparable<T>
+        {
+            return a.CompareTo(b) < 0 ? a : b;
+        }
+
+        public static T Max<T>(this T a, T b)
+            where T : IComparable<T>
+        {
+            return a.CompareTo(b) > 0 ? a : b;
+        }
         
         public static int ExtendedEuclidean(this (int a, int m) p, out int x, out int y)
         {
