@@ -7,48 +7,44 @@ namespace AdventToolkit.Utilities
     {
         public int MinX { get; set; }
         public int MinY { get; set; }
-        public int MaxX { get; set; }
-        public int MaxY { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
 
         public bool Initialized;
 
         public Rect() { }
 
-        public Rect(int minX, int minY, int maxX, int maxY)
+        public Rect(int minX, int minY, int width, int height)
         {
             MinX = minX;
             MinY = minY;
-            MaxX = maxX;
-            MaxY = maxY;
+            Width = width;
+            Height = height;
         }
 
         public Rect(Pos a, Pos b)
         {
-            MinX = Math.Min(a.X, b.X);
-            MinY = Math.Min(a.Y, b.Y);
-            MaxX = Math.Max(a.X, b.X);
-            MaxY = Math.Max(a.Y, b.Y);
+            var min = a.Min(b);
+            (MinX, MinY) = min;
+            var (x, y) = a.Max(b);
+            Width = x - MinX + 1;
+            Height = y - MinY + 1;
         }
 
-        public Rect(int maxX, int maxY)
+        public Rect(int width, int height)
         {
-            MaxX = maxX;
-            MaxY = maxY;
+            Width = width;
+            Height = height;
         }
 
-        public Rect(Rect other) : this(other.MinX, other.MinY, other.MaxX, other.MaxY) { }
+        public Rect(Rect other) : this(other.MinX, other.MinY, other.Width, other.Height) { }
 
-        public static Rect Size(int width, int height)
-        {
-            return new Rect(width - 1, height - 1);
-        }
-
-        public void Deconstruct(out int minX, out int minY, out int maxX, out int maxY)
+        public void Deconstruct(out int minX, out int minY, out int width, out int height)
         {
             minX = MinX;
             minY = MinY;
-            maxX = MaxX;
-            maxY = MaxY;
+            width = Width;
+            height = Height;
         }
 
         public void Deconstruct(out Pos min, out Pos max)
@@ -56,10 +52,26 @@ namespace AdventToolkit.Utilities
             min = Min;
             max = Max;
         }
-        
-        public int Width => MaxX - MinX + 1;
 
-        public int Height => MaxY - MinY + 1;
+        public int MaxX
+        {
+            get => MinX + Width - 1;
+            set
+            {
+                Width = value - MinX + 1;
+                if (Width < 0) throw new ArgumentException("Rect resized to negative width.");
+            }
+        }
+
+        public int MaxY
+        {
+            get => MinY + Height - 1;
+            set
+            {
+                Height = value - MinY + 1;
+                if (Height < 0) throw new ArgumentException("Rect resized to negative height.");
+            }
+        }
 
         public double MidX => (MinX + MaxX) / 2d;
 
@@ -82,8 +94,17 @@ namespace AdventToolkit.Utilities
             return this;
         }
 
+        public Rect Intersection(Rect other)
+        {
+            var x = new Interval(MinX, Width).Overlap(new Interval(other.MinX, other.Width));
+            var y = new Interval(MinY, Height).Overlap(new Interval(other.MinY, other.Height));
+            if (x.Length == 0 || y.Length == 0) return new Rect();
+            return new Rect(x.Start, y.Start, x.Length, y.Length);
+        }
+
         public IEnumerable<Pos> Corners()
         {
+            if (Width == 0 || Height == 0) yield break;
             yield return new Pos(MinX, MinY);
             yield return new Pos(MaxX, MinY);
             yield return new Pos(MaxX, MaxY);
@@ -92,6 +113,7 @@ namespace AdventToolkit.Utilities
 
         public IEnumerable<Pos> Positions()
         {
+            if (Width == 0 || Height == 0) yield break;
             for (var y = MinY; y <= MaxY; y++)
             {
                 for (var x = MinX; x <= MaxX; x++)
@@ -103,6 +125,7 @@ namespace AdventToolkit.Utilities
 
         public IEnumerable<Pos> GetSidePositions(Side side)
         {
+            if (Width == 0 || Height == 0) yield break;
             if (side == Side.Top)
             {
                 for (var i = MinX; i <= MaxX; i++)

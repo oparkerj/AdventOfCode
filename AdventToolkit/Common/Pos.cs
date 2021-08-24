@@ -97,5 +97,9 @@ namespace AdventToolkit.Utilities
         {
             return X * other.Y - Y * other.X;
         }
+
+        public Pos Min(Pos other) => new Pos(Math.Min(X, other.X), Math.Min(Y, other.Y));
+        
+        public Pos Max(Pos other) => new Pos(Math.Max(X, other.X), Math.Max(Y, other.Y));
     }
 }
