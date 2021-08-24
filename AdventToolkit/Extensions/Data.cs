@@ -450,5 +450,13 @@ namespace AdventToolkit.Extensions
             }
             return min;
         }
+
+        public static T SingleOrDefault<T>(this IEnumerable<T> source, T defaultValue)
+        {
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) return defaultValue;
+            var result = e.Current;
+            return e.MoveNext() ? defaultValue : result;
+        }
     }
 }
