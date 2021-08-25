@@ -45,7 +45,8 @@ namespace AdventToolkit.Utilities
         public override string ToString()
         {
             var b = new StringBuilder();
-            b.Append("graph G {\n");
+            if (typeof(TEdge) == typeof(DirectedEdge<T>)) b.Append("digraph G {\n");
+            else b.Append("graph G {\n");
             foreach (var vertex in _vertices.Values)
             {
                 b.Append(vertex).Append('\n');
@@ -78,7 +79,7 @@ namespace AdventToolkit.Utilities
         
         public IEnumerable<Edge<T>> Edges => _edges;
 
-        public IEnumerable<Vertex<T>> Neighbors => Edges.Select(edge => edge.Other(this));
+        public IEnumerable<Vertex<T>> Neighbors => Edges.Select(edge => edge.Other(this)).Where(v => v != null);
 
         internal void RemoveEdge(int index)
         {
@@ -133,7 +134,7 @@ namespace AdventToolkit.Utilities
             return From == a && To == b || From == b && To == a;
         }
 
-        public Vertex<T> Other(Vertex<T> vertex)
+        public virtual Vertex<T> Other(Vertex<T> vertex)
         {
             if (vertex == From) return To;
             if (vertex == To) return From;
@@ -166,6 +167,18 @@ namespace AdventToolkit.Utilities
         }
     }
 
+    public class DirectedEdge<T> : Edge<T>
+    {
+        public DirectedEdge(Vertex<T> from, Vertex<T> to) : base(from, to) { }
+
+        public override Vertex<T> Other(Vertex<T> vertex)
+        {
+            return vertex == From ? To : null;
+        }
+
+        public override string ToString() => $"{From} -> {To}";
+    }
+
     public class UniqueGraph<T, TVertex, TEdge> : Graph<T, TVertex, TEdge>
         where TVertex : Vertex<T>
         where TEdge : Edge<T>
@@ -189,7 +202,10 @@ namespace AdventToolkit.Utilities
         public TVertex GetOrCreate(T val, Func<T, TVertex> cons)
         {
             if (_vertices.TryGetValue(val, out var vertex)) return vertex;
-            return _vertices[val] = cons(val);
+            vertex = cons(val);
+            AddVertex(vertex);
+            _vertices[val] = vertex;
+            return vertex;
         }
     }
 }

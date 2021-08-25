@@ -8,6 +8,11 @@ namespace AdventToolkit.Utilities
     {
         private readonly List<Func<T, T, int>> _comparisons = new();
 
+        public static Comparing<T> Reversed()
+        {
+            return By((a, b) => -Comparer<T>.Default.Compare(a, b));
+        }
+
         public static Comparing<T> By(Func<T, T, int> func)
         {
             var c = new Comparing<T>();
