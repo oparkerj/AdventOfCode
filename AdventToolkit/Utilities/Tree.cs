@@ -79,6 +79,8 @@ namespace AdventToolkit.Utilities
         public IEnumerable<Node<T, TLink>> Children => Links.Select(LinkChild);
 
         public IEnumerable<Node<T, TLink>> AllChildren => Children.Concat(Children.SelectMany(node => node.AllChildren));
+        
+        public IEnumerable<T> ChildValues => Children.Select(node => node.Value);
 
         public IEnumerable<TLink> AllLinks => Links.Concat(Links.Select(LinkChild).SelectMany(node => node.AllLinks));
 

@@ -439,16 +439,16 @@ namespace AdventToolkit.Extensions
         {
             using var e = source.GetEnumerator();
             if (!e.MoveNext()) throw new Exception("Source contains no elements.");
-            var min = e.Current;
-            var value = compare(min);
+            var max = e.Current;
+            var value = compare(max);
             while (e.MoveNext())
             {
                 var compareValue = compare(e.Current);
                 if (compareValue.CompareTo(value) <= 0) continue;
-                min = e.Current;
+                max = e.Current;
                 value = compareValue;
             }
-            return min;
+            return max;
         }
 
         public static T SingleOrDefault<T>(this IEnumerable<T> source, T defaultValue)
@@ -457,6 +457,12 @@ namespace AdventToolkit.Extensions
             if (!e.MoveNext()) return defaultValue;
             var result = e.Current;
             return e.MoveNext() ? defaultValue : result;
+        }
+
+        public static T FirstOrDefault<T>(this IEnumerable<T> source, T defaultValue)
+        {
+            using var e = source.GetEnumerator();
+            return !e.MoveNext() ? defaultValue : e.Current;
         }
     }
 }
