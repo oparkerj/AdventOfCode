@@ -9,11 +9,18 @@ namespace AdventToolkit.Utilities
         where TNode : Node<T, TLink>
     {
         protected readonly Dictionary<T, TNode> Nodes = new();
+        
+        public TNode Root { get; protected set; }
+
+        public int Count => Nodes.Count;
 
         public void Add(TNode node)
         {
             Nodes[node.Value] = node;
+            Root ??= node;
         }
+
+        public TNode this[T value] => Nodes[value];
 
         public bool TryGet(T item, out TNode node)
         {
@@ -79,7 +86,9 @@ namespace AdventToolkit.Utilities
         public IEnumerable<Node<T, TLink>> Children => Links.Select(LinkChild);
 
         public IEnumerable<Node<T, TLink>> AllChildren => Children.Concat(Children.SelectMany(node => node.AllChildren));
-        
+
+        public IList<TLink> ChildLinks => Links;
+
         public IEnumerable<T> ChildValues => Children.Select(node => node.Value);
 
         public IEnumerable<TLink> AllLinks => Links.Concat(Links.Select(LinkChild).SelectMany(node => node.AllLinks));
@@ -103,6 +112,17 @@ namespace AdventToolkit.Utilities
         public new IEnumerable<Node<T>> Parents => base.Parents.Cast<Node<T>>();
     }
 
+    public class DataNode<TData> : Node<int, DataNode<TData>>
+    {
+        public TData Data;
+        
+        public DataNode(int id) : base(id) { }
+
+        public override Node<int, DataNode<TData>> LinkChild(DataNode<TData> link) => link;
+
+        public new IEnumerable<DataNode<TData>> Parents => base.Parents.Cast<DataNode<TData>>();
+    }
+
     public class Tree<T> : Tree<T, Node<T>, Node<T>>
     {
         public Node<T> this[T item] => GetNode(item);
@@ -119,6 +139,16 @@ namespace AdventToolkit.Utilities
             var c = GetNode(child);
             p.AddChild(c);
             c.Parent = p;
+        }
+    }
+
+    public class DataTree<T> : Tree<int, DataNode<T>, DataNode<T>>
+    {
+        public DataNode<T> NewNode()
+        {
+            var node = new DataNode<T>(Count);
+            Add(node);
+            return node;
         }
     }
 
