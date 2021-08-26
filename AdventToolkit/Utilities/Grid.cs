@@ -128,6 +128,16 @@ namespace AdventToolkit.Utilities
             return source.ToGrid<T, Grid<T>>(decreaseY);
         }
 
+        public static Grid<bool> ToGrid(this IEnumerable<Pos> source)
+        {
+            var grid = new Grid<bool>();
+            foreach (var pos in source)
+            {
+                grid[pos] = true;
+            }
+            return grid;
+        }
+
         public static Grid<T> ToGridRows<T>(this IEnumerable<T> source, int width, bool decreaseY = false)
         {
             var grid = new Grid<T>();
