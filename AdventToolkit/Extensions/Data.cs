@@ -149,12 +149,12 @@ namespace AdventToolkit.Extensions
             return ints.Longs().Aggregate((a, b) => a * b);
         }
 
-        public static IEnumerable<T> Get<T>(this T[] t, IEnumerable<int> indices)
+        public static IEnumerable<T> Get<T>(this IList<T> t, IEnumerable<int> indices)
         {
             return indices.Select(i => t[i]);
         }
 
-        public static IEnumerable<T> GetFrom<T>(this IEnumerable<int> indices, T[] t)
+        public static IEnumerable<T> GetFrom<T>(this IEnumerable<int> indices, IList<T> t)
         {
             return t.Get(indices);
         }
