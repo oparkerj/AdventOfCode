@@ -464,5 +464,15 @@ namespace AdventToolkit.Extensions
             using var e = source.GetEnumerator();
             return !e.MoveNext() ? defaultValue : e.Current;
         }
+
+        public static LinkedListNode<T> NextCircular<T>(this LinkedListNode<T> node)
+        {
+            return node.Next ?? node.List?.First;
+        }
+        
+        public static LinkedListNode<T> PreviousCircular<T>(this LinkedListNode<T> node)
+        {
+            return node.Previous ?? node.List?.Last;
+        }
     }
 }
