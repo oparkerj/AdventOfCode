@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AdventToolkit.Utilities;
 
 namespace AdventToolkit.Extensions
@@ -52,6 +53,23 @@ namespace AdventToolkit.Extensions
                 Side.Left => p + Pos.Left,
                 _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
             };
+        }
+
+        public static IEnumerable<Pos3D> Around(this Pos3D p)
+        {
+            return p.EnumerateSingle()
+                .Append(p + Pos3D.Forward)
+                .Append(p + Pos3D.Backward)
+                .SelectMany(pos => Around(pos.To2D).Select(p2 => p2.To3D(pos.Z)));
+        }
+
+        public static IEnumerable<Pos> ToPositions(this IEnumerable<int[]> source)
+        {
+            foreach (var ints in source)
+            {
+                if (ints.Length < 2) throw new Exception("Invalid array size.");
+                yield return new Pos(ints[0], ints[1]);
+            }
         }
     }
 }

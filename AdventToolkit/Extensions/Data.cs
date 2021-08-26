@@ -86,6 +86,7 @@ namespace AdventToolkit.Extensions
             return ints.Select(i => (long) i);
         }
 
+        // Get the digits starting with the ones digit
         public static IEnumerable<int> Digits(this int i)
         {
             i = Math.Abs(i);
@@ -417,7 +418,7 @@ namespace AdventToolkit.Extensions
             return list;
         }
 
-        public static T SelectMin<T, TCompare>(this IEnumerable<T> source, Func<T, TCompare> compare)
+        public static T SelectMinBy<T, TCompare>(this IEnumerable<T> source, Func<T, TCompare> compare)
             where TCompare : IComparable<TCompare>
         {
             using var e = source.GetEnumerator();
@@ -434,7 +435,22 @@ namespace AdventToolkit.Extensions
             return min;
         }
         
-        public static T SelectMax<T, TCompare>(this IEnumerable<T> source, Func<T, TCompare> compare)
+        public static TCompare SelectMin<T, TCompare>(this IEnumerable<T> source, Func<T, TCompare> compare, IComparer<TCompare> comparer = null)
+        {
+            comparer ??= Comparer<TCompare>.Default;
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) throw new Exception("Source contains no elements.");
+            var value = compare(e.Current);
+            while (e.MoveNext())
+            {
+                var compareValue = compare(e.Current);
+                if (comparer.Compare(compareValue, value) >= 0) continue;
+                value = compareValue;
+            }
+            return value;
+        }
+        
+        public static T SelectMaxBy<T, TCompare>(this IEnumerable<T> source, Func<T, TCompare> compare)
             where TCompare : IComparable<TCompare>
         {
             using var e = source.GetEnumerator();
@@ -449,6 +465,21 @@ namespace AdventToolkit.Extensions
                 value = compareValue;
             }
             return max;
+        }
+        
+        public static TCompare SelectMax<T, TCompare>(this IEnumerable<T> source, Func<T, TCompare> compare, IComparer<TCompare> comparer = null)
+        {
+            comparer ??= Comparer<TCompare>.Default;
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) throw new Exception("Source contains no elements.");
+            var value = compare(e.Current);
+            while (e.MoveNext())
+            {
+                var compareValue = compare(e.Current);
+                if (comparer.Compare(compareValue, value) <= 0) continue;
+                value = compareValue;
+            }
+            return value;
         }
 
         public static T SingleOrDefault<T>(this IEnumerable<T> source, T defaultValue)

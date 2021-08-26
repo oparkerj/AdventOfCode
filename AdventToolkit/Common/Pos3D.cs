@@ -71,6 +71,8 @@ namespace AdventToolkit.Utilities
         
         public static bool operator !=(Pos3D a, Pos3D b) => !a.Equals(b);
 
+        public Pos To2D => new(X, Y);
+
         public Pos3D Normalize() => new(Math.Sign(X), Math.Sign(Y), Math.Sign(Z));
 
         public int MDist(in Pos3D p)

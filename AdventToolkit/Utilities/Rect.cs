@@ -31,6 +31,8 @@ namespace AdventToolkit.Utilities
             Height = y - MinY + 1;
         }
 
+        public Rect(Pos min, int width, int height) : this(min.X, min.Y, width, height) { }
+
         public Rect(int width, int height)
         {
             Width = width;
