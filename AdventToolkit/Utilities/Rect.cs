@@ -39,6 +39,16 @@ namespace AdventToolkit.Utilities
 
         public Rect(Rect other) : this(other.MinX, other.MinY, other.Width, other.Height) { }
 
+        public static Rect Bound(IEnumerable<Pos> points)
+        {
+            var rect = new Rect();
+            foreach (var point in points)
+            {
+                rect.Fit(point);
+            }
+            return rect;
+        }
+
         public void Deconstruct(out int minX, out int minY, out int width, out int height)
         {
             minX = MinX;
@@ -52,6 +62,10 @@ namespace AdventToolkit.Utilities
             min = Min;
             max = Max;
         }
+        
+        public int Area => Width * Height;
+
+        public long LongArea => (long) Width * Height;
 
         public int MaxX
         {
@@ -96,6 +110,15 @@ namespace AdventToolkit.Utilities
             if (p.Y > MaxY || set) MaxY = p.Y;
             Initialized = true;
             return this;
+        }
+
+        public void Rebound(IEnumerable<Pos> points)
+        {
+            Initialized = false;
+            foreach (var point in points)
+            {
+                Fit(point);
+            }
         }
 
         public Rect Intersection(Rect other)

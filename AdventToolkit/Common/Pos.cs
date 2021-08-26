@@ -28,6 +28,7 @@ namespace AdventToolkit.Utilities
         public static Pos Parse(string s)
         {
             if (s.StartsWith('(') && s.EndsWith(')')) s = s[1..^1];
+            if (s.StartsWith('<') && s.EndsWith('>')) s = s[1..^1];
             var parts = s.Csv();
             return new Pos(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()));
         }
@@ -92,6 +93,20 @@ namespace AdventToolkit.Utilities
         public int MDist(Pos p)
         {
             return Math.Abs(X - p.X) + Math.Abs(Y - p.Y);
+        }
+
+        public long MDistSquared(Pos p)
+        {
+            var (dx, dy) = this - p;
+            return (long) dx * dx + (long) dy * dy;
+        }
+
+        public double RealDist(Pos p) => Math.Sqrt(RealDistSquared(p));
+
+        public double RealDistSquared(Pos p)
+        {
+            var (dx, dy) = p - this;
+            return (double)dx * dx + (double)dy * dy;
         }
 
         public Pos Flip() => new(Y, X);
