@@ -125,8 +125,6 @@ namespace AdventToolkit.Utilities
 
     public class Tree<T> : Tree<T, Node<T>, Node<T>>
     {
-        public Node<T> this[T item] => GetNode(item);
-        
         public Node<T> GetNode(T item)
         {
             if (TryGet(item, out var node)) return node;

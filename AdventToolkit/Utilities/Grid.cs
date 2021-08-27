@@ -151,5 +151,23 @@ namespace AdventToolkit.Utilities
             if (decreaseY) SimpleGridTransformer<T>.FlipV.ApplyTo(grid);
             return grid;
         }
+
+        public static void BuildSummedArea(this Grid<int> grid)
+        {
+            foreach (var pos in grid.Bounds)
+            {
+                grid[pos] += grid[pos + Pos.Left] + grid[pos + Pos.Down] - grid[pos + Pos.Left + Pos.Down];
+            }
+        }
+
+        public static int GetSummedArea(this Grid<int> grid, Rect rect)
+        {
+            var (min, max, diagMin, diagMax) = (
+                rect.Min + new Pos(-1, -1),
+                rect.Max,
+                rect.DiagMin + Pos.Down,
+                rect.DiagMax + Pos.Left);
+            return grid[min] + grid[max] - grid[diagMin] - grid[diagMax];
+        }
     }
 }

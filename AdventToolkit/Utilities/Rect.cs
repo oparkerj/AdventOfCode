@@ -1,9 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace AdventToolkit.Utilities
 {
-    public class Rect
+    public class Rect : IEnumerable<Pos>
     {
         public int MinX { get; set; }
         public int MinY { get; set; }
@@ -98,6 +99,10 @@ namespace AdventToolkit.Utilities
         public Pos Min => new(MinX, MinY);
 
         public Pos Max => new(MaxX, MaxY);
+
+        public Pos DiagMin => new(MaxX, MinY);
+
+        public Pos DiagMax => new(MinX, MaxY);
 
         public bool IsEmpty => Width == 0 || Height == 0;
 
@@ -213,6 +218,10 @@ namespace AdventToolkit.Utilities
                 }
             }
         }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public IEnumerator<Pos> GetEnumerator() => Positions().GetEnumerator();
     }
     
     public enum Side

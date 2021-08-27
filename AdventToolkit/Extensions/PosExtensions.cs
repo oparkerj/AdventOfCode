@@ -71,5 +71,26 @@ namespace AdventToolkit.Extensions
                 yield return new Pos(ints[0], ints[1]);
             }
         }
+
+        public static IEnumerable<Pos3D> ToPositions3D(this IEnumerable<int[]> source, int? z = null)
+        {
+            if (z == null)
+            {
+                foreach (var ints in source)
+                {
+                    if (ints.Length < 3) throw new Exception("Invalid array size.");
+                    yield return new Pos3D(ints[0], ints[1], ints[2]);
+                }
+            }
+            else
+            {
+                var depth = z.Value;
+                foreach (var ints in source)
+                {
+                    if (ints.Length < 2) throw new Exception("Invalid array size.");
+                    yield return new Pos3D(ints[0], ints[1], depth);
+                }
+            }
+        }
     }
 }

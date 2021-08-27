@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit.Utilities;
@@ -42,6 +43,14 @@ namespace AdventToolkit.Extensions
         public static TPos Find<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TVal value)
         {
             return space.WhereValue(value).First().Key;
+        }
+
+        public static void ApplyValues<TPos, TVal>(this AlignedSpace<TPos, TVal> space, IEnumerable<TPos> positions, Func<TPos, TVal> func)
+        {
+            foreach (var pos in positions)
+            {
+                space[pos] = func(pos);
+            }
         }
     }
 }
