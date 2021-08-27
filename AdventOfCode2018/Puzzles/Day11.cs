@@ -21,19 +21,29 @@ namespace AdventOfCode2018.Puzzles
             var power = (rack * pos.Y + Serial) * rack;
             return power.Digits().ElementAtOrDefault(2) - 5;
         }
-        
+
+        public Grid<int> BuildTable()
+        {
+            var grid = new Grid<int>();
+            grid.ApplyValues(new Rect((1, 1), (300, 300)), PowerLevel);
+            grid.BuildSummedArea();
+            return grid;
+        }
+
         public override void PartOne()
         {
+            var table = BuildTable();
             var result = Algorithms.Sequences(2, 300 - 2)
                 .ToPositions()
-                .SelectMaxBy(pos => new Rect(pos, 3, 3).Positions().Select(PowerLevel).Sum());
+                .SelectMaxBy(pos => table.GetSummedArea(new Rect(pos, 3, 3)));
             WriteLn(result);
         }
 
         public override void PartTwo()
         {
-            var result = Enumerable.Range(1, 300).SelectMany(i => Algorithms.Sequences(2, 300 - i + 1).ToPositions().Select(pos => pos.To3D(i)))
-                .SelectMaxBy(square => new Rect(square.To2D, square.Z, square.Z).Positions().Select(PowerLevel).Sum());
+            var table = BuildTable();
+            var result = Enumerable.Range(1, 300).SelectMany(i => Algorithms.Sequences(2, 300 - i + 1).ToPositions3D(i))
+                .SelectMaxBy(square => table.GetSummedArea(new Rect(square.To2D, square.Z, square.Z)));
             WriteLn(result);
         }
     }
