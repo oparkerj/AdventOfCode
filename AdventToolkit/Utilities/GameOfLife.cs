@@ -5,10 +5,18 @@ using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Utilities
 {
+    public class GameOfLife
+    {
+        public static GameOfLife<Pos, T> OnGrid<T>(T dead, T alive)
+        {
+            return new GameOfLife<Pos, T>(dead, alive, () => new Grid<T>());
+        }
+    }
+    
     public class GameOfLife<TLoc, TState> : IEnumerable<KeyValuePair<TLoc, TState>>
     {
-        private DefaultDict<TLoc, TState> _locations = new();
-        private DefaultDict<TLoc, TState> _temp = new();
+        private AlignedSpace<TLoc, TState> _locations;
+        private AlignedSpace<TLoc, TState> _temp;
         private Queue<TLoc> _queue = new();
         private HashSet<TLoc> _checked = new();
 
@@ -23,6 +31,17 @@ namespace AdventToolkit.Utilities
         {
             Alive = alive;
             Dead = dead;
+            _locations = new FreeSpace<TLoc, TState>();
+            _temp = new FreeSpace<TLoc, TState>();
+        }
+
+        public GameOfLife(TState alive, TState dead, Func<AlignedSpace<TLoc, TState>> cons)
+        {
+            Alive = alive;
+            Dead = dead;
+            _locations = cons();
+            _temp = cons();
+            NeighborFunction = _locations.GetNeighbors;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -77,7 +96,7 @@ namespace AdventToolkit.Utilities
 
         public bool Has(TLoc loc)
         {
-            return _locations.ContainsKey(loc);
+            return _locations.Has(loc);
         }
 
         public void Step(int count)
@@ -89,7 +108,7 @@ namespace AdventToolkit.Utilities
         public int Step()
         {
             var c = 0;
-            foreach (var key in _locations.Keys)
+            foreach (var key in _locations.Positions)
             {
                 _queue.Enqueue(key);
             }
@@ -108,7 +127,7 @@ namespace AdventToolkit.Utilities
                 var count = 0;
                 foreach (var near in neighbors)
                 {
-                    if (_locations.TryGetValue(near, out var nearState))
+                    if (_locations.Lookup(near, out var nearState))
                     {
                         if (nearState.Equals(Alive)) count++;
                     }
@@ -138,9 +157,11 @@ namespace AdventToolkit.Utilities
     public class GameOfLife<T> : GameOfLife<T, bool>
     {
         public GameOfLife() : base(false, true) { }
+        
+        public GameOfLife(Func<AlignedSpace<T, bool>> cons) : base(false, true, cons) { }
 
         public GameOfLife(bool dead, bool alive) : base(dead, alive) { }
+        
+        public GameOfLife(bool dead, bool alive, Func<AlignedSpace<T, bool>> cons) : base(dead, alive, cons) { }
     }
-
-    
 }

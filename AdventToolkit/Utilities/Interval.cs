@@ -1,8 +1,11 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AdventToolkit.Utilities
 {
-    public readonly struct Interval
+    public readonly struct Interval : IEnumerable<int>
     {
         public readonly int Start;
         public readonly int Length;
@@ -28,5 +31,9 @@ namespace AdventToolkit.Utilities
             if (b.Start < a.End) return new Interval(b.Start, Math.Min(a.End - b.Start, b.Length));
             return new Interval();
         }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public IEnumerator<int> GetEnumerator() => Enumerable.Range(Start, Length).GetEnumerator();
     }
 }

@@ -52,13 +52,26 @@ namespace AdventToolkit.Utilities
 
     public class CopySpace<TPos, TVal> : AlignedSpace<TPos, TVal>
     {
-        private readonly AlignedSpace<TPos, TVal> _reference;
+        private readonly Func<TPos, IEnumerable<TPos>> _neighbors;
+
+        public CopySpace(Func<TPos, IEnumerable<TPos>> neighbors)
+        {
+            _neighbors = neighbors;
+        }
 
         public CopySpace(AlignedSpace<TPos, TVal> reference)
         {
-            _reference = reference;
+            _neighbors = reference.GetNeighbors;
         }
 
-        public override IEnumerable<TPos> GetNeighbors(TPos pos) => _reference.GetNeighbors(pos);
+        public override IEnumerable<TPos> GetNeighbors(TPos pos) => _neighbors(pos);
+    }
+
+    public class FreeSpace<TPos, TVal> : AlignedSpace<TPos, TVal>
+    {
+        public override IEnumerable<TPos> GetNeighbors(TPos pos)
+        {
+            throw new NotSupportedException();
+        }
     }
 }
