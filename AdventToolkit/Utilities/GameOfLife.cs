@@ -22,7 +22,7 @@ namespace AdventToolkit.Utilities
 
         public TState Alive;
         public TState Dead;
-        public Func<int, TState, TState> UpdateFunction;
+        public Func<TLoc, int, TState, TState> UpdateFunction;
         public Func<TLoc, IEnumerable<TLoc>> NeighborFunction;
         public bool Expanding;
         public bool KeepDead = true;
@@ -60,7 +60,7 @@ namespace AdventToolkit.Utilities
             set => _locations[loc] = value;
         }
 
-        public GameOfLife<TLoc, TState> WithUpdateFunction(Func<int, TState, TState> func)
+        public GameOfLife<TLoc, TState> WithUpdateFunction(Func<TLoc, int, TState, TState> func)
         {
             UpdateFunction = func;
             return this;
@@ -68,7 +68,7 @@ namespace AdventToolkit.Utilities
 
         public GameOfLife<TLoc, TState> WithLivingDeadRules(Func<int, bool> alive, Func<int, bool> dead)
         {
-            return WithUpdateFunction((i, state) =>
+            return WithUpdateFunction((_, i, state) =>
             {
                 if (state.Equals(Alive) && alive(i)) return Dead;
                 if (state.Equals(Dead) && dead(i)) return Alive;
@@ -133,7 +133,7 @@ namespace AdventToolkit.Utilities
                     }
                     else if (Expanding && original && !_checked.Contains(near)) _queue.Enqueue(near);
                 }
-                var after = UpdateFunction(count, state);
+                var after = UpdateFunction(loc, count, state);
                 if (!after.Equals(Dead) || KeepDead) _temp[loc] = after;
                 if (!after.Equals(state)) c++;
             }

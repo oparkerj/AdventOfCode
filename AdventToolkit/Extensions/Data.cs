@@ -72,6 +72,18 @@ namespace AdventToolkit.Extensions
 
         public static int AsInt(this bool b) => b ? 1 : 0;
 
+        public static int ToInt(this IEnumerable<bool> source)
+        {
+            var shift = 0;
+            var value = 0;
+            foreach (var b in source)
+            {
+                if (b) value |= 1 << shift;
+                shift++;
+            }
+            return value;
+        }
+
         public static bool AsBool(this int i) => i != 0;
         
         public static bool AsBool(this long i) => i != 0;
