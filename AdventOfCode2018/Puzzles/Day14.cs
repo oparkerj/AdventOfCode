@@ -10,7 +10,7 @@ namespace AdventOfCode2018.Puzzles
         public readonly StringBuilder Scores = new("37");
         public int A = 0;
         public int B = 1;
-        
+
         public Day14()
         {
             Part = 2;
@@ -29,13 +29,13 @@ namespace AdventOfCode2018.Puzzles
         {
             var input = InputLine.AsInt();
             var target = input + 10;
-            
+
             while (Scores.Length < target)
             {
                 Step();
             }
 
-            WriteLn(Scores.ToString(input, InputLine.Length));
+            WriteLn(Scores.ToString(input, 10));
         }
 
         public override void PartTwo()
@@ -47,7 +47,7 @@ namespace AdventOfCode2018.Puzzles
             {
                 Step();
             }
-            
+
             WriteLn(Scores.ToString().IndexOf(input, StringComparison.Ordinal));
         }
     }
