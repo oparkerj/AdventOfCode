@@ -70,6 +70,10 @@ namespace AdventToolkit.Extensions
             return int.Parse(source.Str());
         }
 
+        public static int AsInt(this string s) => int.Parse(s);
+
+        public static int AsInt(this char c) => c - '0';
+
         public static int AsInt(this bool b) => b ? 1 : 0;
 
         public static int ToInt(this IEnumerable<bool> source)
@@ -113,6 +117,8 @@ namespace AdventToolkit.Extensions
                 i /= 10;
             }
         }
+
+        public static IEnumerable<int> DigitsLtr(this int i) => i.Digits().Reverse();
 
         public static IEnumerable<KeyValuePair<T, int>> Frequencies<T>(this IEnumerable<T> source)
         {
