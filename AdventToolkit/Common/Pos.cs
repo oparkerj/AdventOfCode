@@ -79,6 +79,8 @@ namespace AdventToolkit.Utilities
 
         public Pos3D To3D(int z) => new(X, Y, z);
 
+        public Pos Invert() => new(X, -Y);
+
         public Pos Normalize() => new(Math.Sign(X), Math.Sign(Y));
         
         public Pos Towards(Pos other)
@@ -91,6 +93,13 @@ namespace AdventToolkit.Utilities
         public Pos Clockwise(Pos center = default) => new(Y - center.Y + center.X, center.X - X + center.Y);
 
         public Pos CounterClockwise(Pos center = default) => new(center.Y - Y + center.X, X - center.X + center.Y);
+
+        public Pos Turn(int dir)
+        {
+            if (dir < 0) return CounterClockwise();
+            if (dir > 0) return Clockwise();
+            return this;
+        }
 
         public int MDist(Pos p)
         {

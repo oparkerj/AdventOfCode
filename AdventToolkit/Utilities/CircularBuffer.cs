@@ -13,6 +13,8 @@ namespace AdventToolkit.Utilities
             Data = new T[size];
         }
 
+        public int NextIndex => _index;
+
         public void Add(T t)
         {
             Data[_index] = t;
