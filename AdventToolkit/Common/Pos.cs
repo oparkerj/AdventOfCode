@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities.Arithmetic;
 
@@ -22,6 +23,8 @@ namespace AdventToolkit.Utilities
         public static Pos Left => new(-1, 0);
         public static Pos ConsoleUp => Down;
         public static Pos ConsoleDown => Up;
+
+        public static readonly IComparer<Pos> ReadingOrder = Comparing<Pos>.ByReverse(pos => pos.Y).ThenBy(pos => pos.X);
 
         public static implicit operator Pos((int x, int y) p) => new(p.x, p.y);
 

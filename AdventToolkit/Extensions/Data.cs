@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -316,6 +317,22 @@ namespace AdventToolkit.Extensions
             }
         }
 
+        public static IEnumerable<T> WhereType<T>(this IEnumerable source)
+        {
+            foreach (var o in source)
+            {
+                if (o is T t) yield return t;
+            }
+        }
+
+        public static IEnumerable<T> WhereType<T>(this IEnumerable source, Func<T, bool> predicate)
+        {
+            foreach (var o in source)
+            {
+                if (o is T t && predicate(t)) yield return t;
+            }
+        }
+
         public static TV GetOrSetValue<T, TV>(this Dictionary<T, TV> dict, T key, Func<TV> func)
         {
             if (dict.TryGetValue(key, out var value)) return value;
@@ -340,6 +357,7 @@ namespace AdventToolkit.Extensions
             if (last < pairs.Length) yield return pairs[last..];
         }
 
+        // Create unique arrays from an enumerable that returns the same array each time
         public static IEnumerable<T[]> MakeUnique<T>(this IEnumerable<T[]> arr)
         {
             foreach (var a in arr)
@@ -453,6 +471,19 @@ namespace AdventToolkit.Extensions
             return min;
         }
         
+        public static T SelectMinBy<T>(this IEnumerable<T> source, IComparer<T> comparer)
+        {
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) throw new Exception("Source contains no elements.");
+            var min = e.Current;
+            while (e.MoveNext())
+            {
+                if (comparer.Compare(e.Current, min) >= 0) continue;
+                min = e.Current;
+            }
+            return min;
+        }
+        
         public static TCompare SelectMin<T, TCompare>(this IEnumerable<T> source, Func<T, TCompare> compare, IComparer<TCompare> comparer = null)
         {
             comparer ??= Comparer<TCompare>.Default;
@@ -481,6 +512,19 @@ namespace AdventToolkit.Extensions
                 if (compareValue.CompareTo(value) <= 0) continue;
                 max = e.Current;
                 value = compareValue;
+            }
+            return max;
+        }
+        
+        public static T SelectMaxBy<T, TCompare>(this IEnumerable<T> source, IComparer<T> comparer)
+        {
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) throw new Exception("Source contains no elements.");
+            var max = e.Current;
+            while (e.MoveNext())
+            {
+                if (comparer.Compare(e.Current, max) <= 0) continue;
+                max = e.Current;
             }
             return max;
         }
@@ -540,6 +584,21 @@ namespace AdventToolkit.Extensions
                 }
             }
             return removed;
+        }
+
+        public static IComparer<TU> SelectFrom<T, TU>(this IComparer<T> comparer, Func<TU, T> func)
+        {
+            return Comparer<TU>.Create((a, b) => comparer.Compare(func(a), func(b)));
+        }
+
+        public static Func<T, bool> NotNull<T>()
+        {
+            return arg => arg != null;
+        }
+
+        public static IEnumerable<KeyValuePair<T, TV>> With<T, TV>(this IEnumerable<T> source, Func<T, TV> func)
+        {
+            return source.Select(item => new KeyValuePair<T, TV>(item, func(item)));
         }
     }
 }

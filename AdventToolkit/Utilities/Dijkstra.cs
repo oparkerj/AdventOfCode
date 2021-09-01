@@ -89,8 +89,9 @@ namespace AdventToolkit.Utilities
             return dist;
         }
 
-        public Dictionary<TCell, (int Dist, TCell From)> ComputeFrom(TCell start)
+        public Dictionary<TCell, (int Dist, TCell From)> ComputeFrom(TCell start, Func<TCell, bool> valid = null)
         {
+            valid ??= _ => true;
             var dist = new DefaultDict<TCell, (int Dist, TCell From)> {DefaultValue = (int.MaxValue, default), [start] = (0, default)};
             var seen = new HashSet<TCell>();
             var queue = new PriorityQueue<TCell>();
@@ -104,6 +105,7 @@ namespace AdventToolkit.Utilities
                 foreach (var neighbor in Neighbors(cell))
                 {
                     var other = Cell(cell, neighbor);
+                    if (!valid(other)) continue;
                     var weight = Distance(neighbor);
                     if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
                     if (current + weight < dist[other].Dist)
@@ -186,14 +188,27 @@ namespace AdventToolkit.Utilities
             return dijkstra.Build().ComputeWhere(start, valid);
         }
 
-        public static Dictionary<TCell, (int Dist, TCell From)> DijkstraFrom<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start)
+        public static Dictionary<TCell, (int Dist, TCell From)> DijkstraFrom<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, Func<TCell, bool> valid = null)
         {
-            return dijkstra.Build().ComputeFrom(start);
+            return dijkstra.Build().ComputeFrom(start, valid);
         }
 
         public static int DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, TCell target, Func<TCell, bool> valid = null)
         {
             return dijkstra.Build().ComputeFind(start, target, valid);
+        }
+
+        public static IReadOnlyCollection<TCell> GetPathTo<TCell>(this Dictionary<TCell, (int Dist, TCell From)> dist, TCell target)
+        {
+            var list = new LinkedList<TCell>();
+            list.AddFirst(target);
+            while (true)
+            {
+                if (!dist.TryGetValue(target, out var pair)) return Array.Empty<TCell>();
+                if (pair.Dist == 0) break;
+                list.AddFirst(target = pair.From);
+            }
+            return list;
         }
     }
 }
