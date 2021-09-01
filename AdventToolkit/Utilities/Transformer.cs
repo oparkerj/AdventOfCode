@@ -85,18 +85,14 @@ namespace AdventToolkit.Utilities
 
         public static ITransformer<Pos, Grid<T>> Translate(int x, int y) => new SimpleGridTransformer<T>((_, p) => p + new Pos(x, y), grid =>
         {
-            grid.Bounds.MinX += x;
-            grid.Bounds.MinY += y;
-            grid.Bounds.MaxX += x;
-            grid.Bounds.MaxY += y;
+            grid.Bounds.MinXFixed += x;
+            grid.Bounds.MinYFixed += y;
         });
 
         public static ITransformer<Pos, Grid<T>> ToFirstQuadrant() => new SimpleGridTransformer<T>((grid, p) => p - grid.Bounds.Min, grid =>
         {
-            grid.Bounds.MaxX -= grid.Bounds.MinX;
-            grid.Bounds.MaxY -= grid.Bounds.MinY;
-            grid.Bounds.MinX = 0;
-            grid.Bounds.MinY = 0;
+            grid.Bounds.MinXFixed = 0;
+            grid.Bounds.MinYFixed = 0;
         });
 
         public static ITransformer<Pos, Grid<T>> FlipH => new SimpleGridTransformer<T>((grid, p) =>
@@ -113,24 +109,18 @@ namespace AdventToolkit.Utilities
 
         public static ITransformer<Pos, Grid<T>> FlipSym => new SimpleGridTransformer<T>((_, p) => p.Flip());
 
-        public static ITransformer<Pos, Grid<T>> RotateRight => new SimpleGridTransformer<T>((_, p) => (p.Y, -p.X), grid =>
+        public static ITransformer<Pos, Grid<T>> RotateRight => new SimpleGridTransformer<T>((_, p) => p.Clockwise(), grid =>
         {
-            var mnx = grid.Bounds.MinX;
-            var mxx = grid.Bounds.MaxX;
-            grid.Bounds.MinX = grid.Bounds.MinY;
-            grid.Bounds.MaxX = grid.Bounds.MaxY;
-            grid.Bounds.MinY = -mxx;
-            grid.Bounds.MaxY = -mnx;
+            var min = grid.Bounds.Min;
+            var max = grid.Bounds.Max;
+            grid.Bounds.Update(min.Clockwise(), max.Clockwise());
         });
 
-        public static ITransformer<Pos, Grid<T>> RotateLeft => new SimpleGridTransformer<T>((_, p) => (-p.Y, p.X), grid =>
+        public static ITransformer<Pos, Grid<T>> RotateLeft => new SimpleGridTransformer<T>((_, p) => p.CounterClockwise(), grid =>
         {
-            var mnx = grid.Bounds.MinX;
-            var mxx = grid.Bounds.MaxX;
-            grid.Bounds.MinX = -grid.Bounds.MaxY;
-            grid.Bounds.MaxX = -grid.Bounds.MinY;
-            grid.Bounds.MinY = mnx;
-            grid.Bounds.MaxY = mxx;
+            var min = grid.Bounds.Min;
+            var max = grid.Bounds.Max;
+            grid.Bounds.Update(min.CounterClockwise(), max.CounterClockwise());
         });
     }
 }

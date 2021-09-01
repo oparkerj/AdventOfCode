@@ -10,7 +10,7 @@ namespace AdventOfCode2018.Puzzles
     {
         public readonly Grid<char> Map;
         public readonly List<Cart> Carts;
-        public readonly IComparer<Cart> Comparer = Comparing<Cart>.ByReverse(cart => cart.Position.Y).ThenBy(cart => cart.Position.X);
+        public readonly IComparer<Cart> Comparer = Pos.ReadingOrder.SelectFrom<Pos, Cart>(cart => cart.Position);
 
         public Day13()
         {

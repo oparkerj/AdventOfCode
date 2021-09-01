@@ -60,6 +60,22 @@ namespace AdventToolkit.Extensions
             return t.Has(p) ? t[p.X, p.Y] : def;
         }
 
+        public static IEnumerable<KeyValuePair<Pos, T>> Positions<T>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
+        {
+            var y = 0;
+            foreach (var row in source)
+            {
+                var x = 0;
+                foreach (var item in row)
+                {
+                    yield return new KeyValuePair<Pos, T>(new Pos(x, y), item);
+                    x++;
+                }
+                if (decreaseY) y--;
+                else y++;
+            }
+        }
+
         public static IEnumerable<IEnumerable<TO>> Select2D<TI, TO>(this IEnumerable<IEnumerable<TI>> ie, Func<TI, TO> func)
         {
             return ie.Select(items => items.Select(func));

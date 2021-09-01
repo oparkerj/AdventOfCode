@@ -6,12 +6,12 @@ namespace AdventToolkit.Utilities
 {
     public class Rect : IEnumerable<Pos>
     {
-        public int MinX { get; set; }
-        public int MinY { get; set; }
+        public bool Initialized;
+        private int _minX;
+        private int _minY;
+        
         public int Width { get; set; }
         public int Height { get; set; }
-
-        public bool Initialized;
 
         public Rect() { }
 
@@ -65,10 +65,38 @@ namespace AdventToolkit.Utilities
             min = Min;
             max = Max;
         }
-        
-        public int Area => Width * Height;
 
-        public long LongArea => (long) Width * Height;
+        public int MinX
+        {
+            get => _minX;
+            set
+            {
+                Width -= value - _minX;
+                _minX = value;
+            }
+        }
+
+        public int MinY
+        {
+            get => _minY;
+            set
+            {
+                Height -= value - _minY;
+                _minY = value;
+            }
+        }
+
+        public int MinXFixed
+        {
+            get => _minX;
+            set => _minX = value;
+        }
+
+        public int MinYFixed
+        {
+            get => _minY;
+            set => _minY = value;
+        }
 
         public int MaxX
         {
@@ -103,6 +131,10 @@ namespace AdventToolkit.Utilities
         public Pos DiagMin => new(MaxX, MinY);
 
         public Pos DiagMax => new(MinX, MaxY);
+        
+        public int Area => Width * Height;
+
+        public long LongArea => (long) Width * Height;
 
         public bool IsEmpty => Width == 0 || Height == 0;
 
@@ -126,6 +158,12 @@ namespace AdventToolkit.Utilities
             {
                 Fit(point);
             }
+        }
+
+        public void Update(Pos a, Pos b)
+        {
+            (_minX, _minY) = a.Min(b);
+            (MaxX, MaxY) = a.Max(b);
         }
 
         public Rect Intersection(Rect other)
