@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace AdventToolkit
 {
@@ -63,6 +64,17 @@ namespace AdventToolkit
 
         public string InputLine => Input[0];
 
+        private string[][] _groups;
+
+        public string[][] AllGroups
+        {
+            get
+            {
+                if (_groups != null) return _groups;
+                return _groups = Groups.ToArray();
+            }
+        }
+
         public IEnumerable<string[]> Groups
         {
             get
@@ -73,7 +85,7 @@ namespace AdventToolkit
                 {
                     if (s == "")
                     {
-                        yield return Input[last..current];
+                        if (last != current) yield return Input[last..current];
                         last = current + 1;
                     }
                     current++;

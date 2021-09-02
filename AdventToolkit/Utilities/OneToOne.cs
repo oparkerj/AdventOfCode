@@ -75,12 +75,26 @@ namespace AdventToolkit.Utilities
             }
         }
 
-        public void ReduceToSingles()
+        public void ReduceWithValid<TC>(Func<TKey, IEnumerable<TC>> tests, Action<TKey, TC, Action<TValue>> test)
+        {
+            foreach (var key in _possible.Keys)
+            {
+                foreach (var t in tests(key))
+                {
+                    var options = _possible[key];
+                    test(key, t, value => options.Remove(value));
+                }
+            }
+        }
+
+        public bool ReduceToSingles()
         {
             var done = new HashSet<TKey>();
             for (var i = 0; i < _possible.Count - 1; i++)
             {
-                var (key, value) = _possible.WhereKey(k => !done.Contains(k)).WhereValue(options => options.Count == 1).Single();
+                var exists = _possible.WhereKey(k => !done.Contains(k)).WhereValue(options => options.Count == 1).First(out var option);
+                if (!exists) return false;
+                var (key, value) = option;
                 done.Add(key);
                 var remove = value.First();
                 foreach (var k in _possible.Keys.Without(key))
@@ -88,6 +102,7 @@ namespace AdventToolkit.Utilities
                     _possible[k].Remove(remove);
                 }
             }
+            return true;
         }
 
         public IEnumerable<TKey> Keys => _possible.Keys;
