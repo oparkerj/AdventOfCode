@@ -380,6 +380,26 @@ namespace AdventToolkit.Extensions
             return false;
         }
 
+        public static bool First<T>(this IEnumerable<T> source, out T first)
+        {
+            first = default;
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) return false;
+            first = e.Current;
+            return true;
+        }
+
+        public static bool Single<T>(this IEnumerable<T> source, out T single)
+        {
+            single = default;
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) return false;
+            var result = e.Current;
+            if (e.MoveNext()) return false;
+            single = result;
+            return true;
+        }
+
         public static IEnumerable<IList<T>> Subsequences<T>(this IEnumerable<T> source)
         {
             var list = source.ToList();
