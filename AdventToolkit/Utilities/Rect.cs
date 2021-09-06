@@ -151,6 +151,11 @@ namespace AdventToolkit.Utilities
             return this;
         }
 
+        public bool Contains(Pos p)
+        {
+            return p.X >= _minX && p.X <= MaxX && p.Y >= _minY && p.Y <= MaxY;
+        }
+
         public void Rebound(IEnumerable<Pos> points)
         {
             Initialized = false;
@@ -260,6 +265,8 @@ namespace AdventToolkit.Utilities
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public IEnumerator<Pos> GetEnumerator() => Positions().GetEnumerator();
+
+        public override string ToString() => $"Rect({_minX}, {_minY}, {Width}, {Height})";
     }
     
     public enum Side

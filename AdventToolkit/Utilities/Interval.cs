@@ -17,6 +17,8 @@ namespace AdventToolkit.Utilities
         }
 
         public static Interval Range(int start, int end) => new(start, end - start);
+        
+        public static Interval RangeInclusive(int start, int end) => new(start, end - start + 1);
 
         public int End => Start + Length;
 

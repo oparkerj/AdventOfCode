@@ -92,5 +92,22 @@ namespace AdventToolkit.Extensions
                 }
             }
         }
+
+        public static IEnumerable<Pos> EachTowards(this Pos p, Pos other, bool inclusive = false)
+        {
+            var delta = p.Towards(other);
+            p += delta;
+            while (p != other)
+            {
+                yield return p;
+                p += delta;
+            }
+            if (inclusive) yield return p;
+        }
+
+        public static bool AdjacentTo(this Pos p, Pos other)
+        {
+            return p.MDist(other) == 1;
+        }
     }
 }
