@@ -120,7 +120,7 @@ namespace AdventToolkit.Utilities
         public double RealDistSquared(Pos p)
         {
             var (dx, dy) = p - this;
-            return (double)dx * dx + (double)dy * dy;
+            return (double) dx * dx + (double) dy * dy;
         }
 
         public Pos Flip() => new(Y, X);
@@ -132,8 +132,8 @@ namespace AdventToolkit.Utilities
             return X * other.Y - Y * other.X;
         }
 
-        public Pos Min(Pos other) => new Pos(Math.Min(X, other.X), Math.Min(Y, other.Y));
+        public Pos Min(Pos other) => new(Math.Min(X, other.X), Math.Min(Y, other.Y));
         
-        public Pos Max(Pos other) => new Pos(Math.Max(X, other.X), Math.Max(Y, other.Y));
+        public Pos Max(Pos other) => new(Math.Max(X, other.X), Math.Max(Y, other.Y));
     }
 }
