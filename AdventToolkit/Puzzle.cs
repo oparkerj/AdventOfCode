@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -16,13 +17,27 @@ namespace AdventToolkit
             where T : Puzzle, new()
         {
             var puzzle = new T();
-            if (puzzle.Part == 1) puzzle.PartOne();
-            else puzzle.PartTwo();
+            if (!puzzle.Measure)
+            {
+                if (puzzle.Part == 1) puzzle.PartOne();
+                else puzzle.PartTwo();
+            }
+            else
+            {
+                var watch = new Stopwatch();
+                watch.Start();
+                if (puzzle.Part == 1) puzzle.PartOne();
+                else puzzle.PartTwo();
+                watch.Stop();
+                Console.WriteLine(watch.Elapsed);
+            }
         }
 
         public int Part { get; set; } = 1;
 
         public string InputName { get; set; }
+        
+        public bool Measure { get; set; }
 
         public abstract void PartOne();
 

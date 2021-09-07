@@ -8,9 +8,22 @@ namespace AdventToolkit.Extensions
 {
     public static class GameOfLifeExtensions
     {
+        public static int CountState<TLoc, TState>(this GameOfLife<TLoc, TState> game, TState state)
+        {
+            return game.CountValues(state);
+        }
+        
         public static int CountActive<T>(this GameOfLife<T, bool> game)
         {
-            return game.Count(pair => pair.Value);
+            return game.CountValues(true);
+        }
+
+        public static void ReadFrom<TLoc, TState>(this GameOfLife<TLoc, TState> game, AlignedSpace<TLoc, TState> space)
+        {
+            foreach (var (pos, value) in space)
+            {
+                game[pos] = value;
+            }
         }
 
         public static TSpace ToSpace<TSpace, TPos, TVal>(this GameOfLife<TPos, TVal> game)
@@ -22,7 +35,12 @@ namespace AdventToolkit.Extensions
         public static TSpace ToSpace<TSpace, TPos, TVal>(this GameOfLife<TPos, TVal> game, Func<TSpace> cons)
             where TSpace : AlignedSpace<TPos, TVal>
         {
-            var space = cons();
+            return game.CopyTo(cons());
+        }
+
+        public static TSpace CopyTo<TSpace, TPos, TVal>(this GameOfLife<TPos, TVal> game, TSpace space)
+            where TSpace : AlignedSpace<TPos, TVal>
+        {
             foreach (var (pos, val) in game)
             {
                 space[pos] = val;

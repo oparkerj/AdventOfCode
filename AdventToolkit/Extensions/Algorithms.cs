@@ -214,6 +214,26 @@ namespace AdventToolkit.Extensions
             return initial.Values.Aggregate((a, b) => a.Lcm(b));
         }
 
+        // Find the cycle period for something that might not immediately start in the cycle.
+        public static (long Offset, long Cycle) FindCyclePeriod<T, TState>(T data, Func<T, TState> state, Action<T> step)
+        {
+            var states = new Dictionary<TState, long> {[state(data)] = 0};
+            var count = 0L;
+            while (true)
+            {
+                step(data);
+                count++;
+                var s = state(data);
+                if (states.TryGetValue(s, out var i)) return (i, count - i);
+                states[s] = count;
+            }
+        }
+
+        // Given an offset and cycle period, find the offset needed to reach i iterations
+        public static int CycleOffset(this int i, int offset, int cycle) => i > offset ? offset + (i - offset) % cycle : i;
+
+        public static long CycleOffset(this long l, long offset, long cycle) => l > offset ? offset + (l - offset) % cycle : l;
+
         public static int ExploreAll<TPos, TVal>(this IExploreDrone<TPos, TVal> drone, Func<TPos, bool> seen)
             where TPos : ISub<TPos>, INegate<TPos>
         {

@@ -1,28 +1,31 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Utilities
 {
     public class GameOfLife
     {
-        public static GameOfLife<Pos, T> OnGrid<T>(T dead, T alive)
+        public static GameOfLife<Pos, T> OnGrid<T>(T dead, T alive, bool corners = false)
         {
-            return new GameOfLife<Pos, T>(dead, alive, () => new Grid<T>());
+            return new GameOfLife<Pos, T>(dead, alive, () => new Grid<T>(corners));
         }
     }
     
     public class GameOfLife<TLoc, TState> : IEnumerable<KeyValuePair<TLoc, TState>>
     {
-        private AlignedSpace<TLoc, TState> _locations;
+        internal AlignedSpace<TLoc, TState> _locations;
         private AlignedSpace<TLoc, TState> _temp;
         private Queue<TLoc> _queue = new();
         private HashSet<TLoc> _checked = new();
+        private GameOfLifeCell<TLoc, TState> _cell;
 
         public TState Alive;
         public TState Dead;
-        public Func<TLoc, int, TState, TState> UpdateFunction;
+        // public Func<TLoc, int, TState, TState> UpdateFunction;
+        public Func<GameOfLifeCell<TLoc, TState>, TState> UpdateFunction;
         public Func<TLoc, IEnumerable<TLoc>> NeighborFunction;
         public bool Expanding;
         public bool KeepDead = true;
@@ -33,6 +36,7 @@ namespace AdventToolkit.Utilities
             Dead = dead;
             _locations = new FreeSpace<TLoc, TState>();
             _temp = new FreeSpace<TLoc, TState>();
+            _cell = new GameOfLifeCell<TLoc, TState>(this);
         }
 
         public GameOfLife(TState alive, TState dead, Func<AlignedSpace<TLoc, TState>> cons)
@@ -41,6 +45,7 @@ namespace AdventToolkit.Utilities
             Dead = dead;
             _locations = cons();
             _temp = cons();
+            _cell = new GameOfLifeCell<TLoc, TState>(this);
             NeighborFunction = _locations.GetNeighbors;
         }
 
@@ -60,15 +65,20 @@ namespace AdventToolkit.Utilities
             set => _locations[loc] = value;
         }
 
-        public GameOfLife<TLoc, TState> WithUpdateFunction(Func<TLoc, int, TState, TState> func)
+        public GameOfLife<TLoc, TState> WithUpdate(Func<GameOfLifeCell<TLoc, TState>, TState> func)
         {
             UpdateFunction = func;
             return this;
         }
 
+        public GameOfLife<TLoc, TState> WithUpdateUsingAlive(Func<TLoc, int, TState, TState> func)
+        {
+            return WithUpdate(update => func(update.Pos, update.AliveNear(), update.State));
+        }
+
         public GameOfLife<TLoc, TState> WithLivingDeadRules(Func<int, bool> alive, Func<int, bool> dead)
         {
-            return WithUpdateFunction((_, i, state) =>
+            return WithUpdateUsingAlive((_, i, state) =>
             {
                 if (state.Equals(Alive) && alive(i)) return Dead;
                 if (state.Equals(Dead) && dead(i)) return Alive;
@@ -117,23 +127,32 @@ namespace AdventToolkit.Utilities
                 var loc = _queue.Dequeue();
                 if (Expanding) _checked.Add(loc);
                 var state = _locations[loc];
-                if (!state.Equals(Alive) && !state.Equals(Dead))
-                {
-                    _temp[loc] = state;
-                    continue;
-                }
+                // if (!state.Equals(Alive) && !state.Equals(Dead))
+                // {
+                //     _temp[loc] = state;
+                //     continue;
+                // }
                 var original = Has(loc);
-                var neighbors = NeighborFunction(loc);
-                var count = 0;
-                foreach (var near in neighbors)
+                // var neighbors = NeighborFunction(loc).ToList();
+                // var count = 0;
+                if (Expanding && original)
                 {
-                    if (_locations.Lookup(near, out var nearState))
+                    foreach (var near in NeighborFunction(loc))
                     {
-                        if (nearState.Equals(Alive)) count++;
+                        if (!_checked.Contains(near)) _queue.Enqueue(near);
                     }
-                    else if (Expanding && original && !_checked.Contains(near)) _queue.Enqueue(near);
                 }
-                var after = UpdateFunction(loc, count, state);
+                // foreach (var near in neighbors)
+                // {
+                //     if (_locations.Lookup(near, out var nearState))
+                //     {
+                //         if (nearState.Equals(Alive)) count++;
+                //     }
+                //     else if (Expanding && original && !_checked.Contains(near)) _queue.Enqueue(near);
+                // }
+                _cell.Pos = loc;
+                _cell.State = state;
+                var after = UpdateFunction(_cell);
                 if (!after.Equals(Dead) || KeepDead) _temp[loc] = after;
                 if (!after.Equals(state)) c++;
             }
@@ -152,6 +171,27 @@ namespace AdventToolkit.Utilities
                 last = Step();
             } while (!func(last));
         }
+    }
+
+    public class GameOfLifeCell<TPos, TState>
+    {
+        public readonly GameOfLife<TPos, TState> Game;
+        public TPos Pos;
+        public TState State;
+
+        public GameOfLifeCell(GameOfLife<TPos, TState> game)
+        {
+            Game = game;
+        }
+
+        public int CountNear(TState state)
+        {
+            return Game.NeighborFunction(Pos)
+                .GetFrom(Game._locations)
+                .Count(s => Equals(s, state));
+        }
+
+        public int AliveNear() => CountNear(Game.Alive);
     }
 
     public class GameOfLife<T> : GameOfLife<T, bool>
