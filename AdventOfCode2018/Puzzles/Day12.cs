@@ -31,7 +31,7 @@ namespace AdventOfCode2018.Puzzles
         {
             var game = new GameOfLife<int>(() => new Line<bool>());
             game.WithExpansion();
-            game.WithUpdateFunction((p, _, _) =>
+            game.WithUpdateUsingAlive((p, _, _) =>
             {
                 var pattern = new Interval(p - 2, 5).Select(i => game[i]).ToInt();
                 return Rules[pattern];
