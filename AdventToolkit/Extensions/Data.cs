@@ -25,7 +25,19 @@ namespace AdventToolkit.Extensions
         {
             return source.All(arg => Equals(arg, value));
         }
-        
+
+        public static bool AllEqual<T>(this IEnumerable<T> source)
+        {
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) return true;
+            var first = e.Current;
+            while (e.MoveNext())
+            {
+                if (!Equals(first, e.Current)) return false;
+            }
+            return true;
+        }
+
         public static string Str(this IEnumerable<char> chars)
         {
             var b = new StringBuilder();
