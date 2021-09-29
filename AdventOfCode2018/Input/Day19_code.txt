@@ -1,0 +1,39 @@
+goto PTR_16;
+PTR_0:
+reg[1] = 1;
+PTR_1:
+reg[3] = 1;
+PTR_2:
+reg[5] = reg[1] * reg[3];
+reg[5] = reg[5] == reg[2];
+if (reg[5]) {
+    reg[0] += reg[1];
+}
+reg[3] += 1;
+reg[5] = reg[3] > reg[2];
+if (!reg[5]) goto PTR_2;
+reg[1] += 1;
+reg[5] = reg[1] > reg[2];
+if (!reg[5]) goto PTR_1;
+exit;
+
+PTR_16:
+reg[2] += 2; // 2
+reg[2] *= 2; // 4
+reg[2] *= 19;
+reg[2] *= 11; // 836
+reg[5] += 2;
+reg[5] *= 22;
+reg[5] += 18; // 62
+reg[2] += reg[5]; // 898
+goto PTR_26;
+PTR_26:
+reg[5] = 27;
+reg[5] *= 28;
+reg[5] += 29;
+reg[5] *= 30;
+reg[5] *= 14;
+reg[5] *= 32; // 10550400
+reg[2] += reg[5]; // 10551298
+reg[0] = 0;
+goto PTR_0;
