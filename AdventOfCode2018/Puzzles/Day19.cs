@@ -21,23 +21,13 @@ namespace AdventOfCode2018.Puzzles
             var bind = InputLine[4..].AsInt();
             var reg = new int[6];
             var prgm = Input.Skip(1).Extract<(string Op, int A, int B, int C)>(@"(\S+) (\d+) (\d+) (\d+)").ToArray();
-            
-            reg[0] = 1;
-            var buf = new CircularBuffer<int>(prgm.Length);
-            
+
             while (ptr >= 0 && ptr < prgm.Length)
             {
                 var (op, a, b, c) = prgm[ptr];
                 reg[bind] = ptr;
                 reg[c] = ops[op](reg, a, b);
                 ptr = reg[bind];
-                // buf.Add(reg[3]);
-                // if (buf.Full && buf.AllEqual())
-                // {
-                //     WriteLn(buf.First());
-                //     return;
-                // }
-                // WriteLn(string.Join(',', reg));
                 ptr++;
             }
             WriteLn(reg[0]);
