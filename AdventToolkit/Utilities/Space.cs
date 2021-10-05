@@ -21,6 +21,13 @@ namespace AdventToolkit.Utilities
 
         public int Count => Points.Count;
 
+        public TVal SetDefault(TPos pos, TVal val)
+        {
+            var has = Has(pos);
+            if (!has) return this[pos] = val;
+            return this[pos];
+        }
+
         public bool Lookup(TPos pos, out TVal val) => Points.TryGetValue(pos, out val);
 
         public bool Has(TPos pos) => Points.ContainsKey(pos);

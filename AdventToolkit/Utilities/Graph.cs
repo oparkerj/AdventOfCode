@@ -115,6 +115,11 @@ namespace AdventToolkit.Utilities
             if (From != To) to._edges.Add(this);
         }
 
+        public static void Connect(Vertex<T> from, Vertex<T> to)
+        {
+            _ = new Edge<T>(from, to);
+        }
+
         internal void Decrement(Vertex<T> vertex)
         {
             if (vertex == From) _fromIndex--;

@@ -45,6 +45,8 @@ namespace AdventToolkit.Utilities
             }
         }
 
+        // Indicate that a set of values exists in some larger set of keys.
+        // This will remove the values from being a possibility in any keys not given.
         public void ValuesPresentInKeys(IEnumerable<TKey> keys, IEnumerable<TValue> values)
         {
             var keyList = keys.ToList();
@@ -58,6 +60,7 @@ namespace AdventToolkit.Utilities
             }
         }
 
+        // Remove keys that have no possibilites
         public void RemoveExtra()
         {
             foreach (var key in _possible.WhereValue(options => options.Count == 0).Keys().ToList())
@@ -66,6 +69,8 @@ namespace AdventToolkit.Utilities
             }
         }
 
+        // Get a collection of values that are valid for each key, and remove any
+        // other values
         public void ReduceWithValid(Func<TKey, IEnumerable<TValue>> keep)
         {
             foreach (var (key, options) in _possible)
@@ -75,6 +80,7 @@ namespace AdventToolkit.Utilities
             }
         }
 
+        // Get a collection of tests for each key, use that test to eliminate values for the option
         public void ReduceWithValid<TC>(Func<TKey, IEnumerable<TC>> tests, Action<TKey, TC, Action<TValue>> test)
         {
             foreach (var key in _possible.Keys)
@@ -87,6 +93,9 @@ namespace AdventToolkit.Utilities
             }
         }
 
+        // If an option only has one possibility, remove that possibility
+        // from every other option. Repeat until all options have only one
+        // possibility.
         public bool ReduceToSingles()
         {
             var done = new HashSet<TKey>();
