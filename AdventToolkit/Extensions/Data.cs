@@ -225,10 +225,45 @@ namespace AdventToolkit.Extensions
             for (var i = start; i < s.Length; i++)
             {
                 if (s[i] == '(') level++;
-                if (s[i] == ')') level--;
+                else if (s[i] == ')') level--;
                 if (level == 0) return i;
             }
             return -1;
+        }
+
+        // Find the first parenthesis in the string and its corresponding close
+        public static bool FindFirstParens(this string s, out int open, out int close)
+        {
+            open = s.IndexOf('(');
+            if ((close = open) < 0) return false;
+            close = s.GetEndParen(open);
+            return close > open;
+        }
+
+        // Split a string only at the most outer level of groups
+        // Assuming the groups are balanced and you start at the most outer level
+        public static string[] SplitOuter(this string s, char c, char start, char end)
+        {
+            var results = new List<string>();
+            var level = 0;
+            var last = 0;
+            for (var i = 0; i < s.Length; i++)
+            {
+                if (s[i] == start) level++;
+                else if (s[i] == end) level--;
+                if (level == 0 && s[i] == c)
+                {
+                    results.Add(s[last..i]);
+                    last = i + 1;
+                }
+            }
+            if (last < s.Length) results.Add(s[last..]);
+            return results.ToArray();
+        }
+
+        public static string[] SplitOuter(this string s, char c)
+        {
+            return s.SplitOuter(c, '(', ')');
         }
 
         public static IEnumerable<int> IndicesOf(this string s, char c)
