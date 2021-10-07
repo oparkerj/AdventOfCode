@@ -28,10 +28,7 @@ namespace AdventToolkit.Utilities
         public virtual void RemoveVertex(TVertex vertex)
         {
             if (_vertices.TryGetValue(vertex.Id, out var v) && v != vertex) return;
-            foreach (var edge in vertex.Edges.ToArray())
-            {
-                edge.Unlink();
-            }
+            vertex.Disconnect();
             _vertices.Remove(vertex.Id);
         }
 
@@ -46,7 +43,7 @@ namespace AdventToolkit.Utilities
         public override string ToString()
         {
             var b = new StringBuilder();
-            b.Append(typeof(TEdge) == typeof(DirectedEdgeOld<T>) ? "digraph G {\n" : "graph G {\n");
+            b.Append(typeof(TEdge) == typeof(DirectedEdge<T>) ? "digraph G {\n" : "graph G {\n");
             foreach (var vertex in _vertices.Values)
             {
                 b.Append(vertex).Append('\n');
@@ -62,44 +59,69 @@ namespace AdventToolkit.Utilities
 
     public class Graph<T> : Graph<T, Vertex<T, Edge<T>>, Edge<T>> { }
 
-    public abstract class Vertex<T, TEdge>
+    public abstract class Vertex<T>
     {
         public int Id { get; internal set; }
 
         public T Value { get; set; }
+        
+        protected Vertex() { }
 
         protected Vertex(T value)
         {
             Value = value;
         }
+    }
+    
+    public abstract class Vertex<T, TEdge> : Vertex<T>
+        where TEdge : Edge<T>
+    {
+        protected Vertex() { }
 
+        protected Vertex(T value) : base(value) { }
+        
         /// <summary>Number of edges on this vertex.</summary>
         public abstract int Count { get; }
 
         /// <summary>
-        /// Relevant neighbors; not every edge equals a neighbor, for
+        /// Relevant edges; not every edge equals a neighbor, for
         /// example, directed edges. 
         /// </summary>
-        public abstract IEnumerable<Vertex<T>> Neighbors { get; }
-        
+        public abstract IEnumerable<TEdge> NeighborEdges { get; }
+
+        public IEnumerable<Vertex<T, TEdge>> Neighbors => NeighborEdges.Select(edge => edge.OtherAs(this));
+
+        public virtual IEnumerable<Vertex<T, TEdge>> Connected => Edges.Select(edge => edge.OtherAs(this));
+
         /// <summary>
         /// Every edge related to this vertex.
         /// </summary>
-        public abstract IEnumerable<Edge<T>> Edges { get; }
+        public abstract IEnumerable<TEdge> Edges { get; }
 
-        public abstract void AddEdge(Edge<T> edge);
+        // Calls AddEdge, does not handle side effects
+        public abstract void LinkTo(Vertex<T, TEdge> other, TEdge edge);
 
-        public abstract void RemoveEdge(Edge<T> edge);
+        public abstract void AddEdge(TEdge edge);
 
-        public virtual bool ConnectedTo(Vertex<T> other)
+        public abstract void RemoveEdge(TEdge edge);
+
+        public virtual bool ConnectedTo(Vertex<T, TEdge> other)
         {
             return Edges.Any(edge => edge.IsBetween(this, other));
+        }
+        
+        public virtual void Disconnect()
+        {
+            foreach (var vertex in Connected.ToArray())
+            {
+                Unlink(vertex);
+            }
         }
 
         /// <summary>
         /// Removes the first edge found that links this vertex and another.
         /// </summary>
-        public virtual bool Unlink(Vertex<T> other)
+        public virtual bool Unlink(Vertex<T, TEdge> other)
         {
             if (!Edges.Where(edge => edge.IsBetween(this, other)).First(out var otherEdge)) return false;
             RemoveEdge(otherEdge);
@@ -107,33 +129,41 @@ namespace AdventToolkit.Utilities
         }
     }
 
-    public class SimpleVertex<T> : Vertex<T>
+    public class SimpleVertex<T, TEdge> : Vertex<T, TEdge>
+        where TEdge : Edge<T>
     {
-        private List<Edge<T>> _edges = new();
+        private List<TEdge> _edges = new();
+
+        public SimpleVertex() { }
 
         public SimpleVertex(T value) : base(value) { }
 
         public override int Count => _edges.Count;
 
-        public override IEnumerable<Vertex<T>> Neighbors => _edges.Select(edge => edge.Other(this));
-        
-        public override IEnumerable<Edge<T>> Edges => _edges;
+        public override IEnumerable<TEdge> NeighborEdges => Edges;
 
-        public override void AddEdge(Edge<T> edge)
+        public override IEnumerable<TEdge> Edges => _edges;
+
+        public override void LinkTo(Vertex<T, TEdge> other, TEdge edge)
+        {
+            AddEdge(edge);
+            other.AddEdge(edge);
+        }
+
+        public override void AddEdge(TEdge edge)
         {
             _edges.Add(edge);
         }
 
-        public override void RemoveEdge(Edge<T> edge)
+        public override void RemoveEdge(TEdge edge)
         {
             _edges.Remove(edge);
         }
 
-        public override bool Unlink(Vertex<T> other)
+        public override bool Unlink(Vertex<T, TEdge> other)
         {
-            var index = _edges.FindIndex(edge => edge.IsBetween(this, other));
-            if (index < 0) return false;
-            _edges.RemoveAt(index);
+            if (!_edges.First(edge => edge.IsBetween(this, other), out var edge)) return false;
+            RemoveEdge(edge);
             return true;
         }
 
@@ -169,25 +199,24 @@ namespace AdventToolkit.Utilities
             return a == From && b == To || a == To && b == From;
         }
 
-        public void Unlink()
-        {
-            From.RemoveEdge(this);
-            if (From != To) To.RemoveEdge(this);
-        }
-
         public override string ToString() => $"{From} -- {To}";
     }
 
-    public class WeightedEdge<T> : Edge<T>
+    public interface IEdgeData<T>
+    {
+        T Data { get; }
+    }
+
+    public class WeightedEdge<T> : Edge<T>, IEdgeData<int>
     {
         public readonly int Weight;
+
+        public int Data => Weight;
 
         public WeightedEdge(Vertex<T> from, Vertex<T> to, int weight) : base(from, to)
         {
             Weight = weight;
         }
-
-        public static WeightedEdge<T> Link(Vertex<T> from, Vertex<T> to, int weight) => new(from, to, weight);
 
         public override string ToString()
         {
@@ -195,9 +224,9 @@ namespace AdventToolkit.Utilities
         }
     }
 
-    public class DirectedEdgeOld<T> : Edge<T>
+    public class DirectedEdge<T> : Edge<T>
     {
-        public DirectedEdgeOld(Vertex<T> from, Vertex<T> to) : base(from, to) { }
+        public DirectedEdge(Vertex<T> from, Vertex<T> to) : base(from, to) { }
 
         public override Vertex<T> Other(Vertex<T> vertexOld)
         {
@@ -208,7 +237,7 @@ namespace AdventToolkit.Utilities
     }
 
     public class UniqueGraph<T, TVertex, TEdge> : Graph<T, TVertex, TEdge>
-        where TVertex : Vertex<T>
+        where TVertex : Vertex<T, TEdge>
         where TEdge : Edge<T>
     {
         private new readonly Dictionary<T, TVertex> _vertices = new();
@@ -225,7 +254,14 @@ namespace AdventToolkit.Utilities
             _vertices.Remove(vertex.Value);
         }
 
+        public TVertex this[T val] => Get(val);
+        
         public TVertex Get(T val) => _vertices[val];
+
+        public bool TryGet(T val, out TVertex vertex)
+        {
+            return _vertices.TryGetValue(val, out vertex);
+        }
 
         public TVertex GetOrCreate(T val, Func<T, TVertex> cons)
         {
