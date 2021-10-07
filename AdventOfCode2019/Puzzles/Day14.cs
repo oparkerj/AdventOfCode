@@ -13,7 +13,7 @@ namespace AdventOfCode2019.Puzzles
             Part = 2;
         }
 
-        public QuantityTree<string> GetReactions()
+        public QuantityTreeOld<string> GetReactions()
         {
             return Input.ToQuantityTree(@"(?<Children>(\d+) (\w+)(?:, )?)+ => (?<Amount>\d+) (?<Value>\w+)");
         }

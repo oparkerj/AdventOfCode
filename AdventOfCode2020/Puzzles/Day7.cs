@@ -65,7 +65,7 @@ namespace AdventOfCode2020.Puzzles
 
         public record Bag(string Name, List<(int Amount, string Bag)> Bags);
 
-        public QuantityTree<string> GetBags()
+        public QuantityTreeOld<string> GetBags()
         {
             return Input.Where(s => !s.Contains("no other bags"))
                 .ToQuantityTree(@"(?<Value>.+?) bags contain (?<Children>(\d+) (.+?) bags?(?:, )?)+.");

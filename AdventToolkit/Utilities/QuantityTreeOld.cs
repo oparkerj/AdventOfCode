@@ -5,7 +5,7 @@ using RegExtract;
 
 namespace AdventToolkit.Utilities
 {
-    public class QuantityTree<T> : Tree<T, QuantityNode<T>, CountLink<T>>
+    public class QuantityTreeOld<T> : TreeOld<T, QuantityNode<T>, CountLink<T>>
     {
         public long ProduceFrom(T item, Dictionary<T, long> have)
         {
@@ -137,28 +137,28 @@ namespace AdventToolkit.Utilities
 
     public class QuantityTreeHelper<T>
     {
-        public readonly QuantityTree<T> Tree;
+        public readonly QuantityTreeOld<T> TreeOld;
         private QuantityNode<T> _parent;
 
-        public QuantityTreeHelper(QuantityTree<T> tree) => Tree = tree;
+        public QuantityTreeHelper(QuantityTreeOld<T> treeOld) => TreeOld = treeOld;
 
         public QuantityNode<T> GetOrCreate(T item)
         {
-            if (Tree.TryGet(item, out var node)) return node;
+            if (TreeOld.TryGet(item, out var node)) return node;
             node = new QuantityNode<T>(item, 0);
-            Tree.Add(node);
+            TreeOld.Add(node);
             return node;
         }
         
         public QuantityNode<T> GetOrCreate(T item, long amount)
         {
-            if (Tree.TryGet(item, out var node))
+            if (TreeOld.TryGet(item, out var node))
             {
                 node.Quantity = amount;
                 return node;
             }
             node = new QuantityNode<T>(item, amount);
-            Tree.Add(node);
+            TreeOld.Add(node);
             return node;
         }
 
@@ -185,9 +185,9 @@ namespace AdventToolkit.Utilities
 
     public static class QuantityTreeExtensions
     {
-        public static QuantityTree<TT> ToQuantityTree<T, TT>(this IEnumerable<T> items, Action<T, QuantityTreeHelper<TT>> action)
+        public static QuantityTreeOld<TT> ToQuantityTree<T, TT>(this IEnumerable<T> items, Action<T, QuantityTreeHelper<TT>> action)
         {
-            var tree = new QuantityTree<TT>();
+            var tree = new QuantityTreeOld<TT>();
             var helper = new QuantityTreeHelper<TT>(tree);
             foreach (var item in items)
             {
@@ -196,9 +196,9 @@ namespace AdventToolkit.Utilities
             return tree;
         }
         
-        public static QuantityTree<TT> ToQuantityTree<T, TI, TT>(this IEnumerable<T> items, Func<T, TI> func, Action<TI, QuantityTreeHelper<TT>> action)
+        public static QuantityTreeOld<TT> ToQuantityTree<T, TI, TT>(this IEnumerable<T> items, Func<T, TI> func, Action<TI, QuantityTreeHelper<TT>> action)
         {
-            var tree = new QuantityTree<TT>();
+            var tree = new QuantityTreeOld<TT>();
             var helper = new QuantityTreeHelper<TT>(tree);
             foreach (var item in items)
             {
@@ -214,7 +214,7 @@ namespace AdventToolkit.Utilities
         //      this group must contain two groups that represent the quantity and name
         //      of the child node.
         // (Optional) Named group <Amount>: The number of parent objects produced.
-        public static QuantityTree<string> ToQuantityTree(this IEnumerable<string> items, string format)
+        public static QuantityTreeOld<string> ToQuantityTree(this IEnumerable<string> items, string format)
         {
             return items.Extract<QuantityItem<string>>(format)
                 .ToQuantityTree<QuantityItem<string>, string>((item, helper) =>

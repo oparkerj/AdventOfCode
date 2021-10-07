@@ -17,7 +17,7 @@ namespace AdventOfCode2018.Puzzles
         {
             var graph = Input.ToDigraph(s => s[5], s => s[36]);
             
-            var queue = new SelfPriorityQueue<Vertex<char>>(Comparing<Vertex<char>>.By(vertex => vertex.Value));
+            var queue = new SelfPriorityQueue<VertexOld<char>>(Comparing<VertexOld<char>>.By(vertex => vertex.Value));
             foreach (var vertex in graph.Where(vertex => !graph.HasIncomingEdges(vertex)))
             {
                 queue.Enqueue(vertex);
@@ -39,10 +39,10 @@ namespace AdventOfCode2018.Puzzles
         public override void PartTwo()
         {
             var graph = Input.ToDigraph(s => s[5], s => s[36]);
-            var workers = new (int Time, Vertex<char> Current)[5];
+            var workers = new (int Time, VertexOld<char> Current)[5];
 
-            var comparing = Comparing<Vertex<char>>.By(vertex => vertex.Value);
-            var queue = new SelfPriorityQueue<Vertex<char>>(comparing);
+            var comparing = Comparing<VertexOld<char>>.By(vertex => vertex.Value);
+            var queue = new SelfPriorityQueue<VertexOld<char>>(comparing);
             foreach (var vertex in graph.Where(vertex => !graph.HasIncomingEdges(vertex)))
             {
                 queue.Enqueue(vertex);
