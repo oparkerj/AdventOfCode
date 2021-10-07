@@ -4,7 +4,6 @@ using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
-using MoreLinq;
 
 namespace AdventOfCode2019.Puzzles
 {
@@ -23,14 +22,14 @@ namespace AdventOfCode2019.Puzzles
         }
 
         // Build graph from grid
-        public UniqueGraph<char, Vertex<char>, WeightedEdge<char>> MakeGraph()
+        public UniqueGraph<char, VertexOld<char>, WeightedEdgeOld<char>> MakeGraph()
         {
-            var graph = new UniqueGraph<char, Vertex<char>, WeightedEdge<char>>();
+            var graph = new UniqueGraph<char, VertexOld<char>, WeightedEdgeOld<char>>();
             foreach (var key in Map.Values.Where(c => char.IsLetter(c) || char.IsNumber(c)))
             {
-                graph.AddVertex(new Vertex<char>(key));
+                graph.AddVertex(new VertexOld<char>(key));
             }
-            graph.AddVertex(new Vertex<char>(You));
+            graph.AddVertex(new VertexOld<char>(You));
             foreach (var vertex in graph)
             {
                 var keys = Map.Bfs(Map.Find(vertex.Value), pos => Map[pos] == Open, pos => char.IsLetter(Map[pos]) || char.IsNumber(Map[pos]) || Map[pos] == You, true);
@@ -39,13 +38,13 @@ namespace AdventOfCode2019.Puzzles
                     var other = graph.Get(Map[key]);
                     if (vertex.ConnectedTo(other)) continue;
                     var dist = Map.ShortestPathBfs(Map.Find(vertex.Value), key, pos => Map[pos] != Wall);
-                    WeightedEdge<char>.Link(vertex, other, dist);
+                    WeightedEdgeOld<char>.Link(vertex, other, dist);
                 }
             }
             return graph;
         }
 
-        public int Solve<TPos>(UniqueGraph<char, Vertex<char>, WeightedEdge<char>> graph, State<TPos> initial, Func<State<TPos>, IEnumerable<(TPos Pos, char Key, int Travel)>> possibilities)
+        public int Solve<TPos>(UniqueGraph<char, VertexOld<char>, WeightedEdgeOld<char>> graph, State<TPos> initial, Func<State<TPos>, IEnumerable<(TPos Pos, char Key, int Travel)>> possibilities)
         {
             // Perform a dijkstra search on (position, keys)
             var keyCount = graph.Values.Where(char.IsLower).Count();
@@ -88,7 +87,7 @@ namespace AdventOfCode2019.Puzzles
             var graph = MakeGraph();
             var start = graph.Get(You);
 
-            var result = Solve(graph, new State<Vertex<char>>(start, 0, ""), state =>
+            var result = Solve(graph, new State<VertexOld<char>>(start, 0, ""), state =>
             {
                 var search = graph.ToDijkstra().ComputeWhere(state.Pos, vertex => char.IsLower(vertex.Value) || state.Keys.Contains(char.ToLower(vertex.Value)) || vertex.Value == You);
                 var useless = search.Keys.Where(vertex => char.IsUpper(vertex.Value) || state.Keys.Contains(vertex.Value) || vertex.Value == You).ToList();
@@ -101,9 +100,9 @@ namespace AdventOfCode2019.Puzzles
             WriteLn(result);
         }
 
-        public record Bots(Vertex<char>[] Positions)
+        public record Bots(VertexOld<char>[] Positions)
         {
-            public Bots(IEnumerable<Vertex<char>> items) : this(items.ToArray()) { }
+            public Bots(IEnumerable<VertexOld<char>> items) : this(items.ToArray()) { }
             
             public override int GetHashCode()
             {

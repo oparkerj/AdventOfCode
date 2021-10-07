@@ -12,10 +12,10 @@ namespace AdventOfCode2018.Puzzles
             Part = 2;
         }
 
-        public DataTree<int[]> GetTree()
+        public DataTreeOld<int[]> GetTree()
         {
             var input = InputLine.Split(' ').Ints().ToArray();
-            var tree = new DataTree<int[]>();
+            var tree = new DataTreeOld<int[]>();
 
             (int, int) Read(int[] data, int start)
             {

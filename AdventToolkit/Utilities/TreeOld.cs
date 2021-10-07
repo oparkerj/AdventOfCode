@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace AdventToolkit.Utilities
 {
-    public abstract class Tree<T, TNode, TLink> : IEnumerable<TNode>
+    public abstract class TreeOld<T, TNode, TLink> : IEnumerable<TNode>
         where TNode : Node<T, TLink>
     {
         protected readonly Dictionary<T, TNode> Nodes = new();
@@ -123,7 +123,7 @@ namespace AdventToolkit.Utilities
         public new IEnumerable<DataNode<TData>> Parents => base.Parents.Cast<DataNode<TData>>();
     }
 
-    public class Tree<T> : Tree<T, Node<T>, Node<T>>
+    public class TreeOld<T> : TreeOld<T, Node<T>, Node<T>>
     {
         public Node<T> GetNode(T item)
         {
@@ -140,7 +140,7 @@ namespace AdventToolkit.Utilities
         }
     }
 
-    public class DataTree<T> : Tree<int, DataNode<T>, DataNode<T>>
+    public class DataTreeOld<T> : TreeOld<int, DataNode<T>, DataNode<T>>
     {
         public DataNode<T> NewNode()
         {
@@ -152,9 +152,9 @@ namespace AdventToolkit.Utilities
 
     public static class TreeExtensions
     {
-        public static Tree<TT> ToTree<T, TT>(this IEnumerable<T> items, Func<T, TT> parent, Func<T, TT> child)
+        public static TreeOld<TT> ToTree<T, TT>(this IEnumerable<T> items, Func<T, TT> parent, Func<T, TT> child)
         {
-            var tree = new Tree<TT>();
+            var tree = new TreeOld<TT>();
             foreach (var item in items)
             {
                 tree.Link(parent(item), child(item));
@@ -162,9 +162,9 @@ namespace AdventToolkit.Utilities
             return tree;
         }
 
-        public static Tree<TT> ToTree<T, TI, TT>(this IEnumerable<T> items, Func<T, TI> func, Func<TI, TT> parent, Func<TI, TT> child)
+        public static TreeOld<TT> ToTree<T, TI, TT>(this IEnumerable<T> items, Func<T, TI> func, Func<TI, TT> parent, Func<TI, TT> child)
         {
-            var tree = new Tree<TT>();
+            var tree = new TreeOld<TT>();
             foreach (var item in items)
             {
                 var i = func(item);
@@ -178,9 +178,9 @@ namespace AdventToolkit.Utilities
             return nodes.Select(node => node.Value);
         }
 
-        public static Node<T> CommonAncestor<T>(this Tree<T> tree, T a, T b)
+        public static Node<T> CommonAncestor<T>(this TreeOld<T> treeOld, T a, T b)
         {
-            if (!tree.TryGet(a, out var an) || !tree.TryGet(b, out var bn)) return null;
+            if (!treeOld.TryGet(a, out var an) || !treeOld.TryGet(b, out var bn)) return null;
             var seen = new HashSet<T>(an.Parents.Values());
             return bn.Parents.FirstOrDefault(node => seen.Contains(node.Value));
         }
