@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Collections;
+using AdventToolkit.Collections.Space;
+using AdventToolkit.Common;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities;
+using AdventToolkit.Solvers;
 using MoreLinq;
 
 namespace AdventOfCode2019.Puzzles
@@ -19,13 +22,13 @@ namespace AdventOfCode2019.Puzzles
 
         public override void PartOne()
         {
-            static int GetState(GameOfLife<Pos> game)
+            static int GetState(GameOfLife<AdventToolkit.Common.Pos> game)
             {
                 return game.WhereValue(true).Keys().Aggregate(0, (current, pos) => current | 1 << (pos.X + pos.Y * 5));
             }
             
             var seen = new HashSet<int>();
-            var game = new GameOfLife<Pos>();
+            var game = new GameOfLife<AdventToolkit.Common.Pos>();
             game.WithNeighborFunction(pos => pos.Adjacent())
                 .WithLivingDeadRules(i => i != 1, i => i is 1 or 2);
             Input.ToGrid(false).ForEach(pair => game[pair.Key] = pair.Value == Bug);
@@ -45,7 +48,7 @@ namespace AdventOfCode2019.Puzzles
 
         public override void PartTwo()
         {
-            static Side GetSide(Pos dir)
+            static Side GetSide(AdventToolkit.Common.Pos dir)
             {
                 return dir switch
                 {
@@ -60,14 +63,14 @@ namespace AdventOfCode2019.Puzzles
             var map = Input.ToGrid();
             var area = map.Bounds;
             var mid = area.MidPos;
-            var game = new GameOfLife<(Pos Pos, int Level)>();
+            var game = new GameOfLife<(AdventToolkit.Common.Pos Pos, int Level)>();
             map.ForEach(pair => game[(pair.Key, 0)] = pair.Value == Bug);
             game.WithLivingDeadRules(i => i != 1, i => i is 1 or 2);
             game.WithKeepDead(false);
             game.WithExpansion();
 
             game.WithNeighborFunction(Neighbors);
-            IEnumerable<(Pos Pos, int Level)> Neighbors((Pos Pos, int Level) cell)
+            IEnumerable<(AdventToolkit.Common.Pos Pos, int Level)> Neighbors((AdventToolkit.Common.Pos Pos, int Level) cell)
             {
                 foreach (var pos in cell.Pos.Adjacent())
                 {

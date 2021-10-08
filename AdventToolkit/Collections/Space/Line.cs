@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Collections.Space
 {
     public class Line<T> : AlignedSpace<int, T>
     {

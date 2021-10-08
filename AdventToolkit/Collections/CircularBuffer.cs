@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Collections
 {
     public class CircularBuffer<T> : IEnumerable<T>
     {

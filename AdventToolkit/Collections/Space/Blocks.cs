@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Collections.Space
 {
     public class Blocks<T> : AlignedSpace<Pos3D, T>
     {

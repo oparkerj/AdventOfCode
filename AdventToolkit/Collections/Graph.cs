@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using AdventToolkit.Extensions;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Collections
 {
     public class Graph<T, TVertex, TEdge> : IEnumerable<TVertex>
         where TVertex : Vertex<T, TEdge>

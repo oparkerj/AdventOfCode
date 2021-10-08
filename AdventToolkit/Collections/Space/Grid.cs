@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdventToolkit.Common;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities;
 using MoreLinq;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Collections.Space
 {
     public class Grid<T> : AlignedSpace<Pos, T>
     {

@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Collections.Space;
+using AdventToolkit.Common;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities;
 using MoreLinq.Extensions;
 
 namespace AdventOfCode2018.Puzzles

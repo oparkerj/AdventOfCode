@@ -1,7 +1,7 @@
 using System;
 using AdventToolkit.Utilities.Arithmetic;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Common
 {
     public readonly struct Pos3D : IAdd<Pos3D>, ISub<Pos3D>, INegate<Pos3D>
     {

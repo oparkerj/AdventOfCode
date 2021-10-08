@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using AdventToolkit.Utilities;
+using AdventToolkit.Common;
 
 namespace AdventToolkit.Extensions
 {

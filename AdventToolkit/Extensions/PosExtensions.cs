@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdventToolkit.Utilities;
+using AdventToolkit.Collections;
+using AdventToolkit.Common;
 
 namespace AdventToolkit.Extensions
 {

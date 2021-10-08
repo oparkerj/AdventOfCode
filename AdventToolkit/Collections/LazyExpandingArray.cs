@@ -2,8 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AdventToolkit.Collections.Space;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Collections
 {
     // Class behaves like an array up to an initial capacity.
     // When reading/writing past the initial capacity, the data is stored

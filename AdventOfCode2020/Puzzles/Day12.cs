@@ -1,6 +1,6 @@
 using AdventToolkit;
+using AdventToolkit.Common;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities;
 
 namespace AdventOfCode2020.Puzzles
 {

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Collections;
+using AdventToolkit.Collections.Space;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 using MoreLinq.Extensions;

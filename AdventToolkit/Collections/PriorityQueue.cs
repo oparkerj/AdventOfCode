@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Collections
 {
     // Simple implementation of priority queue based off the .NET 6 implementation.
     public class PriorityQueue<T, TPriority> : IEnumerable<(T Value, TPriority Priority)>

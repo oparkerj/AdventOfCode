@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit.Extensions;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Solvers
 {
     public class OneToOne<TKey, TValue>
     {
