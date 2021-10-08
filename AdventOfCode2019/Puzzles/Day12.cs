@@ -17,7 +17,7 @@ namespace AdventOfCode2019.Puzzles
 
         public override void PartOne()
         {
-            var moons = Input.Extract<(int, int, int)>(@"<x=(.+), y=(.+), z=(.+)>")
+            var moons = Input.Extract<Pos3D>(@"<x=(.+), y=(.+), z=(.+)>")
                 .Select(pos => new Moon {Position = pos});
             var sim = new Simulation<Moon>(moons)
                 .WithUpdate(Simulation<Moon>.Aggregate((a, b) => b.Position.Sub(a.Position).Normalize(), (moon, gravity) => moon.Velocity += gravity))
@@ -28,7 +28,7 @@ namespace AdventOfCode2019.Puzzles
 
         public override void PartTwo()
         {
-            var moons = Input.Extract<(int, int, int)>(@"<x=(.+), y=(.+), z=(.+)>")
+            var moons = Input.Extract<Pos3D>(@"<x=(.+), y=(.+), z=(.+)>")
                 .Select(pos => new Moon {Position = pos});
             var sim = new Simulation<Moon>(moons)
                 .WithUpdate(Simulation<Moon>.Aggregate((a, b) => b.Position.Sub(a.Position).Normalize(), (moon, gravity) => moon.Velocity += gravity))
