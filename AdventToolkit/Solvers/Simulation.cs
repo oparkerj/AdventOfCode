@@ -4,7 +4,7 @@ using System.Linq;
 using AdventToolkit.Utilities.Arithmetic;
 using MoreLinq;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Solvers
 {
     // Like game of life but every object affects
     // every other object in each step.
@@ -19,6 +19,7 @@ namespace AdventToolkit.Utilities
 
         public Simulation(IEnumerable<T> items) => Objects.AddRange(items);
 
+        // Create an update function that aggregates values and then applies the final value
         public static Func<T, IEnumerable<T>, T> Aggregate<TA>(Func<T, T, TA> collect, Action<T, TA> write)
             where TA : IAdd<TA>
         {

@@ -1,8 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using AdventToolkit.Utilities;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Collections.Space
 {
     public abstract class AlignedSpace<TPos, TVal> : IEnumerable<KeyValuePair<TPos, TVal>>, IDijkstra<TPos, TPos>
     {

@@ -1,7 +1,7 @@
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities;
 using RegExtract;
 
 namespace AdventOfCode2018.Puzzles

@@ -1,7 +1,7 @@
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Common;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities;
 using MoreLinq;
 
 namespace AdventOfCode2018.Puzzles

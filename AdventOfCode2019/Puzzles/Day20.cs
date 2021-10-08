@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using AdventToolkit;
+using AdventToolkit.Collections;
+using AdventToolkit.Collections.Space;
+using AdventToolkit.Common;
 using AdventToolkit.Utilities;
 using MoreLinq;
 
@@ -17,9 +20,9 @@ namespace AdventOfCode2019.Puzzles
         public override void PartOne()
         {
             var map = Input.ToGrid<char, PortalGrid<char>>();
-            var portals = new Dictionary<string, (Side Side, Pos Pos)>();
+            var portals = new Dictionary<string, (AdventToolkit.Collections.Side Side, AdventToolkit.Common.Pos Pos)>();
 
-            void AddPortal(string key, Side side, Pos pos)
+            void AddPortal(string key, AdventToolkit.Collections.Side side, AdventToolkit.Common.Pos pos)
             {
                 if (portals.TryGetValue(key, out var portal))
                 {
@@ -58,8 +61,8 @@ namespace AdventOfCode2019.Puzzles
         {
             var map = new PortalGrid<char, int>();
             Input.ToGrid().ForEach(pair => map[pair.Key] = pair.Value);
-            var mid = new Pos(InputLine.Length / 2, -Input.Length / 2);
-            var portals = new Dictionary<string, (Side Side, Pos Pos, int Tag)>();
+            var mid = new AdventToolkit.Common.Pos(InputLine.Length / 2, -Input.Length / 2);
+            var portals = new Dictionary<string, (AdventToolkit.Collections.Side Side, AdventToolkit.Common.Pos Pos, int Tag)>();
 
             void AddPortal(string key, Side side, Pos pos, int tag)
             {

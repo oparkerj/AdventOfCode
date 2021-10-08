@@ -1,5 +1,6 @@
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 using MoreLinq;

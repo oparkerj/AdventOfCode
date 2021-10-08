@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities;
 using AdventToolkit.Utilities.Arithmetic;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Common
 {
     public readonly struct Pos : IAdd<Pos>, ISub<Pos>, INegate<Pos>
     {

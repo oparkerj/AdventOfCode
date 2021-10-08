@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities;
 
 namespace AdventOfCode2019.IntCode
 {

@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities;
+using AdventToolkit.Solvers;
 using RegExtract;
 
 namespace AdventOfCode2020.Puzzles

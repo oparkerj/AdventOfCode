@@ -1,8 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using AdventToolkit.Common;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Collections
 {
     public class Rect : IEnumerable<Pos>
     {

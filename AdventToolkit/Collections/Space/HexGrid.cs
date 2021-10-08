@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using AdventToolkit.Common;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Collections.Space
 {
     public class HexGrid<T> : AlignedSpace<Pos3D, T>
     {
