@@ -41,13 +41,13 @@ namespace AdventToolkit.Extensions
             }
         }
 
-        public static Dijkstra<TVertex, WeightedEdge<T>> ToDijkstra<T, TVertex>(this Graph<T, TVertex, WeightedEdge<T>> graph)
-            where TVertex : Vertex<T, WeightedEdge<T>>
+        public static Dijkstra<TVertex, DataEdge<T, int>> ToDijkstra<T, TVertex>(this Graph<T, TVertex, DataEdge<T, int>> graph)
+            where TVertex : Vertex<T, DataEdge<T, int>>
         {
             return new()
             {
                 Neighbors = vertex => vertex.Edges,
-                Distance = edge => edge.Weight,
+                Distance = edge => edge.Data,
                 Cell = (vertex, edge) => edge.OtherAs(vertex)
             };
         }

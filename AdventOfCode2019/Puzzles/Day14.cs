@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AdventToolkit;
-using AdventToolkit.Utilities;
+using AdventToolkit.Collections;
+using AdventToolkit.Extensions;
 
 namespace AdventOfCode2019.Puzzles
 {
@@ -13,7 +14,7 @@ namespace AdventOfCode2019.Puzzles
             Part = 2;
         }
 
-        public QuantityTreeOld<string> GetReactions()
+        public QuantityTree<string> GetReactions()
         {
             return Input.ToQuantityTree(@"(?<Children>(\d+) (\w+)(?:, )?)+ => (?<Amount>\d+) (?<Value>\w+)");
         }

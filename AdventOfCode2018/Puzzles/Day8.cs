@@ -1,5 +1,6 @@
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 
@@ -12,10 +13,10 @@ namespace AdventOfCode2018.Puzzles
             Part = 2;
         }
 
-        public DataTreeOld<int[]> GetTree()
+        public Tree<int[]> GetTree()
         {
             var input = InputLine.Split(' ').Ints().ToArray();
-            var tree = new DataTreeOld<int[]>();
+            var tree = new Tree<int[]>();
 
             (int, int) Read(int[] data, int start)
             {
@@ -28,10 +29,10 @@ namespace AdventOfCode2018.Puzzles
                 {
                     var (length, id) = Read(data, start);
                     start += length;
-                    node.AddChild(tree[id]);
+                    node.LinkTo(tree[id]);
                 }
-                node.Data = data[start..(start + meta)];
-                return (start + meta - beginning, node.Value);
+                node.Value = data[start..(start + meta)];
+                return (start + meta - beginning, node.Id);
             }
 
             Read(input, 0);
@@ -41,18 +42,18 @@ namespace AdventOfCode2018.Puzzles
         public override void PartOne()
         {
             var tree = GetTree();
-            var result = tree.SelectMany(node => node.Data).Sum();
+            var result = tree.SelectMany(node => node.Value).Sum();
             WriteLn(result);
         }
 
         public override void PartTwo()
         {
-            static int Value(DataNode<int[]> node)
+            static int Value(TreeVertex<int[], Edge<int[]>> vertex)
             {
-                if (node.Count == 0) return node.Data.Sum();
-                var links = node.ChildLinks;
+                if (vertex.Count == 0) return vertex.Value.Sum();
+                var links = vertex.Neighbors.ToList();
                 var range = Interval.Range(0, links.Count);
-                return node.Data.Select(i => i - 1)
+                return vertex.Value.Select(i => i - 1)
                     .Where(range.Contains)
                     .GetFrom(links)
                     .Select(Value)

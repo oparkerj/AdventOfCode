@@ -1,6 +1,6 @@
 using System.Linq;
 using AdventToolkit;
-using AdventToolkit.Utilities;
+using AdventToolkit.Extensions;
 
 namespace AdventOfCode2019.Puzzles
 {

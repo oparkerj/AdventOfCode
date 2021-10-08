@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
-using AdventToolkit.Utilities;
+using AdventToolkit.Collections;
+using AdventToolkit.Extensions;
 
 namespace AdventOfCode2020.Puzzles
 {
@@ -65,7 +66,7 @@ namespace AdventOfCode2020.Puzzles
 
         public record Bag(string Name, List<(int Amount, string Bag)> Bags);
 
-        public QuantityTreeOld<string> GetBags()
+        public QuantityTree<string> GetBags()
         {
             return Input.Where(s => !s.Contains("no other bags"))
                 .ToQuantityTree(@"(?<Value>.+?) bags contain (?<Children>(\d+) (.+?) bags?(?:, )?)+.");

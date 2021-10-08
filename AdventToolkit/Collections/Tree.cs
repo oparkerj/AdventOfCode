@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 
 namespace AdventToolkit.Collections
@@ -45,6 +44,8 @@ namespace AdventToolkit.Collections
         public TreeVertex() { }
 
         public TreeVertex(T value) : base(value) { }
+
+        public override int Count => ParentEdge == null ? base.Count : base.Count + 1;
 
         public int Height
         {
@@ -124,5 +125,12 @@ namespace AdventToolkit.Collections
         public IEnumerable<TreeVertex<T, TEdge>> Descendants => Neighbors.Concat(Neighbors.SelectMany(vertex => vertex.Descendants));
 
         public IEnumerable<TEdge> DescendantLinks => Edges.Concat(Edges.Select(GetChild).SelectMany(vertex => vertex.DescendantLinks));
+    }
+
+    public class TreeVertex<T> : TreeVertex<T, Edge<T>>
+    {
+        public TreeVertex() { }
+        
+        public TreeVertex(T value) : base(value) { }
     }
 }
