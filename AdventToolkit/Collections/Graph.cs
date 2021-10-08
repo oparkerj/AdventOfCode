@@ -57,23 +57,37 @@ namespace AdventToolkit.Utilities
         }
     }
 
+    // Some shorthands
     public class Graph<T> : Graph<T, Vertex<T, Edge<T>>, Edge<T>> { }
+    
+    public class DataGraph<T, TData> : Graph<T, Vertex<T, DataEdge<T, TData>>, DataEdge<T, TData>> { }
 
-    public abstract class Vertex<T>
+    public class Digraph<T> : Graph<T, Vertex<T, DirectedEdge<T>>, DirectedEdge<T>> { }
+
+    public static class Vertex
+    {
+        public static Vertex<T, TEdge> Create<T, TEdge>(T value)
+            where TEdge : Edge<T>
+        {
+            return new SimpleVertex<T, TEdge>(value);
+        }
+    }
+
+    public abstract class VertexBase<T>
     {
         public int Id { get; internal set; }
 
         public T Value { get; set; }
         
-        protected Vertex() { }
+        protected VertexBase() { }
 
-        protected Vertex(T value)
+        protected VertexBase(T value)
         {
             Value = value;
         }
     }
     
-    public abstract class Vertex<T, TEdge> : Vertex<T>
+    public abstract class Vertex<T, TEdge> : VertexBase<T>
         where TEdge : Edge<T>
     {
         protected Vertex() { }
@@ -82,6 +96,8 @@ namespace AdventToolkit.Utilities
         
         /// <summary>Number of edges on this vertex.</summary>
         public abstract int Count { get; }
+        
+        public abstract int NeighborCount { get; }
 
         /// <summary>
         /// Relevant edges; not every edge equals a neighbor, for
@@ -140,6 +156,8 @@ namespace AdventToolkit.Utilities
 
         public override int Count => _edges.Count;
 
+        public override int NeighborCount => Count;
+
         public override IEnumerable<TEdge> NeighborEdges => Edges;
 
         public override IEnumerable<TEdge> Edges => _edges;
@@ -169,19 +187,28 @@ namespace AdventToolkit.Utilities
 
         public override string ToString() => $"\"{Value}\"";
     }
+    
+    public class Vertex<T> : SimpleVertex<T, Edge<T>> { }
+
+    public class DataVertex<T, TData> : SimpleVertex<T, DataEdge<T, TData>>
+    {
+        public DataVertex() { }
+        
+        public DataVertex(T value) : base(value) { }
+    }
 
     public class Edge<T>
     {
-        public Vertex<T> From { get; private set; }
-        public Vertex<T> To { get; private set; }
+        public VertexBase<T> From { get; private set; }
+        public VertexBase<T> To { get; private set; }
 
-        public Edge(Vertex<T> from, Vertex<T> to)
+        public Edge(VertexBase<T> from, VertexBase<T> to)
         {
             From = from;
             To = to;
         }
 
-        public virtual Vertex<T> Other(Vertex<T> vertex)
+        public virtual VertexBase<T> Other(VertexBase<T> vertex)
         {
             if (vertex == From) return To;
             if (vertex == To) return From;
@@ -189,12 +216,12 @@ namespace AdventToolkit.Utilities
         }
 
         public TVertex OtherAs<TVertex>(TVertex vertex)
-            where TVertex : Vertex<T>
+            where TVertex : VertexBase<T>
         {
             return Other(vertex) as TVertex;
         }
 
-        public bool IsBetween(Vertex<T> a, Vertex<T> b)
+        public bool IsBetween(VertexBase<T> a, VertexBase<T> b)
         {
             return a == From && b == To || a == To && b == From;
         }
@@ -207,28 +234,26 @@ namespace AdventToolkit.Utilities
         T Data { get; }
     }
 
-    public class WeightedEdge<T> : Edge<T>, IEdgeData<int>
+    public class DataEdge<T, TData> : Edge<T>, IEdgeData<TData>
     {
-        public readonly int Weight;
-
-        public int Data => Weight;
-
-        public WeightedEdge(Vertex<T> from, Vertex<T> to, int weight) : base(from, to)
+        public TData Data { get; }
+        
+        public DataEdge(VertexBase<T> from, VertexBase<T> to, TData data) : base(from, to)
         {
-            Weight = weight;
+            Data = data;
         }
-
+        
         public override string ToString()
         {
-            return $"{base.ToString()} [label=\" {Weight}\"];";
+            return $"{base.ToString()} [label=\" {Data}\"];";
         }
     }
 
     public class DirectedEdge<T> : Edge<T>
     {
-        public DirectedEdge(Vertex<T> from, Vertex<T> to) : base(from, to) { }
+        public DirectedEdge(VertexBase<T> from, VertexBase<T> to) : base(from, to) { }
 
-        public override Vertex<T> Other(Vertex<T> vertexOld)
+        public override VertexBase<T> Other(VertexBase<T> vertexOld)
         {
             return vertexOld == From ? To : null;
         }
@@ -271,4 +296,8 @@ namespace AdventToolkit.Utilities
             return vertex;
         }
     }
+    
+    public class UniqueDataGraph<T, TData> : UniqueGraph<T, DataVertex<T, TData>, DataEdge<T, TData>> { }
+
+    public class UniqueDigraph<T> : UniqueGraph<T, Vertex<T, DirectedEdge<T>>, DirectedEdge<T>> { }
 }

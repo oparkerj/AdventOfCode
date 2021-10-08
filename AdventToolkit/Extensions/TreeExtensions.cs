@@ -29,7 +29,7 @@ namespace AdventToolkit.Extensions
             return tree;
         }
 
-        public static IEnumerable<T> Values<T>(this IEnumerable<Vertex<T>> nodes)
+        public static IEnumerable<T> Values<T>(this IEnumerable<VertexBase<T>> nodes)
         {
             return nodes.Select(node => node.Value);
         }

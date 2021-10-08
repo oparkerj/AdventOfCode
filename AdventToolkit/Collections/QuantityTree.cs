@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 
 namespace AdventToolkit.Collections
 {
-    public class QuantityTree<T> : Tree<T, QuantityVertex<T>, WeightedEdge<T>>
+    public class QuantityTree<T> : Tree<T, QuantityVertex<T>, DataEdge<T, long>>
     {
         public long ProduceFrom(T item, Dictionary<T, long> have)
         {
@@ -72,7 +71,7 @@ namespace AdventToolkit.Collections
                 willProduce = quantity % vertex.Quantity == 0 ? quantity : quantity + (vertex.Quantity - (quantity % vertex.Quantity));
                 scale = willProduce / vertex.Quantity;
             }
-            foreach (var (child, amount) in )
+            foreach (var (child, amount) in vertex.Produced())
             {
                 var want = amount * scale;
                 var piece = child.Value;
@@ -99,7 +98,7 @@ namespace AdventToolkit.Collections
         }
     }
 
-    public class QuantityVertex<T> : TreeVertex<T, WeightedEdge<T>>
+    public class QuantityVertex<T> : TreeVertex<T, DataEdge<T, long>>
     {
         public long Quantity;
 
@@ -117,5 +116,53 @@ namespace AdventToolkit.Collections
         {
             return NeighborEdges.Select(edge => (edge.OtherAs(this), edge.Data));
         }
+    }
+    
+    public class QuantityTreeHelper<T>
+    {
+        public readonly QuantityTree<T> Tree;
+        private QuantityVertex<T> _parent;
+
+        public QuantityTreeHelper(QuantityTree<T> tree) => Tree = tree;
+
+        public QuantityVertex<T> GetOrCreate(T item)
+        {
+            if (Tree.TryGet(item, out var vertex)) return vertex;
+            vertex = new QuantityVertex<T>(item, 0);
+            Tree.AddVertex(vertex);
+            return vertex;
+        }
+        
+        public QuantityVertex<T> GetOrCreate(T item, long amount)
+        {
+            if (Tree.TryGet(item, out var vertex))
+            {
+                vertex.Quantity = amount;
+                return vertex;
+            }
+            vertex = new QuantityVertex<T>(item, amount);
+            Tree.AddVertex(vertex);
+            return vertex;
+        }
+
+        public QuantityTreeHelper<T> Add(T item, long amount = 1)
+        {
+            _parent = GetOrCreate(item, amount);
+            return this;
+        }
+
+        public QuantityTreeHelper<T> AddChild(T item, long amount)
+        {
+            var node = GetOrCreate(item);
+            _parent.LinkTo(node, new DataEdge<T, long>(_parent, node, amount));
+            return this;
+        }
+    }
+    
+    public class QuantityItem<T>
+    {
+        public int Amount { get; set; } = 1;
+        public T Value { get; set; }
+        public List<(int Amount, T Item)> Children { get; set; }
     }
 }
