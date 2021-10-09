@@ -87,12 +87,14 @@ namespace AdventToolkit.Collections
             }
         }
 
+        // Modify minX without changing width
         public int MinXFixed
         {
             get => _minX;
             set => _minX = value;
         }
 
+        // Modify minY without changing height
         public int MinYFixed
         {
             get => _minY;
@@ -157,6 +159,7 @@ namespace AdventToolkit.Collections
             return p.X >= _minX && p.X <= MaxX && p.Y >= _minY && p.Y <= MaxY;
         }
 
+        // Resize to the minimum bounding box of the points
         public void Rebound(IEnumerable<Pos> points)
         {
             Initialized = false;

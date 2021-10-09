@@ -20,10 +20,13 @@ namespace AdventToolkit.Collections
         
         public static Interval RangeInclusive(int start, int end) => new(start, end - start + 1);
 
+        public static Interval Count(int count, int start = 0) => new(start, count);
+
         public int End => Start + Length;
 
         public bool Contains(int i) => i >= Start && i < End;
 
+        // Be careful not to use both this method and RangeInclusive
         public bool ContainsInclusive(int i) => i >= Start && i <= End;
 
         public Interval Overlap(Interval other)

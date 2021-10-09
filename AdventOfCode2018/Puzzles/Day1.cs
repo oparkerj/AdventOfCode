@@ -19,7 +19,7 @@ namespace AdventOfCode2018.Puzzles
 
         public override void PartTwo()
         {
-            WriteLn(Input.Ints().Endless().PreScan((a, b) => a + b, 0).FirstRepeat());
+            WriteLn(Input.Ints().Endless().PreScan(Num.Add, 0).FirstRepeat());
         }
     }
 }

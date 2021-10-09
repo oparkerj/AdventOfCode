@@ -37,7 +37,7 @@ namespace AdventToolkit.Extensions
             }
             return sum;
         }
-
+        
         public static T Sum<T>(this IEnumerable<T> source)
             where T : IAdd<T>
         {
@@ -56,6 +56,22 @@ namespace AdventToolkit.Extensions
             return a.CompareTo(b) > 0 ? a : b;
         }
         
+        public static void Times(this int i, Action action)
+        {
+            for (var j = 0; j < i; j++) action();
+        }
+
+        public static T Trace<T>(this T pos, T delta, Func<T, bool> hit)
+            where T : IAdd<T>
+        {
+            while (true)
+            {
+                pos = pos.Add(delta);
+                if (hit(pos)) break;
+            }
+            return pos;
+        }
+
         public static int ExtendedEuclidean(this (int a, int m) p, out int x, out int y)
         {
             var (oldR, r) = p;
@@ -79,7 +95,7 @@ namespace AdventToolkit.Extensions
             if (g != 1) throw new ArithmeticException($"No modular inverse for {i}, {mod}");
             return (x % mod + mod) % mod;
         }
-        
+
         public static long ExtendedEuclidean(this (long a, long m) p, out long x, out long y)
         {
             var (oldR, r) = p;
@@ -103,7 +119,7 @@ namespace AdventToolkit.Extensions
             if (g != 1) throw new ArithmeticException($"No modular inverse for {i}, {mod}");
             return (x % mod + mod) % mod;
         }
-
+        
         /// <summary>
         /// Get the indices of N integers that sum to the given value.
         /// </summary>
@@ -115,17 +131,6 @@ namespace AdventToolkit.Extensions
         {
             return SequencesIncreasing(n, ints.Length, true)
                 .FirstOrDefault(indices => ints.Get(indices).Sum() == target);
-        }
-
-        public static T Trace<T>(this T pos, T delta, Func<T, bool> hit)
-            where T : IAdd<T>
-        {
-            while (true)
-            {
-                pos = pos.Add(delta);
-                if (hit(pos)) break;
-            }
-            return pos;
         }
 
         // Returns all sequences of a given length from {1,1,...,1} to {n,n,...,n}
@@ -182,13 +187,14 @@ namespace AdventToolkit.Extensions
             }
         }
 
+        // Every pair of integers [a, b] from 1 to n where a != b
         public static IEnumerable<int[]> ExclusivePairs(int n, bool index = false)
         {
             return Sequences(2, n, index).Where(ints => ints[0] != ints[1]);
         }
 
-        // Find the cycle time for individual components of an object and calculate how often
-        // all cycles align.
+        // Cycles returns components of an object. Finds the cycle time of each component
+        // and returns the length of how often they all line up.
         public static long CommonCycle<T, TC>(T data, Func<T, IEnumerable<TC>> cycles, Action<T> step)
         {
             var initial = new Dictionary<int, long>();
@@ -212,10 +218,10 @@ namespace AdventToolkit.Extensions
                     }
                 }
             }
-            return initial.Values.Aggregate((a, b) => a.Lcm(b));
+            return initial.Values.Aggregate(Num.Lcm);
         }
 
-        // Find the cycle period for something that might not immediately start in the cycle.
+        // Find the cycle period for something that may need to run a few times before it begins cycling
         public static (long Offset, long Cycle) FindCyclePeriod<T, TState>(T data, Func<T, TState> state, Action<T> step)
         {
             var states = new Dictionary<TState, long> {[state(data)] = 0};
@@ -235,6 +241,8 @@ namespace AdventToolkit.Extensions
 
         public static long CycleOffset(this long l, long offset, long cycle) => l > offset ? offset + (l - offset) % cycle : l;
 
+        // Have an explore drone perform a depth-first search, provided a function that tells where
+        // the drone has already explored.
         public static int ExploreAll<TPos, TVal>(this IExploreDrone<TPos, TVal> drone, Func<TPos, bool> seen)
             where TPos : ISub<TPos>, INegate<TPos>
         {
@@ -242,8 +250,8 @@ namespace AdventToolkit.Extensions
             var path = new Stack<TPos>();
             while (true)
             {
-                var neighbors = drone.GetNeighbors().Where(pos => !seen(pos)).Select(pos => pos.Sub(drone.Position)).ToList();
-                if (neighbors.Count == 0 || !neighbors.First(drone.TryMove, out var offset))
+                var neighbors = drone.GetNeighbors().Where(pos => !seen(pos)).Select(pos => pos.Sub(drone.Position)).ToArray();
+                if (neighbors.Length == 0 || !neighbors.First(drone.TryMove, out var offset))
                 {
                     if (path.Count == 0) return max;
                     drone.TryMove(path.Pop().Negate());
@@ -254,12 +262,16 @@ namespace AdventToolkit.Extensions
             }
         }
 
+        // Perform a breadth-first search from the given position.
+        // Only valid neighbors are explored.
+        // Only positions from notify are yielded.
+        // Can specify if invalid locations may be notified (but not explored)
         public static IEnumerable<TPos> Bfs<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, Func<TPos, bool> valid, Func<TPos, bool> notify, bool includeInvalid = false)
         {
             var visited = new HashSet<TPos>();
             var queue = new Queue<TPos>();
-            queue.Enqueue(from);
-            visited.Add(from);
+            queue.Enqueue(@from);
+            visited.Add(@from);
             while (queue.Count > 0)
             {
                 var pos = queue.Dequeue();
@@ -279,8 +291,8 @@ namespace AdventToolkit.Extensions
         {
             var visited = new HashSet<TPos>();
             var queue = new Queue<(TPos pos, int dist)>();
-            queue.Enqueue((from, 0));
-            visited.Add(from);
+            queue.Enqueue((@from, 0));
+            visited.Add(@from);
             while (queue.Count > 0)
             {
                 var (pos, dist) = queue.Dequeue();
@@ -302,8 +314,8 @@ namespace AdventToolkit.Extensions
         {
             var visited = new HashSet<TPos>();
             var queue = new Queue<(TPos pos, int dist)>();
-            queue.Enqueue((from, 0));
-            visited.Add(from);
+            queue.Enqueue((@from, 0));
+            visited.Add(@from);
             var max = 0;
             while (queue.Count > 0)
             {
@@ -324,9 +336,9 @@ namespace AdventToolkit.Extensions
 
         public static bool IsReachable<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, TPos target, Func<TPos, bool> valid)
         {
-            return space.ShortestPathBfs(from, target, valid) > -1;
+            return space.ShortestPathBfs(@from, target, valid) > -1;
         }
-
+        
         public static IEnumerable<T> LongestRepeatedSequence<T>(this IEnumerable<T> source, int max = -1)
         {
             var list = source.ToList();
@@ -348,6 +360,8 @@ namespace AdventToolkit.Extensions
             return Enumerable.Empty<T>();
         }
         
+        // Longest repeated sequence where the repeating sequence matches the beginning
+        // of the sequence.
         public static IEnumerable<T> LongestRepeatFromStart<T>(this IEnumerable<T> source, int max = -1)
         {
             var list = source.ToList();
@@ -372,10 +386,12 @@ namespace AdventToolkit.Extensions
             return Enumerable.Empty<T>();
         }
 
+        // Sequences is an array of subsequences that appear in source.
+        // When that sequence is found in source, the corresponding output symbol is yielded.
         public static IEnumerable<TO> GetSequenceOrder<T, TO>(this IEnumerable<T> source, List<T>[] sequences, IEnumerable<TO> symbols)
         {
-            var outputs = symbols.ToList();
-            if (outputs.Count < sequences.Length) throw new Exception("Not enough output symbols.");
+            var outputs = symbols.ToArray();
+            if (outputs.Length < sequences.Length) throw new Exception("Not enough output symbols.");
             var len = sequences.Max(list => list.Count);
             var main = new List<T>();
             foreach (var item in source)
@@ -419,9 +435,61 @@ namespace AdventToolkit.Extensions
             return source.ZipShortest(other, (a, b) => Equals(a, b)).TakeWhile(b => b).Count();
         }
 
-        public static IEnumerable<(T, T)> Pairs<T>(this IList<T> source)
+        // Repeatedly apply a function to a value
+        public static T Repeat<T>(this T t, Func<T, T> func, int amount)
         {
-            return SequencesIncreasing(2, source.Count, true).Select(pair => (source[pair[0]], source[pair[1]]));
+            for (var i = 0; i < amount; i++)
+            {
+                t = func(t);
+            }
+            return t;
+        }
+
+        public static int GetEndParen(this string s, int start)
+        {
+            var level = 0;
+            for (var i = start; i < s.Length; i++)
+            {
+                if (s[i] == '(') level++;
+                else if (s[i] == ')') level--;
+                if (level == 0) return i;
+            }
+            return -1;
+        }
+        
+        // Find the first parenthesis in the string and its corresponding close
+        public static bool FindFirstParens(this string s, out int open, out int close)
+        {
+            open = s.IndexOf('(');
+            if ((close = open) < 0) return false;
+            close = s.GetEndParen(open);
+            return close > open;
+        }
+        
+        // Split a string only at the most outer level of groups
+        // Assuming the groups are balanced and you start at the most outer level
+        public static string[] SplitOuter(this string s, char c, char start, char end)
+        {
+            var results = new List<string>();
+            var level = 0;
+            var last = 0;
+            for (var i = 0; i < s.Length; i++)
+            {
+                if (s[i] == start) level++;
+                else if (s[i] == end) level--;
+                if (level == 0 && s[i] == c)
+                {
+                    results.Add(s[last..i]);
+                    last = i + 1;
+                }
+            }
+            if (last < s.Length) results.Add(s[last..]);
+            return results.ToArray();
+        }
+
+        public static string[] SplitOuter(this string s, char c)
+        {
+            return s.SplitOuter(c, '(', ')');
         }
     }
 }

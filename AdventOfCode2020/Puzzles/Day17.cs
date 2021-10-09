@@ -1,4 +1,5 @@
 using AdventToolkit;
+using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 using AdventToolkit.Solvers;
 
@@ -13,7 +14,7 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartOne()
         {
-            var game = new GameOfLife<(int, int, int)>()
+            var game = new GameOfLife<Pos3D>()
                 .WithNeighborFunction(pos => pos.Around())
                 .WithLivingDeadRules(i => i is < 2 or > 3, i => i == 3)
                 .WithExpansion()

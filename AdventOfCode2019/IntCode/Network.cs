@@ -16,8 +16,8 @@ namespace AdventOfCode2019.IntCode
 
         public bool Running
         {
-            get => _running != 0;
-            set => Interlocked.Exchange(ref _running, value ? 1 : 0);
+            get => _running.AsBool();
+            set => Interlocked.Exchange(ref _running, value.AsInt());
         }
 
         public int Count => _computers.Count;
