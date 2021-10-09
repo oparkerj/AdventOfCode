@@ -63,7 +63,7 @@ namespace AdventOfCode2020.Puzzles
             {
                 var relevantSide = Opposite(side);
                 var tileSide = tile.Data.GetSide(side).AsString();
-                foreach (var _ in ..4)
+                foreach (var _ in Interval.Count(4))
                 {
                     Transform(SimpleGridTransformer<bool>.RotateRight);
                     foreach (var rs in Sides) rs.RotateRight();
@@ -71,7 +71,7 @@ namespace AdventOfCode2020.Puzzles
                 }
                 Transform(SimpleGridTransformer<bool>.FlipH);
                 foreach (var rs in Sides) rs.FlipH();
-                foreach (var _ in ..4)
+                foreach (var _ in Interval.Count(4))
                 {
                     Transform(SimpleGridTransformer<bool>.RotateRight);
                     foreach (var rs in Sides) rs.RotateRight();

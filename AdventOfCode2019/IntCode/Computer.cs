@@ -27,6 +27,8 @@ namespace AdventOfCode2019.IntCode
             AddOpcodes();
         }
 
+        public Computer(string program) : this(Parse(program)) { }
+
         public static long[] Parse(string input) => input.Csv().Longs().ToArray();
 
         public static Computer From(string input) => new(Parse(input));

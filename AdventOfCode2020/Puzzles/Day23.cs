@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
 
 namespace AdventOfCode2020.Puzzles
@@ -55,7 +56,7 @@ namespace AdventOfCode2020.Puzzles
             100.Times(Move);
             var result = "";
             var c = 1;
-            foreach (var _ in ..(Max - 1))
+            foreach (var _ in Interval.Count(Max - 1))
             {
                 result += c = Next[c];
             }
