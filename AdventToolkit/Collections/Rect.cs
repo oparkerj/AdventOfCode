@@ -22,6 +22,7 @@ namespace AdventToolkit.Collections
             MinY = minY;
             Width = width;
             Height = height;
+            Initialized = true;
         }
 
         public Rect(Pos a, Pos b)
@@ -31,6 +32,7 @@ namespace AdventToolkit.Collections
             var (x, y) = a.Max(b);
             Width = x - MinX + 1;
             Height = y - MinY + 1;
+            Initialized = true;
         }
 
         public Rect(Pos min, int width, int height) : this(min.X, min.Y, width, height) { }
@@ -39,9 +41,13 @@ namespace AdventToolkit.Collections
         {
             Width = width;
             Height = height;
+            Initialized = true;
         }
 
-        public Rect(Rect other) : this(other.MinX, other.MinY, other.Width, other.Height) { }
+        public Rect(Rect other) : this(other.MinX, other.MinY, other.Width, other.Height)
+        {
+            Initialized = true;
+        }
 
         public static Rect Bound(IEnumerable<Pos> points)
         {

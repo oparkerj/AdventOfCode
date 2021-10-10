@@ -77,6 +77,11 @@ namespace AdventToolkit.Extensions
             return chars.Select(Conversions.AsInt);
         }
 
+        public static IEnumerable<uint> Unsigned(this IEnumerable<int> source)
+        {
+            return source.Select(i => (uint) i);
+        }
+
         public static int AsInt<T>(this IEnumerable<T> source)
         {
             return int.Parse(source.Str());

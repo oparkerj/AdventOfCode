@@ -3,7 +3,7 @@ using AdventToolkit.Common;
 
 namespace AdventToolkit.Collections.Space
 {
-    public class HexGrid<T> : AlignedSpace<Pos3D, T>
+    public class HexGrid<T> : SparseSpace<Pos3D, T>
     {
         public static IEnumerable<Pos3D> Surround(Pos3D pos)
         {

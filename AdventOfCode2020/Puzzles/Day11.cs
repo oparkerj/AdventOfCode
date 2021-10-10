@@ -1,6 +1,5 @@
 using System.Linq;
 using AdventToolkit;
-using AdventToolkit.Collections.Space;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 using AdventToolkit.Solvers;
@@ -25,8 +24,8 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartOne()
         {
-            var game = new GameOfLife<Pos, int>(Empty, Taken)
-                .WithNeighborFunction(Grid<int>.Around())
+            
+            var game = GameOfLife.OnGrid(Empty, Taken, true)
                 .WithLivingDeadRules(i => i >= 4, i => i == 0);
             foreach (var (pos, c) in Input.As2D())
             {
