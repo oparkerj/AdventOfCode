@@ -50,11 +50,10 @@ namespace AdventToolkit.Extensions
             return p.X >= 0 && p.X < w && p.Y >= 0 && p.Y < h;
         }
 
-        public static T Get<T>(this T[,] t, Pos p)
-        {
-            return t[p.X, p.Y];
-        }
-        
+        public static T Get<T>(this T[,] t, Pos p) => t[p.X, p.Y];
+
+        public static void Set<T>(this T[,] t, Pos p, T val) => t[p.X, p.Y] = val;
+
         public static T GetOrDefault<T>(this T[,] t, Pos p, T def = default)
         {
             return t.Has(p) ? t[p.X, p.Y] : def;

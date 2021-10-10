@@ -37,7 +37,7 @@ namespace AdventToolkit.Collections.Space
         }
     }
 
-    public class PortalGrid<T, TTag> : AlignedSpace<(Pos Pos, TTag Tag), T>
+    public class PortalGrid<T, TTag> : SparseSpace<(Pos Pos, TTag Tag), T>
     {
         private Dictionary<Pos, Dictionary<Side, (Pos Pos, TTag Tag)>> _portals = new();
         public PortalPass PassFunction;
@@ -50,7 +50,7 @@ namespace AdventToolkit.Collections.Space
             set => base[(pos, default)] = value;
         }
 
-        public override T this[(Pos Pos, TTag Tag) pos, bool sideEffects = true]
+        public override T this[(Pos Pos, TTag Tag) pos]
         {
             get => this[pos.Pos];
             set => this[pos.Pos] = value;

@@ -39,11 +39,13 @@ namespace AdventToolkit.Utilities
         {
             var pairs = space.ToList();
             space.Clear();
+            if (space is Grid<TVal> g1) g1.FitBounds = false;
             foreach (var (pos, value) in pairs)
             {
-                space[transformer.Transform(pos, space), false] = value;
+                space[transformer.Transform(pos, space)] = value;
             }
             transformer.PostTransform(space);
+            if (space is Grid<TVal> g2) g2.FitBounds = true;
         }
 
         public static void ApplyTo<T>(this ITransformer<Pos, Grid<T>> transformer, Grid<T> grid)

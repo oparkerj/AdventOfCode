@@ -9,7 +9,7 @@ namespace AdventToolkit.Extensions
     {
         public static bool ContainsValue<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TVal val)
         {
-            return space.Points.ContainsValue(val);
+            return space.HasValue(val);
         }
 
         public delegate void SpaceFilter<TPos, TVal>(ref TPos pos, ref TVal val);
