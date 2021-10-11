@@ -430,5 +430,23 @@ namespace AdventToolkit.Extensions
         {
             return source.Select(item => new KeyValuePair<T, TV>(item, func(item)));
         }
+
+        public static T[] ToArray<T>(this IEnumerable<T> source, int size)
+        {
+            return source.ToArray(new T[size]);
+        }
+
+        // Put an enumerable in an array assuming it can hold all the elements.
+        public static T[] ToArray<T>(this IEnumerable<T> source, T[] array)
+        {
+            var i = 0;
+            using var e = source.GetEnumerator();
+            while (e.MoveNext())
+            {
+                array[i] = e.Current;
+                i++;
+            }
+            return array;
+        }
     }
 }

@@ -1,38 +1,51 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
-using MoreLinq;
 
 namespace AdventToolkit.Collections.Space
 {
+    // Fixed size grid backed by a 2d array.
+    // The Bounds for this grid acts as the window where you can operate.
+    // Only elements within the window are considered.
+    // Parts of the window outside the backing array also are not considered.
+    // This grid sets FitBounds to false by default, so writing outside the window will have no effect.
+    // The position 0,0 is relative to the window.
+    //
+    // null window will cause exceptions. (Could possibly be made so null window = full array)
     public class FixedGrid<T> : GridBase<T>
     {
         public readonly T[,] Data;
         private readonly BitArray _has;
         private readonly int[] _temp;
-        
-        // Offset needed to shift positions to 0-indexed positions.
-        public Pos Offset { get; set; }
+
+        private readonly Rect _fullWindow;
 
         private FixedGrid(int realSize, bool includeCorners) : base(includeCorners)
         {
             _has = new BitArray(realSize);
             _temp = new int[(realSize >> 5) + 1];
+            FitBounds = false;
         }
 
         public FixedGrid(int width, int height, bool includeCorners = false) : this(width * height, includeCorners)
         {
             Data = new T[width, height];
+            Bounds = new Rect(width, height);
+            _fullWindow = new Rect(Bounds);
         }
 
-        public FixedGrid(T[,] data, bool includeCorners = false) : this(data.Length, includeCorners)
+        // Can be used to wrap a slice of a 2d array.
+        // Offset will be set so that 0,0 is the corner of the window.
+        // Not specifying the window will wrap the entire array.
+        public FixedGrid(T[,] data, Rect window = null, bool includeCorners = false) : this(GetWindowSize(data, ref window), includeCorners)
         {
             Data = data;
             _has.SetAll(true);
+            Bounds = window;
+            _fullWindow = new Rect(data.GetLength(0), data.GetLength(1));
         }
 
         public FixedGrid(FixedGrid<T> other) : this(other.Data.Length, other.IncludeCorners)
@@ -40,24 +53,28 @@ namespace AdventToolkit.Collections.Space
             CopyFrom(other);
         }
 
+        private static int GetWindowSize(T[,] data, ref Rect rect)
+        {
+            rect ??= new Rect(data.GetLength(0), data.GetLength(1));
+            return rect.Area;
+        }
+
         private int BitIndex(Pos p) => p.X + p.Y * Data.GetLength(0);
 
         private Pos BitPos(int index) => new(index % Data.GetLength(0), index / Data.GetLength(0));
 
-        public Pos RealPosition(Pos p) => p + Offset;
-        
-        // Not sure if this should be affected by the offset
-        public T this[int x, int y]
+        public Pos RealPosition(Pos p) => p + Bounds.Min;
+
+        protected bool InBounds(Pos real)
         {
-            get => Data[x, y];
-            set => Data[x, y] = value;
+            return Bounds.Contains(real) && Data.Has(real);
         }
 
         public override bool TryGet(Pos pos, out T value)
         {
             var data = Data;
             pos = RealPosition(pos);
-            if (data.Has(pos) && _has[BitIndex(pos)])
+            if (InBounds(pos) && _has[BitIndex(pos)])
             {
                 value = data.Get(pos);
                 return true;
@@ -68,9 +85,8 @@ namespace AdventToolkit.Collections.Space
 
         public override void Add(Pos pos, T val)
         {
-            var data = Data;
             pos = RealPosition(pos);
-            if (!data.Has(pos)) return;
+            if (!InBounds(pos)) return;
             Data.Set(pos, val);
             _has[BitIndex(pos)] = true;
         }
@@ -80,30 +96,40 @@ namespace AdventToolkit.Collections.Space
             var data = Data;
             pos = RealPosition(pos);
             var bit = BitIndex(pos);
-            if (!data.Has(pos) || !_has[bit]) return false;
+            if (!InBounds(pos) || !_has[bit]) return false;
             data.Set(pos, default);
             _has[bit] = false;
             return true;
         }
 
-        public override bool Has(Pos pos) => Data.Has(RealPosition(pos));
-
-        public override void Clear()
+        public override bool Has(Pos pos)
         {
-            Array.Clear(Data, 0, Data.Length);
-            _has.SetAll(false);
+            var real = RealPosition(pos);
+            return InBounds(real) && _has[BitIndex(real)];
         }
 
-        public override IEnumerable<Pos> Positions
+        // Marks the window as having no elements without modifying the array
+        public void SoftClear()
         {
-            get
+            foreach (var pos in InWindow)
             {
-                return _has.Cast<bool>()
-                    .Index()
-                    .WhereValue(true)
-                    .Select(pair => BitPos(pair.Key));
+                _has[BitIndex(pos)] = false;
             }
         }
+
+        // Clear the contents of the array within the window
+        public override void Clear()
+        {
+            foreach (var pos in InWindow)
+            {
+                Data.Set(pos, default);
+                _has[BitIndex(pos)] = false;
+            }
+        }
+
+        public IEnumerable<Pos> InWindow => Bounds.Intersection(_fullWindow);
+
+        public override IEnumerable<Pos> Positions => InWindow.Where(pos => _has[BitIndex(pos)]);
 
         public override int Count
         {

@@ -53,5 +53,17 @@ namespace AdventToolkit.Extensions
         {
             return Regex.IsMatch(s, regex);
         }
+
+        public static Dictionary<string, string> ReadKeys(this string[] s, string sep = ":", bool trim = true)
+        {
+            var result = new Dictionary<string, string>();
+            foreach (var line in s)
+            {
+                var parts = line.Split(sep);
+                if (trim) result[parts[0].Trim()] = parts[1].Trim();
+                result[parts[0]] = parts[1];
+            }
+            return result;
+        }
     }
 }
