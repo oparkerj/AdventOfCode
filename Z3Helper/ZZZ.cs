@@ -22,14 +22,14 @@ namespace Z3Helper
 
         public static ZExpr IntConst(this string s) => Context.MkIntConst(s);
 
-        public static ZExpr Condition(this BoolExpr expr, ZExpr left, ZExpr right)
+        public static ZExpr Condition(this ZbExpr expr, ZExpr left, ZExpr right)
         {
             return (ArithExpr) Context.MkITE(expr, left, right);
         }
 
-        public static ZExpr Condition(this ZbExpr expr, ZExpr left, ZExpr right)
+        public static ZExpr Condition(this BoolExpr expr, ZExpr left, ZExpr right)
         {
-            return Condition((BoolExpr) expr, left, right);
+            return Condition((ZbExpr) expr, left, right);
         }
 
         public static ZExpr Abs(this ZExpr expr)
