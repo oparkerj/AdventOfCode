@@ -18,6 +18,7 @@ namespace AdventToolkit.Common
         }
 
         public static Pos Origin => new();
+        public static Pos Zero => new();
         public static Pos Up => new(0, 1);
         public static Pos Right => new(1, 0);
         public static Pos Down => new(0, -1);
@@ -80,6 +81,8 @@ namespace AdventToolkit.Common
         public static bool operator ==(Pos a, Pos b) => a.Equals(b);
         
         public static bool operator !=(Pos a, Pos b) => !a.Equals(b);
+
+        public bool NonNegative => X >= 0 && Y >= 0;
 
         public Pos3D To3D(int z) => new(X, Y, z);
 

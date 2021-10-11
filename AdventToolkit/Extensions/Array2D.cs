@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AdventToolkit.Collections;
+using AdventToolkit.Collections.Space;
 using AdventToolkit.Common;
 
 namespace AdventToolkit.Extensions
@@ -148,6 +150,11 @@ namespace AdventToolkit.Extensions
                 if (yInvert && y > 0 || !yInvert && y < height - 1) b.Append(rowSep);
             }
             return b.ToString();
+        }
+
+        public static FixedGrid<T> Slice<T>(this T[,] arr, Rect window = null)
+        {
+            return new FixedGrid<T>(arr, window);
         }
     }
 }
