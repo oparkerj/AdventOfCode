@@ -15,7 +15,7 @@ namespace AdventToolkit.Collections.Space
 
         public override void Add(TPos pos, TVal val)
         {
-            Points.Add(pos, val);
+            Points[pos] = val;
         }
 
         public override bool Remove(TPos pos)
