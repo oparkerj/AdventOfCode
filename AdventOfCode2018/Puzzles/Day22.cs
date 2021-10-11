@@ -72,7 +72,7 @@ namespace AdventOfCode2018.Puzzles
                 return GetKnownValue(cave, pos);
             }
             var compute = new Stack<Pos>();
-            var c = new HashSet<Pos>();
+            var c = new HashSet<Pos>(); // c == compute but for fast lookup
             var add = new Queue<Pos>();
             add.Enqueue(pos);
             while (add.Count > 0)
@@ -102,10 +102,7 @@ namespace AdventOfCode2018.Puzzles
             return cave[pos];
         }
 
-        public int Type((int geo, int erosion) data)
-        {
-            return data.erosion % 3;
-        }
+        public int Type((int geo, int erosion) data) => data.erosion % 3;
 
         public override void PartOne()
         {
@@ -140,7 +137,7 @@ namespace AdventOfCode2018.Puzzles
 
             var start = new Region(Pos.Origin, Torch);
             var target = new Region(Target, Torch);
-            var time = dijkstra.ComputeFind(start, target, _ => true);
+            var time = dijkstra.ComputeFind(start, target);
             WriteLn(time);
         }
 
