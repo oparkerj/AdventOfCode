@@ -1,4 +1,5 @@
 using System;
+using AdventToolkit.Extensions;
 using AdventToolkit.Utilities.Arithmetic;
 
 namespace AdventToolkit.Common
@@ -25,6 +26,14 @@ namespace AdventToolkit.Common
         public static Pos3D Backward = new(0, 0, -1);
 
         public static implicit operator Pos3D((int x, int y, int z) p) => new(p.x, p.y, p.z);
+        
+        public static Pos3D Parse(string s)
+        {
+            if (s.StartsWith('(') && s.EndsWith(')')) s = s[1..^1];
+            if (s.StartsWith('<') && s.EndsWith('>')) s = s[1..^1];
+            var parts = s.Csv();
+            return new Pos3D(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()), int.Parse(parts[2].Trim()));
+        }
 
         public bool Equals(Pos3D p) => X == p.X && Y == p.Y && Z == p.Z;
 
