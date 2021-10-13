@@ -230,6 +230,7 @@ namespace AdventToolkit.Utilities
                         else if (type == TokenType.Word && i + 1 < sections.Length && sections[i + 1].token == "(")
                         {
                             var end = FindEnd(sections, i + 1);
+                            // TODO change this for nested function calls
                             var args = sections[(i + 2)..end].Split(",", TokenType.Symbol).Select(arg => new ExpressionReader<T, TC>(this).Read(arg)).ToArray();
                             if (Functions.TryGetValue((section, args.Length), out var funcType))
                             {
