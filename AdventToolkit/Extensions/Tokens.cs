@@ -56,6 +56,7 @@ namespace AdventToolkit.Extensions
                     b.Append(c);
                     continue;
                 }
+                // A dot after a number will be considered a part of the number
                 if (type == TokenType.Number && t == TokenType.Symbol && c == '.')
                 {
                     t = TokenType.Number;

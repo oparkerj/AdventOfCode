@@ -18,117 +18,14 @@ namespace AdventToolkit.Utilities
     }
 
     // Wrapper for when an expression doesn't need a context
-    public class Expression<T> : Expression<T, int>
+    public class Expression<T> : Expression<T, NoContext>
     {
-        internal Expression(IContextValue<T, int> root) : base(root) { }
+        internal Expression(IContextValue<T, NoContext> root) : base(root) { }
     }
 
-    // Methods to help create an expression reader, such as adding definitions
-    // for common operators (add, sub, multiply, divide, negate).
-    public static class ExpressionHelpers
+    public sealed class NoContext
     {
-        public static ExpressionReader<int, T> WithOps<T>(this ExpressionReader<int, T> reader)
-        {
-            reader.BinaryOperators.Add(new BinaryOperatorType<int, T>("+", (a, b, _) => a + b, 1));
-            reader.BinaryOperators.Add(new BinaryOperatorType<int, T>("-", (a, b, _) => a - b, 1));
-            reader.BinaryOperators.Add(new BinaryOperatorType<int, T>("*", (a, b, _) => a * b, 2));
-            reader.BinaryOperators.Add(new BinaryOperatorType<int, T>("/", (a, b, _) => a / b, 2));
-            reader.UnaryOperators.Add(new UnaryOperatorType<int, T>("-", (i, _) => -i));
-            return reader;
-        }
-
-        public static ExpressionReader<long, T> WithOps<T>(this ExpressionReader<long, T> reader)
-        {
-            reader.BinaryOperators.Add(new BinaryOperatorType<long, T>("+", (a, b, _) => a + b, 1));
-            reader.BinaryOperators.Add(new BinaryOperatorType<long, T>("-", (a, b, _) => a - b, 1));
-            reader.BinaryOperators.Add(new BinaryOperatorType<long, T>("*", (a, b, _) => a * b, 2));
-            reader.BinaryOperators.Add(new BinaryOperatorType<long, T>("/", (a, b, _) => a / b, 2));
-            reader.UnaryOperators.Add(new UnaryOperatorType<long, T>("-", (i, _) => -i));
-            return reader;
-        }
-
-        public static ExpressionReader<double, T> WithOps<T>(this ExpressionReader<double, T> reader)
-        {
-            reader.BinaryOperators.Add(new BinaryOperatorType<double, T>("+", (a, b, _) => a + b, 1));
-            reader.BinaryOperators.Add(new BinaryOperatorType<double, T>("-", (a, b, _) => a - b, 1));
-            reader.BinaryOperators.Add(new BinaryOperatorType<double, T>("*", (a, b, _) => a * b, 2));
-            reader.BinaryOperators.Add(new BinaryOperatorType<double, T>("/", (a, b, _) => a / b, 2));
-            reader.UnaryOperators.Add(new UnaryOperatorType<double, T>("-", (i, _) => -i));
-            return reader;
-        }
-
-        public static ExpressionReader<T, TC> SetReader<T, TC>(this ExpressionReader<T, TC> reader, Func<string, TokenType, ExpressionNode<T, TC>> func)
-        {
-            reader.ValueReader = func;
-            return reader;
-        }
-
-        // Set up the reader for all values in the expression being constants,
-        // using the provided function to parse them from strings.
-        public static ExpressionReader<T, TC> ForConstants<T, TC>(this ExpressionReader<T, TC> reader, Func<string, T> func)
-        {
-            return reader.SetReader((s, _) => new Constant<T, TC>(func(s)));
-        }
-
-        public static ExpressionReader<int, TC> ForConstants<TC>(this ExpressionReader<int, TC> reader)
-        {
-            return reader.ForConstants(int.Parse);
-        }
-
-        public static ExpressionReader<long, TC> ForConstants<TC>(this ExpressionReader<long, TC> reader)
-        {
-            return reader.ForConstants(long.Parse);
-        }
-
-        // Set up the reader for values to be read as variables, using the provided
-        // function to get the value of a variable from the context.
-        public static ExpressionReader<T, TC> ForVariables<T, TC>(this ExpressionReader<T, TC> reader, Func<string, TC, T> func)
-        {
-            return reader.SetReader((s, _) => new Variable<T, TC>(c => func(s, c)));
-        }
-
-        public delegate bool FallbackParser<T, TC>(string s, TokenType type, out Func<string, TC, T> func);
-        
-        // Set up the reader to try and read a value as a variable, but fallback to the
-        // original reader on failure.
-        public static ExpressionReader<T, TC> AndVariables<T, TC>(this ExpressionReader<T, TC> reader, FallbackParser<T, TC> parser)
-        {
-            var fallback = reader.ValueReader;
-            return reader.SetReader((s, type) => parser(s, type, out var func) ? new Variable<T, TC>(c => func(s, c)) : fallback(s, type));
-        }
-
-        public static ExpressionReader<T, TC> AddBinaryOp<T, TC>(this ExpressionReader<T, TC> reader, string symbol, Func<T, T, TC, T> action, int precedence, bool leftAssociative = true)
-        {
-            reader.BinaryOperators.Add(new BinaryOperatorType<T, TC>(symbol, action, precedence, leftAssociative) );
-            return reader;
-        }
-        
-        public static ExpressionReader<T, TC> AddBinaryOp<T, TC>(this ExpressionReader<T, TC> reader, string symbol, Func<T, T, T> action, int precedence, bool leftAssociative = true)
-        {
-            return reader.AddBinaryOp(symbol, (a, b, _) => action(a, b), precedence, leftAssociative);
-        }
-        
-        public static ExpressionReader<T, TC> AddUnaryOp<T, TC>(this ExpressionReader<T, TC> reader, string symbol, Func<T, TC, T> action, int precedence)
-        {
-            reader.UnaryOperators.Add(new UnaryOperatorType<T, TC>(symbol, action));
-            return reader;
-        }
-        public static ExpressionReader<T, TC> AddUnaryOp<T, TC>(this ExpressionReader<T, TC> reader, string symbol, Func<T, T> action, int precedence)
-        {
-            return reader.AddUnaryOp(symbol, (v, _) => action(v), precedence);
-        }
-
-        public static ExpressionReader<T, TC> AddFunction<T, TC>(this ExpressionReader<T, TC> reader, string name, int args, Func<T[], TC, T> action)
-        {
-            reader.Functions.Add((name, args), new FunctionType<T, TC>(name, args, action));
-            return reader;
-        }
-        
-        public static ExpressionReader<T, TC> AddFunction<T, TC>(this ExpressionReader<T, TC> reader, string name, int args, Func<T[], T> action)
-        {
-            reader.Functions.Add((name, args), new FunctionType<T, TC>(name, args, (p, _) => action(p)));
-            return reader;
-        }
+        private NoContext() { }
     }
 
     public class ExpressionReader<T, TC>
@@ -198,17 +95,22 @@ namespace AdventToolkit.Utilities
             return _current is not Operator<T, TC>;
         }
 
-        public T GetResult(string expr, TC context = default) => Read(expr).GetValue(context);
+        public T GetResult(string expr) => Read(expr).GetValue();
+
+        public T GetResult(string expr, TC context) => Read(expr).GetValue(context);
 
         public Expression<T, TC> Read(string expr) => Read(expr.Tokenize().ToArray());
 
+        public Expression<T, TC> Read((string token, TokenType type)[] sections) => Read(sections, out _);
+
         // Turn a sequence of tokens into an expression.
         // Read and construct an expression tree in one pass.
-        public Expression<T, TC> Read((string token, TokenType type)[] sections)
+        public Expression<T, TC> Read((string token, TokenType type)[] sections, out int endIndex, int start = 0)
         {
             _root = _current = null;
             _next = Component.UnaryOrValue;
-            for (var i = 0; i < sections.Length; i++)
+            endIndex = sections.Length;
+            for (var i = start; i < sections.Length; i++)
             {
                 var (section, type) = sections[i];
                 if (_next == Component.UnaryOrValue)
@@ -230,8 +132,15 @@ namespace AdventToolkit.Utilities
                         else if (type == TokenType.Word && i + 1 < sections.Length && sections[i + 1].token == "(")
                         {
                             var end = FindEnd(sections, i + 1);
-                            // TODO change this for nested function calls
-                            var args = sections[(i + 2)..end].Split(",", TokenType.Symbol).Select(arg => new ExpressionReader<T, TC>(this).Read(arg)).ToArray();
+                            var paramValues = new List<Expression<T, TC>>(2);
+                            var paramSections = sections[(i + 2)..end];
+                            var paramIndex = -1;
+                            while (paramIndex < paramSections.Length)
+                            {
+                                paramIndex++;
+                                paramValues.Add(new ExpressionReader<T, TC>(this).Read(paramSections, out paramIndex, paramIndex));
+                            }
+                            var args = paramValues.ToArray();
                             if (Functions.TryGetValue((section, args.Length), out var funcType))
                             {
                                 value = new Function<T, TC>(funcType) {Parameters = args};
@@ -255,6 +164,11 @@ namespace AdventToolkit.Utilities
                 {
                     if (type == TokenType.Symbol && section != "(")
                     {
+                        if (section == ",")
+                        {
+                            endIndex = i;
+                            break;
+                        }
                         var op = new BinaryOperator<T, TC>(GetBinaryType(section));
                         // Find the correct spot to insert the operator.
                         while (_current.Parent?.HigherPrecedenceThan(op) == true)
@@ -482,11 +396,50 @@ namespace AdventToolkit.Utilities
         public readonly int Parameters;
         public readonly Func<T[], TC, T> Action;
 
-        public FunctionType(string symbol, int parameters, Func<T[], TC, T> action)
+        private FunctionType(string symbol, int parameters)
         {
             Symbol = symbol;
             Parameters = parameters;
+        }
+
+        public FunctionType(string symbol, int parameters, Func<T[], TC, T> action) : this(symbol, parameters)
+        {
             Action = action;
+        }
+        
+        public FunctionType(string symbol, int parameters, Func<T[], T> action) : this(symbol, parameters)
+        {
+            Action = (args, _) => action(args);
+        }
+
+        public FunctionType(string symbol, Func<T> action) : this(symbol, 0)
+        {
+            Action = (_, _) => action();
+        }
+        
+        public FunctionType(string symbol, Func<TC, T> action) : this(symbol, 0)
+        {
+            Action = (_, c) => action(c);
+        }
+        
+        public FunctionType(string symbol, Func<T, T> action) : this(symbol, 1)
+        {
+            Action = (args, _) => action(args[0]);
+        }
+        
+        public FunctionType(string symbol, Func<TC, T, T> action) : this(symbol, 1)
+        {
+            Action = (args, c) => action(c, args[0]);
+        }
+        
+        public FunctionType(string symbol, Func<T, T, T> action) : this(symbol, 2)
+        {
+            Action = (args, _) => action(args[0], args[1]);
+        }
+        
+        public FunctionType(string symbol, Func<TC, T, T, T> action) : this(symbol, 2)
+        {
+            Action = (args, c) => action(c, args[0], args[1]);
         }
     }
 }
