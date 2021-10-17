@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Utilities
 {
@@ -19,6 +21,10 @@ namespace AdventToolkit.Utilities
             UnarySymbols = new Dictionary<string, UnarySymbol>();
             GroupSymbols = new Dictionary<string, GroupSymbol>();
         }
+
+        public AstNode Read(string s) => Read(s.Tokenize().ToArray());
+
+        public AstNode Read(Token[] tokens) => Read(tokens, 0, out _, null);
 
         private AstNode Read(Token[] tokens, int start, out int end, GroupSymbol currentGroup)
         {
