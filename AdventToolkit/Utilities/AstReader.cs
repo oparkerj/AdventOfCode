@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace AdventToolkit.Utilities
 {
     // Parse a string into an AST tree.
     // Parses basic structures including binary operators, unary operators,
-    // and delimited groups. If the start and ending symbols of a group are
-    // the same, some assumptions are made about which side is the start or end.
-    // For example, with the Group |...|, seeing it after a binary operator will
-    // be treated as the opening side; Likewise seeing it where a binary operator
-    // is normally expected will be treated as the end of the group.
+    // and delimited groups.
     public class AstReader
     {
         public readonly Dictionary<string, BinarySymbol> BinarySymbols;
@@ -18,8 +13,6 @@ namespace AdventToolkit.Utilities
         public readonly Dictionary<string, GroupSymbol> GroupSymbols;
         public string SequenceSplit;
 
-        // private readonly GroupSymbol _currentGroup;
-        
         public AstReader()
         {
             BinarySymbols = new Dictionary<string, BinarySymbol>();
@@ -27,34 +20,7 @@ namespace AdventToolkit.Utilities
             GroupSymbols = new Dictionary<string, GroupSymbol>();
         }
 
-        private AstReader(AstReader parent, GroupSymbol group)
-        {
-            BinarySymbols = parent.BinarySymbols;
-            UnarySymbols = parent.UnarySymbols;
-            GroupSymbols = parent.GroupSymbols;
-            // _currentGroup = group;
-        }
-
-        private Dictionary<int, int> FindBounds(Token[] tokens)
-        {
-            var expect = new Stack<string>();
-            var bounds = new Dictionary<int, int>();
-            var seen = new List<(string Open, int Counter, int Level)>();
-            var opens = new HashSet<string>(GroupSymbols.Values.Select(symbol => symbol.Left));
-            var close = new HashSet<string>(GroupSymbols.Values.Select(symbol => symbol.Right));
-            var depth = 0;
-            for (var i = 0; i < tokens.Length; i++)
-            {
-                var s = tokens[i].Content;
-                if (opens.Contains(s))
-                {
-                    var nextDepth = GroupSymbols[s].Right == s ? depth : depth + 1;
-                    seen.Add((s, depth + 1, nextDepth));
-                }
-            }
-        }
-
-        private AstNode Read(Token[] tokens, int start, out int end, Dictionary<int, int> bounds)
+        private AstNode Read(Token[] tokens, int start, out int end, GroupSymbol currentGroup)
         {
             var unary = UnarySymbols;
             var binary = BinarySymbols;
@@ -62,6 +28,7 @@ namespace AdventToolkit.Utilities
             var split = SequenceSplit;
             AstNode root = null;
             AstNode current = null;
+            end = tokens.Length;
 
             void Insert(AstNode node)
             {
@@ -108,9 +75,11 @@ namespace AdventToolkit.Utilities
 
             for (var i = start; i < tokens.Length; i++)
             {
-                var (content, type) = tokens[i];
+                var token = tokens[i];
+                var (content, type) = token;
                 if (content == split)
                 {
+                    // Set up for top-level sequence
                     if (current == null)
                     {
                         root = current = new AstSequence(new List<AstNode> {null}, true);
@@ -125,15 +94,18 @@ namespace AdventToolkit.Utilities
                         root = current = new AstSequence(new List<AstNode> {current}, true);
                     }
                 }
-                else if (currentGroup is not null && content == currentGroup.Right && (currentGroup.Left != currentGroup.Right || current is not IAstExpectValue))
+                else if (currentGroup is not null && content == currentGroup.Right &&
+                         (currentGroup.Left != currentGroup.Right || current is not null and not IAstExpectValue))
                 {
-                    
+                    // Reached end of group or assumed end of group for ambiguous tokens.
+                    end = i;
+                    break;
                 }
                 else if (type == TokenType.Symbol)
                 {
                     if (groups.TryGetValue(content, out var groupSymbol))
                     {
-                        if (groupSymbol.Left != groupSymbol.Right || current is null or IAstExpectValue || content != currentGroup?.Right)
+                        if (groupSymbol.Left != groupSymbol.Right || current is null or IAstExpectValue)
                         {
                             var inside = Read(tokens, i + 1, out i, groupSymbol);
                             var group = new AstGroup(groupSymbol, inside);
@@ -145,19 +117,31 @@ namespace AdventToolkit.Utilities
                             break;
                         }
                     }
-                    if (unary.TryGetValue(content, out var unarySymbol) &&
-                        current is null or IAstExpectValue)
+                    else if (unary.TryGetValue(content, out var unarySymbol) &&
+                             current is null or IAstExpectValue)
                     {
                         var unaryOperator = new UnaryOperator(unarySymbol);
                         current?.AddChild(unaryOperator);
                         current = unaryOperator;
                     }
-                    if (binary.TryGetValue(content, out var binarySymbol))
+                    else if (binary.TryGetValue(content, out var binarySymbol))
                     {
-                        //
+                        if (current is null or IAstExpectValue) throw new Exception("Invalid position for binary operator.");
+                        Insert(new BinaryOperator(binarySymbol));
+                    }
+                    else
+                    {
+                        Insert(new AstValue(token));
                     }
                 }
+                else
+                {
+                    Insert(new AstValue(token));
+                }
             }
+            if (current is IAstExpectValue) throw new Exception("Invalid input.");
+            if (currentGroup is not null && end == tokens.Length) throw new Exception($"Unclosed group.");
+            return root;
         }
     }
 
@@ -199,9 +183,9 @@ namespace AdventToolkit.Utilities
 
     public class AstValue : AstLeaf
     {
-        public readonly string Value;
+        public readonly Token Value;
 
-        public AstValue(string value) => Value = value;
+        public AstValue(Token value) => Value = value;
     }
 
     public class BinaryOperator : AstNode, IAstExpectValue
