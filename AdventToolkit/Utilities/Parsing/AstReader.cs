@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit.Extensions;
 
-namespace AdventToolkit.Utilities
+namespace AdventToolkit.Utilities.Parsing
 {
     // Parse a string into an AST tree.
     // Parses basic structures including binary operators, unary operators,
@@ -70,9 +70,10 @@ namespace AdventToolkit.Utilities
                 }
                 else
                 {
+                    var parent = current.Parent;
                     var components = new List<AstNode> {current, node};
-                    var inner = new AstSequence(components);
-                    current.Parent?.Replace(current, inner);
+                    var inner = new AstSequence(components, "");
+                    parent?.Replace(current, inner);
                     current.Parent = inner;
                     if (current == root) root = inner;
                     current = inner.Last;
@@ -88,7 +89,7 @@ namespace AdventToolkit.Utilities
                     // Set up for top-level sequence
                     if (current == null)
                     {
-                        root = current = new AstSequence(new List<AstNode> {null}, true);
+                        root = current = new AstSequence(new List<AstNode> {null}, split, true);
                         continue;
                     }
                     while (current.Parent != null)
@@ -97,7 +98,7 @@ namespace AdventToolkit.Utilities
                     }
                     if (current is not AstSequence {TopLevel: true})
                     {
-                        root = current = new AstSequence(new List<AstNode> {current}, true);
+                        root = current = new AstSequence(new List<AstNode> {current}, split, true);
                     }
                 }
                 else if (currentGroup is not null && content == currentGroup.Right &&
@@ -111,7 +112,7 @@ namespace AdventToolkit.Utilities
                 {
                     if (groups.TryGetValue(content, out var groupSymbol))
                     {
-                        if (groupSymbol.Left != groupSymbol.Right || current is null or IAstExpectValue)
+                        if (groupSymbol.Left != groupSymbol.Right || current is null or IAstExpectValue || content != currentGroup?.Right)
                         {
                             var inside = Read(tokens, i + 1, out i, groupSymbol);
                             var group = new AstGroup(groupSymbol, inside);
@@ -151,7 +152,7 @@ namespace AdventToolkit.Utilities
         }
     }
 
-    public record BinarySymbol(string Symbol, int Precedence, bool LeftAssociative);
+    public record BinarySymbol(string Symbol, int Precedence, bool LeftAssociative = true);
 
     public record UnarySymbol(string Symbol);
 
@@ -192,6 +193,8 @@ namespace AdventToolkit.Utilities
         public readonly Token Value;
 
         public AstValue(Token value) => Value = value;
+
+        public override string ToString() => Value.Content;
     }
 
     public class BinaryOperator : AstNode, IAstExpectValue
@@ -220,6 +223,11 @@ namespace AdventToolkit.Utilities
             if (other.Symbol.LeftAssociative) return Symbol.Precedence - other.Symbol.Precedence + 1;
             return Symbol.Precedence - other.Symbol.Precedence;
         }
+
+        public override string ToString()
+        {
+            return $"{Left} {Symbol.Symbol} {Right}";
+        }
     }
 
     public class UnaryOperator : AstNode, IAstExpectValue
@@ -239,6 +247,11 @@ namespace AdventToolkit.Utilities
         {
             if (Value == old) SetChild(this, ref Value, node);
         }
+
+        public override string ToString()
+        {
+            return $"{Symbol.Symbol}{Value}";
+        }
     }
 
     public class AstGroup : AstNode
@@ -255,16 +268,23 @@ namespace AdventToolkit.Utilities
         public override void AddChild(AstNode node) => throw new NotSupportedException();
 
         public override void Replace(AstNode old, AstNode node) => throw new NotSupportedException();
+
+        public override string ToString()
+        {
+            return $"{Symbol.Left}{Content}{Symbol.Right}";
+        }
     }
 
     public class AstSequence : AstNode, IAstExpectValue
     {
         public readonly List<AstNode> Components;
+        public readonly string Split;
         public readonly bool TopLevel;
 
-        public AstSequence(List<AstNode> components, bool topLevel = false)
+        public AstSequence(List<AstNode> components, string split, bool topLevel = false)
         {
             Components = components;
+            Split = split;
             TopLevel = topLevel;
             foreach (var node in components)
             {
@@ -288,6 +308,12 @@ namespace AdventToolkit.Utilities
             Components[^1].Parent = null;
             node.Parent = this;
             Components[^1] = node;
+        }
+
+        public override string ToString()
+        {
+            if (string.IsNullOrEmpty(Split)) return string.Concat(Components);
+            return string.Join(Split, Components);
         }
     }
 }
