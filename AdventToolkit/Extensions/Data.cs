@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AdventToolkit.Utilities;
 
 namespace AdventToolkit.Extensions
 {
@@ -42,7 +43,7 @@ namespace AdventToolkit.Extensions
             return dict[key] = func();
         }
 
-        public static IEnumerable<(TA, TB)[]> Split<TA, TB>(this (TA, TB)[] pairs, TA a, TB b, bool purgeEmpty = true)
+        public static IEnumerable<Token[]> Split<TA, TB>(this Token[] pairs, TA a, TB b, bool purgeEmpty = true)
         {
             var last = 0;
             for (var i = 0; i < pairs.Length; i++)

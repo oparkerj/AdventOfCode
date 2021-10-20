@@ -1,6 +1,6 @@
 using System.Linq;
 using AdventToolkit;
-using AdventToolkit.Utilities;
+using AdventToolkit.Utilities.Parsing;
 
 namespace AdventOfCode2020.Puzzles
 {
@@ -13,21 +13,19 @@ namespace AdventOfCode2020.Puzzles
 
         public override void PartOne()
         {
-            var reader = Expression<long>.Reader()
-                .ForConstants()
-                .AddBinaryOp("+", (a, b) => a + b, 1)
-                .AddBinaryOp("*", (a, b) => a * b, 1);
-            var sum = Input.Select(reader.GetResult).Sum();
+            var expr = new SingleTypeExpression<long>(long.Parse);
+            expr.AddBinary(new BinarySymbol("+", 1), (a, b) => a + b);
+            expr.AddBinary(new BinarySymbol("*", 1), (a, b) => a * b);
+            var sum = Input.Select(expr.Eval).Sum();
             WriteLn(sum);
         }
 
         public override void PartTwo()
         {
-            var reader = Expression<long>.Reader()
-                .ForConstants()
-                .AddBinaryOp("+", (a, b) => a + b, 2)
-                .AddBinaryOp("*", (a, b) => a * b, 1);
-            var sum = Input.Select(reader.GetResult).Sum();
+            var expr = new SingleTypeExpression<long>(long.Parse);
+            expr.AddBinary(new BinarySymbol("+", 2), (a, b) => a + b);
+            expr.AddBinary(new BinarySymbol("*", 1), (a, b) => a * b);
+            var sum = Input.Select(expr.Eval).Sum();
             WriteLn(sum);
         }
     }
