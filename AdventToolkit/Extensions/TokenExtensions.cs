@@ -1,21 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AdventToolkit.Utilities;
 
 namespace AdventToolkit.Extensions
 {
-    public enum TokenType
+    public static class TokenExtensions
     {
-        None,
-        Number,
-        Word,
-        Symbol,
-        Whitespace,
-    }
-
-    public static class Tokens
-    {
-        private static TokenType TypeOf(char c)
+        private static TokenType HintType(this char c)
         {
             return c switch
             {
@@ -28,7 +20,7 @@ namespace AdventToolkit.Extensions
 
         public static IEnumerable<string> TokenSplit(this string s)
         {
-            return Tokenize(s).Select(tuple => tuple.token);
+            return Tokenize(s).Select(token => token.Content);
         }
         
         // Separate a string into tokens.
@@ -36,16 +28,16 @@ namespace AdventToolkit.Extensions
         // Words: start with a letter and contain letters, numbers, and underscores.
         // Numbers: contain numbers and periods.
         // Symbol: any single character that doesn't fit into the other categories.
-        public static IEnumerable<(string token, TokenType type)> Tokenize(this string s)
+        public static IEnumerable<Token> Tokenize(this string s)
         {
             var b = new StringBuilder();
             var type = TokenType.None;
             foreach (var c in s)
             {
-                var t = TypeOf(c);
+                var t = HintType(c);
                 if (t == TokenType.Whitespace)
                 {
-                    if (b.Length > 0) yield return (b.ToString(), type);
+                    if (b.Length > 0) yield return new Token(b.ToString(), type);
                     b.Length = 0;
                     type = TokenType.None;
                     continue;
@@ -73,12 +65,12 @@ namespace AdventToolkit.Extensions
                     continue;
                 }
                 if (b.Length <= 0) continue;
-                yield return (b.ToString(), type);
+                yield return new Token(b.ToString(), type);
                 b.Length = 0;
-                type = TypeOf(c);
+                type = HintType(c);
                 b.Append(c);
             }
-            if (b.Length > 0) yield return (b.ToString(), type);
+            if (b.Length > 0) yield return new Token(b.ToString(), type);
         }
     }
 }
