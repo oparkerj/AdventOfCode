@@ -85,6 +85,7 @@ namespace AdventToolkit.Common
 
         public static Pos operator +(Pos a, Pos b) => new(a.X + b.X, a.Y + b.Y);
         public Pos Add(Pos other) => this + other;
+        public static Pos Add(Pos a, Pos b) => a + b;
 
         public static Pos operator -(Pos a, Pos b) => new(a.X - b.X, a.Y - b.Y);
         public Pos Sub(Pos other) => this - other;
