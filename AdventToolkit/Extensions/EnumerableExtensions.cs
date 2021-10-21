@@ -448,5 +448,40 @@ namespace AdventToolkit.Extensions
             }
             return array;
         }
+
+        public static IEnumerable<T> ChangeLast<T>(this IEnumerable<T> items, Func<T, T> convert)
+        {
+            using var e = items.GetEnumerator();
+            if (!e.MoveNext()) yield break;
+            var last = e.Current;
+            while (e.MoveNext())
+            {
+                yield return last;
+                last = e.Current;
+            }
+            yield return convert(last);
+        }
+
+        // Alternative to ToDictionary where duplicate keys are allowed, only the first entry is saved
+        public static Dictionary<TKey, TValue> ToDictionaryFirst<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items)
+        {
+            var d = new Dictionary<TKey, TValue>();
+            foreach (var (key, value) in items)
+            {
+                d.TryAdd(key, value);
+            }
+            return d;
+        }
+        
+        // Alternative to ToDictionary where duplicate keys are allowed, duplicate entries will overwrite previous occurrences
+        public static Dictionary<TKey, TValue> ToDictionaryLast<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items)
+        {
+            var d = new Dictionary<TKey, TValue>();
+            foreach (var (key, value) in items)
+            {
+                d[key] = value;
+            }
+            return d;
+        }
     }
 }

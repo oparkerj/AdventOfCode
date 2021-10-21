@@ -38,6 +38,25 @@ namespace AdventToolkit.Common
             return new Pos(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()));
         }
 
+        public static Pos ParseRelative(string s)
+        {
+            var dir = RelativeUdrl(s[0]);
+            var length = s[1..].AsInt();
+            return dir * length;
+        }
+
+        public static Pos RelativeUdrl(char c)
+        {
+            return c switch
+            {
+                'U' => Up,
+                'R' => Right,
+                'L' => Left,
+                'D' => Down,
+                _ => throw new Exception("Invalid direction."),
+            };
+        }
+
         public bool Equals(Pos p) => X == p.X && Y == p.Y;
 
         public override bool Equals(object obj)
@@ -96,6 +115,8 @@ namespace AdventToolkit.Common
             if (delta.X == 0 || delta.Y == 0) return delta.Normalize();
             return delta / delta.X.Gcd(delta.Y);
         }
+
+        public Pos Extend(int length) => this + Normalize() * length;
 
         public Pos Clockwise(Pos center = default) => new(Y - center.Y + center.X, center.X - X + center.Y);
 

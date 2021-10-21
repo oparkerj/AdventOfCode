@@ -60,7 +60,7 @@ namespace AdventOfCode2018.Puzzles
                     var right = p.Trace(Pos.Right, pos => Map[pos] == Wall || Map[pos + Pos.Up] is Water or Empty);
                     if (Map[left] == Wall && Map[right] == Wall)
                     {
-                        foreach (var pos in left.EachTowards(right))
+                        foreach (var pos in left.EachBetween(right))
                         {
                             Map[pos] = Settled;
                         }
@@ -68,7 +68,7 @@ namespace AdventOfCode2018.Puzzles
                     }
                     else
                     {
-                        foreach (var pos in left.EachTowards(right))
+                        foreach (var pos in left.EachBetween(right))
                         {
                             Map[pos] = Water;
                         }

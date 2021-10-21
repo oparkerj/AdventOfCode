@@ -94,7 +94,7 @@ namespace AdventToolkit.Extensions
             }
         }
 
-        public static IEnumerable<Pos> EachTowards(this Pos p, Pos other, bool inclusive = false)
+        public static IEnumerable<Pos> EachBetween(this Pos p, Pos other)
         {
             var delta = p.Towards(other);
             p += delta;
@@ -103,7 +103,16 @@ namespace AdventToolkit.Extensions
                 yield return p;
                 p += delta;
             }
-            if (inclusive) yield return p;
+        }
+
+        public static IEnumerable<Pos> FromTo(this Pos p, Pos other)
+        {
+            return p.EachBetween(other).Prepend(p);
+        }
+
+        public static IEnumerable<Pos> EachTowardsInclusive(this Pos p, Pos other)
+        {
+            return p.EachBetween(other).Append(other);
         }
 
         public static bool AdjacentTo(this Pos p, Pos other)

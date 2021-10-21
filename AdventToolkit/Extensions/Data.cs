@@ -11,6 +11,19 @@ namespace AdventToolkit.Extensions
             return space ? s.Split(", ") : s.Split(',');
         }
 
+        public static (string Left, string Right) SingleSplit(this string s, char c)
+        {
+            var i = s.IndexOf(c);
+            return (s[..i], s[(i + 1)..]);
+        }
+
+        public static string[] SingleSplitArray(this string s, char c)
+        {
+            var result = new string[2];
+            (result[0], result[1]) = s.SingleSplit(c);
+            return result;
+        }
+
         public static void Swap<T>(this T[] arr, int a, int b)
         {
             (arr[a], arr[b]) = (arr[b], arr[a]);
