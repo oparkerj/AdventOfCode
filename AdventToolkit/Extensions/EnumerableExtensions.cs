@@ -42,6 +42,18 @@ namespace AdventToolkit.Extensions
             return true;
         }
 
+        public static bool AllEqual<T, TCompare>(this IEnumerable<T> source, Func<T, TCompare> keyFunction)
+        {
+            using var e = source.GetEnumerator();
+            if (!e.MoveNext()) return true;
+            var first = keyFunction(e.Current);
+            while (e.MoveNext())
+            {
+                if (!Equals(first, keyFunction(e.Current))) return false;
+            }
+            return true;
+        }
+
         public static string Str(this IEnumerable<char> chars)
         {
             var b = new StringBuilder();
@@ -482,6 +494,33 @@ namespace AdventToolkit.Extensions
                 d[key] = value;
             }
             return d;
+        }
+
+        public static IEnumerable<T> Peek<T>(this IEnumerable<T> items, Action<T> action)
+        {
+            foreach (var item in items)
+            {
+                action(item);
+                yield return item;
+            }
+        }
+        
+        public static IOrderedEnumerable<T> OrderBy<T>(this IEnumerable<T> items, IComparer<T> comparer)
+        {
+            return items.OrderBy(t => t, comparer);
+        }
+
+        public static IOrderedEnumerable<T> OrderByDescending<T>(this IEnumerable<T> items, IComparer<T> comparer)
+        {
+            return items.OrderByDescending(t => t, comparer);
+        }
+
+        public static void ForEach<TA, TB>(this IEnumerable<KeyValuePair<TA, TB>> items, Action<TA, TB> action)
+        {
+            foreach (var (a, b) in items)
+            {
+                action(a, b);
+            }
         }
     }
 }
