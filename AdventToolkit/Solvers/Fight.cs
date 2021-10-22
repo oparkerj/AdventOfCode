@@ -1,9 +1,25 @@
 using System;
+using System.Collections.Generic;
 using AdventToolkit.Collections.Space;
 
 namespace AdventToolkit.Solvers
 {
-    public class Fight<TUnit, TPos, TCell>
+    public abstract class Fight<TUnit>
+    {
+        public readonly List<TUnit> Units = new();
+
+        public abstract bool Tick();
+
+        public void RunBattle()
+        {
+            while (true)
+            {
+                if (!Tick()) break;
+            }
+        }
+    }
+    
+    public abstract class Fight<TUnit, TPos, TCell> : Fight<TUnit>
     {
         private SparseSpace<TPos, TCell> _map;
         private FreeSpace<TPos, TUnit> _units = new();
