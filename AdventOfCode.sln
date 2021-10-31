@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode2018", "AdventO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Z3Helper", "Z3Helper\Z3Helper.csproj", "{52BFA8CA-0ED7-419E-A3DD-74AAC16B0DB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode2017", "AdventOfCode2017\AdventOfCode2017.csproj", "{F431C6C2-7A69-4495-AB7C-FC47D14B97B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{52BFA8CA-0ED7-419E-A3DD-74AAC16B0DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52BFA8CA-0ED7-419E-A3DD-74AAC16B0DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52BFA8CA-0ED7-419E-A3DD-74AAC16B0DB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F431C6C2-7A69-4495-AB7C-FC47D14B97B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F431C6C2-7A69-4495-AB7C-FC47D14B97B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F431C6C2-7A69-4495-AB7C-FC47D14B97B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F431C6C2-7A69-4495-AB7C-FC47D14B97B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
