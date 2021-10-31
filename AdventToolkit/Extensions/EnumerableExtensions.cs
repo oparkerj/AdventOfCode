@@ -514,5 +514,24 @@ namespace AdventToolkit.Extensions
         {
             return items.OrderByDescending(t => t, comparer);
         }
+
+        // Appends the specified number of items from the sequence again
+        public static IEnumerable<T> Again<T>(this IEnumerable<T> items, int amount)
+        {
+            var list = new List<T>();
+            foreach (var item in items)
+            {
+                yield return item;
+                if (list.Count < amount) list.Add(item);
+            }
+            var len = list.Count;
+            if (len == 0) yield break;
+            var index = 0;
+            while (index < amount)
+            {
+                yield return list[index.CircularMod(len)];
+                index++;
+            }
+        }
     }
 }
