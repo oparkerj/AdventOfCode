@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace AdventToolkit.Extensions
@@ -16,6 +17,11 @@ namespace AdventToolkit.Extensions
         {
             i = s.IndexOf(c);
             return i > -1;
+        }
+
+        public static IEnumerable<int> Digits(this string s)
+        {
+            return s.Select(Conversions.AsInt);
         }
 
         public static IEnumerable<int> IndicesOf(this string s, char c)

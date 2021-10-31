@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Collections
 {
@@ -15,11 +16,23 @@ namespace AdventToolkit.Collections
             Data = new T[size];
         }
 
+        public CircularBuffer(T[] arr, bool isFilled = true)
+        {
+            Data = arr;
+            _size = isFilled ? arr.Length : 0;
+        }
+
         public int NextIndex => _index;
 
         public int Count => _size;
 
         public bool Full => _size == Data.Length;
+
+        public T this[int index]
+        {
+            get => Data[index.CircularMod(Data.Length)];
+            set => Data[index.CircularMod(Data.Length)] = value;
+        }
 
         public void Add(T t)
         {
