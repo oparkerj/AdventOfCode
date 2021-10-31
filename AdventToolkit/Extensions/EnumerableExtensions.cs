@@ -514,13 +514,5 @@ namespace AdventToolkit.Extensions
         {
             return items.OrderByDescending(t => t, comparer);
         }
-
-        public static void ForEach<TA, TB>(this IEnumerable<KeyValuePair<TA, TB>> items, Action<TA, TB> action)
-        {
-            foreach (var (a, b) in items)
-            {
-                action(a, b);
-            }
-        }
     }
 }

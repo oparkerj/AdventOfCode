@@ -40,5 +40,13 @@ namespace AdventToolkit.Extensions
         {
             return source.Where(pair => func(pair.Value));
         }
+
+        public static void ForEach<TA, TB>(this IEnumerable<KeyValuePair<TA, TB>> items, Action<TA, TB> action)
+        {
+            foreach (var (a, b) in items)
+            {
+                action(a, b);
+            }
+        }
     }
 }
