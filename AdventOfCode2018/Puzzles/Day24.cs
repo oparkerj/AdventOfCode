@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
@@ -13,17 +12,21 @@ namespace AdventOfCode2018.Puzzles
     {
         public Day24()
         {
-            InputName = "Day24Ex.txt";
+            Part = 2;
         }
 
-        public Fight<Group> SetupFight()
+        public Fight<Group> SetupFight(int boost = 0)
         {
             var groups = Groups.SelectMany(groups =>
             {
                 var friendly = groups[0].Contains("Immune");
                 return groups.Skip(1)
                     .Extract<Group>(@"(?<UnitCount>\d+) units each with (?<UnitHp>\d+) hit points (?:\((?<Mods>.+?)\) )?with an attack that does (?<Damage>\d+) (?<DamageType>.+?) damage at initiative (?<Initiative>\d+)")
-                    .Peek(group => group.Friendly = friendly);
+                    .Peek(group =>
+                    {
+                        group.Friendly = friendly;
+                        if (friendly) group.Damage += boost;
+                    });
             });
             var fight = new ImmuneSystem();
             fight.Units.AddRange(groups);
@@ -35,6 +38,21 @@ namespace AdventOfCode2018.Puzzles
             var fight = SetupFight();
             fight.RunBattle();
             WriteLn(fight.Units.Select(group => group.UnitCount).Sum());
+        }
+
+        public override void PartTwo()
+        {
+            var boost = 0;
+            while (true)
+            {
+                var fight = SetupFight(boost++);
+                fight.RunBattle();
+                if (fight.Units.Select(group => group.Friendly).AllEqual(true))
+                {
+                    WriteLn(fight.Units.Select(group => group.UnitCount).Sum());
+                    return;
+                }
+            }
         }
 
         public class Group
@@ -58,8 +76,7 @@ namespace AdventOfCode2018.Puzzles
                 {
                     if (value != null)
                     {
-                        var modLists = value.Split("; ");
-                        foreach (var list in modLists)
+                        foreach (var list in value.Split("; "))
                         {
                             if (list.StartsWith("weak")) Weaknesses = list[8..].Csv(true).ToList();
                             else if (list.StartsWith("immune")) Immunities = list[10..].Csv(true).ToList();
@@ -70,6 +87,8 @@ namespace AdventOfCode2018.Puzzles
                 }
             }
 
+            public int EffectiveDamage(Group source) => EffectiveDamage(source.EffectivePower, source.DamageType);
+
             public int EffectiveDamage(int power, string type)
             {
                 if (Immunities.Contains(type)) return 0;
@@ -77,11 +96,13 @@ namespace AdventOfCode2018.Puzzles
                 return power;
             }
 
-            public bool Attack(int power, string type)
+            public int ComputeLoss(int power, string type) => EffectiveDamage(power, type) / UnitHp;
+
+            public void ApplyDamage(int power, string type) => UnitCount -= ComputeLoss(power, type);
+
+            public override string ToString()
             {
-                var loss = EffectiveDamage(power, type) / UnitHp;
-                UnitCount -= loss;
-                return !Alive;
+                return $"{Friendly.AsInt()}, {UnitCount}";
             }
         }
 
@@ -94,10 +115,11 @@ namespace AdventOfCode2018.Puzzles
 
             public override bool Tick()
             {
-                var attacked = Units.ToList();
-                Units.OrderBy(SelectionOrder)
-                    .With(group => ChooseTarget(group, attacked))
-                    .OrderByDescending(pair => pair.Key, Initiative)
+                var pool = Units.ToList();
+
+                var targets = Units.OrderBy(SelectionOrder).With(group => ChooseTarget(group, pool)).ToArray(Units.Count);
+                if (targets.WhereValue(group => group != null).All(pair => pair.Value.ComputeLoss(pair.Key.EffectivePower, pair.Key.DamageType) == 0)) return false;
+                targets.OrderByDescending(pair => pair.Key, Initiative)
                     .ForEach(Attack);
                 Units.RemoveAll(group => !group.Alive);
                 return !Units.AllEqual(group => group.Friendly);
@@ -105,11 +127,12 @@ namespace AdventOfCode2018.Puzzles
 
             public Group ChooseTarget(Group attacking, List<Group> pool)
             {
-                var power = attacking.EffectivePower;
                 var target = pool.Where(group => group.Friendly != attacking.Friendly)
-                    .OrderByDescending(group => group.EffectiveDamage(power, attacking.DamageType))
+                    .OrderByDescending(group => group.EffectiveDamage(attacking))
+                    .ThenByDescending(group => group.EffectivePower)
                     .ThenByDescending(group => group.Initiative)
                     .FirstOrDefault();
+                if (target?.EffectiveDamage(attacking.EffectivePower, attacking.DamageType) == 0) return null;
                 pool.Remove(target);
                 return target;
             }
@@ -117,7 +140,7 @@ namespace AdventOfCode2018.Puzzles
             public void Attack(Group source, Group target)
             {
                 if (!source.Alive) return;
-                target?.Attack(source.EffectivePower, source.DamageType);
+                target?.ApplyDamage(source.EffectivePower, source.DamageType);
             }
         }
     }

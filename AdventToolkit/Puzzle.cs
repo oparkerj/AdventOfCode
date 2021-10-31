@@ -33,10 +33,21 @@ namespace AdventToolkit
             }
         }
 
+        public static string RunCapture<T>()
+            where T : Puzzle, new()
+        {
+            var old = Console.Out;
+            using var output = new StringWriter();
+            Console.SetOut(output);
+            Run<T>();
+            Console.SetOut(old);
+            return output.ToString();
+        }
+
         public int Part { get; set; } = 1;
 
         public string InputName { get; set; }
-        
+
         public bool Measure { get; set; }
 
         public abstract void PartOne();
