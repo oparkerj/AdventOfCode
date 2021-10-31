@@ -143,5 +143,11 @@ namespace AdventToolkit.Extensions
         public static IEnumerable<int> DigitsLtr(this int i) => i.Digits().Reverse();
         
         public static IEnumerable<int> DigitsLtr(this long i) => i.Digits().Reverse();
+
+        public static int CircularMod(this int i, int mod)
+        {
+            if (i < 0) return mod + i % mod;
+            return i % mod;
+        }
     }
 }

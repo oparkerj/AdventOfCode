@@ -491,5 +491,10 @@ namespace AdventToolkit.Extensions
         {
             return s.SplitOuter(c, '(', ')');
         }
+
+        public static T Circular<T>(this T[] arr, int index)
+        {
+            return default;
+        }
     }
 }
