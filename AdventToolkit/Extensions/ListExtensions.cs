@@ -43,5 +43,37 @@ namespace AdventToolkit.Extensions
             }
             return removed;
         }
+        
+        // For each pair of elements in the input, groups ones which meet a condition.
+        // If A,B and B,C both meet the conditions, A, B, and C will be in the same group.
+        // The integer key in the result is arbitrary and only used to mark groups.
+        public static IEnumerable<IGrouping<int, T>> GroupPairs<T>(this IList<T> items, Func<T, T, bool> predicate)
+        {
+            var count = 0;
+            var groups = new Dictionary<T, int>();
+
+            int Group(T t) => groups.TryGetValue(t, out var g) ? g : groups[t] = count++;
+
+            void SetGroup(T t, int group)
+            {
+                if (!groups.TryGetValue(t, out var current)) groups[t] = group;
+                else if (current != group)
+                {
+                    foreach (var (item, _) in groups.WhereValue(current).ToList())
+                    {
+                        groups[item] = group;
+                    }
+                }
+            }
+
+            foreach (var (a, b) in items.Pairs())
+            {
+                var g = Group(a);
+                if (predicate(a, b)) SetGroup(b, g);
+                else Group(b);
+            }
+
+            return items.GroupBy(t => groups[t]);
+        }
     }
 }
