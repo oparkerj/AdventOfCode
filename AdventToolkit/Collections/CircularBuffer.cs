@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +32,12 @@ namespace AdventToolkit.Collections
         public T this[int index]
         {
             get => Data[index.CircularMod(Data.Length)];
-            set => Data[index.CircularMod(Data.Length)] = value;
+            set
+            {
+                var realIndex = index.CircularMod(Data.Length);
+                Data[realIndex] = value;
+                _size = Math.Max(_size, realIndex + 1);
+            }
         }
 
         public void Add(T t)

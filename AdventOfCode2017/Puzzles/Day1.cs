@@ -15,8 +15,7 @@ namespace AdventOfCode2017.Puzzles
 
         public override void PartOne()
         {
-            var result = InputLine.Digits().Pairwise((a, b) => a == b ? a : 0).Sum();
-            if (InputLine[0] == InputLine[^1]) result += InputLine[0].AsInt();
+            var result = InputLine.Digits().Again(1).Pairwise((a, b) => a == b ? a : 0).Sum();
             WriteLn(result);
         }
 
