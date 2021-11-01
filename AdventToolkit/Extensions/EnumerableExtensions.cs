@@ -533,5 +533,20 @@ namespace AdventToolkit.Extensions
                 index++;
             }
         }
+
+        public static (T Min, T Max) Extents<T>(this IEnumerable<T> items)
+            where T : IComparable<T>
+        {
+            using var e = items.GetEnumerator();
+            if (!e.MoveNext()) throw new Exception("Sequence is empty.");
+            var min = e.Current;
+            var max = e.Current;
+            while (e.MoveNext())
+            {
+                if (e.Current?.CompareTo(min) < 0) min = e.Current;
+                if (e.Current?.CompareTo(max) > 0) max = e.Current;
+            }
+            return (min, max);
+        }
     }
 }

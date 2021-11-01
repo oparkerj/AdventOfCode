@@ -15,5 +15,10 @@ namespace AdventToolkit.Extensions
             }
             return result;
         }
+
+        public static TR Select<TA, TB, TR>(this (TA A, TB B) tuple, Func<TA, TB, TR> func)
+        {
+            return func(tuple.A, tuple.B);
+        }
     }
 }
