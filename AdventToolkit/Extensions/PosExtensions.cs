@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit.Collections;
 using AdventToolkit.Common;
+using MoreLinq;
 
 namespace AdventToolkit.Extensions
 {
@@ -58,9 +59,7 @@ namespace AdventToolkit.Extensions
 
         public static IEnumerable<Pos3D> Around(this Pos3D p)
         {
-            return p.EnumerateSingle()
-                .Append(p + Pos3D.Forward)
-                .Append(p + Pos3D.Backward)
+            return Enumerable.Append(Enumerable.Append(p.EnumerateSingle(), p + Pos3D.Forward), p + Pos3D.Backward)
                 .SelectMany(pos => Around(pos.To2D).Select(p2 => p2.To3D(pos.Z)));
         }
 
@@ -107,17 +106,39 @@ namespace AdventToolkit.Extensions
 
         public static IEnumerable<Pos> FromTo(this Pos p, Pos other)
         {
-            return p.EachBetween(other).Prepend(p);
+            return Enumerable.Prepend(p.EachBetween(other), p);
         }
 
         public static IEnumerable<Pos> EachTo(this Pos p, Pos other)
         {
-            return p.EachBetween(other).Append(other);
+            return Enumerable.Append(p.EachBetween(other), other);
         }
 
         public static bool AdjacentTo(this Pos p, Pos other)
         {
             return p.MDist(other) == 1;
+        }
+
+        public static IEnumerable<Pos> MakePath(this IEnumerable<Pos> points, Pos start)
+        {
+            return points.Scan(start, Pos.Add);
+        }
+
+        public static IEnumerable<Pos> MakePath(this Pos start, IEnumerable<Pos> deltas)
+        {
+            return deltas.MakePath(start);
+        }
+
+        // Connect a series of points made of vertical or horizontal lines.
+        // The first point itself is not included.
+        public static IEnumerable<Pos> ConnectLines(this IEnumerable<Pos> points)
+        {
+            return points.Pairwise(EachTo).Flatten();
+        }
+
+        public static IEnumerable<Pos> Mul(this IEnumerable<Pos> points, int scale)
+        {
+            return points.Select(pos => pos * scale);
         }
     }
 }

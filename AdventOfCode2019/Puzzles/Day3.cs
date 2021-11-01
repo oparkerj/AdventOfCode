@@ -3,7 +3,6 @@ using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities.Arithmetic;
 using MoreLinq;
 
 namespace AdventOfCode2019.Puzzles
@@ -19,11 +18,8 @@ namespace AdventOfCode2019.Puzzles
         {
             return data.Csv()
                 .Select(Pos.ParseRelative)
-                .ChangeLast(pos => pos.Extend(1))
-                .Scan(Pos.Origin, Pos.Add)
-                .Pairwise(PosExtensions.FromTo)
-                .Flatten()
-                .Skip(1);
+                .MakePath(Pos.Origin)
+                .ConnectLines();
         }
 
         public override void PartOne()
