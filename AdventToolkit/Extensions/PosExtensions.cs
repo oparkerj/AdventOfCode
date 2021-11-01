@@ -110,7 +110,7 @@ namespace AdventToolkit.Extensions
             return p.EachBetween(other).Prepend(p);
         }
 
-        public static IEnumerable<Pos> EachTowardsInclusive(this Pos p, Pos other)
+        public static IEnumerable<Pos> EachTo(this Pos p, Pos other)
         {
             return p.EachBetween(other).Append(other);
         }
