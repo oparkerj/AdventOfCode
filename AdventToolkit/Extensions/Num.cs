@@ -60,6 +60,12 @@ namespace AdventToolkit.Extensions
             return result;
         }
 
+        public static bool Divides(this int a, int b)
+        {
+            if (b == 0) return false;
+            return a % b == 0;
+        }
+
         public static int Gcd(this int a, int b)
         {
             a = Math.Abs(a);
