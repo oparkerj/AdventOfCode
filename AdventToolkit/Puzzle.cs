@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using AdventToolkit.Extensions;
 
 namespace AdventToolkit
 {
@@ -89,6 +90,8 @@ namespace AdventToolkit
         }
 
         public string InputLine => Input[0];
+
+        public int InputInt => InputLine.AsInt();
 
         private string[][] _groups;
 
