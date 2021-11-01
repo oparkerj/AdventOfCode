@@ -5,7 +5,6 @@ using AdventToolkit;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
-using MoreLinq;
 
 namespace AdventOfCode2017.Puzzles
 {
@@ -40,9 +39,7 @@ namespace AdventOfCode2017.Puzzles
             while (true)
             {
                 var shellLen = len;
-                var shell = dirs.Scan(last, (a, b) => a + b * shellLen)
-                    .Pairwise(PosExtensions.EachTo)
-                    .Flatten();
+                var shell = last.MakePath(dirs.Mul(shellLen)).ConnectLines();
                 foreach (var pos in shell)
                 {
                     yield return pos;
