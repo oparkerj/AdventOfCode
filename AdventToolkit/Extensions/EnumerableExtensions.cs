@@ -423,6 +423,52 @@ namespace AdventToolkit.Extensions
             }
             return value;
         }
+        
+        public static int FindMin<T>(this IEnumerable<T> items)
+        {
+            return items.FindMin(Comparer<T>.Default);
+        }
+
+        // Minimum index of the minimum element
+        public static int FindMin<T>(this IEnumerable<T> items, IComparer<T> comparer)
+        {
+            using var e = items.GetEnumerator();
+            if (!e.MoveNext()) return -1;
+            var current = e.Current;
+            var max = 0;
+            var i = 0;
+            while (e.MoveNext())
+            {
+                i++;
+                if (comparer.Compare(e.Current, current) <= 0) continue;
+                current = e.Current;
+                max = i;
+            }
+            return max;
+        }
+
+        public static int FindMax<T>(this IEnumerable<T> items)
+        {
+            return items.FindMax(Comparer<T>.Default);
+        }
+
+        // Minimum index in the sequence of the maximum element
+        public static int FindMax<T>(this IEnumerable<T> items, IComparer<T> comparer)
+        {
+            using var e = items.GetEnumerator();
+            if (!e.MoveNext()) return -1;
+            var current = e.Current;
+            var max = 0;
+            var i = 0;
+            while (e.MoveNext())
+            {
+                i++;
+                if (comparer.Compare(e.Current, current) <= 0) continue;
+                current = e.Current;
+                max = i;
+            }
+            return max;
+        }
 
         public static T SingleOrDefault<T>(this IEnumerable<T> source, T defaultValue)
         {
