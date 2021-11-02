@@ -11,6 +11,16 @@ namespace AdventToolkit.Extensions
             return space ? s.Split(", ") : s.Split(',');
         }
 
+        public static string[] Spaced(this string s)
+        {
+            return s.Split(' ');
+        }
+
+        public static string[] Tabbed(this string s)
+        {
+            return s.Split('\t');
+        }
+
         public static (string Left, string Right) SingleSplit(this string s, char c)
         {
             var i = s.IndexOf(c);
