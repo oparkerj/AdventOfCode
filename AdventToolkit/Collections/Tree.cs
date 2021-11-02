@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 
 namespace AdventToolkit.Collections
@@ -10,10 +12,36 @@ namespace AdventToolkit.Collections
     {
         public TVertex Root { get; protected set; }
 
+        public TVertex DetermineRoot()
+        {
+            if (!this.First(out var v)) return null;
+            while (v.Parent is TVertex parent)
+            {
+                v = parent;
+            }
+            return Root = v;
+        }
+
         public override void AddVertex(TVertex vertex)
         {
             base.AddVertex(vertex);
             Root ??= vertex;
+        }
+
+        public IEnumerable<TVertex> Bfs(TVertex start = null)
+        {
+            var next = new Queue<TVertex>();
+            next.Enqueue(start ?? Root);
+            while (next.Count > 0)
+            {
+                var v = next.Dequeue();
+                Console.WriteLine("Viewing " + v);
+                yield return v;
+                foreach (var n in v.Neighbors.Cast<TVertex>())
+                {
+                    next.Enqueue(n);
+                }
+            }
         }
     }
 

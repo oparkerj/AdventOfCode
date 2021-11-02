@@ -8,9 +8,9 @@ namespace AdventToolkit.Extensions
 {
     public static class GraphExtensions
     {
-        public static UniqueGraph<TT, Vertex<TT, DirectedEdge<TT>>, DirectedEdge<TT>> ToDigraph<T, TT>(this IEnumerable<T> source, Func<T, TT> parent, Func<T, TT> child)
+        public static UniqueDigraph<TT> ToDigraph<T, TT>(this IEnumerable<T> source, Func<T, TT> parent, Func<T, TT> child)
         {
-            var graph = new UniqueGraph<TT, Vertex<TT, DirectedEdge<TT>>, DirectedEdge<TT>>();
+            var graph = new UniqueDigraph<TT>();
             foreach (var item in source)
             {
                 graph.GetOrCreate(parent(item)).LinkTo(graph.GetOrCreate(child(item)));

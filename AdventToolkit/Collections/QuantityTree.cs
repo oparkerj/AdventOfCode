@@ -2,11 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit.Utilities;
+using MoreLinq;
 
 namespace AdventToolkit.Collections
 {
     public class QuantityTree<T> : Tree<T, QuantityVertex<T>, DataEdge<T, long>>
     {
+        public long TotalVertexWeight(QuantityVertex<T> vertex)
+        {
+            return Bfs(vertex).Select(v => v.Quantity).Sum();
+            // var total = vertex.Quantity;
+            // var next = new Queue<QuantityVertex<T>>(vertex.Neighbors);
+            // while (next.Count > 0)
+            // {
+            //     var v = next.Dequeue();
+            //     total += v.Quantity;
+            //     v.Neighbors.ForEach(next.Enqueue);
+            // }
+            // return total;
+            // return vertex.Quantity + vertex.Descendants.Cast<QuantityVertex<T>>().Select(v => v.Quantity).Sum();
+        }
+        
         public long ProduceFrom(T item, Dictionary<T, long> have)
         {
             var made = new DefaultDict<T, long>();
@@ -116,6 +132,13 @@ namespace AdventToolkit.Collections
         {
             return NeighborEdges.Select(edge => (edge.OtherAs(this), edge.Data));
         }
+
+        public new IEnumerable<QuantityVertex<T>> Neighbors => base.Neighbors.Cast<QuantityVertex<T>>();
+
+        public override string ToString()
+        {
+            return $"\"{Value} ({Quantity})\"";
+        }
     }
     
     public class QuantityTreeHelper<T>
@@ -164,5 +187,12 @@ namespace AdventToolkit.Collections
         public int Amount { get; set; } = 1;
         public T Value { get; set; }
         public List<(int Amount, T Item)> Children { get; set; }
+    }
+
+    public class WeightedItem<T>
+    {
+        public int Amount { get; set; }
+        public T Value { get; set; }
+        public List<T> Children { get; set; }
     }
 }

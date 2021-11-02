@@ -48,5 +48,19 @@ namespace AdventToolkit.Extensions
                     }
                 });
         }
+        
+        // Same as ToQuantityTree but children nodes do not have an amount.
+        public static QuantityTree<string> ToWeightedTree(this IEnumerable<string> items, string format)
+        {
+            return items.Extract<WeightedItem<string>>(format)
+                .ToQuantityTree<WeightedItem<string>, string>((item, helper) =>
+                {
+                    helper.Add(item.Value, item.Amount);
+                    foreach (var child in item.Children)
+                    {
+                        helper.AddChild(child, 1);
+                    }
+                });
+        }
     }
 }

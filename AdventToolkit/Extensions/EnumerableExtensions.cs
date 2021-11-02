@@ -594,5 +594,38 @@ namespace AdventToolkit.Extensions
             }
             return (min, max);
         }
+
+        public static (TT Min, TT Max) Extents<T, TT>(this IEnumerable<T> items, Func<T, TT> func)
+            where TT : IComparable<TT>
+        {
+            return items.Select(func).Extents();
+        }
+
+        public static (T Min, T Max) ExtentsBy<T, TT>(this IEnumerable<T> items, Func<T, TT> func)
+            where TT : IComparable<TT>
+        {
+            using var e = items.GetEnumerator();
+            if (!e.MoveNext()) throw new Exception("Sequence is empty.");
+            var comparison = func(e.Current);
+            var minCompare = comparison;
+            var min = e.Current;
+            var maxCompare = comparison;
+            var max = e.Current;
+            while (e.MoveNext())
+            {
+                comparison = func(e.Current);
+                if (comparison?.CompareTo(minCompare) < 0)
+                {
+                    minCompare = comparison;
+                    min = e.Current;
+                }
+                if (comparison?.CompareTo(maxCompare) > 0)
+                {
+                    maxCompare = comparison;
+                    max = e.Current;
+                }
+            }
+            return (min, max);
+        }
     }
 }

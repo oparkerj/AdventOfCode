@@ -93,5 +93,15 @@ namespace AdventToolkit.Extensions
         {
             return arg => arg != null;
         }
+
+        public static Func<TIn, TOut> Memoize<TIn, TOut>(Func<TIn, TOut> func)
+        {
+            var inputs = new Dictionary<TIn, TOut>();
+            return input =>
+            {
+                if (inputs.TryGetValue(input, out var result)) return result;
+                return inputs[input] = func(input);
+            };
+        }
     }
 }

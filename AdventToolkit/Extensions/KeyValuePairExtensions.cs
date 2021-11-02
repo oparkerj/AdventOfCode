@@ -48,5 +48,15 @@ namespace AdventToolkit.Extensions
                 action(a, b);
             }
         }
+
+        public static IOrderedEnumerable<KeyValuePair<TKey, TValue>> OrderByKey<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs)
+        {
+            return pairs.OrderBy(pair => pair.Key);
+        }
+        
+        public static IOrderedEnumerable<KeyValuePair<TKey, TValue>> OrderByValue<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs)
+        {
+            return pairs.OrderBy(pair => pair.Value);
+        }
     }
 }
