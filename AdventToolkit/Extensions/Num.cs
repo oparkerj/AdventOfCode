@@ -38,6 +38,18 @@ namespace AdventToolkit.Extensions
         public static long Mul(this int a, long b) => a * b;
 
         public static long Mul(this long a, int b) => a * b;
+
+        public static bool Eq(this int a, int b) => a == b;
+        
+        public static bool Neq(this int a, int b) => a != b;
+
+        public static bool Gt(this int a, int b) => a > b;
+        
+        public static bool Ge(this int a, int b) => a >= b;
+
+        public static bool Lt(this int a, int b) => a < b;
+        
+        public static bool Le(this int a, int b) => a <= b;
         
         public static BigInteger Factorial(this int i)
         {
