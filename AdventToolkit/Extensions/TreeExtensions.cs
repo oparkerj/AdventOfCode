@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdventToolkit.Collections;
-using AdventToolkit.Utilities;
+using AdventToolkit.Collections.Graph;
+using AdventToolkit.Collections.Tree;
+using RegExtract;
 
 namespace AdventToolkit.Extensions
 {
@@ -27,6 +28,12 @@ namespace AdventToolkit.Extensions
                 tree.GetVertex(parent(i)).LinkTo(tree.GetVertex(child(i)));
             }
             return tree;
+        }
+
+        public static Tree<string> ToTree(this IEnumerable<string> items, string format)
+        {
+            return items.Extract<VertexInfo<string>>(format)
+                .ToTree(info => info.Value, info => info.Child);
         }
 
         public static IEnumerable<T> Values<T>(this IEnumerable<VertexBase<T>> nodes)

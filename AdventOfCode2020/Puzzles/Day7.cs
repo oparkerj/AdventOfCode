@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
-using AdventToolkit.Collections;
+using AdventToolkit.Collections.Tree;
 using AdventToolkit.Extensions;
 
 namespace AdventOfCode2020.Puzzles
@@ -69,7 +69,7 @@ namespace AdventOfCode2020.Puzzles
         public QuantityTree<string> GetBags()
         {
             return Input.Where(s => !s.Contains("no other bags"))
-                .ToQuantityTree(@"(?<Value>.+?) bags contain (?<Children>(\d+) (.+?) bags?(?:, )?)+.");
+                .ToQuantityTree(@"(?<Value>.+?) bags contain (?<WeightChild>(\d+) (.+?) bags?(?:, )?)+.");
         }
         
         public override void PartOne()

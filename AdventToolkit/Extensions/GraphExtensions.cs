@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdventToolkit.Collections;
+using AdventToolkit.Collections.Graph;
 using AdventToolkit.Utilities;
+using RegExtract;
 
 namespace AdventToolkit.Extensions
 {
@@ -16,6 +17,12 @@ namespace AdventToolkit.Extensions
                 graph.GetOrCreate(parent(item)).LinkTo(graph.GetOrCreate(child(item)));
             }
             return graph;
+        }
+
+        public static UniqueDigraph<string> ToDigraph(this IEnumerable<string> items, string format)
+        {
+            return items.Extract<VertexInfo<string>>(format)
+                .ToDigraph(info => info.Value, info => info.Child);
         }
 
         public static IEnumerable<TVertex> Reachable<T, TVertex, TEdge>(this TVertex start, Func<TVertex, bool> valid)

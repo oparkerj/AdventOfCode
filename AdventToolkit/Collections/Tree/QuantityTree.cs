@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdventToolkit.Utilities;
-using MoreLinq;
+using AdventToolkit.Collections.Graph;
 
-namespace AdventToolkit.Collections
+namespace AdventToolkit.Collections.Tree
 {
     public class QuantityTree<T> : Tree<T, QuantityVertex<T>, DataEdge<T, long>>
     {
@@ -180,19 +179,5 @@ namespace AdventToolkit.Collections
             _parent.LinkTo(node, new DataEdge<T, long>(_parent, node, amount));
             return this;
         }
-    }
-    
-    public class QuantityItem<T>
-    {
-        public int Amount { get; set; } = 1;
-        public T Value { get; set; }
-        public List<(int Amount, T Item)> Children { get; set; }
-    }
-
-    public class WeightedItem<T>
-    {
-        public int Amount { get; set; }
-        public T Value { get; set; }
-        public List<T> Children { get; set; }
     }
 }

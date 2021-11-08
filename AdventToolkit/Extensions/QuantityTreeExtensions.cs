@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using AdventToolkit.Collections;
+using AdventToolkit.Collections.Graph;
+using AdventToolkit.Collections.Tree;
 using RegExtract;
 
 namespace AdventToolkit.Extensions
@@ -38,27 +39,34 @@ namespace AdventToolkit.Extensions
         // (Optional) Named group <Amount>: The number of parent objects produced.
         public static QuantityTree<string> ToQuantityTree(this IEnumerable<string> items, string format)
         {
-            return items.Extract<QuantityItem<string>>(format)
-                .ToQuantityTree<QuantityItem<string>, string>((item, helper) =>
+            return items.Extract<VertexInfo<string>>(format)
+                .ToQuantityTree<VertexInfo<string>, string>((item, helper) =>
                 {
                     helper.Add(item.Value, item.Amount);
-                    foreach (var (amount, child) in item.Children)
+                    if (item.Child != null)
                     {
-                        helper.AddChild(child, amount);
+                        helper.AddChild(item.Child, item.ChildAmount);
                     }
-                });
-        }
-        
-        // Same as ToQuantityTree but children nodes do not have an amount.
-        public static QuantityTree<string> ToWeightedTree(this IEnumerable<string> items, string format)
-        {
-            return items.Extract<WeightedItem<string>>(format)
-                .ToQuantityTree<WeightedItem<string>, string>((item, helper) =>
-                {
-                    helper.Add(item.Value, item.Amount);
-                    foreach (var child in item.Children)
+                    else if (item.Children != null)
                     {
-                        helper.AddChild(child, 1);
+                        foreach (var v in item.Children)
+                        {
+                            helper.AddChild(v, 1);
+                        }
+                    }
+                    else if (item.ChildWeight != null)
+                    {
+                        foreach (var (child, amount) in item.ChildWeight)
+                        {
+                            helper.AddChild(child, amount);
+                        }
+                    }
+                    else if (item.WeightChild != null)
+                    {
+                        foreach (var (amount, child) in item.WeightChild)
+                        {
+                            helper.AddChild(child, amount);
+                        }
                     }
                 });
         }
