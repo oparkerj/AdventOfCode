@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using AdventToolkit;
-using AdventToolkit.Collections;
+using AdventToolkit.Collections.Tree;
 using AdventToolkit.Extensions;
 
 namespace AdventOfCode2019.Puzzles

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
-using AdventToolkit.Collections;
+using AdventToolkit.Collections.Tree;
 using AdventToolkit.Extensions;
 using RegExtract;
 
@@ -18,20 +16,53 @@ namespace AdventOfCode2017.Puzzles
 
         public override void PartOne()
         {
-            var tree = Input.ToWeightedTree(@"(?<Value>.+) \((?<Amount>\d+)\)(?: -> (?:(?<Children>\w+)(?:, )?)+)?");
+            var tree = Input.ToQuantityTree(@"(?<Value>\w+) \((?<Amount>\d+)\)(?: -> (?:(?<Children>\w+)(?:, )?)+)?");
             var vertex = tree.DetermineRoot();
             WriteLn(vertex.Value);
         }
 
+        private long FindCorrectValue(QuantityVertex<string> vertex)
+        {
+            var count = vertex.NeighborCount;
+            if (count == 2) return vertex.Neighbors.Select(FindCorrectValue).Max();
+            if (count < 2) return -1;
+            // Return branches grouped by weight
+            var counts = vertex.NeighborEdges.With(edge => edge.Data + edge.OtherAs(vertex).SumBranches())
+                .GroupBy(pair => pair.Value)
+                .Select(pairs => pairs.Keys().ToArray())
+                .ToArray();
+            if (counts.Length == 1 || counts.AllEqual(b => b.Length)) return -1;
+            // The single branch that is different from the others
+            var offBranch = counts.Single(b => b.Length == 1)[0].OtherAs(vertex);
+            // Find whether the wrong value is further up the chain
+            var chosen = FindCorrectValue(offBranch);
+            if (chosen != -1) return chosen;
+            // Compute the different between the wrong value and the correct values
+            var regularEdge = counts.First(b => b.Length != 1)[0];
+            return regularEdge.Data + regularEdge.OtherAs(vertex).SumBranches() - (offBranch.Quantity + offBranch.SumBranches()) + offBranch.Quantity;
+        }
+
         public override void PartTwo()
         {
-            var tree = Input.ToDigraph(s => s.Extract<(string Name, int Weight, List<string> Children)>(@"(\w+) \((\d+)\)(?: -> (?:(\w+)(?:, )?)+)?"),
-                tuple => tuple.Name,
-                tuple => );
-            // var weightFunction = Data.Memoize<QuantityVertex<string>, long>(tree.TotalVertexWeight);
-            // var incorrect = tree.Bfs().First(v => !v.Neighbors.Select(weightFunction).AllEqual());
-            // var (min, max) = incorrect.Neighbors.Select(weightFunction).Frequencies().ExtentsBy(pair => pair.Value);
-            // WriteLn(max.Key);
+            var weights = new Dictionary<string, long>();
+            var programs = Input.Extract<(string, long)>(@"(\w+) \((\d+)\).*");
+            foreach (var (value, amount) in programs)
+            {
+                weights[value] = amount;
+            }
+            var tree = Input.Extract<(string, List<string>)>(@"(\w+) \(\d+\)(?: -> (?:(\w+)(?:, )?)+)?")
+                .ToQuantityTree<(string Value, List<string> Children), string>((tuple, helper) =>
+                {
+                    helper.Add(tuple.Value);
+                    foreach (var child in tuple.Children)
+                    {
+                        helper.AddChild(child, weights[child]);
+                    }
+                });
+            
+            var root = tree.DetermineRoot();
+            var result = FindCorrectValue(root);
+            WriteLn(result);
         }
     }
 }

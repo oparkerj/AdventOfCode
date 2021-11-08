@@ -1,6 +1,7 @@
 using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Collections;
+using AdventToolkit.Collections.Graph;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 using MoreLinq;
