@@ -14,6 +14,7 @@ namespace AdventToolkit.Utilities.Parsing
         public readonly Dictionary<string, UnarySymbol> UnarySymbols;
         public readonly Dictionary<string, GroupSymbol> GroupSymbols;
         public string SequenceSplit;
+        public string Escape;
 
         public AstReader()
         {
@@ -30,6 +31,7 @@ namespace AdventToolkit.Utilities.Parsing
             var binary = BinarySymbols;
             var groups = GroupSymbols;
             var split = SequenceSplit;
+            var escape = Escape;
             
             var roots = new Stack<AstNode>();
             var currents = new Stack<AstNode>();
@@ -106,7 +108,11 @@ namespace AdventToolkit.Utilities.Parsing
                 var token = tokens[i];
                 var (content, type) = token;
                 var currentGroup = currentGroups.Peek();
-                if (content == split)
+                if (content == escape)
+                {
+                    Insert(new AstValue(tokens[++i]));
+                }
+                else if (content == split)
                 {
                     // Set up for top-level sequence
                     if (currents.Peek() == null)
@@ -137,7 +143,7 @@ namespace AdventToolkit.Utilities.Parsing
                 }
                 else if (type == TokenType.Symbol)
                 {
-                    if (groups.TryGetValue(content, out var groupSymbol))
+                    if ((currentGroup is null || !currentGroup.Nest) && groups.TryGetValue(content, out var groupSymbol))
                     {
                         if (groupSymbol.Left != groupSymbol.Right || currents.Peek() is null or IAstExpectValue || content != currentGroup?.Right)
                         {
@@ -181,7 +187,7 @@ namespace AdventToolkit.Utilities.Parsing
 
     public record UnarySymbol(string Symbol);
 
-    public record GroupSymbol(string Left, string Right)
+    public record GroupSymbol(string Left, string Right, bool Nest = true)
     {
         public GroupSymbol(string symbol) : this(symbol, symbol) { }
 
