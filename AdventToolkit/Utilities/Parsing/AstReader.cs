@@ -23,117 +23,143 @@ namespace AdventToolkit.Utilities.Parsing
         }
 
         public AstNode Read(string s) => Read(s.Tokenize().ToArray());
-
-        public AstNode Read(Token[] tokens) => Read(tokens, 0, out _, null);
-
-        private AstNode Read(Token[] tokens, int start, out int end, GroupSymbol currentGroup)
+        
+        private AstNode Read(Token[] tokens)
         {
             var unary = UnarySymbols;
             var binary = BinarySymbols;
             var groups = GroupSymbols;
             var split = SequenceSplit;
-            AstNode root = null;
-            AstNode current = null;
-            end = tokens.Length;
+            
+            var roots = new Stack<AstNode>();
+            var currents = new Stack<AstNode>();
+            var currentGroups = new Stack<GroupSymbol>();
+
+            roots.Push(null);
+            currents.Push(null);
+            currentGroups.Push(null);
 
             void Insert(AstNode node)
             {
-                if (current == null)
+                if (currents.Peek() == null)
                 {
-                    current = node;
-                    root = node;
+                    currents.Replace(node);
+                    roots.Replace(node);
                 }
-                else if (current is IAstExpectValue)
+                else if (currents.Peek() is IAstExpectValue)
                 {
-                    current.AddChild(node);
-                    current = node;
+                    currents.Peek().AddChild(node);
+                    currents.Replace(node);
                 }
                 else if (node is BinaryOperator op)
                 {
-                    while (current.Parent is UnaryOperator or AstSequence)
+                    var cur = currents.Peek();
+                    while (cur.Parent is UnaryOperator or AstSequence)
                     {
-                        current = current.Parent;
+                        cur = cur.Parent;
                     }
-                    while ((current.Parent as BinaryOperator)?.ComparePrecedence(op) > 0)
+                    while ((cur.Parent as BinaryOperator)?.ComparePrecedence(op) > 0)
                     {
-                        current = current.Parent;
+                        cur = cur.Parent;
                     }
-                    current.Parent?.Replace(current, op);
-                    op.AddChild(current);
-                    if (current == root) root = op;
-                    current = op;
+                    cur.Parent?.Replace(cur, op);
+                    op.AddChild(cur);
+                    if (cur == roots.Peek()) roots.Replace(op);
+                    currents.Replace(op);
                 }
-                else if (current.Parent is AstSequence {TopLevel: false} sequence)
+                else if (currents.Peek().Parent is AstSequence {TopLevel: false} sequence)
                 {
                     sequence.AddChild(node);
-                    current = node;
+                    currents.Replace(node);
                 }
                 else
                 {
-                    var parent = current.Parent;
-                    var components = new List<AstNode> {current, node};
+                    var cur = currents.Peek();
+                    var parent = cur.Parent;
+                    var components = new List<AstNode> {cur, node};
                     var inner = new AstSequence(components, "");
-                    parent?.Replace(current, inner);
-                    current.Parent = inner;
-                    if (current == root) root = inner;
-                    current = inner.Last;
+                    parent?.Replace(cur, inner);
+                    cur.Parent = inner;
+                    if (cur == roots.Peek()) roots.Replace(inner);
+                    currents.Replace(inner.Last);
                 }
             }
 
-            for (var i = start; i < tokens.Length; i++)
+            void CheckState(int index)
+            {
+                if (currents.Peek() is IAstExpectValue) throw new Exception("Invalid input.");
+                if (currentGroups.Peek() is not null && index == tokens.Length) throw new Exception("Unclosed group.");
+            }
+
+            void PopLevel(int index)
+            {
+                CheckState(index);
+                var group = new AstGroup(currentGroups.Peek(), roots.Peek());
+                roots.Pop();
+                currents.Pop();
+                currentGroups.Pop();
+                Insert(group);
+            }
+
+            for (var i = 0; i < tokens.Length; i++)
             {
                 var token = tokens[i];
                 var (content, type) = token;
+                var currentGroup = currentGroups.Peek();
                 if (content == split)
                 {
                     // Set up for top-level sequence
-                    if (current == null)
+                    if (currents.Peek() == null)
                     {
-                        root = current = new AstSequence(new List<AstNode> {null}, split, true);
+                        var seq = new AstSequence(new List<AstNode> {null}, split, true);
+                        currents.Replace(seq);
+                        roots.Replace(seq);
                         continue;
                     }
-                    while (current.Parent != null)
+                    var cur = currents.Peek();
+                    while (cur.Parent != null)
                     {
-                        current = current.Parent;
+                        cur = cur.Parent;
                     }
-                    if (current is not AstSequence {TopLevel: true})
+                    if (cur is not AstSequence {TopLevel: true})
                     {
-                        root = current = new AstSequence(new List<AstNode> {current}, split, true);
+                        var seq = new AstSequence(new List<AstNode> {cur}, split, true);
+                        roots.Replace(seq);
+                        currents.Replace(seq);
                     }
+                    else currents.Replace(cur);
                 }
                 else if (currentGroup is not null && content == currentGroup.Right &&
-                         (currentGroup.Left != currentGroup.Right || current is not null and not IAstExpectValue))
+                         (currentGroup.Left != currentGroup.Right || currents.Peek() is not null and not IAstExpectValue))
                 {
                     // Reached end of group or assumed end of group for ambiguous tokens.
-                    end = i;
-                    break;
+                    PopLevel(i);
                 }
                 else if (type == TokenType.Symbol)
                 {
                     if (groups.TryGetValue(content, out var groupSymbol))
                     {
-                        if (groupSymbol.Left != groupSymbol.Right || current is null or IAstExpectValue || content != currentGroup?.Right)
+                        if (groupSymbol.Left != groupSymbol.Right || currents.Peek() is null or IAstExpectValue || content != currentGroup?.Right)
                         {
-                            var inside = Read(tokens, i + 1, out i, groupSymbol);
-                            var group = new AstGroup(groupSymbol, inside);
-                            Insert(group);
+                            roots.Push(null);
+                            currents.Push(null);
+                            currentGroups.Push(groupSymbol);
                         }
                         else
                         {
-                            end = i;
-                            break;
+                            PopLevel(i);
                         }
                     }
                     else if (unary.TryGetValue(content, out var unarySymbol) &&
-                             current is null or IAstExpectValue)
+                             currents.Peek() is null or IAstExpectValue)
                     {
                         var unaryOperator = new UnaryOperator(unarySymbol);
-                        current?.AddChild(unaryOperator);
-                        current = unaryOperator;
+                        currents.Peek()?.AddChild(unaryOperator);
+                        currents.Replace(unaryOperator);
                     }
                     else if (binary.TryGetValue(content, out var binarySymbol))
                     {
-                        if (current is null or IAstExpectValue) throw new Exception("Invalid position for binary operator.");
+                        if (currents.Peek() is null or IAstExpectValue) throw new Exception("Invalid position for binary operator.");
                         Insert(new BinaryOperator(binarySymbol));
                     }
                     else
@@ -146,9 +172,8 @@ namespace AdventToolkit.Utilities.Parsing
                     Insert(new AstValue(token));
                 }
             }
-            if (current is IAstExpectValue) throw new Exception("Invalid input.");
-            if (currentGroup is not null && end == tokens.Length) throw new Exception($"Unclosed group.");
-            return root;
+            CheckState(tokens.Length);
+            return roots.Peek();
         }
     }
 

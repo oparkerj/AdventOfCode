@@ -16,6 +16,8 @@ namespace AdventToolkit.Utilities
             content = Content;
             type = Type;
         }
+
+        public override string ToString() => Content;
     }
     
     public enum TokenType
