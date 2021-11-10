@@ -15,6 +15,7 @@ namespace AdventToolkit.Utilities.Parsing
         public readonly Dictionary<string, GroupSymbol> GroupSymbols;
         public string SequenceSplit;
         public string Escape;
+        public EscapeHandling EscapeBehavior = EscapeHandling.Value;
 
         public AstReader()
         {
@@ -23,7 +24,13 @@ namespace AdventToolkit.Utilities.Parsing
             GroupSymbols = new Dictionary<string, GroupSymbol>();
         }
 
-        public AstNode Read(string s) => Read(s.Tokenize().ToArray());
+        public AstReader AddGroup(GroupSymbol symbol)
+        {
+            GroupSymbols[symbol.Left] = symbol;
+            return this;
+        }
+
+        public AstNode Read(string s, bool keepWhitespace = false) => Read(s.Tokenize(keepWhitespace).ToArray());
         
         private AstNode Read(Token[] tokens)
         {
@@ -110,9 +117,16 @@ namespace AdventToolkit.Utilities.Parsing
                 var currentGroup = currentGroups.Peek();
                 if (content == escape)
                 {
-                    Insert(new AstValue(tokens[++i]));
+                    if (EscapeBehavior == EscapeHandling.Value)
+                    {
+                        Insert(new AstValue(tokens[++i]));
+                    }
+                    else if (EscapeBehavior == EscapeHandling.Skip)
+                    {
+                        i++;
+                    }
                 }
-                else if (content == split)
+                else if (content == split && (currentGroup is null || currentGroup.Nest))
                 {
                     // Set up for top-level sequence
                     if (currents.Peek() == null)
@@ -143,7 +157,7 @@ namespace AdventToolkit.Utilities.Parsing
                 }
                 else if (type == TokenType.Symbol)
                 {
-                    if ((currentGroup is null || !currentGroup.Nest) && groups.TryGetValue(content, out var groupSymbol))
+                    if ((currentGroup is null || currentGroup.Nest) && groups.TryGetValue(content, out var groupSymbol))
                     {
                         if (groupSymbol.Left != groupSymbol.Right || currents.Peek() is null or IAstExpectValue || content != currentGroup?.Right)
                         {
@@ -181,6 +195,12 @@ namespace AdventToolkit.Utilities.Parsing
             CheckState(tokens.Length);
             return roots.Peek();
         }
+
+        public enum EscapeHandling
+        {
+            Value,
+            Skip,
+        }
     }
 
     public record BinarySymbol(string Symbol, int Precedence, bool LeftAssociative = true);
@@ -208,7 +228,7 @@ namespace AdventToolkit.Utilities.Parsing
         {
             if (node != null) node.Parent = null;
             node = value;
-            node.Parent = parent;
+            if (node != null) node.Parent = parent;
         }
     }
 

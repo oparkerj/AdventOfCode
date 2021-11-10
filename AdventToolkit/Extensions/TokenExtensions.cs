@@ -22,13 +22,15 @@ namespace AdventToolkit.Extensions
         {
             return Tokenize(s).Select(token => token.Content);
         }
-        
+
+        public static IEnumerable<Token> Tokenize(this string s) => Tokenize(s, false);
+
         // Separate a string into tokens.
         // The tokens consist of:
         // Words: start with a letter and contain letters, numbers, and underscores.
         // Numbers: contain numbers and periods.
         // Symbol: any single character that doesn't fit into the other categories.
-        public static IEnumerable<Token> Tokenize(this string s)
+        public static IEnumerable<Token> Tokenize(this string s, bool keepWhitespace)
         {
             var b = new StringBuilder();
             var type = TokenType.None;
@@ -40,6 +42,7 @@ namespace AdventToolkit.Extensions
                     if (b.Length > 0) yield return new Token(b.ToString(), type);
                     b.Length = 0;
                     type = TokenType.None;
+                    if (keepWhitespace) yield return new Token(c.ToString(), t);
                     continue;
                 }
                 if (type == TokenType.None)
