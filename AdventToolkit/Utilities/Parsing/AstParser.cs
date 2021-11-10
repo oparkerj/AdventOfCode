@@ -241,4 +241,41 @@ namespace AdventToolkit.Utilities.Parsing
             return Converter(name.Value.Content, argValues, out result);
         }
     }
+
+    public class SequenceParser<T> : INodeConverter<T>
+    {
+        public readonly RawConverter Converter;
+
+        public SequenceParser(RawConverter converter) => Converter = converter;
+
+        public SequenceParser(SequenceConverter converter)
+        {
+            Converter = (AstParser<T> parser, IList<AstNode> nodes, out T result) =>
+            {
+                result = default;
+                var parts = new T[nodes.Count];
+                if (nodes.Select((n, i) => !parser.TryParse(n, out parts[i])).Any())
+                {
+                    return false;
+                }
+                return converter(parts, out result);
+            };
+        }
+
+        public delegate bool SequenceConverter(IList<T> args, out T result);
+
+        public delegate bool RawConverter(AstParser<T> parser, IList<AstNode> nodes, out T result);
+
+        public bool TryParse(AstParser<T> parser, AstNode node, out T result)
+        {
+            result = default;
+            if (node is AstValue)
+            {
+                var data = new[] {node};
+                return Converter(parser, data, out result);
+            }
+            if (node is not AstSequence sequence) return false;
+            return Converter(parser, sequence.Components, out result);
+        }
+    }
 }
