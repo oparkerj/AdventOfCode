@@ -13,7 +13,7 @@ namespace AdventOfCode2017.Puzzles
             Part = 2;
         }
 
-        private (int Score, int Garbage) ParseInput()
+        private (int Score, int Garbage) Compute()
         {
             var depth = 1;
             var score = 0;
@@ -34,7 +34,10 @@ namespace AdventOfCode2017.Puzzles
 
         public override void PartOne()
         {
-            var (score, _) = ParseInput();
+            // var data = ReadInput() as Group;
+            // WriteLn(data?.Score());
+
+            var (score, _) = Compute();
             WriteLn(score);
         }
 
@@ -43,7 +46,7 @@ namespace AdventOfCode2017.Puzzles
             // var data = ReadInput() as Group;
             // WriteLn(data?.GarbageLength());
 
-            var (_, garbage) = ParseInput();
+            var (_, garbage) = Compute();
             WriteLn(garbage);
         }
 
@@ -76,7 +79,8 @@ namespace AdventOfCode2017.Puzzles
                 return true;
             }));
 
-            return parser.Parse(reader.Read(InputLine, new TokenSettings {SingleLetters = true}));
+            var nodes = reader.Read(InputLine, new TokenSettings {SingleLetters = true});
+            return parser.Parse(nodes);
         }
 
         private interface IData { }
@@ -102,23 +106,11 @@ namespace AdventOfCode2017.Puzzles
                     return 0;
                 }).Sum();
             }
-
-            public IEnumerable<string> GetGarbage()
-            {
-                return Data.WhereType<Garbage>()
-                    .ToStrings()
-                    .Concat(Data.WhereType<Group>().SelectMany(g => g.GetGarbage()));
-            }
         }
 
         private class Garbage : IData
         {
             public GarbageData Content { get; init; }
-
-            public override string ToString()
-            {
-                return "<" + Content + ">";
-            }
         }
 
         private class GarbageData : IData
@@ -126,8 +118,6 @@ namespace AdventOfCode2017.Puzzles
             public readonly string Value;
 
             public GarbageData(string value) => Value = value;
-
-            public override string ToString() => Value;
         }
 
         #endregion
