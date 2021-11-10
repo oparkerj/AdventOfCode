@@ -11,10 +11,45 @@ namespace AdventOfCode2017.Puzzles
         public Day9()
         {
             Part = 2;
-            // InputName = "Day9Ex.txt";
         }
 
-        private IData ParseInput()
+        private (int Score, int Garbage) ParseInput()
+        {
+            var depth = 1;
+            var score = 0;
+            var garbage = 0;
+            var g = false;
+            for (var i = 0; i < InputLine.Length; i++)
+            {
+                var c = InputLine[i];
+                if (c == '!') i++;
+                else if (g && c != '>') garbage++;
+                else if (c == '<') g = true;
+                else if (c == '>') g = false;
+                else if (c == '{') score += depth++;
+                else if (c == '}') depth--;
+            }
+            return (score, garbage);
+        }
+
+        public override void PartOne()
+        {
+            var (score, _) = ParseInput();
+            WriteLn(score);
+        }
+
+        public override void PartTwo()
+        {
+            // var data = ReadInput() as Group;
+            // WriteLn(data?.GarbageLength());
+
+            var (_, garbage) = ParseInput();
+            WriteLn(garbage);
+        }
+
+        #region Overcomplicated Solution
+
+        private IData ReadInput()
         {
             var reader = new AstReader();
             reader.Escape = "!";
@@ -23,7 +58,7 @@ namespace AdventOfCode2017.Puzzles
             var group = new GroupSymbol("{", "}");
             var garbage = new GroupSymbol("<", ">", false);
             reader.AddGroup(group).AddGroup(garbage);
-            
+
             var parser = new AstParser<IData>();
             parser.Add(new TupleParser<IData>(group, (IList<IData> args, out IData result) =>
             {
@@ -41,20 +76,7 @@ namespace AdventOfCode2017.Puzzles
                 return true;
             }));
 
-            return parser.Parse(reader.Read(InputLine, true));
-        }
-
-        public override void PartOne()
-        {
-            var data = ParseInput() as Group;
-            WriteLn(data?.Score());
-        }
-
-        public override void PartTwo()
-        {
-            // > 5043
-            var data = ParseInput() as Group;
-            WriteLn(data?.GarbageLength());
+            return parser.Parse(reader.Read(InputLine, new TokenSettings {SingleLetters = true}));
         }
 
         private interface IData { }
@@ -80,11 +102,23 @@ namespace AdventOfCode2017.Puzzles
                     return 0;
                 }).Sum();
             }
+
+            public IEnumerable<string> GetGarbage()
+            {
+                return Data.WhereType<Garbage>()
+                    .ToStrings()
+                    .Concat(Data.WhereType<Group>().SelectMany(g => g.GetGarbage()));
+            }
         }
 
         private class Garbage : IData
         {
             public GarbageData Content { get; init; }
+
+            public override string ToString()
+            {
+                return "<" + Content + ">";
+            }
         }
 
         private class GarbageData : IData
@@ -92,6 +126,10 @@ namespace AdventOfCode2017.Puzzles
             public readonly string Value;
 
             public GarbageData(string value) => Value = value;
+
+            public override string ToString() => Value;
         }
+
+        #endregion
     }
 }

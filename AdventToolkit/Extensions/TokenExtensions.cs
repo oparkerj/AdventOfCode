@@ -23,14 +23,14 @@ namespace AdventToolkit.Extensions
             return Tokenize(s).Select(token => token.Content);
         }
 
-        public static IEnumerable<Token> Tokenize(this string s) => Tokenize(s, false);
+        public static IEnumerable<Token> Tokenize(this string s) => Tokenize(s, default);
 
         // Separate a string into tokens.
         // The tokens consist of:
         // Words: start with a letter and contain letters, numbers, and underscores.
         // Numbers: contain numbers and periods.
         // Symbol: any single character that doesn't fit into the other categories.
-        public static IEnumerable<Token> Tokenize(this string s, bool keepWhitespace)
+        public static IEnumerable<Token> Tokenize(this string s, TokenSettings settings)
         {
             var b = new StringBuilder();
             var type = TokenType.None;
@@ -42,7 +42,7 @@ namespace AdventToolkit.Extensions
                     if (b.Length > 0) yield return new Token(b.ToString(), type);
                     b.Length = 0;
                     type = TokenType.None;
-                    if (keepWhitespace) yield return new Token(c.ToString(), t);
+                    if (settings.KeepWhitespace) yield return new Token(c.ToString(), t);
                     continue;
                 }
                 if (type == TokenType.None)
@@ -58,12 +58,22 @@ namespace AdventToolkit.Extensions
                 }
                 if (type == t && type != TokenType.Symbol)
                 {
+                    if (type == TokenType.Word && settings.SingleLetters && b.Length > 0)
+                    {
+                        yield return new Token(b.ToString(), type);
+                        b.Length = 0;
+                    }
                     b.Append(c);
                     continue;
                 }
                 // Allow words to be alphanumeric
                 if (type == TokenType.Word && (t == TokenType.Number || c == '_'))
                 {
+                    if (settings.SingleLetters && b.Length > 0)
+                    {
+                        yield return new Token(b.ToString(), type);
+                        b.Length = 0;
+                    }
                     b.Append(c);
                     continue;
                 }
@@ -75,5 +85,11 @@ namespace AdventToolkit.Extensions
             }
             if (b.Length > 0) yield return new Token(b.ToString(), type);
         }
+    }
+
+    public struct TokenSettings
+    {
+        public bool KeepWhitespace;
+        public bool SingleLetters;
     }
 }

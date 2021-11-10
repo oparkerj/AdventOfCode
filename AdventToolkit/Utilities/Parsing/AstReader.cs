@@ -30,7 +30,7 @@ namespace AdventToolkit.Utilities.Parsing
             return this;
         }
 
-        public AstNode Read(string s, bool keepWhitespace = false) => Read(s.Tokenize(keepWhitespace).ToArray());
+        public AstNode Read(string s, TokenSettings settings = default) => Read(s.Tokenize(settings).ToArray());
         
         private AstNode Read(Token[] tokens)
         {
@@ -117,7 +117,12 @@ namespace AdventToolkit.Utilities.Parsing
                 var currentGroup = currentGroups.Peek();
                 if (content == escape)
                 {
-                    if (EscapeBehavior == EscapeHandling.Value)
+                    if (EscapeBehavior == EscapeHandling.None)
+                    {
+                        Insert(new AstValue(token));
+                        Insert(new AstValue(tokens[++i]));
+                    }
+                    else if (EscapeBehavior == EscapeHandling.Value)
                     {
                         Insert(new AstValue(tokens[++i]));
                     }
@@ -198,6 +203,7 @@ namespace AdventToolkit.Utilities.Parsing
 
         public enum EscapeHandling
         {
+            None,
             Value,
             Skip,
         }

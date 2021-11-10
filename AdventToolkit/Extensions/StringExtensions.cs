@@ -71,5 +71,10 @@ namespace AdventToolkit.Extensions
             }
             return result;
         }
+
+        public static string Repeat(this char c, int times)
+        {
+            return new string(c, times);
+        }
     }
 }
