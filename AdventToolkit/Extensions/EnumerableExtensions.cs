@@ -627,5 +627,10 @@ namespace AdventToolkit.Extensions
             }
             return (min, max);
         }
+
+        public static IEnumerable<T> ConcatMany<T>(this IEnumerable<T> items, params T[] extra)
+        {
+            return items.Concat(extra);
+        }
     }
 }
