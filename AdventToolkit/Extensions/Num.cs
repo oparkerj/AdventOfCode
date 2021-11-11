@@ -39,6 +39,8 @@ namespace AdventToolkit.Extensions
 
         public static long Mul(this long a, int b) => a * b;
 
+        public static int Xor(this int a, int b) => a ^ b;
+
         public static bool Eq(this int a, int b) => a == b;
         
         public static bool Neq(this int a, int b) => a != b;

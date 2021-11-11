@@ -76,5 +76,10 @@ namespace AdventToolkit.Extensions
         {
             return new string(c, times);
         }
+
+        public static IEnumerable<int> Ascii(this string s)
+        {
+            return s.Select(c => (int) c);
+        }
     }
 }
