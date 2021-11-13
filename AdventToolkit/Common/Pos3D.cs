@@ -35,6 +35,20 @@ namespace AdventToolkit.Common
             return new Pos3D(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()), int.Parse(parts[2].Trim()));
         }
 
+        public static Pos3D ParseHexDir(string s)
+        {
+            return s.ToLower() switch
+            {
+                "n" => new Pos3D(0, -1, 1),
+                "ne" => new Pos3D(1, -1, 0),
+                "se" => new Pos3D(1, 0, -1),
+                "s" => new Pos3D(0, 1, -1),
+                "sw" => new Pos3D(-1, 1, 0),
+                "nw" => new Pos3D(-1, 0, 1),
+                _ => throw new Exception("Invalid direction.")
+            };
+        }
+
         public bool Equals(Pos3D p) => X == p.X && Y == p.Y && Z == p.Z;
 
         public override bool Equals(object obj)
@@ -61,12 +75,15 @@ namespace AdventToolkit.Common
 
         public static Pos3D operator -(in Pos3D p) => new(-p.X, -p.Y, -p.Z);
         public Pos3D Negate() => -this;
+        public static Pos3D Negate(Pos3D v) => -v;
 
         public static Pos3D operator +(in Pos3D a, in Pos3D b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         public Pos3D Add(Pos3D other) => this + other;
+        public static Pos3D Add(Pos3D a, Pos3D b) => a + b;
 
         public static Pos3D operator -(in Pos3D a, in Pos3D b) => new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         public Pos3D Sub(Pos3D other) => this - other;
+        public static Pos3D Sub(Pos3D a, Pos3D b) => a - b;
 
         public static Pos3D operator *(in Pos3D p, int s) => new(p.X * s, p.Y * s, p.Z * s);
 
@@ -79,6 +96,8 @@ namespace AdventToolkit.Common
         public static bool operator ==(Pos3D a, Pos3D b) => a.Equals(b);
         
         public static bool operator !=(Pos3D a, Pos3D b) => !a.Equals(b);
+
+        public Pos3D Abs() => new(Math.Abs(X), Math.Abs(Y), Math.Abs(Z));
 
         public Pos To2D => new(X, Y);
 
