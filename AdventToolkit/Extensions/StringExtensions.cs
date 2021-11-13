@@ -60,7 +60,7 @@ namespace AdventToolkit.Extensions
             return Regex.IsMatch(s, regex);
         }
 
-        public static Dictionary<string, string> ReadKeys(this string[] s, string sep = ":", bool trim = true)
+        public static Dictionary<string, string> ReadKeys(this IEnumerable<string> s, string sep = ":", bool trim = true)
         {
             var result = new Dictionary<string, string>();
             foreach (var line in s)
@@ -68,6 +68,18 @@ namespace AdventToolkit.Extensions
                 var parts = line.Split(sep);
                 if (trim) result[parts[0].Trim()] = parts[1].Trim();
                 result[parts[0]] = parts[1];
+            }
+            return result;
+        }
+
+        public static Dictionary<TKey, TValue> ReadKeys<TKey, TValue>(this IEnumerable<string> items, Func<string, TKey> key, Func<string, TValue> value, string sep = ":", bool trim = true)
+        {
+            var result = new Dictionary<TKey, TValue>();
+            foreach (var line in items)
+            {
+                var parts = line.Split(sep);
+                if (trim) result[key(parts[0].Trim())] = value(parts[1].Trim());
+                result[key(parts[0])] = value(parts[1]);
             }
             return result;
         }
