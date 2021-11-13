@@ -93,5 +93,10 @@ namespace AdventToolkit.Extensions
         {
             return s.Select(c => (int) c);
         }
+
+        public static IEnumerable<string> ToStrings(this IEnumerable<IEnumerable<char>> chars)
+        {
+            return chars.Select(c => c.Str());
+        }
     }
 }
