@@ -3,6 +3,19 @@ using AdventToolkit.Common;
 
 namespace AdventToolkit.Collections.Space
 {
+    public static class HexGrid
+    {
+        public static IEnumerable<string> Directions()
+        {
+            yield return "n";
+            yield return "ne";
+            yield return "se";
+            yield return "s";
+            yield return "sw";
+            yield return "nw";
+        }
+    }
+    
     public class HexGrid<T> : SparseSpace<Pos3D, T>
     {
         public static IEnumerable<Pos3D> Surround(Pos3D pos)
