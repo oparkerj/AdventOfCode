@@ -9,6 +9,30 @@ namespace AdventToolkit.Extensions
 {
     public static class GraphExtensions
     {
+        public static UniqueGraph<TT> ToGraph<T, TT>(this IEnumerable<T> items, Func<T, TT> parent, Func<T, TT> child)
+        {
+            var graph = new UniqueGraph<TT>();
+            foreach (var item in items)
+            {
+                graph.GetOrCreate(parent(item)).LinkTo(graph.GetOrCreate(child(item)));
+            }
+            return graph;
+        }
+
+        public static UniqueGraph<string> ToGraph(this IEnumerable<string> items, string format)
+        {
+            var graph = new UniqueGraph<string>();
+            foreach (var info in items.Extract<VertexInfo<string>>(format))
+            {
+                var parent = graph.GetOrCreate(info.Value);
+                foreach (var child in info.Children)
+                {
+                    parent.LinkTo(graph.GetOrCreate(child));
+                }
+            }
+            return graph;
+        }
+
         public static UniqueDigraph<TT> ToDigraph<T, TT>(this IEnumerable<T> source, Func<T, TT> parent, Func<T, TT> child)
         {
             var graph = new UniqueDigraph<TT>();
@@ -25,10 +49,18 @@ namespace AdventToolkit.Extensions
                 .ToDigraph(info => info.Value, info => info.Child);
         }
 
-        public static IEnumerable<TVertex> Reachable<T, TVertex, TEdge>(this TVertex start, Func<TVertex, bool> valid)
+        public static IEnumerable<TVertex> Reachable<T, TVertex, TEdge>(this Graph<T, TVertex, TEdge> graph, TVertex start, Func<TVertex, bool> valid = null)
             where TVertex : Vertex<T, TEdge>
             where TEdge : Edge<T>
         {
+            return start.Reachable<T, TVertex, TEdge>(valid);
+        }
+
+        public static IEnumerable<TVertex> Reachable<T, TVertex, TEdge>(this TVertex start, Func<TVertex, bool> valid = null)
+            where TVertex : Vertex<T, TEdge>
+            where TEdge : Edge<T>
+        {
+            valid ??= _ => true;
             var visited = new HashSet<TVertex>();
             var queue = new Queue<TVertex>();
             queue.Enqueue(start);
@@ -39,6 +71,7 @@ namespace AdventToolkit.Extensions
                 yield return current;
                 var neighbors = current.Edges
                     .Select(edge => edge.OtherAs(current))
+                    .Where(Data.NotNull<TVertex>())
                     .Where(valid)
                     .Where(v => !visited.Contains(v));
                 foreach (var next in neighbors)
