@@ -103,5 +103,10 @@ namespace AdventToolkit.Extensions
                 return inputs[input] = func(input);
             };
         }
+
+        public static Func<T, T> Identity<T>()
+        {
+            return t => t;
+        }
     }
 }
