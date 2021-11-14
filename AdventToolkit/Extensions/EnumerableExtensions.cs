@@ -550,7 +550,17 @@ namespace AdventToolkit.Extensions
                 yield return item;
             }
         }
-        
+
+        public static IEnumerable<T> Peek<T>(this IEnumerable<T> items, Action<T, int> action)
+        {
+            var index = 0;
+            foreach (var item in items)
+            {
+                action(item, index++);
+                yield return item;
+            }
+        }
+
         public static IOrderedEnumerable<T> OrderBy<T>(this IEnumerable<T> items, IComparer<T> comparer)
         {
             return items.OrderBy(t => t, comparer);
@@ -631,6 +641,21 @@ namespace AdventToolkit.Extensions
         public static IEnumerable<T> ConcatMany<T>(this IEnumerable<T> items, params T[] extra)
         {
             return items.Concat(extra);
+        }
+
+        // Results in an empty sequence unless the input has more than one element
+        public static IEnumerable<T> Multiple<T>(this IEnumerable<T> items)
+        {
+            using var e = items.GetEnumerator();
+            if (!e.MoveNext()) yield break;
+            var a = e.Current;
+            if (!e.MoveNext()) yield break;
+            yield return a;
+            yield return e.Current;
+            while (e.MoveNext())
+            {
+                yield return e.Current;
+            }
         }
     }
 }

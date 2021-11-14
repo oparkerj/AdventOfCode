@@ -83,5 +83,10 @@ namespace AdventToolkit.Common
         {
             return Math.Abs(W - p.W) + Math.Abs(X - p.X) + Math.Abs(Y - p.Y) + Math.Abs(Z - p.Z);
         }
+        
+        public int Magnitude()
+        {
+            return Math.Abs(X) + Math.Abs(Y) + Math.Abs(Z) + Math.Abs(W);
+        }
     }
 }
