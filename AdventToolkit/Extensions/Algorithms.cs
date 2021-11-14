@@ -445,6 +445,15 @@ namespace AdventToolkit.Extensions
             return t;
         }
 
+        public static T RepeatAction<T>(this T t, Action<T> action, int amount)
+        {
+            for (var i = 0; i < amount; i++)
+            {
+                action(t);
+            }
+            return t;
+        }
+
         public static int GetEndParen(this string s, int start)
         {
             var level = 0;

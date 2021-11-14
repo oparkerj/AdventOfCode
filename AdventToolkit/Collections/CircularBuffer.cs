@@ -47,6 +47,24 @@ namespace AdventToolkit.Collections
             if (++_index == Data.Length) _index = 0;
         }
 
+        public int IndexOf(T value)
+        {
+            for (var i = 0; i < _size; i++)
+            {
+                if (Equals(Data[i], value)) return i;
+            }
+            return -1;
+        }
+
+        public void RotateTo(int offset)
+        {
+            _index = offset.CircularMod(_size);
+            var data = Data.ToArray(Data.Length);
+            Array.Copy(data, _index, Data, 0, data.Length - _index);
+            if (_index > 0) Array.Copy(data, 0, Data, data.Length - _index, _index);
+            _index = 0;
+        }
+
         private IEnumerable<T> FullEnumerator()
         {
             var data = Data;
