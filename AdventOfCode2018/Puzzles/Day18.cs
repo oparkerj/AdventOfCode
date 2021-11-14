@@ -1,5 +1,4 @@
 using AdventToolkit;
-using AdventToolkit.Collections.Space;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 using AdventToolkit.Solvers;
