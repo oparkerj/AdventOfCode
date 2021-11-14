@@ -141,6 +141,11 @@ namespace AdventToolkit.Common
             return (long) dx * dx + (long) dy * dy;
         }
 
+        public int Magnitude()
+        {
+            return Math.Abs(X) + Math.Abs(Y);
+        }
+
         public double RealDist(Pos p) => Math.Sqrt(RealDistSquared(p));
 
         public double RealDistSquared(Pos p)
