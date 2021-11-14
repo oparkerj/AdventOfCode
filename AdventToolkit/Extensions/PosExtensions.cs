@@ -119,9 +119,9 @@ namespace AdventToolkit.Extensions
             return p.MDist(other) == 1;
         }
 
-        public static IEnumerable<Pos> MakePath(this IEnumerable<Pos> points, Pos start)
+        public static IEnumerable<Pos> MakePath(this IEnumerable<Pos> deltas, Pos start)
         {
-            return points.Scan(start, Pos.Add);
+            return deltas.Scan(start, Pos.Add);
         }
 
         public static IEnumerable<Pos> MakePath(this Pos start, IEnumerable<Pos> deltas)
