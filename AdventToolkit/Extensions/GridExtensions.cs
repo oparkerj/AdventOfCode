@@ -9,14 +9,13 @@ namespace AdventToolkit.Extensions
 {
     public static class GridExtensions
     {
-        public static TGrid ToGrid<T, TGrid>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
-            where TGrid : Grid<T>, new()
+        public static TGrid ToGrid<T, TGrid>(this IEnumerable<IEnumerable<T>> source, TGrid grid, Pos offset = default, bool decreaseY = true)
+            where TGrid : Grid<T>
         {
-            var grid = new TGrid();
-            var y = 0;
+            var y = offset.Y;
             foreach (var row in source)
             {
-                var x = 0;
+                var x = offset.X;
                 foreach (var t in row)
                 {
                     grid[x, y] = t;
@@ -26,6 +25,12 @@ namespace AdventToolkit.Extensions
                 else y++;
             }
             return grid;
+        }
+        
+        public static TGrid ToGrid<T, TGrid>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
+            where TGrid : Grid<T>, new()
+        {
+            return ToGrid(source, new TGrid(), default, decreaseY);
         }
         
         public static Grid<T> ToGrid<T>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
@@ -73,6 +78,28 @@ namespace AdventToolkit.Extensions
                 rect.DiagMin + Pos.Down,
                 rect.DiagMax + Pos.Left);
             return grid[min] + grid[max] - grid[diagMin] - grid[diagMax];
+        }
+
+        public static Grid<T> Slice<T>(this Grid<T> grid, Interval x, Interval y, bool decreaseY = false, Grid<T> output = null)
+        {
+            output ??= new Grid<T>();
+            var min = new Pos(x.Start, decreaseY ? y.Start + y.Length : y.Start);
+            foreach (var i in x)
+            {
+                foreach (var j in y)
+                {
+                    var pos = new Pos(i, j);
+                    output[pos - min] = grid[pos];
+                }
+            }
+            return output;
+        }
+
+        public static Grid<T> Slice<T>(this Grid<T> grid, Pos offset, int sizeX, int sizeY, bool decreaseY = false, Grid<T> output = null)
+        {
+            var x = new Interval(offset.X, sizeX);
+            var y = decreaseY ? new Interval(offset.Y - sizeY + 1, sizeY) : new Interval(offset.Y, sizeY);
+            return Slice(grid, x, y, decreaseY, output);
         }
     }
 }

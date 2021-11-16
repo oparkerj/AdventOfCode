@@ -70,6 +70,15 @@ namespace AdventToolkit.Utilities
             SimpleGridTransformer<T>.FlipH.ApplyTo(grid);
             return false;
         }
+
+        public static void ForAllOrientations<T>(this Grid<T> grid, Action<Grid<T>> action)
+        {
+            TryAllOrientations(grid, g =>
+            {
+                action(g);
+                return false;
+            });
+        }
     }
 
     public class SimpleGridTransformer<T> : ITransformer<Pos, Grid<T>>
