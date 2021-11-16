@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Numerics;
 using System.Threading;
 using AdventToolkit;
@@ -59,6 +60,8 @@ namespace AdventOfCode2017.Puzzles
             public BigInteger Last;
             public int Sends;
 
+            public Action<string> Debug;
+
             public BigInteger Read(string val)
             {
                 if (int.TryParse(val, out var i)) return i;
@@ -70,6 +73,7 @@ namespace AdventOfCode2017.Puzzles
                 var op = inst[..3];
                 var args = inst.Split(' ')[1..];
                 var x = args[0][0];
+                Debug?.Invoke(op);
                 if (op == "snd")
                 {
                     if (Target == null) Last = Read(args[0]);
@@ -106,13 +110,22 @@ namespace AdventOfCode2017.Puzzles
                 {
                     if (Read(args[0]) > 0) return (int) Read(args[1]);
                 }
+                // Day 23 ops
+                else if (op == "sub")
+                {
+                    Reg[x] -= Read(args[1]);
+                }
+                else if (op == "jnz")
+                {
+                    if (Read(args[0]) != 0) return (int) Read(args[1]);
+                }
                 return 1;
             }
 
             public void Run()
             {
                 var ptr = 0;
-                while (!Terminate)
+                while (!Terminate && ptr >= 0 && ptr < Input.Length)
                 {
                     ptr += Exec(Input[ptr]);
                 }
