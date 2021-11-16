@@ -57,6 +57,42 @@ namespace AdventToolkit.Collections.Space
             set => this[new Pos(x, y)] = value;
         }
 
+        public T this[Range x, int y]
+        {
+            set
+            {
+                foreach (var i in (Interval) x)
+                {
+                    this[i, y] = value;
+                }
+            }
+        }
+
+        public T this[int x, Range y]
+        {
+            set
+            {
+                foreach (var j in (Interval) y)
+                {
+                    this[x, j] = value;
+                }
+            }
+        }
+
+        public T this[Range x, Range y]
+        {
+            set
+            {
+                foreach (var i in (Interval) x)
+                {
+                    foreach (var j in (Interval) y)
+                    {
+                        this[i, j] = value;
+                    }
+                }
+            }
+        }
+
         public override IEnumerable<Pos> GetNeighbors(Pos pos)
         {
             return IncludeCorners ? pos.Around() : pos.Adjacent();

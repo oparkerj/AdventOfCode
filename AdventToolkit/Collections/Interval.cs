@@ -16,6 +16,16 @@ namespace AdventToolkit.Collections
             Length = length;
         }
 
+        public static implicit operator Interval(Range r)
+        {
+            if (r.Start.IsFromEnd || r.End.IsFromEnd) throw new Exception("Range indices cannot be from end.");
+            return Range(r.Start.Value, r.End.Value);
+        }
+
+        public static implicit operator Range(Interval i) => new(i.Start, i.Start + i.Length);
+
+        public static implicit operator Interval(int i) => new(i, 1);
+
         public static Interval Range(int start, int end) => new(start, end - start);
         
         public static Interval RangeInclusive(int start, int end) => new(start, end - start + 1);
