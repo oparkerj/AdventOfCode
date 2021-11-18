@@ -132,5 +132,15 @@ namespace AdventToolkit.Utilities.Automata
             if (list.Count == 0) list.Add((InitialState, start));
             return false;
         }
+
+        public bool Step(int state, TUpdate update, out int newState)
+        {
+            newState = default;
+            if (!Table.TryGetValue(state, out var links)) return false;
+            var matched = links.FirstOrDefault(link => link.TryMatchOne(update));
+            if (matched == null) return false;
+            newState = matched.To;
+            return true;
+        }
     }
 }

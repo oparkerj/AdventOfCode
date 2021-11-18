@@ -19,6 +19,8 @@ namespace AdventToolkit.Utilities.Automata
             return (Link<T>) MemberwiseClone();
         }
 
+        public virtual bool TryMatchOne(T update) => throw new NotSupportedException();
+
         public virtual bool TryMatch(T[] input, int index, out int end, ref Backtrack<T> backtrack)
         {
             var match = Match(input, index, out end, ref backtrack);
@@ -32,6 +34,11 @@ namespace AdventToolkit.Utilities.Automata
     public class Move<T> : Link<T>
     {
         public Move(int to) : base(to, false) { }
+
+        public override bool TryMatchOne(T update)
+        {
+            return true;
+        }
 
         public override bool TryMatch(T[] input, int index, out int end, ref Backtrack<T> backtrack)
         {
@@ -77,6 +84,11 @@ namespace AdventToolkit.Utilities.Automata
             Value = value;
         }
 
+        public override bool TryMatchOne(T update)
+        {
+            return Equals(Value, update);
+        }
+
         protected override bool Match(T[] input, int index, out int end, ref Backtrack<T> backtrack)
         {
             end = index + 1;
@@ -91,6 +103,11 @@ namespace AdventToolkit.Utilities.Automata
         public Class(Func<T, bool> matcher, int to, bool consume = true) : base(to, consume)
         {
             Matcher = matcher;
+        }
+
+        public override bool TryMatchOne(T update)
+        {
+            return Matcher(update);
         }
 
         protected override bool Match(T[] input, int index, out int end, ref Backtrack<T> backtrack)
@@ -109,6 +126,11 @@ namespace AdventToolkit.Utilities.Automata
             Link = link;
         }
 
+        public override bool TryMatchOne(T update)
+        {
+            return !Link.TryMatchOne(update);
+        }
+
         protected override bool Match(T[] input, int index, out int end, ref Backtrack<T> backtrack)
         {
             end = index;
@@ -125,6 +147,11 @@ namespace AdventToolkit.Utilities.Automata
             Values = values;
         }
 
+        public override bool TryMatchOne(T update)
+        {
+            return Values.Any(t => Equals(t, update));
+        }
+
         protected override bool Match(T[] input, int index, out int end, ref Backtrack<T> backtrack)
         {
             end = index + 1;
@@ -139,6 +166,11 @@ namespace AdventToolkit.Utilities.Automata
         public NoneOf(T[] values, int to, bool consume = true) : base(to, consume)
         {
             Values = values;
+        }
+
+        public override bool TryMatchOne(T update)
+        {
+            return !Values.Any(t => Equals(t, update));
         }
 
         protected override bool Match(T[] input, int index, out int end, ref Backtrack<T> backtrack)
