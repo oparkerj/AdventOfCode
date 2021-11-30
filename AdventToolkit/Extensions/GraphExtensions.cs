@@ -87,7 +87,7 @@ namespace AdventToolkit.Extensions
         {
             return new()
             {
-                Neighbors = vertex => vertex.Edges,
+                Neighbors = vertex => vertex.NeighborEdges,
                 Distance = edge => edge.Data,
                 Cell = (vertex, edge) => edge.OtherAs(vertex)
             };
@@ -98,14 +98,13 @@ namespace AdventToolkit.Extensions
         {
             return new()
             {
-                Neighbors = vertex => vertex.Edges,
+                Neighbors = vertex => vertex.NeighborEdges,
                 Distance = _ => 1,
                 Cell = (vertex, edge) => edge.OtherAs(vertex)
             };
         }
 
         public static Vertex<T, TEdge> GetOrCreate<T, TEdge>(this UniqueGraph<T, Vertex<T, TEdge>, TEdge> graph, T value)
-        
             where TEdge : Edge<T>
         {
             return graph.GetOrCreate(value, v => new SimpleVertex<T, TEdge>(v));
