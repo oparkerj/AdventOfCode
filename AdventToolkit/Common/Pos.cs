@@ -40,19 +40,21 @@ namespace AdventToolkit.Common
 
         public static Pos ParseRelative(string s)
         {
-            var dir = RelativeUdrl(s[0]);
+            var dir = RelativeDirection(s[0]);
             var length = s[1..].AsInt();
             return dir * length;
         }
 
-        public static Pos RelativeUdrl(char c)
+        public static Pos RelativeDirection(char c)
         {
-            return c switch
+            return char.ToLower(c) switch
             {
-                'U' => Up,
-                'R' => Right,
-                'L' => Left,
-                'D' => Down,
+                'u' => Up,
+                'r' => Right,
+                'l' => Left,
+                'd' => Down,
+                'f' => Right,
+                'b' => Left,
                 _ => throw new Exception("Invalid direction."),
             };
         }
