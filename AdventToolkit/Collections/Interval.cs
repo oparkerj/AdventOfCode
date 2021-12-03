@@ -15,6 +15,8 @@ namespace AdventToolkit.Collections
             Start = start;
             Length = length;
         }
+        
+        public Interval(int length) : this(0, length) { }
 
         public static implicit operator Interval(Range r)
         {
@@ -45,6 +47,13 @@ namespace AdventToolkit.Collections
             if (b.Start < a.Start) (a, b) = (b, a);
             if (b.Start < a.End) return new Interval(b.Start, Math.Min(a.End - b.Start, b.Length));
             return new Interval();
+        }
+
+        public bool InLowerHalf(int i, bool equal = false)
+        {
+            i -= Start;
+            var half = Length / 2;
+            return i == half && Length % 2 == 0 ? equal : i <= half;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

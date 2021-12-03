@@ -172,6 +172,18 @@ namespace AdventToolkit.Extensions
             }
         }
 
+        public static int BinaryInt(this string i) => Convert.ToInt32(i, 2);
+
+        public static int BitsToInt(this IEnumerable<int> bits)
+        {
+            return BinaryInt(bits.TakeLast(32).Str());
+        }
+
+        public static int BitsToInt(this IEnumerable<bool> bits)
+        {
+            return BinaryInt(bits.TakeLast(32).AsInts().Str());
+        }
+
         public static int CircularMod(this int i, int mod)
         {
             if (i < 0) return (mod + i % mod) % mod;
