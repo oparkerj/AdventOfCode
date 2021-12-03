@@ -14,20 +14,12 @@ namespace AdventOfCode2021.Puzzles
 
         public override void PartOne()
         {
-            var len = Input.Length;
-            var counts = new DefaultDict<int, int>();
-            foreach (var s in Input)
-            {
-                for (var i = 0; i < s.Length; i++)
-                {
-                    counts[i] += s[i].AsInt();
-                }
-            }
-
+            var len = Input.Length / 2;
             var result = 0;
-            foreach (var (i, count) in counts)
+            for (var i = 0; i < 12; i++)
             {
-                result |= (count > len / 2).AsInt() << (11 - i);
+                var ones = Input.Select(s => s[i].AsInt()).Sum();
+                result |= (ones > len / 2).AsInt() << (11 - i);
             }
             WriteLn(result * (~result & 0xFFF));
         }
