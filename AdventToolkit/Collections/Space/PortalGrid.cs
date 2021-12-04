@@ -5,6 +5,7 @@ using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Collections.Space
 {
+    // Grid where portals may be added between spaces on certain sides
     public class PortalGrid<T> : Grid<T>
     {
         private Dictionary<Pos, Dictionary<Side, Pos>> _portals = new();
@@ -37,6 +38,11 @@ namespace AdventToolkit.Collections.Space
         }
     }
 
+    // Portal grid, except positions have an associated tag.
+    // This can be used to keep track of traversed portals.
+    // Must define a pass function that determines if you are allowed
+    // to pass through the portal with the given tag, and what your new
+    // modified tag would be.
     public class PortalGrid<T, TTag> : SparseSpace<(Pos Pos, TTag Tag), T>
     {
         private Dictionary<Pos, Dictionary<Side, (Pos Pos, TTag Tag)>> _portals = new();

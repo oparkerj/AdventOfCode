@@ -19,7 +19,7 @@ namespace AdventToolkit.Collections.Space
     {
         public readonly T[,] Data;
         private readonly BitArray _has;
-        private readonly int[] _temp;
+        private readonly int[] _temp; // place to view content of bitarray
 
         private readonly Rect _fullWindow;
 

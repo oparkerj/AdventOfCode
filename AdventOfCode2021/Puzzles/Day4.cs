@@ -1,8 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Extensions;
-using MoreLinq;
 
 namespace AdventOfCode2021.Puzzles
 {
@@ -13,12 +13,15 @@ namespace AdventOfCode2021.Puzzles
             Part = 2;
         }
 
+        public IEnumerable<int> Nums => AllGroups[0][0].Csv().Ints();
+
+        public List<Board> Boards() => AllGroups.Skip(1).Select(data => new Board(data)).ToList();
+
         public override void PartOne()
         {
-            var nums = AllGroups[0][0].Csv().Ints().ToList();
-            var boards = AllGroups.Skip(1).Select(data => new Board(data)).ToList();
+            var boards = Boards();
             
-            foreach (var num in nums)
+            foreach (var num in Nums)
             {
                 foreach (var board in boards)
                 {
@@ -34,12 +37,10 @@ namespace AdventOfCode2021.Puzzles
 
         public override void PartTwo()
         {
-            var nums = AllGroups[0][0].Csv().Ints().ToList();
-            var boards = AllGroups.Skip(1).Select(data => new Board(data)).ToList();
-            
+            var boards = Boards();
             var lastScore = 0;
             
-            foreach (var num in nums)
+            foreach (var num in Nums)
             {
                 for (var i = 0; i < boards.Count; i++)
                 {
@@ -47,7 +48,7 @@ namespace AdventOfCode2021.Puzzles
                     board.Mark(num);
                     if (board.CheckWon())
                     {
-                        boards.RemoveConcurrent(b => b == board, ref i);
+                        boards.RemoveConcurrent(ref i);
                         lastScore = board.Score(num);
                     }
                 }
@@ -62,14 +63,7 @@ namespace AdventOfCode2021.Puzzles
 
             public Board(string[] data)
             {
-                Grid = new FixedGrid<int>(5, 5);
-                for (var y = 0; y < 5; y++)
-                {
-                    foreach (var (x, v) in data[y].Spaced().Ints().Index())
-                    {
-                        Grid[x, y] = v;
-                    }
-                }
+                Grid = data.Select(s => s.Spaced().Ints()).ToFixedGrid(5, 5);
             }
 
             public void Mark(int i)
@@ -93,8 +87,6 @@ namespace AdventOfCode2021.Puzzles
                 {
                     if (Grid.Col(i).All(v => v < 0)) return true;
                 }
-                if (Grid.Diagonal(true).All(v => v < 0)) return true;
-                if (Grid.Diagonal(false).All(v => v < 0)) return true;
                 return false;
             }
         }
