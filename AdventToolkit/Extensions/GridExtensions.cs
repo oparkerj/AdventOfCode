@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Common;
@@ -10,7 +11,7 @@ namespace AdventToolkit.Extensions
     public static class GridExtensions
     {
         public static TGrid ToGrid<T, TGrid>(this IEnumerable<IEnumerable<T>> source, TGrid grid, Pos offset = default, bool decreaseY = true)
-            where TGrid : Grid<T>
+            where TGrid : GridBase<T>
         {
             var y = offset.Y;
             foreach (var row in source)
@@ -28,7 +29,7 @@ namespace AdventToolkit.Extensions
         }
         
         public static TGrid ToGrid<T, TGrid>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
-            where TGrid : Grid<T>, new()
+            where TGrid : GridBase<T>, new()
         {
             return ToGrid(source, new TGrid(), default, decreaseY);
         }
@@ -60,6 +61,11 @@ namespace AdventToolkit.Extensions
             }
             if (decreaseY) SimpleGridTransformer<T>.FlipV.ApplyTo(grid);
             return grid;
+        }
+
+        public static FixedGrid<T> ToFixedGrid<T>(this IEnumerable<IEnumerable<T>> source, int width, int height)
+        {
+            return source.Select(row => row.Take(width)).Take(height).ToGrid(new FixedGrid<T>(width, height), decreaseY: false);
         }
 
         public static void BuildSummedArea(this Grid<int> grid)

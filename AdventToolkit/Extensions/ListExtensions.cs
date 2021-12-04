@@ -43,6 +43,22 @@ namespace AdventToolkit.Extensions
             }
             return removed;
         }
+
+        public static bool RemoveConcurrent<T>(this List<T> list, T t, ref int index)
+        {
+            var i = list.IndexOf(t);
+            if (i < 0 || i > index) return i >= 0;
+            index--;
+            list.RemoveAt(i);
+            return true;
+        }
+
+        public static bool RemoveConcurrent<T>(this List<T> list, ref int index)
+        {
+            if (index < 0 || index >= list.Count) return false;
+            list.RemoveAt(index--);
+            return true;
+        }
         
         // For each pair of elements in the input, groups ones which meet a condition.
         // If A,B and B,C both meet the conditions, A, B, and C will be in the same group.
