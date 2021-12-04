@@ -45,6 +45,11 @@ namespace AdventToolkit.Extensions
             return space.WhereValue(value).First().Key;
         }
 
+        public static bool Find<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TVal value, out TPos pos)
+        {
+            return space.WhereValue(value).Keys().First(out pos);
+        }
+
         public static void ApplyValues<TPos, TVal>(this AlignedSpace<TPos, TVal> space, IEnumerable<TPos> positions, Func<TPos, TVal> func)
         {
             foreach (var pos in positions)

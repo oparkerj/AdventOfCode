@@ -272,6 +272,34 @@ namespace AdventToolkit.Collections
             }
         }
 
+        public IEnumerable<Pos> GetRow(int y)
+        {
+            for (var x = MinX; x <= MaxX; x++)
+            {
+                yield return new Pos(x, y);
+            }
+        }
+
+        public IEnumerable<Pos> GetCol(int x)
+        {
+            for (var y = MinY; y <= MaxY; y++)
+            {
+                yield return new Pos(x, y);
+            }
+        }
+
+        public IEnumerable<Pos> Diagonal(bool offAxis)
+        {
+            if (Width != Height) throw new Exception("Grid must be square");
+            var y = offAxis ? MaxY : MinY;
+            for (var x = MinX; x <= MaxX; x++)
+            {
+                yield return new Pos(x, y);
+                if (offAxis) y--;
+                else y++;
+            }
+        }
+
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public IEnumerator<Pos> GetEnumerator() => Positions().GetEnumerator();
