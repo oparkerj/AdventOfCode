@@ -104,6 +104,21 @@ namespace AdventToolkit.Collections.Space
             return rect.GetSidePositions(side).Select(pos => this[pos]);
         }
 
+        public IEnumerable<T> Row(int y)
+        {
+            return Bounds.GetRow(y).Select(pos => this[pos]);
+        }
+
+        public IEnumerable<T> Col(int x)
+        {
+            return Bounds.GetCol(x).Select(pos => this[pos]);
+        }
+
+        public IEnumerable<T> Diagonal(bool offAxis)
+        {
+            return Bounds.Diagonal(offAxis).Select(pos => this[pos]);
+        }
+
         public void ResetBounds()
         {
             Bounds.Rebound(Positions);

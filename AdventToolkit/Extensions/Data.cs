@@ -13,7 +13,7 @@ namespace AdventToolkit.Extensions
 
         public static string[] Spaced(this string s)
         {
-            return s.Split(' ');
+            return s.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         }
 
         public static string[] Tabbed(this string s)

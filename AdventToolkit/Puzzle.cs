@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using AdventToolkit.Extensions;
+using TextCopy;
 
 namespace AdventToolkit
 {
@@ -64,17 +65,23 @@ namespace AdventToolkit
             Console.SetOut(old);
         }
 
-        public void WriteLn(object o)
-        {
-            Console.WriteLine(o);
-        }
+        public void WriteLn(object o) => Console.WriteLine(o);
 
-        public void Write(object o)
-        {
-            Console.Write(o);
-        }
+        public void WriteLn(string s) => Console.WriteLine(s);
+
+        public void Write(object o) => Console.Write(o);
+
+        public void Write(string s) => Console.Write(s);
 
         public void NewLine() => Console.WriteLine();
+
+        public void Clip(object o) => Clip(o.ToString());
+
+        public void Clip(string text)
+        {
+            ClipboardService.SetText(text);
+            WriteLn(text);
+        }
 
         private string[] _input;
 
