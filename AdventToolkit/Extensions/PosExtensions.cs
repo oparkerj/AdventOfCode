@@ -114,6 +114,11 @@ namespace AdventToolkit.Extensions
             return Enumerable.Append(p.EachBetween(other), other);
         }
 
+        public static IEnumerable<Pos> Connect(this Pos p, Pos other)
+        {
+            return Enumerable.Append(Enumerable.Prepend(p.EachBetween(other), p), other);
+        }
+
         public static bool AdjacentTo(this Pos p, Pos other)
         {
             return p.MDist(other) == 1;
