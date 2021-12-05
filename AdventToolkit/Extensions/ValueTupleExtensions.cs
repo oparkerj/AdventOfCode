@@ -20,5 +20,10 @@ namespace AdventToolkit.Extensions
         {
             return func(tuple.A, tuple.B);
         }
+
+        public static (TR, TR) Select<T, TR>(this (T A, T B) tuple, Func<T, TR> func)
+        {
+            return (func(tuple.A), func(tuple.B));
+        }
     }
 }

@@ -27,6 +27,12 @@ namespace AdventToolkit.Extensions
             return (s[..i], s[(i + 1)..]);
         }
 
+        public static (string Left, string Right) SingleSplit(this string s, string split)
+        {
+            var i = s.IndexOf(split, StringComparison.Ordinal);
+            return (s[..i], s[(i + split.Length)..]);
+        }
+
         public static string[] SingleSplitArray(this string s, char c)
         {
             var result = new string[2];

@@ -10,6 +10,8 @@ namespace AdventToolkit.Collections
         public bool Initialized;
         private int _minX;
         private int _minY;
+
+        private bool _offAxis;
         
         public int Width { get; set; }
         public int Height { get; set; }
