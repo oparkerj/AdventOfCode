@@ -503,7 +503,7 @@ namespace AdventToolkit.Extensions
 
         public static T Circular<T>(this T[] arr, int index)
         {
-            return default;
+            return arr[index.CircularMod(arr.Length)];
         }
     }
 }
