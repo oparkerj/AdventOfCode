@@ -104,16 +104,19 @@ namespace AdventToolkit.Extensions
             }
         }
 
+        // exclusive at other
         public static IEnumerable<Pos> FromTo(this Pos p, Pos other)
         {
             return Enumerable.Prepend(p.EachBetween(other), p);
         }
 
+        // exclusive at p
         public static IEnumerable<Pos> EachTo(this Pos p, Pos other)
         {
             return Enumerable.Append(p.EachBetween(other), other);
         }
 
+        // inclusive on both ends
         public static IEnumerable<Pos> Connect(this Pos p, Pos other)
         {
             return Enumerable.Append(Enumerable.Prepend(p.EachBetween(other), p), other);

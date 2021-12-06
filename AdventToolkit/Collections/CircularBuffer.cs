@@ -11,6 +11,8 @@ namespace AdventToolkit.Collections
         public readonly T[] Data;
         private int _index;
         private int _size;
+        
+        public int Offset { get; set; }
 
         public CircularBuffer(int size)
         {
@@ -31,10 +33,10 @@ namespace AdventToolkit.Collections
 
         public T this[int index]
         {
-            get => Data[index.CircularMod(Data.Length)];
+            get => Data[(index + Offset).CircularMod(Data.Length)];
             set
             {
-                var realIndex = index.CircularMod(Data.Length);
+                var realIndex = (index + Offset).CircularMod(Data.Length);
                 Data[realIndex] = value;
                 _size = Math.Max(_size, realIndex + 1);
             }
@@ -86,5 +88,7 @@ namespace AdventToolkit.Collections
             if (_size == Data.Length) return FullEnumerator().GetEnumerator();
             return FullEnumerator().Take(_size).GetEnumerator();
         }
+
+        public IEnumerable<T> Unordered() => _size == Data.Length ? Data : Data.Take(_size);
     }
 }
