@@ -1,6 +1,5 @@
 using System.Linq;
 using AdventToolkit;
-using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
@@ -17,7 +16,7 @@ namespace AdventOfCode2021.Puzzles
         public override void PartOne()
         {
             var grid = new Grid<int>();
-            foreach (var rect in Input.Select(s => s.SingleSplit(" -> ").Select((a, b) => new Rect(Pos.Parse(a), Pos.Parse(b)))))
+            foreach (var rect in Input.Select(s => s.SingleSplit(" -> ").Select(Pos.Parse).ToRect()))
             {
                 if (rect.Height > 1 && rect.Width > 1) continue;
                 foreach (var pos in rect)
