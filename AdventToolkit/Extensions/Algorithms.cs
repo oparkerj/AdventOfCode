@@ -15,6 +15,11 @@ namespace AdventToolkit.Extensions
             return (max - min + 1) * (max + min) / 2;
         }
 
+        public static int Sum1ToN(int n)
+        {
+            return SumRange(1, n);
+        }
+
         public static int Sum(this IEnumerable<int> ints, out int min, out int max)
         {
             bool start = false, end = false;
