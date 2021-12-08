@@ -12,6 +12,16 @@ namespace AdventToolkit.Solvers
 
         public TValue Get(TKey key) => _possible[key].First();
 
+        public Dictionary<TKey, TValue> Mappings()
+        {
+            var map = new Dictionary<TKey, TValue>();
+            foreach (var (key, values) in _possible)
+            {
+                map[key] = values.First();
+            }
+            return map;
+        }
+
         // Adds a key that starts with every possible value
         public void Add(TKey key)
         {
@@ -66,6 +76,42 @@ namespace AdventToolkit.Solvers
             foreach (var key in _possible.WhereValue(options => options.Count == 0).Keys().ToList())
             {
                 _possible.Remove(key);
+            }
+        }
+
+        public void MustBe(IEnumerable<TKey> keys, IEnumerable<TValue> values)
+        {
+            var k = keys.ToList();
+            var v = values.ToList();
+            ValuesPresentInKeys(k, v);
+            ReduceWithValid(k, v);
+        }
+
+        public void ReduceWithFrequencies(Dictionary<TValue, int> expected, Dictionary<TKey, int> actual)
+        {
+            foreach (var key in _possible.Keys.ToList())
+            {
+                var set = _possible[key];
+                var appeared = actual[key];
+                if (set.Where(v => expected[v] == appeared).Single(out var value))
+                {
+                    MustBe(key.EnumerateSingle(), value.EnumerateSingle());
+                }
+            }
+        }
+
+        public void ReduceWithValid(TKey key, IEnumerable<TValue> values)
+        {
+            var valid = values.ToHashSet();
+            _possible[key].RemoveWhere(value => !valid.Contains(value));
+        }
+
+        public void ReduceWithValid(IEnumerable<TKey> keys, IEnumerable<TValue> values)
+        {
+            var hashSet = values.ToHashSet();
+            foreach (var key in keys)
+            {
+                ReduceWithValid(key, hashSet);
             }
         }
 
