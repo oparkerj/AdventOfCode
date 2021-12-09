@@ -1,16 +1,15 @@
 using System.Linq;
 using AdventToolkit.Collections.Space;
 
-namespace AdventToolkit.Extensions
+namespace AdventToolkit.Extensions;
+
+public static class LineExtensions
 {
-    public static class LineExtensions
+    public static void Increment(this Line<int> line, int start, int length)
     {
-        public static void Increment(this Line<int> line, int start, int length)
+        foreach (var i in Enumerable.Range(start, length))
         {
-            foreach (var i in Enumerable.Range(start, length))
-            {
-                line[i]++;
-            }
+            line[i]++;
         }
     }
 }

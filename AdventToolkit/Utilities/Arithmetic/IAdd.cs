@@ -1,7 +1,6 @@
-namespace AdventToolkit.Utilities.Arithmetic
+namespace AdventToolkit.Utilities.Arithmetic;
+
+public interface IAdd<T>
 {
-    public interface IAdd<T>
-    {
-        T Add(T other);
-    }
+    T Add(T other);
 }

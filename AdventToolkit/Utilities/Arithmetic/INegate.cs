@@ -1,7 +1,6 @@
-namespace AdventToolkit.Utilities.Arithmetic
+namespace AdventToolkit.Utilities.Arithmetic;
+
+public interface INegate<T>
 {
-    public interface INegate<T>
-    {
-        T Negate();
-    }
+    T Negate();
 }

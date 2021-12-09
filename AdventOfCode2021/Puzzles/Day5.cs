@@ -4,40 +4,39 @@ using AdventToolkit.Collections.Space;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 
-namespace AdventOfCode2021.Puzzles
+namespace AdventOfCode2021.Puzzles;
+
+public class Day5 : Puzzle
 {
-    public class Day5 : Puzzle
+    public Day5()
     {
-        public Day5()
-        {
-            Part = 2;
-        }
+        Part = 2;
+    }
 
-        public override void PartOne()
+    public override void PartOne()
+    {
+        var grid = new Grid<int>();
+        foreach (var rect in Input.Select(s => s.SingleSplit(" -> ").Select(Pos.Parse).ToRect()))
         {
-            var grid = new Grid<int>();
-            foreach (var rect in Input.Select(s => s.SingleSplit(" -> ").Select(Pos.Parse).ToRect()))
+            if (rect.Height > 1 && rect.Width > 1) continue;
+            foreach (var pos in rect)
             {
-                if (rect.Height > 1 && rect.Width > 1) continue;
-                foreach (var pos in rect)
-                {
-                    grid[pos]++;
-                }
+                grid[pos]++;
             }
-            WriteLn(grid.Values.Count(i => i > 1));
         }
+        WriteLn(grid.Values.Count(i => i > 1));
+    }
 
-        public override void PartTwo()
+    public override void PartTwo()
+    {
+        var grid = new Grid<int>();
+        foreach (var (a, b) in Input.Select(s => s.SingleSplit(" -> ").Select(Pos.Parse)))
         {
-            var grid = new Grid<int>();
-            foreach (var (a, b) in Input.Select(s => s.SingleSplit(" -> ").Select(Pos.Parse)))
+            foreach (var pos in a.Connect(b))
             {
-                foreach (var pos in a.Connect(b))
-                {
-                    grid[pos]++;
-                }
+                grid[pos]++;
             }
-            WriteLn(grid.Values.Count(i => i > 1));
         }
+        WriteLn(grid.Values.Count(i => i > 1));
     }
 }

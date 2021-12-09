@@ -1,38 +1,37 @@
 using System.Collections.Generic;
 
-namespace AdventOfCode2019.IntCode
+namespace AdventOfCode2019.IntCode;
+
+public class OutputTools
 {
-    public class OutputTools
+    private Computer Source;
+
+    public OutputTools(Computer source)
     {
-        private Computer Source;
+        Source = source;
+    }
 
-        public OutputTools(Computer source)
+    public IEnumerable<long> TakeCount(int amount)
+    {
+        for (var i = 0; i < amount; i++)
         {
-            Source = source;
+            yield return Source.NextOutput();
         }
-
-        public IEnumerable<long> TakeCount(int amount)
-        {
-            for (var i = 0; i < amount; i++)
-            {
-                yield return Source.NextOutput();
-            }
-        }
+    }
         
-        public IEnumerable<int> TakeCountInt(int amount)
+    public IEnumerable<int> TakeCountInt(int amount)
+    {
+        for (var i = 0; i < amount; i++)
         {
-            for (var i = 0; i < amount; i++)
-            {
-                yield return Source.NextInt();
-            }
+            yield return Source.NextInt();
         }
+    }
         
-        public IEnumerable<bool> TakeCountBool(int amount)
+    public IEnumerable<bool> TakeCountBool(int amount)
+    {
+        for (var i = 0; i < amount; i++)
         {
-            for (var i = 0; i < amount; i++)
-            {
-                yield return Source.NextBool();
-            }
+            yield return Source.NextBool();
         }
     }
 }

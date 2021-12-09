@@ -2,13 +2,12 @@
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 
-namespace AdventToolkit.Collections.Space
+namespace AdventToolkit.Collections.Space;
+
+public class Blocks<T> : SparseSpace<Pos3D, T>
 {
-    public class Blocks<T> : SparseSpace<Pos3D, T>
+    public override IEnumerable<Pos3D> GetNeighbors(Pos3D pos)
     {
-        public override IEnumerable<Pos3D> GetNeighbors(Pos3D pos)
-        {
-            return pos.Around();
-        }
+        return pos.Around();
     }
 }

@@ -6,233 +6,232 @@ using System.Threading.Tasks;
 using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
 
-namespace AdventOfCode2019.IntCode
+namespace AdventOfCode2019.IntCode;
+
+public class Computer
 {
-    public class Computer
-    {
-        public readonly LazyExpandingArray<long> Program;
-        private readonly Dictionary<int, Action> _ops = new();
-        private readonly DataLink _internalLink = new();
+    public readonly LazyExpandingArray<long> Program;
+    private readonly Dictionary<int, Action> _ops = new();
+    private readonly DataLink _internalLink = new();
 
-        public Func<long> LineIn;
-        public Action<long> LineOut;
+    public Func<long> LineIn;
+    public Action<long> LineOut;
         
-        private int _pointer = 0;
-        private int _interrupt = 0;
-        private int _relativeBase = 0;
+    private int _pointer = 0;
+    private int _interrupt = 0;
+    private int _relativeBase = 0;
 
-        public Computer(long[] program)
+    public Computer(long[] program)
+    {
+        Program = new LazyExpandingArray<long>(program);
+        AddOpcodes();
+    }
+
+    public Computer(string program) : this(Parse(program)) { }
+
+    public static long[] Parse(string input) => input.Csv().Longs().ToArray();
+
+    public static Computer From(string input) => new(Parse(input));
+
+    public static Func<long> ConsoleReader()
+    {
+        return () => long.Parse(Console.ReadLine() ?? "0");
+    }
+
+    public static Func<long> AsciiReader()
+    {
+        return () =>
         {
-            Program = new LazyExpandingArray<long>(program);
-            AddOpcodes();
-        }
+            Read:
+            var d = Console.Read();
+            if (d == '\r') goto Read;
+            return d;
+        };
+    }
 
-        public Computer(string program) : this(Parse(program)) { }
+    public static Action<long> ConsoleOutput()
+    {
+        return Console.WriteLine;
+    }
 
-        public static long[] Parse(string input) => input.Csv().Longs().ToArray();
+    public static Action<long> AsciiOutput()
+    {
+        return data => Console.Write((char) data);
+    }
 
-        public static Computer From(string input) => new(Parse(input));
+    private void AddOpcodes()
+    {
+        _ops[1] = Add;
+        _ops[2] = Mul;
+        _ops[3] = Input;
+        _ops[4] = Output;
+        _ops[5] = JumpIfTrue;
+        _ops[6] = JumpIfFalse;
+        _ops[7] = LessThan;
+        _ops[8] = Equals;
+        _ops[9] = SetRelativeBase;
+        _ops[99] = Halt;
+        _ops.TrimExcess();
+    }
 
-        public static Func<long> ConsoleReader()
+    public int Pointer
+    {
+        get => _pointer;
+        set => Interlocked.Exchange(ref _pointer, value);
+    }
+
+    public bool Interrupt
+    {
+        get => _interrupt != 0;
+        set => Interlocked.Exchange(ref _interrupt, value ? 1 : 0);
+    }
+
+    public int RelativeBase
+    {
+        get => _relativeBase;
+        set => Interlocked.Exchange(ref _relativeBase, value);
+    }
+
+    public long this[int pos]
+    {
+        get => Program[pos];
+        set => Program[pos] = value;
+    }
+
+    public bool Ready => Pointer >= 0 && Pointer < Program.Length;
+
+    public void Execute()
+    {
+        while (Ready)
         {
-            return () => long.Parse(Console.ReadLine() ?? "0");
+            var op = (int) Program[Pointer];
+            op %= 100;
+            _ops[op]();
+            if (!Interrupt) continue;
+            Interrupt = false;
+            break;
         }
+    }
 
-        public static Func<long> AsciiReader()
-        {
-            return () =>
-            {
-                Read:
-                var d = Console.Read();
-                if (d == '\r') goto Read;
-                return d;
-            };
-        }
+    public Task ExecuteAsync()
+    {
+        return Task.Run(Execute);
+    }
 
-        public static Action<long> ConsoleOutput()
-        {
-            return Console.WriteLine;
-        }
+    public long NextOutput()
+    {
+        var oldOutput = LineOut;
+        LineOut = _internalLink.Input;
+        _ops[4] = OutputInterrupt;
+        Execute();
+        LineOut = oldOutput;
+        _ops[4] = Output;
+        _internalLink.TryTake(out var result);
+        return result;
+    }
 
-        public static Action<long> AsciiOutput()
-        {
-            return data => Console.Write((char) data);
-        }
+    public int NextInt() => (int) NextOutput();
 
-        private void AddOpcodes()
-        {
-            _ops[1] = Add;
-            _ops[2] = Mul;
-            _ops[3] = Input;
-            _ops[4] = Output;
-            _ops[5] = JumpIfTrue;
-            _ops[6] = JumpIfFalse;
-            _ops[7] = LessThan;
-            _ops[8] = Equals;
-            _ops[9] = SetRelativeBase;
-            _ops[99] = Halt;
-            _ops.TrimExcess();
-        }
+    public bool NextBool() => NextOutput() != 0;
 
-        public int Pointer
-        {
-            get => _pointer;
-            set => Interlocked.Exchange(ref _pointer, value);
-        }
+    public long LastOutput()
+    {
+        var oldOutput = LineOut;
+        LineOut = _internalLink.Input;
+        Execute();
+        LineOut = oldOutput;
+        while (_internalLink.Count > 1) _internalLink.TryTake(out _);
+        _internalLink.TryTake(out var result);
+        return result;
+    }
 
-        public bool Interrupt
-        {
-            get => _interrupt != 0;
-            set => Interlocked.Exchange(ref _interrupt, value ? 1 : 0);
-        }
+    private void Advance(int args = 0) => Pointer += args + 1;
 
-        public int RelativeBase
-        {
-            get => _relativeBase;
-            set => Interlocked.Exchange(ref _relativeBase, value);
-        }
+    private int ParameterMode(int relative) => (int) Program[Pointer] / 10.Pow(relative + 1) % 10;
 
-        public long this[int pos]
-        {
-            get => Program[pos];
-            set => Program[pos] = value;
-        }
+    private long Arg(int relative)
+    {
+        var mode = ParameterMode(relative);
+        if (mode is 0 or 2) return Program[Addr(relative, mode)];
+        return Program[Pointer + relative];
+    }
 
-        public bool Ready => Pointer >= 0 && Pointer < Program.Length;
+    private int Addr(int relative, int mode)
+    {
+        if (mode == 0) return (int) Program[Pointer + relative];
+        return (int) Program[Pointer + relative] + RelativeBase;
+    }
 
-        public void Execute()
-        {
-            while (Ready)
-            {
-                var op = (int) Program[Pointer];
-                op %= 100;
-                _ops[op]();
-                if (!Interrupt) continue;
-                Interrupt = false;
-                break;
-            }
-        }
+    private int Addr(int relative)
+    {
+        return Addr(relative, ParameterMode(relative));
+    }
 
-        public Task ExecuteAsync()
-        {
-            return Task.Run(Execute);
-        }
+    private void Add()
+    {
+        Program[Addr(3)] = Arg(1) + Arg(2);
+        Advance(3);
+    }
 
-        public long NextOutput()
-        {
-            var oldOutput = LineOut;
-            LineOut = _internalLink.Input;
-            _ops[4] = OutputInterrupt;
-            Execute();
-            LineOut = oldOutput;
-            _ops[4] = Output;
-            _internalLink.TryTake(out var result);
-            return result;
-        }
+    private void Mul()
+    {
+        Program[Addr(3)] = Arg(1) * Arg(2);
+        Advance(3);
+    }
 
-        public int NextInt() => (int) NextOutput();
+    private void Input()
+    {
+        Program[Addr(1)] = LineIn();
+        Advance(1);
+    }
 
-        public bool NextBool() => NextOutput() != 0;
+    private void Output()
+    {
+        LineOut(Arg(1));
+        Advance(1);
+    }
 
-        public long LastOutput()
-        {
-            var oldOutput = LineOut;
-            LineOut = _internalLink.Input;
-            Execute();
-            LineOut = oldOutput;
-            while (_internalLink.Count > 1) _internalLink.TryTake(out _);
-            _internalLink.TryTake(out var result);
-            return result;
-        }
+    private void OutputInterrupt()
+    {
+        LineOut(Arg(1));
+        Advance(1);
+        Interrupt = true;
+    }
 
-        private void Advance(int args = 0) => Pointer += args + 1;
+    private void JumpIfTrue()
+    {
+        if (Arg(1) != 0) Pointer = (int) Arg(2);
+        else Advance(2);
+    }
 
-        private int ParameterMode(int relative) => (int) Program[Pointer] / 10.Pow(relative + 1) % 10;
+    private void JumpIfFalse()
+    {
+        if (Arg(1) == 0) Pointer = (int) Arg(2);
+        else Advance(2);
+    }
 
-        private long Arg(int relative)
-        {
-            var mode = ParameterMode(relative);
-            if (mode is 0 or 2) return Program[Addr(relative, mode)];
-            return Program[Pointer + relative];
-        }
+    private void LessThan()
+    {
+        var write = Arg(1) < Arg(2) ? 1 : 0;
+        Program[Addr(3)] = write;
+        Advance(3);
+    }
 
-        private int Addr(int relative, int mode)
-        {
-            if (mode == 0) return (int) Program[Pointer + relative];
-            return (int) Program[Pointer + relative] + RelativeBase;
-        }
+    private void Equals()
+    {
+        var write = Arg(1) == Arg(2) ? 1 : 0;
+        Program[Addr(3)] = write;
+        Advance(3);
+    }
 
-        private int Addr(int relative)
-        {
-            return Addr(relative, ParameterMode(relative));
-        }
+    private void SetRelativeBase()
+    {
+        RelativeBase += (int) Arg(1);
+        Advance(1);
+    }
 
-        private void Add()
-        {
-            Program[Addr(3)] = Arg(1) + Arg(2);
-            Advance(3);
-        }
-
-        private void Mul()
-        {
-            Program[Addr(3)] = Arg(1) * Arg(2);
-            Advance(3);
-        }
-
-        private void Input()
-        {
-            Program[Addr(1)] = LineIn();
-            Advance(1);
-        }
-
-        private void Output()
-        {
-            LineOut(Arg(1));
-            Advance(1);
-        }
-
-        private void OutputInterrupt()
-        {
-            LineOut(Arg(1));
-            Advance(1);
-            Interrupt = true;
-        }
-
-        private void JumpIfTrue()
-        {
-            if (Arg(1) != 0) Pointer = (int) Arg(2);
-            else Advance(2);
-        }
-
-        private void JumpIfFalse()
-        {
-            if (Arg(1) == 0) Pointer = (int) Arg(2);
-            else Advance(2);
-        }
-
-        private void LessThan()
-        {
-            var write = Arg(1) < Arg(2) ? 1 : 0;
-            Program[Addr(3)] = write;
-            Advance(3);
-        }
-
-        private void Equals()
-        {
-            var write = Arg(1) == Arg(2) ? 1 : 0;
-            Program[Addr(3)] = write;
-            Advance(3);
-        }
-
-        private void SetRelativeBase()
-        {
-            RelativeBase += (int) Arg(1);
-            Advance(1);
-        }
-
-        private void Halt()
-        {
-            Pointer = Program.Length;
-        }
+    private void Halt()
+    {
+        Pointer = Program.Length;
     }
 }

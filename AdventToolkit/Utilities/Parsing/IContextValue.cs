@@ -1,20 +1,19 @@
-namespace AdventToolkit.Utilities.Parsing
+namespace AdventToolkit.Utilities.Parsing;
+
+public interface IContextValue<out T, in TContext>
 {
-    public interface IContextValue<out T, in TContext>
-    {
-        T GetValue(TContext context);
-    }
+    T GetValue(TContext context);
+}
 
-    public sealed class NoContext
-    {
-        private NoContext() { }
-    }
+public sealed class NoContext
+{
+    private NoContext() { }
+}
 
-    public static class ContextValueExtensions
+public static class ContextValueExtensions
+{
+    public static T GetValue<T>(this IContextValue<T, NoContext> value)
     {
-        public static T GetValue<T>(this IContextValue<T, NoContext> value)
-        {
-            return value.GetValue(null);
-        }
+        return value.GetValue(null);
     }
 }
