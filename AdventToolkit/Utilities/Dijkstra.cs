@@ -19,7 +19,7 @@ namespace AdventToolkit.Utilities
                 dist[cell] = int.MaxValue;
             }
             dist[start] = 0;
-            var queue = new PriorityQueue<TCell>(dist.Select(pair => (pair.Key, pair.Value)));
+            var queue = new PriorityQueue<TCell, int>(dist.Select(pair => (pair.Key, pair.Value)));
             while (queue.Count > 0)
             {
                 var cell = queue.Dequeue();
@@ -41,7 +41,7 @@ namespace AdventToolkit.Utilities
         {
             var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
             var seen = new HashSet<TCell>();
-            var queue = new PriorityQueue<TCell>();
+            var queue = new PriorityQueue<TCell, int>();
             queue.Enqueue(start, 0);
             while (queue.Count > 0)
             {
@@ -67,7 +67,7 @@ namespace AdventToolkit.Utilities
         {
             var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
             var seen = new HashSet<TCell>();
-            var queue = new PriorityQueue<TCell>();
+            var queue = new PriorityQueue<TCell, int>();
             queue.Enqueue(start, 0);
             while (queue.Count > 0)
             {
@@ -95,7 +95,7 @@ namespace AdventToolkit.Utilities
             valid ??= _ => true;
             var dist = new DefaultDict<TCell, (int Dist, TCell From)> {DefaultValue = (int.MaxValue, default), [start] = (0, default)};
             var seen = new HashSet<TCell>();
-            var queue = new PriorityQueue<TCell>();
+            var queue = new PriorityQueue<TCell, int>();
             queue.Enqueue(start, 0);
             while (queue.Count > 0)
             {
@@ -123,7 +123,7 @@ namespace AdventToolkit.Utilities
             valid ??= _ => true; 
             var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
             var seen = new HashSet<TCell>();
-            var queue = new PriorityQueue<TCell>();
+            var queue = new PriorityQueue<TCell, int>();
             queue.Enqueue(start, 0);
             while (queue.Count > 0)
             {

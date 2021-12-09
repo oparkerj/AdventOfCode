@@ -3,9 +3,9 @@ using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
-using MoreLinq;
 using RegExtract;
 using Z3Helper;
+// using MoreLinq;
 
 namespace AdventOfCode2018.Puzzles
 {
@@ -24,7 +24,7 @@ namespace AdventOfCode2018.Puzzles
         public override void PartOne()
         {
             var bots = ReadBots().ToArray(Input.Length);
-            var (position, radius) = bots.MaxBy(bot => bot.Radius).First();
+            var (position, radius) = bots.MaxBy(bot => bot.Radius)!;
             var count = bots.Count(bot => bot.Position.MDist(position) <= radius);
             WriteLn(count);
         }

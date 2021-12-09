@@ -31,10 +31,10 @@ namespace AdventOfCode2018.Puzzles
             // Get closest point for every position
             foreach (var pos in area.Bounds.Positions())
             {
-                area[pos] = points.Index().MinBy(pair => pos.MDist(pair.Value)).Keys().SingleOrDefault(-1);
+                area[pos] = points.Index().MinsBy(pair => pos.MDist(pair.Value)).Keys().SingleOrDefault(-1);
             }
             // All regions on the edges of the bounding box of the positions extend infinitely
-            var infinite = Enumerable.ToHashSet(area.Bounds.GetAllSides().Select(pos => area[pos]).Distinct());
+            var infinite = area.Bounds.GetAllSides().Select(pos => area[pos]).Distinct().ToSet();
             var result = area.Values.Where(i => !infinite.Contains(i)).Frequencies().Max(pair => pair.Value);
             WriteLn(result);
         }

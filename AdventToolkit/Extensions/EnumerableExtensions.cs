@@ -470,20 +470,6 @@ namespace AdventToolkit.Extensions
             return max;
         }
 
-        public static T SingleOrDefault<T>(this IEnumerable<T> source, T defaultValue)
-        {
-            using var e = source.GetEnumerator();
-            if (!e.MoveNext()) return defaultValue;
-            var result = e.Current;
-            return e.MoveNext() ? defaultValue : result;
-        }
-
-        public static T FirstOrDefault<T>(this IEnumerable<T> source, T defaultValue)
-        {
-            using var e = source.GetEnumerator();
-            return !e.MoveNext() ? defaultValue : e.Current;
-        }
-
         public static IEnumerable<KeyValuePair<T, TV>> With<T, TV>(this IEnumerable<T> source, Func<T, TV> func)
         {
             return source.Select(item => new KeyValuePair<T, TV>(item, func(item)));
@@ -656,6 +642,11 @@ namespace AdventToolkit.Extensions
             {
                 yield return e.Current;
             }
+        }
+
+        public static IEnumerable<KeyValuePair<int, T>> Indexed<T>(this IEnumerable<T> source)
+        {
+            return source.Select((t, i) => new KeyValuePair<int, T>(i, t));
         }
     }
 }
