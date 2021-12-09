@@ -1,7 +1,6 @@
-namespace AdventToolkit.Utilities.Arithmetic
+namespace AdventToolkit.Utilities.Arithmetic;
+
+public interface ISub<T>
 {
-    public interface ISub<T>
-    {
-        T Sub(T other);
-    }
+    T Sub(T other);
 }

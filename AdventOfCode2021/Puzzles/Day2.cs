@@ -3,40 +3,39 @@ using AdventToolkit;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 
-namespace AdventOfCode2021.Puzzles
+namespace AdventOfCode2021.Puzzles;
+
+public class Day2 : Puzzle
 {
-    public class Day2 : Puzzle
+    public Day2()
     {
-        public Day2()
-        {
-            Part = 2;
-        }
+        Part = 2;
+    }
 
-        public override void PartOne()
+    public override void PartOne()
+    {
+        var (x, y) = Input.Select(s =>
         {
-            var (x, y) = Input.Select(s =>
-            {
-                var (dir, amount) = s.SingleSplit(' ');
-                return Pos.RelativeDirection(dir[0]) * amount.AsInt();
-            }).Sum();
-            WriteLn(x * -y);
-        }
+            var (dir, amount) = s.SingleSplit(' ');
+            return Pos.RelativeDirection(dir[0]) * amount.AsInt();
+        }).Sum();
+        WriteLn(x * -y);
+    }
 
-        public override void PartTwo()
+    public override void PartTwo()
+    {
+        var p = Pos.Origin;
+        var aim = 0;
+        foreach (var (dir, amount) in Input.Select(s => s.SingleSplit(' ')))
         {
-            var p = Pos.Origin;
-            var aim = 0;
-            foreach (var (dir, amount) in Input.Select(s => s.SingleSplit(' ')))
+            var len = amount.AsInt();
+            if (dir == "up") aim -= len;
+            else if (dir == "down") aim += len;
+            else if (dir == "forward")
             {
-                var len = amount.AsInt();
-                if (dir == "up") aim -= len;
-                else if (dir == "down") aim += len;
-                else if (dir == "forward")
-                {
-                    p += Pos.Right * len + Pos.Down * (aim * len);
-                }
+                p += Pos.Right * len + Pos.Down * (aim * len);
             }
-            WriteLn(p.X * -p.Y);
         }
+        WriteLn(p.X * -p.Y);
     }
 }
