@@ -271,6 +271,7 @@ namespace AdventToolkit.Extensions
         // Only valid neighbors are explored.
         // Only positions from notify are yielded.
         // Can specify if invalid locations may be notified (but not explored)
+        // Note that this does not return the from value.
         public static IEnumerable<TPos> Bfs<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, Func<TPos, bool> valid, Func<TPos, bool> notify, bool includeInvalid = false)
         {
             var visited = new HashSet<TPos>();
