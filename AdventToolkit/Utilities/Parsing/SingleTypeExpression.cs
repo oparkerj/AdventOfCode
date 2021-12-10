@@ -14,13 +14,13 @@ public class SingleTypeExpression<T, TContext>
 
     public bool UpdateReader { get; set; } = true;
 
-    private SingleTypeExpression()
+    private SingleTypeExpression(bool autoParens = true)
     {
         _parser = new Lazy<AstParser<IContextValue<T, TContext>>>(CreateParser);
-        _reader.GroupSymbols["("] = new GroupSymbol("(", ")");
+        if (autoParens) _reader.GroupSymbols["("] = new GroupSymbol("(", ")");
     }
 
-    public SingleTypeExpression(Func<string, TContext, T> valueReader) : this()
+    public SingleTypeExpression(Func<string, TContext, T> valueReader, bool autoParens = true) : this(autoParens)
     {
         ValueReader = valueReader;
     }

@@ -15,6 +15,7 @@ public class AstReader
     public readonly Dictionary<string, GroupSymbol> GroupSymbols;
     public string SequenceSplit;
     public string Escape;
+    public bool StrictGroups;
     public EscapeHandling EscapeBehavior = EscapeHandling.Value;
 
     public AstReader()
@@ -30,15 +31,20 @@ public class AstReader
         return this;
     }
 
-    public AstNode Read(string s, TokenSettings settings = default) => Read(s.Tokenize(settings).ToArray());
-        
-    private AstNode Read(Token[] tokens)
+    public AstNode Read(string s, TokenSettings settings = default)
+    {
+        if (!TryRead(s.Tokenize(settings).ToArray(), out var node, out var error)) throw new Exception(error.ToString());
+        return node;
+    }
+
+    public bool TryRead(Token[] tokens, out AstNode node, out AstError error)
     {
         var unary = UnarySymbols;
         var binary = BinarySymbols;
         var groups = GroupSymbols;
         var split = SequenceSplit;
         var escape = Escape;
+        var err = AstErrorReason.None;
             
         var roots = new Stack<AstNode>();
         var currents = new Stack<AstNode>();
@@ -94,25 +100,29 @@ public class AstReader
             }
         }
 
-        void CheckState(int index)
+        AstErrorReason CheckState(int index)
         {
-            if (currents.Peek() is IAstExpectValue) throw new Exception("Invalid input.");
-            if (currentGroups.Peek() is not null && index == tokens.Length) throw new Exception("Unclosed group.");
+            if (currents.Peek() is IAstExpectValue) return AstErrorReason.ExpectedValue;
+            if (currentGroups.Peek() is not null && index == tokens.Length) return AstErrorReason.UnclosedGroup;
+            return AstErrorReason.None;
         }
 
-        void PopLevel(int index)
+        AstErrorReason PopLevel(int index)
         {
-            CheckState(index);
+            var e = CheckState(index);
+            if (e != AstErrorReason.None) return e;
             var group = new AstGroup(currentGroups.Peek(), roots.Peek());
             roots.Pop();
             currents.Pop();
             currentGroups.Pop();
             Insert(group);
+            return AstErrorReason.None;
         }
 
-        for (var i = 0; i < tokens.Length; i++)
+        var index = 0;
+        for (index = 0; index < tokens.Length; index++)
         {
-            var token = tokens[i];
+            var token = tokens[index];
             var (content, type) = token;
             var currentGroup = currentGroups.Peek();
             if (content == escape)
@@ -120,15 +130,15 @@ public class AstReader
                 if (EscapeBehavior == EscapeHandling.None)
                 {
                     Insert(new AstValue(token));
-                    Insert(new AstValue(tokens[++i]));
+                    Insert(new AstValue(tokens[++index]));
                 }
                 else if (EscapeBehavior == EscapeHandling.Value)
                 {
-                    Insert(new AstValue(tokens[++i]));
+                    Insert(new AstValue(tokens[++index]));
                 }
                 else if (EscapeBehavior == EscapeHandling.Skip)
                 {
-                    i++;
+                    index++;
                 }
             }
             else if (content == split && (currentGroup is null || currentGroup.Nest))
@@ -154,11 +164,17 @@ public class AstReader
                 }
                 else currents.Replace(cur);
             }
-            else if (currentGroup is not null && content == currentGroup.Right &&
+            else if (currentGroup is not null && (StrictGroups ? groups.Any(pair => content == pair.Value.Right) : content == currentGroup.Right) &&
                      (currentGroup.Left != currentGroup.Right || currents.Peek() is not null and not IAstExpectValue))
             {
+                if (content != currentGroup.Right)
+                {
+                    err = AstErrorReason.MismatchedGroup;
+                    goto HandleError;
+                }
                 // Reached end of group or assumed end of group for ambiguous tokens.
-                PopLevel(i);
+                err = PopLevel(index);
+                if (err != AstErrorReason.None) goto HandleError;
             }
             else if (type == TokenType.Symbol)
             {
@@ -172,7 +188,8 @@ public class AstReader
                     }
                     else
                     {
-                        PopLevel(i);
+                        err = PopLevel(index);
+                        if (err != AstErrorReason.None) goto HandleError;
                     }
                 }
                 else if (unary.TryGetValue(content, out var unarySymbol) &&
@@ -184,7 +201,11 @@ public class AstReader
                 }
                 else if (binary.TryGetValue(content, out var binarySymbol))
                 {
-                    if (currents.Peek() is null or IAstExpectValue) throw new Exception("Invalid position for binary operator.");
+                    if (currents.Peek() is null or IAstExpectValue)
+                    {
+                        err = AstErrorReason.InvalidBinaryOperator;
+                        goto HandleError;
+                    }
                     Insert(new BinaryOperator(binarySymbol));
                 }
                 else
@@ -197,8 +218,19 @@ public class AstReader
                 Insert(new AstValue(token));
             }
         }
-        CheckState(tokens.Length);
-        return roots.Peek();
+        err = CheckState(tokens.Length);
+
+        HandleError:
+        if (err != AstErrorReason.None)
+        {
+            node = default;
+            error = new AstError(err, tokens, index, currentGroups);
+            return false;
+        }
+
+        node = roots.Peek();
+        error = default;
+        return true;
     }
 
     public enum EscapeHandling
@@ -206,6 +238,48 @@ public class AstReader
         None,
         Value,
         Skip,
+    }
+}
+
+public enum AstErrorReason
+{
+    None,
+    ExpectedValue,
+    UnclosedGroup,
+    InvalidBinaryOperator,
+    MismatchedGroup
+}
+
+public class AstError
+{
+    public readonly AstErrorReason Reason;
+    public readonly Token[] Tokens;
+    public readonly int Index;
+    public readonly Stack<GroupSymbol> Groups;
+
+    public AstError(AstErrorReason reason, Token[] tokens, int index, Stack<GroupSymbol> groups)
+    {
+        Reason = reason;
+        Tokens = tokens;
+        Index = index;
+        Groups = groups;
+    }
+
+    public IEnumerable<GroupSymbol> UnclosedGroups => Groups.Take(Groups.Count - 1);
+
+    public Token CurrentToken => Tokens[Index];
+    public string Content => CurrentToken.Content;
+
+    public override string ToString()
+    {
+        return Reason switch
+        {
+            AstErrorReason.ExpectedValue => $"Value expected at token {Index}",
+            AstErrorReason.UnclosedGroup => $"Unclosed group \"{Groups.Peek()?.Left}\"",
+            AstErrorReason.InvalidBinaryOperator => $"Invalid binary operator {Tokens[Index]} at token {Index}",
+            AstErrorReason.MismatchedGroup => $"Found \"{Tokens[Index]}\" when expecting closing group for \"{Groups.Peek()?.Left}\"",
+            _ => ""
+        };
     }
 }
 
