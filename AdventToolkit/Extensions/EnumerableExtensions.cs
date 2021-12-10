@@ -506,6 +506,16 @@ public static class EnumerableExtensions
         yield return convert(last);
     }
 
+    public static Dictionary<TKey, TValue> ToDictionaryFirst<T, TKey, TValue>(this IEnumerable<T> items, Func<T, TKey> keySelector, Func<T, TValue> elementSelector)
+    {
+        return items.Select(t => new KeyValuePair<TKey,TValue>(keySelector(t), elementSelector(t))).ToDictionaryFirst();
+    }
+    
+    public static Dictionary<TKey, TValue> ToDictionaryLast<T, TKey, TValue>(this IEnumerable<T> items, Func<T, TKey> keySelector, Func<T, TValue> elementSelector)
+    {
+        return items.Select(t => new KeyValuePair<TKey,TValue>(keySelector(t), elementSelector(t))).ToDictionaryLast();
+    }
+
     // Alternative to ToDictionary where duplicate keys are allowed, only the first entry is saved
     public static Dictionary<TKey, TValue> ToDictionaryFirst<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items)
     {

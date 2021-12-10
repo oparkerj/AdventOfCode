@@ -77,3 +77,42 @@ public class Day8 : Puzzle
         WriteLn(total);
     }
 }
+
+public class Day8V2 : Puzzle
+{
+    public Day8V2()
+    {
+        Part = 2;
+        InputName = "Day8.txt";
+    }
+
+    public override void PartOne() => new Day8().PartOne();
+
+    public override void PartTwo()
+    {
+        var total = 0;
+        foreach (var line in Input)
+        {
+            var (digits, pattern) = line.SingleSplit(" | ");
+            var counts = digits.Spaced().ToDictionaryFirst(s => s.Length, s => s);
+            var num = pattern.Spaced()
+                .Select(s => (s.Length, s.Intersect(counts[4]).Count(), s.Intersect(counts[2]).Count()))
+                .Select(tuple => tuple switch
+                {
+                    (2, _, _) => 1,
+                    (3, _, _) => 7,
+                    (4, _, _) => 4,
+                    (7, _, _) => 8,
+                    (5, 2, _) => 2,
+                    (5, 3, 1) => 5,
+                    (5, 3, 2) => 3,
+                    (6, 4, _) => 9,
+                    (6, 3, 1) => 6,
+                    (6, 3, 2) => 0,
+                    _ => 0
+                }).Str().AsInt();
+            total += num;
+        }
+        WriteLn(total);
+    }
+}
