@@ -10,7 +10,7 @@ public abstract class GridBase<T> : AlignedSpace<Pos, T>
 {
     private Rect _bounds;
         
-    public bool IncludeCorners { get; }
+    public bool IncludeCorners { get; set; }
 
     public bool FitBounds { get; set; } = true;
 
