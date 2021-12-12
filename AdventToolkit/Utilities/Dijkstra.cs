@@ -63,6 +63,31 @@ public class Dijkstra<TCell, TMid>
         return dist;
     }
 
+    public int Count(TCell start, Func<TCell, bool> count)
+    {
+        var total = 0;
+        var seen = new HashSet<TCell>();
+        var queue = new Queue<TCell>();
+        queue.Enqueue(start);
+        while (queue.Count > 0)
+        {
+            var cell = queue.Dequeue();
+            if (seen.Contains(cell)) continue;
+            seen.Add(cell);
+            foreach (var neighbor in Neighbors(cell))
+            {
+                var other = Cell(cell, neighbor);
+                if (count(other))
+                {
+                    total++;
+                    continue;
+                }
+                if (!seen.Contains(other)) queue.Enqueue(other);
+            }
+        }
+        return total;
+    }
+
     public Dictionary<TCell, int> ComputeWhere(TCell start, Func<TCell, bool> valid)
     {
         var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};

@@ -37,9 +37,14 @@ public static class SpaceExtensions
 
     public static IEnumerable<TVal> NeighborValues<TPos, TVal>(this TPos pos, AlignedSpace<TPos, TVal> space)
     {
-        return pos.Neighbors(space).GetFrom(space);
+        return space.GetNeighbors(pos).GetFrom(space);
     }
-        
+
+    public static IEnumerable<TVal> GetNeighborValues<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos pos)
+    {
+        return space.GetNeighbors(pos).GetFrom(space);
+    }
+
     public static TPos Find<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TVal value)
     {
         return space.WhereValue(value).First().Key;

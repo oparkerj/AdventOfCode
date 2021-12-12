@@ -46,6 +46,8 @@ public abstract class Vertex<T, TEdge> : VertexBase<T>
     public abstract IEnumerable<TEdge> NeighborEdges { get; }
 
     public IEnumerable<Vertex<T, TEdge>> Neighbors => NeighborEdges.Select(edge => edge.OtherAs(this));
+    
+    public IEnumerable<T> NeighborValues => Neighbors.Select(vertex => vertex.Value);
 
     public virtual IEnumerable<Vertex<T, TEdge>> Connected => Edges.Select(edge => edge.OtherAs(this));
 
