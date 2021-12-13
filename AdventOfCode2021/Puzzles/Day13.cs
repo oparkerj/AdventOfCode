@@ -23,32 +23,28 @@ public class Day13 : Puzzle
 
     public void RunInstructions(IEnumerable<string> lines)
     {
-        foreach (var s in lines)
+        foreach (var line in lines)
         {
             var bounds = Grid.Bounds;
-            var inst = s[11..];
+            var inst = line[11..];
             var pos = inst[2..].AsInt();
             if (inst[0] == 'x')
             {
-                for (var i = 0; i < bounds.MaxX - pos; i++)
-                {
-                    foreach (var y in bounds.YRange)
-                    {
-                        if (Grid[pos + i + 1, y]) Grid[pos - i - 1, y] = true;
-                    }
-                }
-                Grid.Clip(new Rect(Interval.Range(bounds.MinX, pos), bounds.YRange));
+                var area = new Rect(..pos, bounds.YRange);
+                var window = Grid.Window(area);
+                window.FlipH = true;
+                window.OffsetX = pos + 1;
+                window.OverlayTransformed(Bools.Or);
+                Grid.ClipTo(area);
             }
             else
             {
-                foreach (var x in bounds.XRange)
-                {
-                    for (var i = 0; i < bounds.MaxY - pos; i++)
-                    {
-                        if (Grid[x, pos + i + 1]) Grid[x, pos - i - 1] = true;
-                    }
-                }
-                Grid.Clip(new Rect(bounds.XRange, Interval.Range(bounds.MinY, pos)));
+                var area = new Rect(bounds.XRange, ..pos);
+                var window = Grid.Window(area);
+                window.FlipV = true;
+                window.OffsetY = pos + 1;
+                window.OverlayTransformed(Bools.Or);
+                Grid.ClipTo(area);
             }
         }
     }

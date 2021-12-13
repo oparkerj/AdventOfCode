@@ -52,7 +52,9 @@ public static class Num
     public static bool Lt(this int a, int b) => a < b;
         
     public static bool Le(this int a, int b) => a <= b;
-        
+
+    public static int RoundToInt(this double d) => (int) Math.Round(d);
+
     public static BigInteger Factorial(this int i)
     {
         var prod = new BigInteger(1);
