@@ -115,13 +115,14 @@ public static class GridExtensions
         return grid.Window(new Rect(xRange, yRange));
     }
 
-    public static void Clip<T>(this GridBase<T> grid, Rect window)
+    public static void ClipTo<T>(this GridBase<T> grid, Rect window)
     {
         var clip = grid.Bounds.Intersection(window);
         foreach (var outside in grid.Positions.Where(pos => !clip.Contains(pos)).ToList())
         {
             grid.Remove(outside);
         }
+        grid.Bounds = clip;
     }
 
     public static void KeepOnly<T>(this GridBase<T> grid, T value)
@@ -130,5 +131,6 @@ public static class GridExtensions
         {
             grid.Remove(pos);
         }
+        grid.ResetBounds();
     }
 }
