@@ -24,7 +24,7 @@ public class Day12 : Puzzle
             Cell = (state, s) => new State(s, char.IsLower(s[0]) ? state.Seen + "," + s : state.Seen, state.Path + "," + s)
         };
         var dictionary = dijkstra.Compute(new State("start", "", ""));
-        Clip(dictionary.Keys.Count(state => state.Current == "end"));
+        WriteLn(dictionary.Keys.Count(state => state.Current == "end"));
     }
     
     public record State(string Current, string Seen, string Path);
@@ -44,6 +44,6 @@ public class Day12 : Puzzle
 
     public override void PartTwo()
     {
-        Clip(CountPathsFrom("start", new List<string>(), null));
+        WriteLn(CountPathsFrom("start", new List<string>(), null));
     }
 }

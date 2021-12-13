@@ -107,4 +107,28 @@ public static class GridExtensions
         var y = decreaseY ? new Interval(offset.Y - sizeY + 1, sizeY) : new Interval(offset.Y, sizeY);
         return Slice(grid, x, y, decreaseY, output);
     }
+
+    public static GridWindow<T> Window<T>(this GridBase<T> grid, Rect window) => new(grid, window);
+
+    public static GridWindow<T> Window<T>(this GridBase<T> grid, Interval xRange, Interval yRange)
+    {
+        return grid.Window(new Rect(xRange, yRange));
+    }
+
+    public static void Clip<T>(this GridBase<T> grid, Rect window)
+    {
+        var clip = grid.Bounds.Intersection(window);
+        foreach (var outside in grid.Positions.Where(pos => !clip.Contains(pos)).ToList())
+        {
+            grid.Remove(outside);
+        }
+    }
+
+    public static void KeepOnly<T>(this GridBase<T> grid, T value)
+    {
+        foreach (var pos in grid.WhereValue(t => !Equals(t, value)).Keys().ToList())
+        {
+            grid.Remove(pos);
+        }
+    }
 }

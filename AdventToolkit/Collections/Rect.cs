@@ -44,6 +44,8 @@ public class Rect : IEnumerable<Pos>
         Initialized = true;
     }
 
+    public Rect(Interval xRange, Interval yRange) : this(xRange.Start, yRange.Start, xRange.Length, yRange.Length) { }
+
     public Rect(Rect other) : this(other.MinX, other.MinY, other.Width, other.Height)
     {
         Initialized = true;
@@ -126,6 +128,10 @@ public class Rect : IEnumerable<Pos>
             if (Height < 0) throw new ArgumentException("Rect resized to negative height.");
         }
     }
+
+    public Interval XRange => new(MinX, Width);
+
+    public Interval YRange => new(MinY, Height);
 
     public double MidX => (MinX + MaxX) / 2d;
 

@@ -83,6 +83,16 @@ public abstract class Puzzle
         WriteLn(text);
     }
 
+    public void PrintLn(string text) => Print(text + Environment.NewLine);
+
+    public void Print(string text)
+    {
+        Write(text);
+        var name = InputName;
+        if (name.IndexOf('.') is >= 0 and var i) name = name[..i] + "_out" + name[i..];
+        File.AppendAllText(name, text);
+    }
+
     private string[] _input;
 
     public string[] Input
