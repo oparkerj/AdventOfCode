@@ -41,7 +41,7 @@ public class Day11 : Puzzle
         {
             total += Step(grid);
         }
-        Clip(total);
+        WriteLn(total);
     }
 
     public override void PartTwo()
@@ -55,6 +55,6 @@ public class Day11 : Puzzle
             step++;
             if (Step(grid) == 100) break;
         }
-        Clip(step);
+        WriteLn(step);
     }
 }
