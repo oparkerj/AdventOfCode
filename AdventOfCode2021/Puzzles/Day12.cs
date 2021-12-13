@@ -7,17 +7,19 @@ namespace AdventOfCode2021.Puzzles;
 
 public class Day12 : Puzzle
 {
+    public UniqueGraph<string> Graph;
+
     public Day12()
     {
         Part = 2;
+        Graph = Input.Select(s => s.SingleSplit('-')).ToGraph(tuple => tuple.Left, tuple => tuple.Right);
     }
 
     public override void PartOne()
     {
-        var graph = Input.Select(s => s.SingleSplit('-')).ToGraph(tuple => tuple.Left, tuple => tuple.Right);
         var dijkstra = new Dijkstra<State, string>
         {
-            Neighbors = state => graph[state.Current].NeighborValues.Where(s => !state.Seen.Contains(s)).Without("start"),
+            Neighbors = state => Graph[state.Current].NeighborValues.Where(s => !state.Seen.Contains(s)).Without("start"),
             Distance = _ => 1,
             Cell = (state, s) => new State(s, char.IsLower(s[0]) ? state.Seen + "," + s : state.Seen, state.Path + "," + s)
         };
@@ -27,7 +29,7 @@ public class Day12 : Puzzle
     
     public record State(string Current, string Seen, string Path);
 
-    public int CountPathsFrom(UniqueGraph<string> graph, string current, List<string> seen, string twice)
+    public int CountPathsFrom(string current, List<string> seen, string twice)
     {
         if (current == "end") return 1;
         if (char.IsLower(current[0]) && seen.Contains(current))
@@ -36,12 +38,12 @@ public class Day12 : Puzzle
             else return 0;
         }
         seen = seen.Append(current).ToList();
-        return graph[current].NeighborValues.Without("start").Sum(neighbor => CountPathsFrom(graph, neighbor, seen, twice));
+        return Graph[current].NeighborValues.Without("start")
+            .Sum(neighbor => CountPathsFrom(neighbor, seen, twice));
     }
 
     public override void PartTwo()
     {
-        var graph = Input.Select(s => s.SingleSplit('-')).ToGraph(tuple => tuple.Left, tuple => tuple.Right);
-        Clip(CountPathsFrom(graph, "start", new List<string>(), null));
+        Clip(CountPathsFrom("start", new List<string>(), null));
     }
 }
