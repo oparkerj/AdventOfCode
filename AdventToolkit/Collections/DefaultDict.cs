@@ -10,6 +10,8 @@ public class DefaultDict<TKey, TValue> : Dictionary<TKey, TValue>
 
     public TValue DefaultValue = default;
 
+    public DefaultDict(IEnumerable<KeyValuePair<TKey, TValue>> pairs) : base(pairs) { }
+
     public new TValue this[TKey key]
     {
         get => TryGetValue(key, out var t) ? t : DefaultValue;

@@ -69,6 +69,11 @@ public static class EnumerableExtensions
         return string.Concat(source);
     }
 
+    public static IEnumerable<string> StrEach<T>(this IEnumerable<IEnumerable<T>> source)
+    {
+        return source.Select(arg => arg.Str());
+    }
+
     public static IEnumerable<string> ToStrings<T>(this IEnumerable<T> items)
     {
         return items.Select(arg => arg.ToString());
