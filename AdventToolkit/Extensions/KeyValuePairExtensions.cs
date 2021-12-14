@@ -21,6 +21,16 @@ public static class KeyValuePairExtensions
         return source.Select(pair => pair.Value);
     }
 
+    public static IEnumerable<KeyValuePair<TOut, TValue>> SelectKey<TKey, TValue, TOut>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs, Func<TKey, TOut> func)
+    {
+        return pairs.Select(pair => new KeyValuePair<TOut, TValue>(func(pair.Key), pair.Value));
+    }
+    
+    public static IEnumerable<KeyValuePair<TKey, TOut>> SelectValue<TKey, TValue, TOut>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs, Func<TValue, TOut> func)
+    {
+        return pairs.Select(pair => new KeyValuePair<TKey, TOut>(pair.Key, func(pair.Value)));
+    }
+
     public static IEnumerable<KeyValuePair<TKey, TValue>> WhereKey<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, TKey key)
     {
         return source.Where(pair => Equals(pair.Key, key));
