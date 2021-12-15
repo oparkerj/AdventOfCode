@@ -31,7 +31,7 @@ public class Day13 : Puzzle
             if (inst[0] == 'x')
             {
                 var area = new Rect(..pos, bounds.YRange);
-                var window = Grid.Window(area);
+                var window = Grid.View(area);
                 window.FlipH = true;
                 window.OffsetX = pos + 1;
                 window.OverlayTransformed(Bools.Or);
@@ -40,7 +40,7 @@ public class Day13 : Puzzle
             else
             {
                 var area = new Rect(bounds.XRange, ..pos);
-                var window = Grid.Window(area);
+                var window = Grid.View(area);
                 window.FlipV = true;
                 window.OffsetY = pos + 1;
                 window.OverlayTransformed(Bools.Or);

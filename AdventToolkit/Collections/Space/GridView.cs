@@ -9,7 +9,7 @@ namespace AdventToolkit.Collections.Space;
 // You interact with the grid through the original window, and values are
 // read/written at transformed locations.
 // This applies transforms in the order flips, offset.
-public class GridWindow<T> : GridBase<T>
+public class GridView<T> : GridBase<T>
 {
     public readonly GridBase<T> Source;
     
@@ -30,15 +30,15 @@ public class GridWindow<T> : GridBase<T>
         set => Offset = new Pos(Offset.X, value);
     }
 
-    private GridWindow() => FitBounds = false;
+    private GridView() => FitBounds = false;
 
-    public GridWindow(GridBase<T> source) : this()
+    public GridView(GridBase<T> source) : this()
     {
         Source = source;
         Bounds = source.Bounds;
     }
 
-    public GridWindow(GridBase<T> source, Rect window) : this()
+    public GridView(GridBase<T> source, Rect window) : this()
     {
         Source = source;
         Bounds = window;

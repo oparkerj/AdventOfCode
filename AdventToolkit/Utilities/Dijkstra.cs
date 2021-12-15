@@ -143,6 +143,35 @@ public class Dijkstra<TCell, TMid>
         return dist;
     }
 
+    public Dictionary<TCell, (int Dist, TCell From)> ComputePath(TCell start, TCell target, Func<TCell, bool> valid = null)
+    {
+        valid ??= _ => true;
+        var dist = new DefaultDict<TCell, (int Dist, TCell From)> {DefaultValue = (int.MaxValue, default), [start] = (0, default)};
+        var seen = new HashSet<TCell>();
+        var queue = new PriorityQueue<TCell, int>();
+        queue.Enqueue(start, 0);
+        while (queue.Count > 0)
+        {
+            var cell = queue.Dequeue();
+            if (seen.Contains(cell)) continue;
+            seen.Add(cell);
+            if (Equals(cell, target)) return dist;
+            var current = dist[cell].Dist;
+            foreach (var neighbor in Neighbors(cell))
+            {
+                var other = Cell(cell, neighbor);
+                if (!valid(other)) continue;
+                var weight = Distance(neighbor);
+                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
+                if (current + weight < dist[other].Dist)
+                {
+                    dist[other] = (current + weight, cell);
+                }
+            }
+        }
+        return dist;
+    }
+
     public int ComputeFind(TCell start, TCell target, Func<TCell, bool> valid = null)
     {
         valid ??= _ => true; 
@@ -222,6 +251,11 @@ public static class DijkstraExtensions
     public static int DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, TCell target, Func<TCell, bool> valid = null)
     {
         return dijkstra.Build().ComputeFind(start, target, valid);
+    }
+
+    public static Dictionary<TCell, (int Dist, TCell From)> DijkstraPath<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, TCell target, Func<TCell, bool> valid = null)
+    {
+        return dijkstra.Build().ComputePath(start, target, valid);
     }
 
     public static IReadOnlyCollection<TCell> GetPathTo<TCell>(this Dictionary<TCell, (int Dist, TCell From)> dist, TCell target)

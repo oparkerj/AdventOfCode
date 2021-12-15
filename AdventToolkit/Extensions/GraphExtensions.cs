@@ -85,7 +85,7 @@ public static class GraphExtensions
     public static Dijkstra<TVertex, DataEdge<T, int>> ToDijkstra<T, TVertex>(this Graph<T, TVertex, DataEdge<T, int>> graph)
         where TVertex : Vertex<T, DataEdge<T, int>>
     {
-        return new()
+        return new Dijkstra<TVertex, DataEdge<T, int>>
         {
             Neighbors = vertex => vertex.NeighborEdges,
             Distance = edge => edge.Data,
@@ -96,7 +96,7 @@ public static class GraphExtensions
     public static Dijkstra<TVertex, Edge<T>> ToDijkstra<T, TVertex>(this Graph<T, TVertex, Edge<T>> graph)
         where TVertex : Vertex<T, Edge<T>>
     {
-        return new()
+        return new Dijkstra<TVertex, Edge<T>>
         {
             Neighbors = vertex => vertex.NeighborEdges,
             Distance = _ => 1,
