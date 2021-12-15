@@ -108,11 +108,11 @@ public static class GridExtensions
         return Slice(grid, x, y, decreaseY, output);
     }
 
-    public static GridWindow<T> Window<T>(this GridBase<T> grid, Rect window) => new(grid, window);
+    public static GridView<T> View<T>(this GridBase<T> grid, Rect window) => new(grid, window);
 
-    public static GridWindow<T> Window<T>(this GridBase<T> grid, Interval xRange, Interval yRange)
+    public static GridView<T> View<T>(this GridBase<T> grid, Interval xRange, Interval yRange)
     {
-        return grid.Window(new Rect(xRange, yRange));
+        return grid.View(new Rect(xRange, yRange));
     }
 
     public static void ClipTo<T>(this GridBase<T> grid, Rect window)
