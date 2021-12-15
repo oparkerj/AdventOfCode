@@ -133,4 +133,15 @@ public static class GridExtensions
         }
         grid.ResetBounds();
     }
+
+    // TODO remove this once generic math feature is available
+    public static Dijkstra<Pos, (Pos, int)> ToDijkstraWeights(this GridBase<int> grid, bool inBounds = true)
+    {
+        return new Dijkstra<Pos, (Pos, int)>
+        {
+            Neighbors = pos => inBounds ? grid.GetNeighbors(pos).Where(grid.Bounds.Contains).Select(p => (p, grid[p])) : grid.GetNeighborsAndValues(pos),
+            Distance = tuple => tuple.Item2,
+            Cell = (_, tuple) => tuple.Item1
+        };
+    }
 }
