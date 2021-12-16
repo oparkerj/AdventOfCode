@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using AdventToolkit.Collections;
 
 namespace AdventToolkit.Extensions;
 
@@ -190,5 +191,10 @@ public static class Num
     {
         if (i < 0) return mod + i % mod;
         return i % mod;
+    }
+
+    public static int ModRange(this int i, Interval interval)
+    {
+        return (i - interval.Start).CircularMod(interval.Length) + interval.Start;
     }
 }

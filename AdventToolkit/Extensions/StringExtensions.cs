@@ -24,6 +24,11 @@ public static class StringExtensions
         return s.Select(Conversions.AsInt);
     }
 
+    public static IEnumerable<IEnumerable<int>> Digits(this IEnumerable<string> strings)
+    {
+        return strings.Select(s => s.Digits());
+    }
+
     public static IEnumerable<int> IndicesOf(this string s, char c)
     {
         var i = 0;

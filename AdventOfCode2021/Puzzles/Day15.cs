@@ -14,7 +14,7 @@ public class Day15 : Puzzle
 
     public override void PartOne()
     {
-        var map = Input.Select2D(c => c.AsInt()).ToGrid(false);
+        var map = Input.Digits().ToGrid(false);
         var target = map.Bounds.Max;
         var paths = map.ToDijkstraWeights().ComputePath(Pos.Origin, target);
         var sum = paths.GetPathTo(target).Select(pos => map[pos]).Sum() - map[Pos.Origin];
@@ -23,16 +23,14 @@ public class Day15 : Puzzle
 
     public override void PartTwo()
     {
-        var map = Input.Select2D(c => c.AsInt()).ToGrid(false);
+        var map = Input.Digits().ToGrid(false);
         var bounds = new Rect(map.Bounds);
 
         foreach (var pos in new Rect(5, 5).Without(Pos.Origin))
         {
-            var (x, y) = pos;
-            var view = map.View(new Rect(bounds.Width * x, bounds.Height * y, bounds.Width, bounds.Height));
-            view.OffsetX = -bounds.Width * x;
-            view.OffsetY = -bounds.Height * y;
-            view.OverlayTransformed((_, part) => ((part + pos.MDist(Pos.Origin)) - 1) % 9 + 1);
+            var view = map.View(new Rect(bounds.Size * pos, bounds.Width, bounds.Height));
+            view.Offset = -bounds.Size * pos;
+            view.OverlayTransformed((_, part) => (part + pos.MDist(Pos.Origin)).ModRange(1..10));
         }
         
         var target = map.Bounds.Max;

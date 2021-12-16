@@ -146,6 +146,12 @@ public class Rect : IEnumerable<Pos>
     public Pos DiagMin => new(MaxX, MinY);
 
     public Pos DiagMax => new(MinX, MaxY);
+
+    public Pos Size
+    {
+        get => new(Width, Height);
+        set => (Width, Height) = value;
+    }
         
     public int Area => Width * Height;
 
