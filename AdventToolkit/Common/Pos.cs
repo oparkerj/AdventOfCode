@@ -96,9 +96,15 @@ public readonly struct Pos : IAdd<Pos>, ISub<Pos>, INegate<Pos>
 
     public static Pos operator *(int s, Pos p) => p * s;
 
+    // Component-wise multiplication
+    public static Pos operator *(Pos a, Pos b) => new(a.X * b.X, a.Y * b.Y);
+
     public static Pos operator /(Pos p, int s) => new(p.X / s, p.Y / s);
         
     public static Pos operator /(int s, Pos p) => new(s / p.X, s / p.Y);
+
+    // Component-wise division
+    public static Pos operator /(Pos a, Pos b) => new(a.X / b.X, a.Y / b.Y);
 
     public static bool operator ==(Pos a, Pos b) => a.Equals(b);
         
