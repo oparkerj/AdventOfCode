@@ -49,6 +49,10 @@ public readonly struct Interval : IEnumerable<int>
         return new Interval();
     }
 
+    public Interval Shift(int amount) => new(Start + amount, Length);
+
+    // Tell if the number is in the lower half of the range.
+    // equal is the value to return if the number is exactly at the midpoint of the range.
     public bool InLowerHalf(int i, bool equal = false)
     {
         i -= Start;
