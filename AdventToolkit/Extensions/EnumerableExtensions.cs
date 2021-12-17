@@ -143,7 +143,12 @@ public static class EnumerableExtensions
 
     public static int Product(this IEnumerable<int> ints)
     {
-        return ints.Aggregate((a, b) => a * b);
+        return ints.Aggregate(Num.Mul);
+    }
+
+    public static long Product(this IEnumerable<long> longs)
+    {
+        return longs.Aggregate(Num.Mul);
     }
 
     public static long LongProduct(this IEnumerable<int> ints)
@@ -662,5 +667,14 @@ public static class EnumerableExtensions
     public static IEnumerable<KeyValuePair<int, T>> Indexed<T>(this IEnumerable<T> source)
     {
         return source.Select((t, i) => new KeyValuePair<int, T>(i, t));
+    }
+
+    public static (T, T) ToPair<T>(this IEnumerable<T> items)
+    {
+        using var e = items.GetEnumerator();
+        if (!e.MoveNext()) throw new Exception("No elements");
+        var a = e.Current;
+        if (!e.MoveNext()) throw new Exception("No second element.");
+        return (a, e.Current);
     }
 }
