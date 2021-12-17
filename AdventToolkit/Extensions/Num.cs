@@ -167,9 +167,9 @@ public static class Num
         
     public static IEnumerable<int> DigitsLtr(this long i) => i.Digits().Reverse();
 
-    public static IEnumerable<bool> Bits(this uint i)
+    public static IEnumerable<bool> Bits(this uint i, int n = 32)
     {
-        for (var o = 31; o >= 0; o--)
+        for (var o = n - 1; o >= 0; o--)
         {
             yield return ((i >> o) & 1) == 1;
         }
@@ -185,6 +185,12 @@ public static class Num
     public static int BitsToInt(this IEnumerable<bool> bits)
     {
         return BinaryInt(bits.TakeLast(32).AsInts().Str());
+    }
+
+    public static BigInteger BitsToInteger(this IEnumerable<bool> bits, bool unsigned = true)
+    {
+        var bytes = bits.Reverse().Chunk(8).Select(bools => (byte) bools.Reverse().BitsToInt()).ToArray();
+        return new BigInteger(bytes.AsSpan(), unsigned);
     }
 
     public static int CircularMod(this int i, int mod)
