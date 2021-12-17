@@ -24,14 +24,13 @@ public class Day17 : Puzzle
     public override void PartOne()
     {
         var area = GetArea();
-        var result = area.Max(pos => Algorithms.Sum1ToN((pos.X * 2).SqrtFloor()) == pos.X ? Algorithms.Sum1ToN(-pos.Y - 1) : 0);
-        WriteLn(result);
+        WriteLn(Algorithms.Sum1ToN(-area.MinY - 1));
     }
 
     public override void PartTwo()
     {
         var area = GetArea();
-        var maxY = area.Max(pos => Algorithms.Sum1ToN((pos.X * 2).SqrtFloor()) == pos.X ? -pos.Y - 1 : 0);
+        var maxY = Algorithms.Sum1ToN(-area.MinY - 1);
         // Manually check velocities within plausible extremes
         var velocityRange = new Rect(new Pos((area.MinX * 2).SqrtFloor(), area.MinY), new Pos(area.MaxX, maxY));
         var count = velocityRange.Count(vel =>
