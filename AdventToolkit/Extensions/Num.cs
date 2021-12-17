@@ -203,4 +203,28 @@ public static class Num
     {
         return (i - interval.Start).CircularMod(interval.Length) + interval.Start;
     }
+
+    // Check if i is a perfect square using Newtons method.
+    // Return value is floor(sqrt(i)) for non-perfect squares.
+    public static bool Sqrt(this int i, out int root)
+    {
+        root = default;
+        if (i < 0) return false;
+        if (i < 3) return true;
+        var (a, b) = (i, i / 2);
+        // Compare with last result because method will alternate between
+        // floor(sqrt(i)) and ceil(sqrt(i)) when i + 1 is a perfect square.
+        while (b < a)
+        {
+            (a, b) = (b, (b * b + i) / (b * 2));
+        }
+        root = a;
+        return a * a == i;
+    }
+
+    public static int SqrtFloor(this int i)
+    {
+        i.Sqrt(out var result);
+        return result;
+    }
 }
