@@ -33,25 +33,13 @@ public class Day18 : Puzzle
         public Pair Left
         {
             get => _left;
-            set
-            {
-                if (_left != null) _left.Parent = null;
-                value?.Parent?.Remove(value);
-                if (value != null) value.Parent = this;
-                _left = value;
-            }
+            set => Set(ref _left, value);
         }
 
         public Pair Right
         {
             get => _right;
-            set
-            {
-                if (_right != null) _right.Parent = null;
-                value?.Parent?.Remove(value);
-                if (value != null) value.Parent = this;
-                _right = value;
-            }
+            set => Set(ref _right, value);
         }
 
         public Pair(int value) => Value = value;
@@ -87,77 +75,49 @@ public class Day18 : Puzzle
             if (_right == child) _right = null;
         }
 
+        private void Set(ref Pair pair, Pair value)
+        {
+            if (pair != null) pair.Parent = null;
+            value?.Parent?.Remove(value);
+            if (value != null) value.Parent = this;
+            pair = value;
+        }
+
+        private Pair Get(bool left) => left ? Left : Right;
+
         public bool IsRegular => _left == null;
 
-        // Get the first pair/value to the left of this, or null
-        public Pair GetLeft()
-        {
-            if (Parent == null) return null;
-            var parent = Parent;
-            return parent._right == this ? parent._left : parent.GetLeft();
-        }
+        public Pair GetPair(bool left) => Parent?.Get(!left) == this ? Parent.Get(left) : Parent?.GetPair(left);
 
-        // Get the first pair/value to the right of this, or null
-        public Pair GetRight()
+        public Pair FindNumber(bool left, bool dfs = false)
         {
-            if (Parent == null) return null;
-            var parent = Parent;
-            return parent._left == this ? parent._right : parent.GetRight();
+            if (!dfs) return GetPair(left)?.FindNumber(left, true);
+            return IsRegular ? this : Get(!left).FindNumber(left, true) ?? Get(left).FindNumber(left, true);
         }
-
-        // Find the first regular number to the left of this, or null 
-        public Pair FindLeftNumber(bool dfs = false)
+        
+        public bool Explode(int level = 0)
         {
-            if (!dfs) return GetLeft()?.FindLeftNumber(true);
-            if (IsRegular) return this;
-            return _right.FindLeftNumber(true) ?? _left.FindLeftNumber(true);
+            if (IsRegular) return false;
+            if (level != 4) return _left.Explode(level + 1) || _right.Explode(level + 1);
+            var left = FindNumber(true);
+            if (left != null) left.Value += _left.Value;
+            var right = FindNumber(false);
+            if (right != null) right.Value += _right.Value;
+            ReplaceWith(0);
+            return true;
         }
-
-        // Find the first regular number to the right of this, or null
-        public Pair FindRightNumber(bool dfs = false)
+        
+        public bool Split()
         {
-            if (!dfs) return GetRight()?.FindRightNumber(true);
-            if (IsRegular) return this;
-            return _left.FindRightNumber(true) ?? _right.FindRightNumber(true);
-        }
-
-        // Find the first pair nested 4 levels deep, or null
-        public Pair GetNested(int level = 0)
-        {
-            if (IsRegular) return null;
-            if (level == 4) return this;
-            return _left.GetNested(level + 1) ?? _right.GetNested(level + 1);
-        }
-
-        // Find the first value >= 10, or null
-        public Pair GetBigValue()
-        {
-            if (!IsRegular) return _left.GetBigValue() ?? _right.GetBigValue();
-            return Value >= 10 ? this : null;
+            if (!IsRegular) return _left.Split() || _right.Split();
+            if (Value < 10) return false;
+            ReplaceWith(new Pair(Value / 2, (Value + 1) / 2));
+            return true;
         }
 
         public Pair Reduce()
         {
-            while (true)
-            {
-                var current = GetNested();
-                if (current != null)
-                {
-                    var left = current.FindLeftNumber();
-                    if (left != null) left.Value += current.Left.Value;
-                    var right = current.FindRightNumber();
-                    if (right != null) right.Value += current.Right.Value;
-                    current.ReplaceWith(0);
-                    continue;
-                }
-                current = GetBigValue();
-                if (current != null)
-                {
-                    current.ReplaceWith(new Pair(current.Value / 2, (current.Value + 1) / 2));
-                    continue;
-                }
-                break;
-            }
+            while (Explode() || Split()) { }
             return this;
         }
 
@@ -165,10 +125,7 @@ public class Day18 : Puzzle
         // Don't reuse a pair for a different independent addition.
         public static Pair Add(Pair left, Pair right) => new Pair(left, right).Reduce();
 
-        public int Magnitude()
-        {
-            return IsRegular ? Value : _left.Magnitude() * 3 + _right.Magnitude() * 2;
-        }
+        public int Magnitude() => IsRegular ? Value : _left.Magnitude() * 3 + _right.Magnitude() * 2;
 
         public override string ToString() => IsRegular ? Value.ToString() : $"[{Left},{Right}]";
     }
