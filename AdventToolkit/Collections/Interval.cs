@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Collections;
 
@@ -59,6 +60,8 @@ public readonly struct Interval : IEnumerable<int>
         var half = Length / 2;
         return i == half && Length % 2 == 0 ? equal : i <= half;
     }
+
+    public int Sum() => Algorithms.SumRange(Start, End - 1);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
