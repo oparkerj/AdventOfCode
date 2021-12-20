@@ -29,6 +29,16 @@ public static class BitArrayExtensions
         return array;
     }
 
+    public static BitArray ToBitArray(this string s, char set)
+    {
+        var array = new BitArray(s.Length);
+        for (var i = 0; i < s.Length; i++)
+        {
+            array[i] = s[i] == set;
+        }
+        return array;
+    }
+
     public static IEnumerable<bool> Values(this BitArray bits) => bits.Cast<bool>();
 
     public static bool TryConsume(this BitArray bits, int n, out BigInteger value)

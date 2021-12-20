@@ -25,7 +25,7 @@ public class Day11 : Puzzle
     public override void PartOne()
     {
             
-        var game = GameOfLife.OnGrid(Empty, Taken, true)
+        var game = GameOfLife.OnGrid(Taken, Empty, true)
             .WithLivingDeadRules(i => i >= 4, i => i == 0);
         foreach (var (pos, c) in Input.As2D())
         {

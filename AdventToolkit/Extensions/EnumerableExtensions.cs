@@ -683,4 +683,14 @@ public static class EnumerableExtensions
         return a.Intersect(b).First(out equal);
     }
 
+    public static IEnumerable<T> Inject<T>(this IEnumerable<T> source, T item, int index)
+    {
+        using var e = source.GetEnumerator();
+        var i = 0;
+        while (i++ < index && e.MoveNext()) yield return e.Current;
+        if (i - 1 < index) throw new Exception("Insertion index is larger than length of sequence.");
+        yield return item;
+        while (e.MoveNext()) yield return e.Current;
+    }
+
 }

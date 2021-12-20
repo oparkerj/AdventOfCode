@@ -19,7 +19,7 @@ public class Day18 : Puzzle
 
     public GameOfLife<Pos, char> CreateGame()
     {
-        return GameOfLife.OnGrid(Open, Trees, true)
+        return GameOfLife.OnGrid(Trees, Open, true)
             .WithUpdate(cell =>
             {
                 return cell.State switch

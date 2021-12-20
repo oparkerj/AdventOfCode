@@ -26,7 +26,8 @@ public readonly struct Pos : IAdd<Pos>, ISub<Pos>, INegate<Pos>
     public static Pos ConsoleUp => Down;
     public static Pos ConsoleDown => Up;
 
-    public static readonly IComparer<Pos> ReadingOrder = Comparing<Pos>.ByReverse(pos => pos.Y).ThenBy(pos => pos.X);
+    private static IComparer<Pos> _readingOrder;
+    public static IComparer<Pos> ReadingOrder => _readingOrder ??= Comparing<Pos>.ByReverse(pos => pos.Y).ThenBy(pos => pos.X);
 
     public static implicit operator Pos((int x, int y) p) => new(p.x, p.y);
 
