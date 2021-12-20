@@ -14,7 +14,7 @@ public static class EnumerableExtensions
     {
         return enumerable.Where(item => !Equals(item, value));
     }
-        
+
     // Inner join sequence of string arrays.
     public static IEnumerable<string> JoinEach(this IEnumerable<string[]> ie, string sep = null)
     {
@@ -433,7 +433,7 @@ public static class EnumerableExtensions
         }
         return value;
     }
-        
+
     public static int FindMin<T>(this IEnumerable<T> items)
     {
         return items.FindMin(Comparer<T>.Default);
@@ -518,12 +518,12 @@ public static class EnumerableExtensions
 
     public static Dictionary<TKey, TValue> ToDictionaryFirst<T, TKey, TValue>(this IEnumerable<T> items, Func<T, TKey> keySelector, Func<T, TValue> elementSelector)
     {
-        return items.Select(t => new KeyValuePair<TKey,TValue>(keySelector(t), elementSelector(t))).ToDictionaryFirst();
+        return items.Select(t => new KeyValuePair<TKey, TValue>(keySelector(t), elementSelector(t))).ToDictionaryFirst();
     }
-    
+
     public static Dictionary<TKey, TValue> ToDictionaryLast<T, TKey, TValue>(this IEnumerable<T> items, Func<T, TKey> keySelector, Func<T, TValue> elementSelector)
     {
-        return items.Select(t => new KeyValuePair<TKey,TValue>(keySelector(t), elementSelector(t))).ToDictionaryLast();
+        return items.Select(t => new KeyValuePair<TKey, TValue>(keySelector(t), elementSelector(t))).ToDictionaryLast();
     }
 
     // Alternative to ToDictionary where duplicate keys are allowed, only the first entry is saved
@@ -536,7 +536,7 @@ public static class EnumerableExtensions
         }
         return d;
     }
-        
+
     // Alternative to ToDictionary where duplicate keys are allowed, duplicate entries will overwrite previous occurrences
     public static Dictionary<TKey, TValue> ToDictionaryLast<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items)
     {
@@ -677,4 +677,10 @@ public static class EnumerableExtensions
         if (!e.MoveNext()) throw new Exception("No second element.");
         return (a, e.Current);
     }
+
+    public static bool AnyEqual<T>(this IEnumerable<T> a, IEnumerable<T> b, out T equal)
+    {
+        return a.Intersect(b).First(out equal);
+    }
+
 }

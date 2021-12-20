@@ -63,3 +63,18 @@ public class DirectedEdge<T> : Edge<T>
 
     public override string ToString() => $"{From} -> {To}";
 }
+
+public class DirectedDataEdge<T, TData> : DataEdge<T, TData>
+{
+    public DirectedDataEdge(VertexBase<T> from, VertexBase<T> to, TData data) : base(from, to, data) { }
+
+    public override VertexBase<T> Other(VertexBase<T> vertexOld)
+    {
+        return vertexOld == From ? To : null;
+    }
+
+    public override string ToString()
+    {
+        return $"{From} -> {To} [label=\"{Data}\"];";
+    }
+}

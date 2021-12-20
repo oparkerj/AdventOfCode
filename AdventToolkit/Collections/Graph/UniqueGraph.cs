@@ -44,3 +44,5 @@ public class UniqueGraph<T> : UniqueGraph<T, Vertex<T, Edge<T>>, Edge<T>> { }
 public class UniqueDataGraph<T, TData> : UniqueGraph<T, DataVertex<T, TData>, DataEdge<T, TData>> { }
 
 public class UniqueDigraph<T> : UniqueGraph<T, Vertex<T, DirectedEdge<T>>, DirectedEdge<T>> { }
+
+public class UniqueDataDigraph<T, TData> : UniqueGraph<T, Vertex<T, DirectedDataEdge<T, TData>>, DirectedDataEdge<T, TData>> { }
