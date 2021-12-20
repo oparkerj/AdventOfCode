@@ -2,4 +2,4 @@
 global using AdventToolkit.Extensions;
 using AdventOfCode2021.Puzzles;
 
-Puzzle.Run<Day18>();
+Puzzle.Run<Day19>();

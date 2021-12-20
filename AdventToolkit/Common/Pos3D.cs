@@ -114,4 +114,16 @@ public readonly struct Pos3D : IAdd<Pos3D>, ISub<Pos3D>, INegate<Pos3D>
     }
 
     public int Dot(Pos3D o) => X * o.X + Y * o.Y + Z * o.Z;
+
+    public Pos3D XClockwise(Pos3D center = default) => new(X, Z - center.Z + center.Y, center.Y - Y + center.Z);
+
+    public Pos3D XCounterClockwise(Pos3D center = default) => new(X, -(Z - center.Z) + center.Y, -(center.Y - Y) + center.Z);
+
+    public Pos3D YClockwise(Pos3D center = default) => new(Z - center.Z + center.X, Y, center.X - X + center.Z);
+
+    public Pos3D YCounterClockwise(Pos3D center = default) => new(-(Z - center.Z) + center.X, Y, -(center.X - X) + center.Z);
+
+    public Pos3D ZClockwise(Pos3D center = default) => new(Y - center.Y + center.X, center.X - X + center.Y, Z);
+
+    public Pos3D ZCounterClockwise(Pos3D center = default) => new(-(Y - center.Y) + center.X, -(center.X - X) + center.Y, Z);
 }
