@@ -27,14 +27,14 @@ public static class PosExtensions
 
     public static IEnumerable<Pos> Around(this Pos p)
     {
+        yield return new Pos(p.X - 1, p.Y + 1);
+        yield return new Pos(p.X, p.Y + 1);
+        yield return new Pos(p.X + 1, p.Y + 1);
+        yield return new Pos(p.X - 1, p.Y);
+        yield return new Pos(p.X + 1, p.Y);
+        yield return new Pos(p.X - 1, p.Y - 1);
         yield return new Pos(p.X, p.Y - 1);
         yield return new Pos(p.X + 1, p.Y - 1);
-        yield return new Pos(p.X + 1, p.Y);
-        yield return new Pos(p.X + 1, p.Y + 1);
-        yield return new Pos(p.X, p.Y + 1);
-        yield return new Pos(p.X - 1, p.Y + 1);
-        yield return new Pos(p.X - 1, p.Y);
-        yield return new Pos(p.X - 1, p.Y - 1);
     }
 
     public static IEnumerable<Pos> Corners(this Pos p)

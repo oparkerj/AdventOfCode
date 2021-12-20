@@ -8,9 +8,15 @@ using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Solvers;
 
-public class GameOfLife
+public class GameOfLife : GameOfLife<Pos, bool>
 {
-    public static GameOfLife<Pos, T> OnGrid<T>(T dead, T alive, bool corners = false)
+    public GameOfLife() : base(true, false, () => new Grid<bool>(false)) { }
+
+    public GameOfLife(bool includeCorners) : base(true, false, () => new Grid<bool>(includeCorners)) { }
+        
+    public GameOfLife(Func<AlignedSpace<Pos, bool>> cons) : base(true, false, cons) { }
+
+    public static GameOfLife<Pos, T> OnGrid<T>(T alive, T dead, bool corners = false)
     {
         return new GameOfLife<Pos, T>(dead, alive, () => new Grid<T>(corners));
     }
@@ -32,7 +38,17 @@ public class GameOfLife<TLoc, TState> : IEnumerable<KeyValuePair<TLoc, TState>>
     public bool Expanding;
     public bool KeepDead = true;
 
-    public GameOfLife(TState dead, TState alive)
+    public TState Default
+    {
+        get => _locations.Default;
+        set
+        {
+            _locations.Default = value;
+            _temp.Default = value;
+        }
+    }
+
+    public GameOfLife(TState alive, TState dead)
     {
         Alive = alive;
         Dead = dead;
@@ -193,16 +209,23 @@ public class GameOfLifeCell<TPos, TState>
             .Count(s => Equals(s, state));
     }
 
+    public IEnumerable<TPos> NeighborPositions() => Game.NeighborFunction(Pos);
+
+    public IEnumerable<TState> Neighbors()
+    {
+        return Game.NeighborFunction(Pos).Select(pos => Game[pos]);
+    }
+
     public int AliveNear() => CountNear(Game.Alive);
 }
 
 public class GameOfLife<T> : GameOfLife<T, bool>
 {
-    public GameOfLife() : base(false, true) { }
+    public GameOfLife() : base(true, false) { }
         
-    public GameOfLife(Func<AlignedSpace<T, bool>> cons) : base(false, true, cons) { }
+    public GameOfLife(Func<AlignedSpace<T, bool>> cons) : base(true, false, cons) { }
 
-    public GameOfLife(bool dead, bool alive) : base(dead, alive) { }
+    public GameOfLife(bool alive, bool dead) : base(alive, dead) { }
         
-    public GameOfLife(bool dead, bool alive, Func<AlignedSpace<T, bool>> cons) : base(dead, alive, cons) { }
+    public GameOfLife(bool alive, bool dead, Func<AlignedSpace<T, bool>> cons) : base(alive, dead, cons) { }
 }
