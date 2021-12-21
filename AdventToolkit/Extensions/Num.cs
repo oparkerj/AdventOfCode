@@ -66,6 +66,17 @@ public static class Num
         return prod;
     }
 
+    public static int Choose(this int n, int k)
+    {
+        var result = 1;
+        for (var i = 1; i <= k; i++)
+        {
+            result *= n - (k - i);
+            result /= i;
+        }
+        return result;
+    }
+
     public static long Choose(this long n, long k)
     {
         var result = 1L;
