@@ -213,7 +213,7 @@ public class Rect : IEnumerable<Pos>
     public IEnumerable<Pos> Positions()
     {
         if (IsEmpty) yield break;
-        for (var y = MinY; y <= MaxY; y++)
+        for (var y = MaxY; y >= MinY; y--)
         {
             for (var x = MinX; x <= MaxX; x++)
             {

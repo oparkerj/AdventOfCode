@@ -9,16 +9,8 @@ namespace AdventToolkit.Extensions;
 
 public static class PosExtensions
 {
-    public static IEnumerable<Pos> Adjacent(this Pos p, bool yUp = false)
+    public static IEnumerable<Pos> Adjacent(this Pos p)
     {
-        if (yUp)
-        {
-            yield return new Pos(p.X, p.Y + 1);
-            yield return new Pos(p.X + 1, p.Y);
-            yield return new Pos(p.X, p.Y - 1);
-            yield return new Pos(p.X - 1, p.Y);
-            yield break;
-        }
         yield return new Pos(p.X, p.Y - 1);
         yield return new Pos(p.X + 1, p.Y);
         yield return new Pos(p.X, p.Y + 1);
@@ -35,6 +27,21 @@ public static class PosExtensions
         yield return new Pos(p.X - 1, p.Y - 1);
         yield return new Pos(p.X, p.Y - 1);
         yield return new Pos(p.X + 1, p.Y - 1);
+    }
+
+    // Get the rectangle of positions around a specified position.
+    // The parameter specifies how far to extend the rectangle in each direction.
+    // For example, setting leftRight to 1 adds 1 to both the left and right side for a width of 3.
+    public static IEnumerable<Pos> RectAround(this Pos p, int leftRight, int upDown)
+    {
+        var xx = p.X + leftRight;
+        for (int y = p.Y + upDown, yy = p.Y - upDown; y >= yy; y--)
+        {
+            for (var x = p.X - leftRight; x <= xx; x++)
+            {
+                yield return new Pos(x, y);
+            }
+        }
     }
 
     public static IEnumerable<Pos> Corners(this Pos p)

@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Linq;
-using AdventToolkit.Common;
 using AdventToolkit.Solvers;
 
 namespace AdventOfCode2021.Puzzles;
@@ -17,13 +15,10 @@ public class Day20 : Puzzle
         Key = InputLine.ToBitArray('#');
         Game = new GameOfLife(true);
         Game.Expanding = true;
+        Game.NeighborFunction = pos => pos.RectAround(1, 1);
         Game.UpdateFunction = cell =>
         {
-            var index = cell.NeighborPositions()
-                .Append(cell.Pos)
-                .OrderBy(Pos.ReadingOrder)
-                .Select(pos => cell.Game[pos])
-                .BitsToInt();
+            var index = cell.Neighbors().BitsToInt();
             return Key[index];
         };
         var input = AllGroups[1].Select2D(c => c == '#').ToGrid();

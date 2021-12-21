@@ -151,7 +151,7 @@ public class Day20 : Puzzle
                 if (places.ContainsValue(first.Id) && places.ContainsValue(second.Id)) continue;
                 if (places.ContainsValue(second.Id)) (first, second) = (second, first);
                 var from = places.First(pair => pair.Value == first.Id).Key;
-                var to = from.Adjacent(true).ElementAt((int) first.Side);
+                var to = from.GetSide(first.Side);
                 places[to] = second.Id;
                 tiles[second.Id].AlignTo(tiles[first.Id], first.Side);
             }

@@ -9,10 +9,17 @@ namespace AdventToolkit.Collections.Space;
 public abstract class GridBase<T> : AlignedSpace<Pos, T>
 {
     private Rect _bounds;
-        
-    public bool IncludeCorners { get; set; }
+
+    private bool _includeCorners;
+    public bool IncludeCorners
+    {
+        get => _includeCorners;
+        set => NeighborFunction = (_includeCorners = value) ? PosExtensions.Around : PosExtensions.Adjacent;
+    }
 
     public bool FitBounds { get; set; } = true;
+
+    public Func<Pos, IEnumerable<Pos>> NeighborFunction { get; set; }
 
     protected GridBase() : this(false) { }
 
@@ -21,7 +28,7 @@ public abstract class GridBase<T> : AlignedSpace<Pos, T>
         IncludeCorners = includeCorners;
     }
 
-    protected GridBase(GridBase<T> other)
+    protected GridBase(GridBase<T> other, bool includeCorners = false) : this(includeCorners)
     {
         CopyFrom(other);
     }
@@ -93,11 +100,8 @@ public abstract class GridBase<T> : AlignedSpace<Pos, T>
         }
     }
 
-    public override IEnumerable<Pos> GetNeighbors(Pos pos)
-    {
-        return IncludeCorners ? pos.Around() : pos.Adjacent();
-    }
-        
+    public override IEnumerable<Pos> GetNeighbors(Pos pos) => NeighborFunction(pos);
+
     public IEnumerable<T> GetSide(Side side, Rect rect = null)
     {
         rect ??= Bounds;
