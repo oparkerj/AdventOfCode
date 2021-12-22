@@ -18,6 +18,16 @@ public class Cloud : IEnumerable<Pos3D>
 
     public int Count => Points.Count;
 
+    public bool this[Pos3D pos]
+    {
+        get => Contains(pos);
+        set
+        {
+            if (value) Add(pos);
+            else Remove(pos);
+        }
+    }
+
     public void Add(Pos3D pos) => Points.Add(pos);
 
     public void AddAll(IEnumerable<Pos3D> points)
@@ -27,7 +37,12 @@ public class Cloud : IEnumerable<Pos3D>
 
     public void Remove(Pos3D pos) => Points.Remove(pos);
 
-    public void Contains(Pos3D pos) => Points.Remove(pos);
+    public void RemoveAll(IEnumerable<Pos3D> points)
+    {
+        foreach (var pos in points) Points.Remove(pos);
+    }
+
+    public bool Contains(Pos3D pos) => Points.Contains(pos);
 
     private void Transform(Func<Pos3D, Pos3D> transformer)
     {
