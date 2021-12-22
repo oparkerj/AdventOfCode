@@ -66,4 +66,19 @@ public readonly struct Interval : IEnumerable<int>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<int> GetEnumerator() => Enumerable.Range(Start, Length).GetEnumerator();
+
+    public bool Equals(Interval other)
+    {
+        return Start == other.Start && Length == other.Length;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Interval other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Start, Length);
+    }
 }
