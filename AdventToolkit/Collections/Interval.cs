@@ -37,6 +37,8 @@ public readonly struct Interval : IEnumerable<int>
 
     public int End => Start + Length;
 
+    public int Last => End - 1;
+
     public bool Contains(int i) => i >= Start && i < End;
 
     // Be careful not to use both this method and RangeInclusive
@@ -61,7 +63,7 @@ public readonly struct Interval : IEnumerable<int>
         return i == half && Length % 2 == 0 ? equal : i <= half;
     }
 
-    public int Sum() => Algorithms.SumRange(Start, End - 1);
+    public int Sum() => Algorithms.SumRange(Start, Last);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
