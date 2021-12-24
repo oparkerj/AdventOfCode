@@ -65,6 +65,10 @@ public readonly struct Interval : IEnumerable<int>
 
     public int Sum() => Algorithms.SumRange(Start, Last);
 
+    public int Min() => Start;
+
+    public int Max() => Last;
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<int> GetEnumerator() => Enumerable.Range(Start, Length).GetEnumerator();
