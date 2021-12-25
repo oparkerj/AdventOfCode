@@ -10,6 +10,18 @@ public class PortalGrid<T> : Grid<T>
 {
     private Dictionary<Pos, Dictionary<Side, Pos>> _portals = new();
 
+    public PortalGrid() { }
+
+    public static PortalGrid<T> CreateFrom(PortalGrid<T> grid)
+    {
+        var g = new PortalGrid<T>();
+        foreach (var (key, value) in grid._portals)
+        {
+            g._portals[key] = value;
+        }
+        return g;
+    }
+
     private Dictionary<Side, Pos> GetPortals(Pos p)
     {
         return _portals.GetOrSetValue(p, () => new Dictionary<Side, Pos>(1));
@@ -28,6 +40,17 @@ public class PortalGrid<T> : Grid<T>
         if (!_portals.TryGetValue(pos, out var sides)) return base.GetNeighbors(pos);
         return Sides().Except(sides.Keys).Select(side => pos.GetSide(side)).Concat(sides.Values);
     }
+
+    public Pos GetNeighbor(Pos pos, Side side)
+    {
+        if (!_portals.TryGetValue(pos, out var sides)) return pos.GetSide(side);
+        return sides.TryGetValue(side, out var result) ? result : pos.GetSide(side);
+    }
+
+    public T GetNeighborValue(Pos pos, Side side)
+    {
+        return this[GetNeighbor(pos, side)];
+    }
         
     public void Connect(Pos a, Side aSide, Pos b, Side bSide)
     {
@@ -35,6 +58,18 @@ public class PortalGrid<T> : Grid<T>
         var bPortals = GetPortals(b);
         aPortals[aSide] = b;
         bPortals[bSide] = a;
+    }
+
+    public void WrapEdges(Rect rect)
+    {
+        foreach (var (top, bottom) in rect.GetSidePositions(Side.Top).Zip(rect.GetSidePositions(Side.Bottom)))
+        {
+            Connect(top, Side.Top, bottom, Side.Bottom);
+        }
+        foreach (var (left, right) in rect.GetSidePositions(Side.Left).Zip(rect.GetSidePositions(Side.Right)))
+        {
+            Connect(left, Side.Left, right, Side.Right);
+        }
     }
 }
 
