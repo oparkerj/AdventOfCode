@@ -27,16 +27,27 @@ public static class GridExtensions
         }
         return grid;
     }
-        
+
     public static TGrid ToGrid<T, TGrid>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
         where TGrid : GridBase<T>, new()
     {
         return ToGrid(source, new TGrid(), default, decreaseY);
     }
+    
+    public static TGrid ToGridQ1<T, TGrid>(this ICollection<IEnumerable<T>> source, bool decreaseY = true)
+        where TGrid : GridBase<T>, new()
+    {
+        return ToGrid(source, new TGrid(), decreaseY ? new Pos(0, source.Count - 1) : default, decreaseY);
+    }
         
     public static Grid<T> ToGrid<T>(this IEnumerable<IEnumerable<T>> source, bool decreaseY = true)
     {
         return source.ToGrid<T, Grid<T>>(decreaseY);
+    }
+    
+    public static Grid<T> ToGridQ1<T>(this ICollection<IEnumerable<T>> source, bool decreaseY = true)
+    {
+        return source.ToGridQ1<T, Grid<T>>(decreaseY);
     }
 
     public static Grid<bool> ToGrid(this IEnumerable<Pos> source)
