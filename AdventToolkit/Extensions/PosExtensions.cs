@@ -157,4 +157,11 @@ public static class PosExtensions
     {
         return points.Select(pos => pos * scale);
     }
+
+    public static Pos SumWithin(this Pos p, Pos other, Rect r)
+    {
+        var target = p + other;
+        if (!r.Contains(p)) return target;
+        return r.Contains(target) ? target : p;
+    }
 }
