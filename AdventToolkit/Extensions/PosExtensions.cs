@@ -100,6 +100,7 @@ public static class PosExtensions
         }
     }
 
+    // exclusive on both ends
     public static IEnumerable<Pos> EachBetween(this Pos p, Pos other)
     {
         var delta = p.Towards(other);
@@ -134,6 +135,7 @@ public static class PosExtensions
         return p.MDist(other) == 1;
     }
 
+    // Convert a series of delta offsets to absolute offsets
     public static IEnumerable<Pos> MakePath(this IEnumerable<Pos> deltas, Pos start)
     {
         return deltas.Scan(start, Pos.Add);
