@@ -14,7 +14,7 @@ public class Day3 : Puzzle
     public override void PartOne()
     {
         var result = Input.Extract<Triangle>(@"\s*(\d+)\s+(\d+)\s+(\d+)\s*").Count(triangle => triangle.IsPossible);
-        Clip(result);
+        WriteLn(result);
     }
     
     public override void PartTwo()
@@ -25,7 +25,7 @@ public class Day3 : Puzzle
             .Flatten()
             .Select(ints => new Triangle(ints[0], ints[1], ints[2]))
             .Count(triangle => triangle.IsPossible);
-        Clip(count);
+        WriteLn(count);
     }
 
     public record Triangle(int A, int B, int C)

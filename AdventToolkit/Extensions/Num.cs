@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using AdventToolkit.Collections;
+using MoreLinq;
 
 namespace AdventToolkit.Extensions;
 
@@ -190,12 +191,12 @@ public static class Num
 
     public static int BitsToInt(this IEnumerable<int> bits)
     {
-        return BinaryInt(bits.TakeLast(32).Str());
+        return BinaryInt(Enumerable.TakeLast(bits, 32).Str());
     }
 
     public static int BitsToInt(this IEnumerable<bool> bits)
     {
-        return BinaryInt(bits.TakeLast(32).AsInts().Str());
+        return BinaryInt(Enumerable.TakeLast(bits, 32).AsInts().Str());
     }
 
     public static BigInteger BitsToInteger(this IEnumerable<bool> bits, bool unsigned = true)
@@ -224,5 +225,25 @@ public static class Num
     public static int SqrtFloor(this int i)
     {
         return (int) Math.Sqrt(i);
+    }
+
+    public static bool IsIncreasing(this IEnumerable<int> ints)
+    {
+        return ints.Pairwise((a, b) => a < b).AllEqual(true);
+    }
+
+    public static bool IsDecreasing(this IEnumerable<int> ints)
+    {
+        return ints.Pairwise((a, b) => a > b).AllEqual(true);
+    }
+
+    public static bool IsNonDecreasing(this IEnumerable<int> ints)
+    {
+        return ints.Pairwise((a, b) => a <= b).AllEqual(true);
+    }
+
+    public static bool IsNonIncreasing(this IEnumerable<int> ints)
+    {
+        return ints.Pairwise((a, b) => a >= b).AllEqual(true);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AdventToolkit.Collections;
 using MoreLinq;
 
 namespace AdventToolkit.Extensions;
@@ -323,15 +324,25 @@ public static class EnumerableExtensions
         // ReSharper disable once IteratorNeverReturns
     }
 
-    public static T FirstRepeat<T>(this IEnumerable<T> source)
+    public static bool FirstRepeat<T>(this IEnumerable<T> source, out T repeat)
     {
         var seen = new HashSet<T>();
         foreach (var item in source)
         {
-            if (seen.Contains(item)) return item;
+            if (seen.Contains(item))
+            {
+                repeat = item;
+                return true;
+            }
             seen.Add(item);
         }
-        return default;
+        repeat = default;
+        return false;
+    }
+
+    public static T FirstRepeat<T>(this IEnumerable<T> source)
+    {
+        return FirstRepeat(source, out var repeat) ? repeat : default;
     }
 
     public static LinkedList<T> ToLinkedList<T>(this IEnumerable<T> source)
@@ -542,6 +553,26 @@ public static class EnumerableExtensions
     {
         var d = new Dictionary<TKey, TValue>();
         foreach (var (key, value) in items)
+        {
+            d[key] = value;
+        }
+        return d;
+    }
+
+    public static DefaultDict<TKey, TValue> ToDefaultDictFirst<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs)
+    {
+        var d = new DefaultDict<TKey, TValue>();
+        foreach (var (key, value) in pairs)
+        {
+            d.TryAdd(key, value);
+        }
+        return d;
+    }
+    
+    public static DefaultDict<TKey, TValue> ToDefaultDictLast<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs)
+    {
+        var d = new DefaultDict<TKey, TValue>();
+        foreach (var (key, value) in pairs)
         {
             d[key] = value;
         }
