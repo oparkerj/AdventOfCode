@@ -11,8 +11,4 @@
       <ProjectReference Include="..\AdventToolkit\AdventToolkit.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="obj\Debug\net6.0" />
-    </ItemGroup>
-
 </Project>
