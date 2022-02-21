@@ -103,4 +103,27 @@ public static class StringExtensions
     {
         return chars.Select(c => c.Str());
     }
+
+    // Simple caesar cipher
+    public static string Caesar(this string s, int shift)
+    {
+        return string.Create(s.Length, (s, shift), (result, context) =>
+        {
+            const string lower = "abcdefghijklmnopqrstuvwxyz";
+            const string upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var original = context.s.AsSpan();
+            for (var i = 0; i < result.Length; i++)
+            {
+                if (char.IsUpper(original[i]))
+                {
+                    result[i] = upper[(original[i] - 'A' + context.shift).CircularMod(26)];
+                }
+                else if (char.IsLower(original[i]))
+                {
+                    result[i] = lower[(original[i] - 'a' + context.shift).CircularMod(26)];
+                }
+                else result[i] = original[i];
+            }
+        });
+    }
 }
