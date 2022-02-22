@@ -724,4 +724,12 @@ public static class EnumerableExtensions
         while (e.MoveNext()) yield return e.Current;
     }
 
+    public static IEnumerable<IEnumerable<T>> Transpose<T>(this IEnumerable<IEnumerable<T>> items)
+    {
+        var content = items.Select(e => e.AsList()).ToList();
+        if (content.Count == 0) return Enumerable.Empty<IEnumerable<T>>();
+        var innerSize = content[0].Count;
+        return Enumerable.Range(0, innerSize).Select(i => content.Select(list => list[i]));
+    }
+
 }
