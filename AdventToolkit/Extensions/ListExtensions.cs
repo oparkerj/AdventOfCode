@@ -101,4 +101,9 @@ public static class ListExtensions
             node = node.Next;
         }
     }
+
+    public static IList<T> AsList<T>(this IEnumerable<T> items)
+    {
+        return items as IList<T> ?? items.ToList();
+    }
 }
