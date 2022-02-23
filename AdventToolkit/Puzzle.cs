@@ -46,7 +46,7 @@ public abstract class Puzzle
         return output.ToString();
     }
 
-    public int Part { get; set; } = 1;
+    public int Part { get; set; } = 2;
 
     public string InputName { get; set; }
 
