@@ -35,8 +35,17 @@ public readonly struct Pos : IAdd<Pos>, ISub<Pos>, INegate<Pos>
     {
         if (s.StartsWith('(') && s.EndsWith(')')) s = s[1..^1];
         if (s.StartsWith('<') && s.EndsWith('>')) s = s[1..^1];
-        var parts = s.Csv();
-        return new Pos(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()));
+        if (s.Contains(','))
+        {
+            var parts = s.Csv();
+            return new Pos(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()));
+        }
+        if (s.Contains('x'))
+        {
+            var (left, right) = s.SingleSplit('x');
+            return new Pos(left.Trim().AsInt(), right.Trim().AsInt());
+        }
+        throw new FormatException("Unknown format.");
     }
 
     public static Pos ParseRelative(string s)
