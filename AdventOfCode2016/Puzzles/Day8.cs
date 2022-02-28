@@ -80,7 +80,7 @@ public class Day8 : Puzzle
     {
         RunInput();
         var count = _screen.Cast<bool>().Count(true);
-        Clip(count);
+        WriteLn(count);
     }
 
     public override void PartTwo()

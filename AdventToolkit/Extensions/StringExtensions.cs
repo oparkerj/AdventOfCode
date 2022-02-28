@@ -126,4 +126,16 @@ public static class StringExtensions
             }
         });
     }
+
+    public static string Repeat(this string s, int times)
+    {
+        return string.Create(s.Length * times, (s, times), (result, context) =>
+        {
+            var source = context.s.AsSpan();
+            for (var i = 0; i < context.times; i++)
+            {
+                source.CopyTo(result[(i * source.Length)..]);
+            }
+        });
+    }
 }
