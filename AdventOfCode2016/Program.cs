@@ -2,4 +2,4 @@
 using AdventOfCode2016.Puzzles;
 using AdventToolkit;
 
-Puzzle.Run<Day7>();
+Puzzle.Run<Day8>();
