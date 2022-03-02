@@ -11,6 +11,8 @@ public class Day10 : Puzzle
 
     private void Setup()
     {
+        // Sorting the input means all the bots will be created before
+        // trying to add any chips to them
         foreach (var s in Input.Sorted())
         {
             if (s.StartsWith("bot"))
