@@ -27,7 +27,7 @@ public class Day7 : Puzzle
     public override void PartOne()
     {
         var count = Input.Count(s => IsAbba(s));
-        Clip(count);
+        WriteLn(count);
     }
 
     public bool IsSsl(string s)
@@ -57,6 +57,6 @@ public class Day7 : Puzzle
     public override void PartTwo()
     {
         var count = Input.Count(IsSsl);
-        Clip(count);
+        WriteLn(count);
     }
 }

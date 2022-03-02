@@ -63,6 +63,6 @@ public class Day25 : Puzzle
             if (Step() == 0) break;
         }
         
-        Clip(steps);
+        WriteLn(steps);
     }
 }
