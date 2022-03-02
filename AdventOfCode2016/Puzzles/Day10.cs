@@ -95,9 +95,9 @@ public class Day10 : Puzzle
         {
             if (Chip1 < 0 || Chip2 < 0) return;
             var (low, high) = Chip1 < Chip2 ? (Chip1, Chip2) : (Chip2, Chip1);
-            if (LowOutput) data.Outputs.GetDefault(Low, () => new List<int>()).Add(low);
+            if (LowOutput) data.Outputs.GetOrSetValue(Low, () => new List<int>()).Add(low);
             else data.Bots[Low].Receive(low);
-            if (HighOutput) data.Outputs.GetDefault(High, () => new List<int>()).Add(high);
+            if (HighOutput) data.Outputs.GetOrSetValue(High, () => new List<int>()).Add(high);
             else data.Bots[High].Receive(high);
             Chip1 = -1;
             Chip2 = -2;
