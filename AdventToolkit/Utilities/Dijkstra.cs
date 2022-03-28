@@ -142,6 +142,34 @@ public class Dijkstra<TCell, TMid>
         }
         return dist;
     }
+    
+    public Dictionary<TCell, (int Dist, TCell From)> ComputeFrom(TCell start, Func<TCell, int, bool> valid = null)
+    {
+        valid ??= (_, _) => true;
+        var dist = new DefaultDict<TCell, (int Dist, TCell From)> {DefaultValue = (int.MaxValue, default), [start] = (0, default)};
+        var seen = new HashSet<TCell>();
+        var queue = new PriorityQueue<TCell, int>();
+        queue.Enqueue(start, 0);
+        while (queue.Count > 0)
+        {
+            var cell = queue.Dequeue();
+            if (seen.Contains(cell)) continue;
+            seen.Add(cell);
+            var current = dist[cell].Dist;
+            foreach (var neighbor in Neighbors(cell))
+            {
+                var other = Cell(cell, neighbor);
+                var weight = Distance(neighbor);
+                if (!valid(other, current + weight)) continue;
+                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
+                if (current + weight < dist[other].Dist)
+                {
+                    dist[other] = (current + weight, cell);
+                }
+            }
+        }
+        return dist;
+    }
 
     public Dictionary<TCell, (int Dist, TCell From)> ComputePath(TCell start, TCell target, Func<TCell, bool> valid = null)
     {
@@ -199,6 +227,16 @@ public class Dijkstra<TCell, TMid>
             }
         }
         return -1;
+    }
+}
+
+// If the cell and neighbor types are the same,
+// Then the cell function will be filled in automatically
+public class Dijkstra<T> : Dijkstra<T, T>
+{
+    public Dijkstra()
+    {
+        Cell = (_, b) => b;
     }
 }
 
