@@ -16,6 +16,11 @@ public static class ListExtensions
         return Algorithms.SequencesIncreasing(2, source.Count, true).Select(pair => (source[pair[0]], source[pair[1]]));
     }
 
+    // public static IEnumerable<IEnumerable<T>> Subsets<T>(this IList<T> source, int length)
+    // {
+    //     return Algorithms.SequencesIncreasing(length, source.Count, true).Select(source.Get);
+    // }
+
     public static LinkedListNode<T> NextCircular<T>(this LinkedListNode<T> node)
     {
         return node.Next ?? node.List?.First;
