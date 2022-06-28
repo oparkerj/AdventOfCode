@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AdventToolkit.Extensions;
@@ -55,9 +57,11 @@ public static class StringExtensions
 
     public static string Reversed(this string s)
     {
-        var c = s.ToCharArray();
-        Array.Reverse(c);
-        return new string(c);
+        return string.Create(s.Length, s, (result, str) =>
+        {
+            str.CopyTo(result);
+            result.Reverse();
+        });
     }
         
     public static bool Matches(this string s, string regex)
@@ -144,5 +148,27 @@ public static class StringExtensions
         var index = s.IndexOf(search, StringComparison.Ordinal);
         if (index > -1) return s[(index + search.Length)..];
         return empty ? "" : null;
+    }
+
+    public static string Hash(this string s, MD5 md5, bool upper = true)
+    {
+        const int length = 32;
+        var hexBase = (byte) (upper ? 'A' - 10 : 'a' - 10);
+        
+        return string.Create(length, (s, md5, hexBase), (result, context) =>
+        {
+            var bytes = context.s.Length <= 256 ? stackalloc byte[context.s.Length] : new byte[context.s.Length];
+            Encoding.ASCII.GetBytes(context.s.AsSpan(), bytes);
+            Span<byte> hash = stackalloc byte[length / 2];
+            
+            if (!context.md5.TryComputeHash(bytes, hash, out _)) throw new Exception("Hash error.");
+            for (var i = 0; i < length / 2; i++)
+            {
+                var digit = hash[i] & 0xF;
+                result[i * 2 + 1] = (char) (digit + (digit < 10 ? (byte) '0' : context.hexBase));
+                digit = (hash[i] >> 4) & 0xF;
+                result[i * 2] = (char) (digit + (digit < 10 ? (byte) '0' : context.hexBase));
+            }
+        });
     }
 }
