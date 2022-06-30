@@ -732,4 +732,26 @@ public static class EnumerableExtensions
         return Enumerable.Range(0, innerSize).Select(i => content.Select(list => list[i]));
     }
 
+    public static (List<T> First, List<T> Second) Separate<T>(this IEnumerable<(T, T)> items)
+    {
+        List<T> a, b;
+        if (items is ICollection<(T, T)> collection)
+        {
+            a = new List<T>(collection.Count);
+            b = new List<T>(collection.Count);
+        }
+        else
+        {
+            a = new List<T>();
+            b = new List<T>();
+        }
+        
+        foreach (var (ai, bi) in items)
+        {
+            a.Add(ai);
+            b.Add(bi);
+        }
+        return (a, b);
+    }
+
 }

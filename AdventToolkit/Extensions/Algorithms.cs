@@ -98,7 +98,8 @@ public static class Algorithms
     {
         var g = (i, mod).ExtendedEuclidean(out var x, out _);
         if (g != 1) throw new ArithmeticException($"No modular inverse for {i}, {mod}");
-        return (x % mod + mod) % mod;
+        // return (x % mod + mod) % mod;
+        return x.CircularMod(mod);
     }
 
     public static long ExtendedEuclidean(this (long a, long m) p, out long x, out long y)
@@ -122,7 +123,31 @@ public static class Algorithms
     {
         var g = (i, mod).ExtendedEuclidean(out var x, out _);
         if (g != 1) throw new ArithmeticException($"No modular inverse for {i}, {mod}");
-        return (x % mod + mod) % mod;
+        // return (x % mod + mod) % mod;
+        return x.CircularMod(mod);
+    }
+    
+    public static long ChineseRemainder(this IEnumerable<int> aValues, IEnumerable<int> mValues)
+    {
+        return ChineseRemainder(aValues.Longs(), mValues.Longs());
+    }
+
+    // https://mathworld.wolfram.com/ChineseRemainderTheorem.html
+    public static long ChineseRemainder(this IEnumerable<long> aValues, IEnumerable<long> mValues)
+    {
+        var a = aValues.ToList();
+        var m = mValues.ToList();
+        if (a.Count != m.Count) throw new ArgumentException("Input lengths are not equal.");
+        
+        // = M (product of moduli)
+        var modProduct = m.Product();
+        // x = sum(a_i * b_i * M / m_i) (mod M)
+        // where b_i * (M / m_i) congruent to 1 (mod m_i)
+        // b_i is the modular inverse, calculated using the extended euclidean algorithm.
+        var x = Enumerable.Range(0, a.Count)
+            .Select(i => a[i].CircularMod(m[i]) * (modProduct / m[i]) * (modProduct / m[i]).ModularInverse(m[i]))
+            .Sum();
+        return x % modProduct;
     }
         
     /// <summary>
