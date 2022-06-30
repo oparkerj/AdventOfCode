@@ -210,6 +210,12 @@ public static class Num
         if (i < 0) return mod + i % mod;
         return i % mod;
     }
+    
+    public static long CircularMod(this long i, long mod)
+    {
+        if (i < 0) return mod + i % mod;
+        return i % mod;
+    }
 
     public static int ModRange(this int i, Interval interval)
     {

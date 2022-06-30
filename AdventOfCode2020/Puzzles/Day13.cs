@@ -32,16 +32,12 @@ public class Day13 : Puzzle
         for (var i = 0; i < schedule.Length; i++)
         {
             if (schedule[i] == "x") continue;
-            busses.Add((int.Parse(schedule[i]), i));
+            var mi = int.Parse(schedule[i]);
+            busses.Add((mi, mi - i));
         }
-        // https://mathworld.wolfram.com/ChineseRemainderTheorem.html
-        // M is product of moduli
-        var M = schedule.Where(s => s != "x").Ints().LongProduct();
-        // x = sum(a_i * b_i * M / m_i) (mod M)
-        // where b_i * (M / m_i) congruent to 1 (mod m_i)
-        // b_i is the modular inverse, calculated using the extended euclidean algorithm.
-        var x = busses.Select(bus => (bus.m - bus.a) * (M / bus.m) * (M / bus.m).ModularInverse(bus.m)).Sum();
-        x %= M;
+
+        var (m, a) = busses.Separate();
+        var x = a.ChineseRemainder(m);
         WriteLn(x);
     }
 }
