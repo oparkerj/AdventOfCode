@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AdventToolkit.Collections;
 using AdventToolkit.Utilities;
 
 namespace AdventToolkit.Extensions;
@@ -59,6 +60,13 @@ public static class Data
     public static Range On(this Range range, int elements)
     {
         return new Range(range.Start.GetOffset(elements), range.End.GetOffset(elements));
+    }
+
+    public static Interval Interval(this Range range, int length = -1)
+    {
+        if (length < 0) return range;
+        var (start, len) = range.GetOffsetAndLength(length);
+        return new Interval(start, len);
     }
 
     public static IEnumerable<T> EnumerateSingle<T>(this T t)

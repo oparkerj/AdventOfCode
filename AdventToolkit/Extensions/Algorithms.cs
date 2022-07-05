@@ -135,7 +135,7 @@ public static class Algorithms
     // https://mathworld.wolfram.com/ChineseRemainderTheorem.html
     public static long ChineseRemainder(this IEnumerable<long> aValues, IEnumerable<long> mValues)
     {
-        var a = aValues.ToList();
+        var a = aValues.AsList();
         var m = mValues.ToList();
         if (a.Count != m.Count) throw new ArgumentException("Input lengths are not equal.");
         
