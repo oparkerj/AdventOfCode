@@ -136,7 +136,7 @@ public static class Algorithms
     public static long ChineseRemainder(this IEnumerable<long> aValues, IEnumerable<long> mValues)
     {
         var a = aValues.AsList();
-        var m = mValues.ToList();
+        var m = mValues.AsList();
         if (a.Count != m.Count) throw new ArgumentException("Input lengths are not equal.");
         
         // = M (product of moduli)
