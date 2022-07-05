@@ -49,6 +49,7 @@ public static class ListExtensions
         return removed;
     }
 
+    // This will only remove the value if it is found before the current index
     public static bool RemoveConcurrent<T>(this List<T> list, T t, ref int index)
     {
         var i = list.IndexOf(t);
@@ -58,6 +59,7 @@ public static class ListExtensions
         return true;
     }
 
+    // Removes the item at the current index
     public static bool RemoveConcurrent<T>(this List<T> list, ref int index)
     {
         if (index < 0 || index >= list.Count) return false;
@@ -105,6 +107,13 @@ public static class ListExtensions
             yield return node;
             node = node.Next;
         }
+    }
+
+    public static List<T> ToList<T>(this IEnumerable<T> items, List<T> dest, bool clear = true)
+    {
+        if (clear) dest.Clear();
+        dest.AddRange(items);
+        return dest;
     }
 
     public static IList<T> AsList<T>(this IEnumerable<T> items)
