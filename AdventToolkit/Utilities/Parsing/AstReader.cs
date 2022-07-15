@@ -15,6 +15,8 @@ public class AstReader
     public readonly Dictionary<string, GroupSymbol> GroupSymbols;
     public string SequenceSplit;
     public string Escape;
+    // true = Closing group symbol always tries to close a group, otherwise only the matching symbol can close a group
+    // e.g. "(>)" strict = false, ok. strict = true, mismatched group
     public bool StrictGroups;
     public EscapeHandling EscapeBehavior = EscapeHandling.Value;
 
