@@ -62,6 +62,33 @@ public class Dijkstra<TCell, TMid>
         }
         return dist;
     }
+    
+    public Dictionary<TCell, int> Compute(TCell start, Func<TCell, bool> valid)
+    {
+        var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
+        var seen = new HashSet<TCell>();
+        var queue = new PriorityQueue<TCell, int>();
+        queue.Enqueue(start, 0);
+        while (queue.Count > 0)
+        {
+            var cell = queue.Dequeue();
+            if (seen.Contains(cell)) continue;
+            seen.Add(cell);
+            var current = dist[cell];
+            foreach (var neighbor in Neighbors(cell))
+            {
+                var other = Cell(cell, neighbor);
+                if (!valid(other)) continue;
+                var weight = Distance(neighbor);
+                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
+                if (current + weight < dist[other])
+                {
+                    dist[other] = current + weight;
+                }
+            }
+        }
+        return dist;
+    }
 
     public int Count(TCell start, Func<TCell, bool> count)
     {
@@ -228,6 +255,35 @@ public class Dijkstra<TCell, TMid>
         }
         return -1;
     }
+    
+    public (int, TCell) ComputeFind(TCell start, Func<TCell, bool> target, Func<TCell, bool> valid = null)
+    {
+        valid ??= _ => true; 
+        var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
+        var seen = new HashSet<TCell>();
+        var queue = new PriorityQueue<TCell, int>();
+        queue.Enqueue(start, 0);
+        while (queue.Count > 0)
+        {
+            var cell = queue.Dequeue();
+            if (seen.Contains(cell)) continue;
+            var current = dist[cell];
+            if (target(cell)) return (current, cell);
+            seen.Add(cell);
+            foreach (var neighbor in Neighbors(cell))
+            {
+                var other = Cell(cell, neighbor);
+                if (!valid(other)) continue;
+                var weight = Distance(neighbor);
+                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
+                if (current + weight < dist[other])
+                {
+                    dist[other] = current + weight;
+                }
+            }
+        }
+        return (-1, default);
+    }
 }
 
 // If the cell and neighbor types are the same,
@@ -237,6 +293,13 @@ public class Dijkstra<T> : Dijkstra<T, T>
     public Dijkstra()
     {
         Cell = (_, b) => b;
+    }
+
+    public Dijkstra(Func<T, IEnumerable<T>> neighbors)
+    {
+        Cell = (_, b) => b;
+        Distance = _ => 1;
+        Neighbors = neighbors;
     }
 }
 
@@ -287,6 +350,11 @@ public static class DijkstraExtensions
     }
 
     public static int DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, TCell target, Func<TCell, bool> valid = null)
+    {
+        return dijkstra.Build().ComputeFind(start, target, valid);
+    }
+    
+    public static (int, TCell) DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, Func<TCell, bool> target, Func<TCell, bool> valid = null)
     {
         return dijkstra.Build().ComputeFind(start, target, valid);
     }

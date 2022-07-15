@@ -48,6 +48,8 @@ public readonly struct Pos : IAdd<Pos>, ISub<Pos>, INegate<Pos>
         throw new FormatException("Unknown format.");
     }
 
+    public static IEnumerable<char> RelativeDirections => "UDRL";
+
     public static Pos ParseRelative(string s)
     {
         var dir = RelativeDirection(s[0]);

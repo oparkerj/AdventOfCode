@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace AdventToolkit.Extensions;
@@ -24,5 +26,15 @@ public static class ValueTupleExtensions
     public static (TR, TR) Select<T, TR>(this (T A, T B) tuple, Func<T, TR> func)
     {
         return (func(tuple.A), func(tuple.B));
+    }
+
+    public static IEnumerable<TA> TupleFirst<TA, TB>(this IEnumerable<(TA, TB)> items)
+    {
+        return items.Select(tuple => tuple.Item1);
+    }
+    
+    public static IEnumerable<TB> TupleSecond<TA, TB>(this IEnumerable<(TA, TB)> items)
+    {
+        return items.Select(tuple => tuple.Item2);
     }
 }
