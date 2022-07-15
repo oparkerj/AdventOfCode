@@ -47,11 +47,7 @@ public class Day11 : Puzzle
 
     public override void PartOne()
     {
-        var path = new Dijkstra<State>
-        {
-            Neighbors = state => state.GetNeighbors(),
-            Distance = _ => 1
-        };
+        var path = new Dijkstra<State>(state => state.GetNeighbors());
 
         var start = ReadFloors();
         var end = new State(start, Floors - 1);

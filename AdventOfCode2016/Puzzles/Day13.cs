@@ -23,11 +23,7 @@ public class Day13 : Puzzle
 
     public Dijkstra<Pos> GetPathfinder()
     {
-        return new Dijkstra<Pos>
-        {
-            Distance = _ => 1,
-            Neighbors = PosExtensions.Adjacent
-        };
+        return new Dijkstra<Pos>(PosExtensions.Adjacent);
     }
 
     public override void PartOne()
