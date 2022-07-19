@@ -144,6 +144,12 @@ public static class Num
         return ret;
     }
 
+    public static int Log(this int i, int @base = 0)
+    {
+        if (@base < 1) return (int) Math.Log(i);
+        return (int) (Math.Log(i) / Math.Log(@base));
+    }
+
     // Get the digits starting with the ones digit
     public static IEnumerable<int> Digits(this int i)
     {
