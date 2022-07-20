@@ -20,7 +20,9 @@ public class Day20 : Puzzle
     public MultiInterval BuildList()
     {
         var ranges = Input.Extract<(uint, uint)>(@"(\d+)-(\d+)")
-            .Select(tuple => Interval.RangeInclusive(Map(tuple.Item1), Map(tuple.Item2))).ToList();
+            .TupleSelect(Map)
+            .SpreadSelect(Interval.RangeInclusive)
+            .ToList();
 
         var intervals = new MultiInterval();
         foreach (var interval in ranges)

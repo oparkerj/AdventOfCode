@@ -28,6 +28,16 @@ public static class ValueTupleExtensions
         return (func(tuple.A), func(tuple.B));
     }
 
+    public static IEnumerable<(TB, TB)> TupleSelect<TA, TB>(this IEnumerable<(TA, TA)> tuples, Func<TA, TB> func)
+    {
+        return tuples.Select(tuple => (func(tuple.Item1), func(tuple.Item2)));
+    }
+
+    public static IEnumerable<TO> SpreadSelect<TA, TB, TO>(this IEnumerable<(TA, TB)> tuples, Func<TA, TB, TO> func)
+    {
+        return tuples.Select(tuple => func(tuple.Item1, tuple.Item2));
+    }
+
     public static IEnumerable<TA> TupleFirst<TA, TB>(this IEnumerable<(TA, TB)> items)
     {
         return items.Select(tuple => tuple.Item1);
