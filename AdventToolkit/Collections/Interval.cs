@@ -44,6 +44,13 @@ public readonly struct Interval : IEnumerable<int>
     // Be careful not to use both this method and RangeInclusive
     public bool ContainsInclusive(int i) => i >= Start && i <= End;
 
+    public bool Overlaps(Interval other)
+    {
+        var (a, b) = (this, other);
+        if (b.Start < a.Start) (a, b) = (b, a);
+        return b.Start < a.End;
+    }
+
     public Interval Overlap(Interval other)
     {
         var (a, b) = (this, other);
@@ -86,5 +93,10 @@ public readonly struct Interval : IEnumerable<int>
     public override int GetHashCode()
     {
         return HashCode.Combine(Start, Length);
+    }
+
+    public override string ToString()
+    {
+        return $"{Start}-{Last}";
     }
 }
