@@ -46,16 +46,8 @@ public class MultiInterval : IEnumerable<int>
         var affected = Interval.RangeInclusive(Lookup(interval.Start), Lookup(interval.Last));
         if (!_intervals[affected.Start].Overlaps(interval))
         {
-            // Edge case, interval ends at int max.
-            int offset;
-            if (interval.Last == int.MaxValue)
-            {
-                offset = _intervals[affected.Start].Start < (long) interval.Last + 1 ? affected.Start + 1 : affected.Start;
-            }
-            else
-            {
-                offset = _intervals[affected.Start].Start < interval.End ? affected.Start + 1 : affected.Start;
-            }
+            // Test against Last instead of End to account for int max.
+            var offset = _intervals[affected.Start].Start <= interval.Last ? affected.Start + 1 : affected.Start;
             affected = new Interval(offset, affected.Length - 1);
         }
         return affected;
