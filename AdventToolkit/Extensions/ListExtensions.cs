@@ -109,6 +109,17 @@ public static class ListExtensions
         }
     }
 
+    public static LinkedListNode<T> GetNode<T>(this LinkedList<T> list, int index)
+    {
+        if (index < 0) throw new ArgumentException("Invalid index");
+        var node = list.First;
+        while (index-- > 0 && node != null)
+        {
+            node = node.Next;
+        }
+        return node;
+    }
+
     public static List<T> ToList<T>(this IEnumerable<T> items, List<T> dest, bool clear = true)
     {
         if (clear) dest.Clear();

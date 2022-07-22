@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using RegExtract;
 
 namespace AdventToolkit.Extensions;
 
@@ -170,5 +171,19 @@ public static class StringExtensions
                 result[i * 2] = (char) (digit + (digit < 10 ? (byte) '0' : context.hexBase));
             }
         });
+    }
+
+    public static bool TryExtract<T>(this string s, string regex, out T result)
+    {
+        var r = new Regex(regex);
+        var match = r.Match(s);
+        if (!match.Success)
+        {
+            result = default;
+            return false;
+        }
+
+        result = ExtractionPlan<T>.CreatePlan(r).Extract(match);
+        return true;
     }
 }

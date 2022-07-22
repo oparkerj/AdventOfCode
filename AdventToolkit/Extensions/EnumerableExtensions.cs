@@ -504,6 +504,12 @@ public static class EnumerableExtensions
     // Put an enumerable in an array assuming it can hold all the elements.
     public static T[] ToArray<T>(this IEnumerable<T> source, T[] array)
     {
+        if (source is T[] t)
+        {
+            t.CopyTo(array, 0);
+            return array;
+        }
+        
         var i = 0;
         using var e = source.GetEnumerator();
         while (e.MoveNext())
@@ -512,6 +518,11 @@ public static class EnumerableExtensions
             i++;
         }
         return array;
+    }
+
+    public static void RotateTo<T>(this T[] array, int steps)
+    {
+        CircularBuffer<T>.RotateTo(array, steps);
     }
 
     public static IEnumerable<T> ChangeLast<T>(this IEnumerable<T> items, Func<T, T> convert)
