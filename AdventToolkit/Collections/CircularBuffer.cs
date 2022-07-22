@@ -58,12 +58,24 @@ public class CircularBuffer<T> : IEnumerable<T>
         return -1;
     }
 
+    public int RotatedIndexOf(T value)
+    {
+        var index = IndexOf(value);
+        return index < 0 ? index : (index + Offset).CircularMod(Data.Length);
+    }
+
+    public static void RotateTo(T[] array, int offset)
+    {
+        offset = offset.CircularMod(array.Length);
+        if (offset == 0) return;
+        var data = array.ToArray(array.Length);
+        Array.Copy(data, offset, array, 0, array.Length - offset);
+        if (offset > 0) Array.Copy(data, 0, array, array.Length - offset, offset);
+    }
+
     public void RotateTo(int offset)
     {
-        _index = offset.CircularMod(_size);
-        var data = Data.ToArray(Data.Length);
-        Array.Copy(data, _index, Data, 0, data.Length - _index);
-        if (_index > 0) Array.Copy(data, 0, Data, data.Length - _index, _index);
+        RotateTo(Data, offset);
         _index = 0;
     }
 
