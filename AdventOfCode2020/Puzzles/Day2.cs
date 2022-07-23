@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
 using RegExtract;
 
@@ -22,7 +23,7 @@ public class Day2 : Puzzle
 
     public bool IsValid(Policy policy)
     {
-        return InRange(policy.Password.Count(policy.Letter), policy.Lower, policy.Upper, true);
+        return Interval.RangeInclusive(policy.Lower, policy.Upper).Contains(policy.Password.Count(policy.Letter));
     }
         
     public override void PartOne()

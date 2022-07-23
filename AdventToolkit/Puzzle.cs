@@ -139,15 +139,4 @@ public abstract class Puzzle
             if (last < current) yield return Input[last..current];
         }
     }
-
-    public bool InRange(int i, int lower, int upper, bool inclusive = false)
-    {
-        if (inclusive) return i >= lower && i <= upper;
-        return i >= lower && i < upper;
-    }
-
-    public bool InRange(string s, int lower, int upper)
-    {
-        return InRange(int.Parse(s), lower, upper);
-    }
 }
