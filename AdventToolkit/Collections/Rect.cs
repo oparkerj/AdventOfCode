@@ -143,9 +143,9 @@ public class Rect : IEnumerable<Pos>
 
     public Pos Max => new(MaxX, MaxY);
 
-    public Pos DiagMin => new(MaxX, MinY);
+    public Pos DiagMaxMin => new(MaxX, MinY);
 
-    public Pos DiagMax => new(MinX, MaxY);
+    public Pos DiagMinMax => new(MinX, MaxY);
 
     public Pos Size
     {
