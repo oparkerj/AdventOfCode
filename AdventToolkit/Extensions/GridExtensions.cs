@@ -92,8 +92,8 @@ public static class GridExtensions
         var (min, max, diagMin, diagMax) = (
             rect.Min + new Pos(-1, -1),
             rect.Max,
-            rect.DiagMin + Pos.Down,
-            rect.DiagMax + Pos.Left);
+            rect.DiagMaxMin + Pos.Down,
+            rect.DiagMinMax + Pos.Left);
         return grid[min] + grid[max] - grid[diagMin] - grid[diagMax];
     }
 

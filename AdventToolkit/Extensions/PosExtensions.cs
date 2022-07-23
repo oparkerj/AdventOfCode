@@ -153,6 +153,28 @@ public static class PosExtensions
         return points.Pairwise(EachTo).Flatten();
     }
 
+    public static IEnumerable<Pos> SimplifyPath(this IEnumerable<Pos> points)
+    {
+        using var e = points.GetEnumerator();
+        if (!e.MoveNext()) yield break;
+        var current = e.Current;
+        yield return current;
+        if (!e.MoveNext()) yield break;
+        var dir = current.Towards(e.Current);
+        current = e.Current;
+        while (e.MoveNext())
+        {
+            var next = current.Towards(e.Current);
+            if (next != dir)
+            {
+                yield return current;
+                dir = next;
+            }
+            current = e.Current;
+        }
+        yield return current;
+    }
+
     public static IEnumerable<Pos> Mul(this IEnumerable<Pos> points, int scale)
     {
         return points.Select(pos => pos * scale);
