@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 using AdventToolkit;
+using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
 
 namespace AdventOfCode2020.Puzzles;
@@ -76,9 +77,9 @@ public class Day4 : Puzzle
             var strings = part.Split(':');
             var p = strings[0] switch
             {
-                "byr" when InRange(strings[1], 1920, 2003) => Field.Byr,
-                "iyr" when InRange(strings[1], 2010, 2021) => Field.Iyr,
-                "eyr" when InRange(strings[1], 2020, 2031) => Field.Eyr,
+                "byr" when Interval.Range(1920, 2003).Contains(strings[1].AsInt()) => Field.Byr,
+                "iyr" when Interval.Range(2010, 2021).Contains(strings[1].AsInt()) => Field.Iyr,
+                "eyr" when Interval.Range(2020, 2031).Contains(strings[1].AsInt()) => Field.Eyr,
                 "hgt" when ValidHeight(strings[1]) => Field.Hgt,
                 "hcl" when strings[1].Matches("^#[0-9a-fA-F]{6}$") => Field.Hcl,
                 "ecl" when "amb blu brn gry grn hzl oth".Contains(strings[1]) => Field.Ecl,
@@ -94,8 +95,8 @@ public class Day4 : Puzzle
 
     public bool ValidHeight(string height)
     {
-        if (height.EndsWith("cm")) return InRange(height[..^2], 150, 194);
-        if (height.EndsWith("in")) return InRange(height[..^2], 59, 77);
+        if (height.EndsWith("cm")) return (150..194).Interval().Contains(height[..^2].AsInt());
+        if (height.EndsWith("in")) return (59..77).Interval().Contains(height[..^2].AsInt());
         return false;
     }
 
