@@ -150,6 +150,13 @@ public static class StringExtensions
         if (index > -1) return s[(index + search.Length)..];
         return empty ? "" : null;
     }
+    
+    public static string After(this string s, char search, bool empty = true)
+    {
+        var index = s.IndexOf(search);
+        if (index > -1) return s[(index + 1)..];
+        return empty ? "" : null;
+    }
 
     public static string Hash(this string s, MD5 md5, bool upper = true)
     {
