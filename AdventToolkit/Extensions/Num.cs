@@ -258,4 +258,10 @@ public static class Num
     {
         return ints.Pairwise((a, b) => a >= b).AllEqual(true);
     }
+
+    public static IEnumerable<int> Positive()
+    {
+        var i = 1;
+        while (true) yield return i++;
+    }
 }
