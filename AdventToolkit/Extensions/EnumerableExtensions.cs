@@ -711,6 +711,17 @@ public static class EnumerableExtensions
         return source.Select((t, i) => new KeyValuePair<int, T>(i, t));
     }
 
+    public static int FirstIndex<T>(this IEnumerable<T> items, Func<T, bool> func)
+    {
+        var i = 0;
+        foreach (var item in items)
+        {
+            if (func(item)) return i;
+            i++;
+        }
+        return -1;
+    }
+
     public static (T, T) ToPair<T>(this IEnumerable<T> items)
     {
         using var e = items.GetEnumerator();
