@@ -9,4 +9,10 @@ public static class RectExtensions
     {
         return new Rect(corners.A, corners.B);
     }
+
+    public static Rect ToRectCorners(this Pos4D corners)
+    {
+        var (a, b, c, d) = corners;
+        return new Rect(Interval.RangeInclusive(a, c), Interval.RangeInclusive(b, d));
+    }
 }
