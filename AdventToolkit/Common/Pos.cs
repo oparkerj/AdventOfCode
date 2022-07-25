@@ -61,10 +61,10 @@ public readonly struct Pos : IAdd<Pos>, ISub<Pos>, INegate<Pos>
     {
         return char.ToLower(c) switch
         {
-            'u' => Up,
-            'r' => Right,
-            'l' => Left,
-            'd' => Down,
+            'u' or '^' => Up,
+            'r' or '>' => Right,
+            'l' or '<' => Left,
+            'd' or 'v' => Down,
             'f' => Right,
             'b' => Left,
             _ => throw new Exception("Invalid direction."),
