@@ -67,6 +67,7 @@ public static class EnumerableExtensions
 
     public static string Str<T>(this IEnumerable<T> source)
     {
+        if (source is char[] array) return new string(array);
         return string.Concat(source);
     }
 
@@ -225,13 +226,33 @@ public static class EnumerableExtensions
     }
 
     // Create unique arrays from an enumerable that returns the same array each time
-    public static IEnumerable<T[]> MakeUnique<T>(this IEnumerable<T[]> arr)
+    public static IEnumerable<T[]> MakeUnique<T>(this IEnumerable<IList<T>> arr)
     {
         foreach (var a in arr)
         {
-            var copy = new T[a.Length];
-            Array.Copy(a, copy, copy.Length);
+            var copy = new T[a.Count];
+            a.CopyTo(copy, 0);
             yield return copy;
+        }
+    }
+
+    // Like .Window but yields the same array each time
+    public static IEnumerable<T[]> SlideView<T>(this IEnumerable<T> items, int size)
+    {
+        var view = new T[size];
+        using var e = items.GetEnumerator();
+        int i;
+        for (i = 0; i < size && e.MoveNext(); i++)
+        {
+            view[i] = e.Current;
+        }
+        if (i < size) yield break;
+        while (true)
+        {
+            yield return view;
+            if (!e.MoveNext()) yield break;
+            if (size > 1) Array.Copy(view, 1, view, 0, size - 1);
+            view[^1] = e.Current;
         }
     }
 
