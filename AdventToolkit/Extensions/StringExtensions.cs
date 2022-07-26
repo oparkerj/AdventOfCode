@@ -55,6 +55,18 @@ public static class StringExtensions
             i += overlap ? 1 : sub.Length;
         }
     }
+    
+    public static IEnumerable<int> IndicesOf(this string s, string sub, Func<string, int, int> advance)
+    {
+        var i = 0;
+        while (true)
+        {
+            i = s.IndexOf(sub, i, StringComparison.Ordinal);
+            if (i < 0) yield break;
+            yield return i;
+            i += advance(s, i);
+        }
+    }
 
     public static string Reversed(this string s)
     {
