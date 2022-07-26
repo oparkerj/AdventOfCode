@@ -20,6 +20,7 @@ public class Day17 : Puzzle
         Passcode = InputLine;
         Target = (3, -3);
         Area = new Rect((0, 0), (3, -3));
+        Md5 = MD5.Create();
     }
 
     public IEnumerable<PathRoom> Neighbors(PathRoom room)
@@ -37,7 +38,7 @@ public class Day17 : Puzzle
         var dijkstra = new Dijkstra<PathRoom>(Neighbors);
         var start = new PathRoom(Pos.Zero);
         
-        using (Md5 = MD5.Create())
+        using (Md5)
         {
             var (_, dest) = dijkstra.ComputeFind(start, room => room.Pos == Target, room => Area.Contains(room.Pos));
             WriteLn(dest.Path);
@@ -49,7 +50,7 @@ public class Day17 : Puzzle
         var dijkstra = new Dijkstra<PathRoom>(Neighbors);
         var start = new PathRoom(Pos.Zero);
 
-        using (Md5 = MD5.Create())
+        using (Md5)
         {
             var found = dijkstra.Compute(start, room => Area.Contains(room.Pos));
             var result = found.WhereKey(room => room.Pos == Target).Values().Max();
