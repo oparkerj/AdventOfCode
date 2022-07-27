@@ -797,4 +797,9 @@ public static class EnumerableExtensions
         return (a, b);
     }
 
+    public static IEnumerable<T> Then<T>(this IEnumerable<T> items, T item)
+    {
+        return Enumerable.Append(items, item);
+    }
+
 }
