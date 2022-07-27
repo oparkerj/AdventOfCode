@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AdventToolkit.Collections;
 using MoreLinq;
 
@@ -55,15 +54,16 @@ public static class EnumerableExtensions
         return true;
     }
 
-    public static string Str(this IEnumerable<char> chars)
-    {
-        var b = new StringBuilder();
-        foreach (var c in chars)
-        {
-            b.Append(c);
-        }
-        return b.ToString();
-    }
+    // public static string Str(this IEnumerable<char> chars)
+    // {
+    //     return string.Concat(chars);
+    //     var b = new StringBuilder();
+    //     foreach (var c in chars)
+    //     {
+    //         b.Append(c);
+    //     }
+    //     return b.ToString();
+    // }
 
     public static string Str<T>(this IEnumerable<T> source)
     {

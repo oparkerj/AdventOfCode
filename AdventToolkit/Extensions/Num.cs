@@ -165,6 +165,21 @@ public static class Num
             i /= 10;
         }
     }
+    
+    public static IEnumerable<int> Digits(this BigInteger i)
+    {
+        if (i < 0) i = -i;
+        if (i == 0)
+        {
+            yield return 0;
+            yield break;
+        }
+        while (i > 0)
+        {
+            yield return (int) (i % 10);
+            i /= 10;
+        }
+    }
         
     public static IEnumerable<int> Digits(this long i)
     {
@@ -182,7 +197,9 @@ public static class Num
     }
         
     public static IEnumerable<int> DigitsLtr(this int i) => i.Digits().Reverse();
-        
+
+    public static IEnumerable<int> DigitsLtr(this BigInteger i) => i.Digits().Reverse();
+
     public static IEnumerable<int> DigitsLtr(this long i) => i.Digits().Reverse();
 
     public static IEnumerable<bool> Bits(this uint i, int n = 32)
