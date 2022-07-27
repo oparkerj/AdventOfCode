@@ -15,7 +15,7 @@ public class Day12 : Puzzle
 
     public UniqueGraph<string> ReadGraph()
     {
-        return Input.ToGraph(@"(?<Value>\d+) <-> (?:(?<Children>\d+)(?:, )?)+");
+        return Input.ToVertexInfo<string>(@"(?<Value>\d+) <-> (?:(?<Children>\d+)(?:, )?)+").ToGraph();
     }
 
     public override void PartOne()

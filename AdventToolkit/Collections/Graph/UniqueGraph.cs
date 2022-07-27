@@ -46,3 +46,32 @@ public class UniqueDataGraph<T, TData> : UniqueGraph<T, DataVertex<T, TData>, Da
 public class UniqueDigraph<T> : UniqueGraph<T, Vertex<T, DirectedEdge<T>>, DirectedEdge<T>> { }
 
 public class UniqueDataDigraph<T, TData> : UniqueGraph<T, Vertex<T, DirectedDataEdge<T, TData>>, DirectedDataEdge<T, TData>> { }
+
+public class DataGraphHelper<T, TData>
+{
+    public readonly UniqueDataGraph<T, TData> Graph;
+    private DataVertex<T, TData> _parent;
+
+    public DataGraphHelper(UniqueDataGraph<T, TData> graph) => Graph = graph;
+
+    public DataVertex<T, TData> GetOrCreate(T item)
+    {
+        if (Graph.TryGet(item, out var vertex)) return vertex;
+        vertex = new DataVertex<T, TData>(item);
+        Graph.AddVertex(vertex);
+        return vertex;
+    }
+
+    public DataGraphHelper<T, TData> Add(T item)
+    {
+        _parent = GetOrCreate(item);
+        return this;
+    }
+
+    public DataGraphHelper<T, TData> AddLink(T item, TData data)
+    {
+        var node = GetOrCreate(item);
+        _parent.LinkTo(node, new DataEdge<T, TData>(_parent, node, data));
+        return this;
+    }
+}

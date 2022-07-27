@@ -139,7 +139,7 @@ public class QuantityVertex<T> : TreeVertex<T, DataEdge<T, long>>
         return $"\"{Value} ({Quantity})\"";
     }
 }
-    
+
 public class QuantityTreeHelper<T>
 {
     public readonly QuantityTree<T> Tree;
