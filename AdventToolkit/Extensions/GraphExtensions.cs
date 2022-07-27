@@ -9,6 +9,11 @@ namespace AdventToolkit.Extensions;
 
 public static class GraphExtensions
 {
+    public static IEnumerable<VertexInfo<T>> ToVertexInfo<T>(this IEnumerable<string> data, string pattern)
+    {
+        return data.Extract<VertexInfo<T>>(pattern);
+    }
+
     public static UniqueGraph<TT> ToGraph<T, TT>(this IEnumerable<T> items, Func<T, TT> parent, Func<T, TT> child)
     {
         var graph = new UniqueGraph<TT>();
@@ -19,16 +24,27 @@ public static class GraphExtensions
         return graph;
     }
 
-    public static UniqueGraph<string> ToGraph(this IEnumerable<string> items, string format)
+    public static UniqueGraph<T> ToGraph<T>(this IEnumerable<VertexInfo<T>> items)
     {
-        var graph = new UniqueGraph<string>();
-        foreach (var info in items.Extract<VertexInfo<string>>(format))
+        var graph = new UniqueGraph<T>();
+        foreach (var info in items)
         {
             var parent = graph.GetOrCreate(info.Value);
             foreach (var child in info.Children)
             {
                 parent.LinkTo(graph.GetOrCreate(child));
             }
+        }
+        return graph;
+    }
+
+    public static UniqueDataGraph<T, TData> ToDataGraph<T, TData>(this IEnumerable<T> items, Action<T, DataGraphHelper<T, TData>> action)
+    {
+        var graph = new UniqueDataGraph<T, TData>();
+        var helper = new DataGraphHelper<T, TData>(graph);
+        foreach (var item in items)
+        {
+            action(item, helper);
         }
         return graph;
     }

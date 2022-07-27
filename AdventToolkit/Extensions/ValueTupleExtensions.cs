@@ -18,6 +18,23 @@ public static class ValueTupleExtensions
         return result;
     }
 
+    public static IEnumerable<T> Unpack<T>(this (T, T) tuple)
+    {
+        yield return tuple.Item1;
+        yield return tuple.Item2;
+    }
+
+    public static IEnumerable<T> UnpackAll<T>(this IEnumerable<(T, T)> tuples)
+    {
+        return tuples.SelectMany(tuple => tuple.Unpack());
+    }
+
+    public static (T, T) Sorted<T>(this (T a, T b) tuple, IComparer<T> comparer = default)
+    {
+        comparer ??= Comparer<T>.Default;
+        return comparer.Compare(tuple.a, tuple.b) <= 0 ? tuple : (tuple.b, tuple.a);
+    }
+
     public static TR Select<TA, TB, TR>(this (TA A, TB B) tuple, Func<TA, TB, TR> func)
     {
         return func(tuple.A, tuple.B);
