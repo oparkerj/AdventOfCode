@@ -7,7 +7,12 @@ namespace AdventOfCode2015.Puzzles;
 
 public class Day9 : Puzzle
 {
-    public Dictionary<(string, string), int> Graph;
+    public Dictionary<(string, string), int> Graph = new();
+
+    public Day9()
+    {
+        BuildGraph();
+    }
 
     public void BuildGraph()
     {
@@ -20,7 +25,6 @@ public class Day9 : Puzzle
 
     public IEnumerable<int> Paths()
     {
-        BuildGraph();
         var places = Graph.Keys.UnpackAll().Distinct();
         return places.Permutations().Select(list => list.Pairwise((a, b) => Graph[(a, b).Sorted()]).Sum());
     }
