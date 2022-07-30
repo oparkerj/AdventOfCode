@@ -155,6 +155,20 @@ public static class StringExtensions
             }
         });
     }
+    
+    public static string Before(this string s, string search, bool empty = true)
+    {
+        var index = s.IndexOf(search, StringComparison.Ordinal);
+        if (index > -1) return s[..index];
+        return empty ? "" : null;
+    }
+    
+    public static string Before(this string s, char search, bool empty = true)
+    {
+        var index = s.IndexOf(search);
+        if (index > -1) return s[..index];
+        return empty ? "" : null;
+    }
 
     public static string After(this string s, string search, bool empty = true)
     {

@@ -53,7 +53,7 @@ public class Day7 : Puzzle
 
     public abstract class Signal
     {
-        public Func<string, ushort> Signals { get; init; }
+        public Func<string, ushort> Signals { get; init; } = null!;
 
         public abstract ushort Data { get; }
     }
