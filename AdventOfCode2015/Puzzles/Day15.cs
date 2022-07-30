@@ -20,7 +20,7 @@ public class Day15 : Puzzle
     
     public override void PartOne()
     {
-        var ingredients = Input.Extract<Ingredient>(@"(\w+)\D+" + Patterns.Int5).ToList();
+        var ingredients = Input.Extract<Ingredient>(@$"(\w+){Patterns.NonDigit}{Patterns.Int5}").ToList();
         var vars = ingredients.Select(i => i.Name.IntConst()).ToArray();
 
         var capacity = ComponentValue(ingredients, vars, i => i.Capacity);
