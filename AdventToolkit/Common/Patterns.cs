@@ -5,6 +5,8 @@ namespace AdventToolkit.Common;
 
 public static class Patterns
 {
+    public static Regex Word => new(@"(\w+)");
+    
     public static Regex NonDigit => new(@"[^0-9\-]");
 
     public static Regex Int => new(@"(-?\d+)");
