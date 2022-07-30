@@ -11,16 +11,16 @@ public class Day15 : Puzzle
 
     public ZExpr ComponentValue(IList<Ingredient> ingredients, IList<ZExpr> exprs, Func<Ingredient, int> component)
     {
-        var sum = exprs.Select((expr, i) => (expr, component(ingredients[i])))
-            .Where(tuple => tuple.Item2 != 0)
-            .Select(tuple => tuple.expr * tuple.Item2)
+        var sum = exprs.Select((expr, i) => (expr, amount: component(ingredients[i])))
+            .Where(tuple => tuple.amount != 0)
+            .Select(tuple => tuple.expr * tuple.amount)
             .Sum();
-        return (sum > 0).Condition(sum, 0);
+        return sum.Min(0);
     }
     
     public override void PartOne()
     {
-        var ingredients = Input.Extract<Ingredient>(@$"(\w+){Patterns.NonDigit}{Patterns.Int5}").ToList();
+        var ingredients = Input.Extract<Ingredient>(@$"(\w+){Patterns.NonDigit}+{Patterns.Int5}").ToList();
         var vars = ingredients.Select(i => i.Name.IntConst()).ToArray();
 
         var capacity = ComponentValue(ingredients, vars, i => i.Capacity);
@@ -31,15 +31,14 @@ public class Day15 : Puzzle
         var total = capacity * durability * flavor * texture;
 
         var o = Zzz.Optimize();
+        // Set constraints
         o.AddAll(vars, expr => expr >= 0);
         o.Add(vars.Sum() == 100);
         if (Part == 2)
         {
             o.Add(ComponentValue(ingredients, vars, i => i.Calories) == 500);
         }
-
-        var result = o.Maximize(total);
-        WriteLn(o.Check());
-        WriteLn(result.Value);
+        
+        o.LogResult(o.Maximize(total));
     }
 }

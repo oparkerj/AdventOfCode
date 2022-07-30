@@ -155,4 +155,24 @@ public static class Zzz
     {
         return Lt((ZExpr) left, right);
     }
+
+    public static ZExpr Min(this ZExpr expr, ZExpr min)
+    {
+        return (expr > min).Condition(expr, min);
+    }
+
+    public static ZExpr Min(this ArithExpr expr, ZExpr min)
+    {
+        return Min((ZExpr) expr, min);
+    }
+    
+    public static ZExpr Max(this ZExpr expr, ZExpr max)
+    {
+        return (expr < max).Condition(expr, max);
+    }
+
+    public static ZExpr Max(this ArithExpr expr, ZExpr max)
+    {
+        return Max((ZExpr) expr, max);
+    }
 }

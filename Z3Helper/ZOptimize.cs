@@ -6,6 +6,15 @@ namespace Z3Helper;
 
 public static class ZOptimize
 {
+    public static void LogResult(this Optimize o, params Optimize.Handle[] handles)
+    {
+        Console.WriteLine(o.Check());
+        foreach (var handle in handles)
+        {
+            Console.WriteLine(handle.Value);
+        }
+    }
+    
     public static Optimize.Handle Maximize(this Optimize o, Expr expr)
     {
         return o.MkMaximize(expr);
