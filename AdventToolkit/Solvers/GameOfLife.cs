@@ -67,20 +67,24 @@ public class GameOfLife<TLoc, TState> : IEnumerable<KeyValuePair<TLoc, TState>>
         NeighborFunction = _locations.GetNeighbors;
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    public AlignedSpace<TLoc, TState> Space => _locations;
 
-    public IEnumerator<KeyValuePair<TLoc, TState>> GetEnumerator()
-    {
-        return _locations.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<KeyValuePair<TLoc, TState>> GetEnumerator() => _locations.GetEnumerator();
 
     public TState this[TLoc loc]
     {
         get => _locations[loc];
         set => _locations[loc] = value;
+    }
+
+    public void CopySpace(AlignedSpace<TLoc, TState> space)
+    {
+        foreach (var (key, value) in space)
+        {
+            this[key] = value;
+        }
     }
 
     public GameOfLife<TLoc, TState> WithUpdate(Func<GameOfLifeCell<TLoc, TState>, TState> func)
@@ -130,6 +134,15 @@ public class GameOfLife<TLoc, TState> : IEnumerable<KeyValuePair<TLoc, TState>>
     public void Step(int count)
     {
         count.Times(() => Step());
+    }
+
+    public void StepAnd(int count, Action<GameOfLife<TLoc, TState>> after)
+    {
+        count.Times(() =>
+        {
+            Step();
+            after(this);
+        });
     }
 
     // Step the game once and return the number of cells that changed states
