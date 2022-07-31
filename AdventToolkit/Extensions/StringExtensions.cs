@@ -220,15 +220,15 @@ public static class StringExtensions
         return true;
     }
 
-    public static string ReplaceAt(this string s, int index, string original, string replace)
+    public static string ReplaceAt(this string s, int index, int count, string replace)
     {
-        if (index < 0 || index + original.Length > s.Length) throw new ArgumentException("Index out of bounds.");
-        return string.Create(s.Length - original.Length + replace.Length, (s, index, original.Length, replace), (result, context) =>
+        if (index < 0 || index + count > s.Length) throw new ArgumentException("Index out of bounds.");
+        return string.Create(s.Length - count + replace.Length, (s, index, count, replace), (result, context) =>
         {
             var span = context.s.AsSpan();
             span[..context.index].CopyTo(result);
             context.replace.CopyTo(result[context.index..]);
-            span[(context.index + context.Length)..].CopyTo(result[(context.index + context.replace.Length)..]);
+            span[(context.index + context.count)..].CopyTo(result[(context.index + context.replace.Length)..]);
         });
     }
 

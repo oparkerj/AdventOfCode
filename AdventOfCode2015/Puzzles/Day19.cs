@@ -23,7 +23,7 @@ public class Day19 : Puzzle
         return from key in Reactions.Keys
             from i in current.IndicesOf(key, true)
             from s in Reactions[key]
-            select current.ReplaceAt(i, key, s);
+            select current.ReplaceAt(i, key.Length, s);
     }
 
     public override void PartOne()
