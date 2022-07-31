@@ -43,7 +43,7 @@ public static class StringExtensions
             i++;
         }
     }
-        
+
     public static IEnumerable<int> IndicesOf(this string s, string sub, bool overlap = false)
     {
         var i = 0;
@@ -55,7 +55,7 @@ public static class StringExtensions
             i += overlap ? 1 : sub.Length;
         }
     }
-    
+
     public static IEnumerable<int> IndicesOf(this string s, string sub, Func<string, int, int> advance)
     {
         var i = 0;
@@ -76,7 +76,7 @@ public static class StringExtensions
             result.Reverse();
         });
     }
-        
+
     public static bool Matches(this string s, string regex)
     {
         return Regex.IsMatch(s, regex);
@@ -155,14 +155,14 @@ public static class StringExtensions
             }
         });
     }
-    
+
     public static string Before(this string s, string search, bool empty = true)
     {
         var index = s.IndexOf(search, StringComparison.Ordinal);
         if (index > -1) return s[..index];
         return empty ? "" : null;
     }
-    
+
     public static string Before(this string s, char search, bool empty = true)
     {
         var index = s.IndexOf(search);
@@ -176,7 +176,7 @@ public static class StringExtensions
         if (index > -1) return s[(index + search.Length)..];
         return empty ? "" : null;
     }
-    
+
     public static string After(this string s, char search, bool empty = true)
     {
         var index = s.IndexOf(search);
@@ -188,13 +188,13 @@ public static class StringExtensions
     {
         const int length = 32;
         var hexBase = (byte) (upper ? 'A' - 10 : 'a' - 10);
-        
+
         return string.Create(length, (s, md5, hexBase), (result, context) =>
         {
             var bytes = context.s.Length <= 256 ? stackalloc byte[context.s.Length] : new byte[context.s.Length];
             Encoding.ASCII.GetBytes(context.s.AsSpan(), bytes);
             Span<byte> hash = stackalloc byte[length / 2];
-            
+
             if (!context.md5.TryComputeHash(bytes, hash, out _)) throw new Exception("Hash error.");
             for (var i = 0; i < length / 2; i++)
             {
@@ -219,4 +219,17 @@ public static class StringExtensions
         result = ExtractionPlan<T>.CreatePlan(r).Extract(match);
         return true;
     }
+
+    public static string ReplaceAt(this string s, int index, string original, string replace)
+    {
+        if (index < 0 || index + original.Length > s.Length) throw new ArgumentException("Index out of bounds.");
+        return string.Create(s.Length - original.Length + replace.Length, (s, index, original.Length, replace), (result, context) =>
+        {
+            var span = context.s.AsSpan();
+            span[..context.index].CopyTo(result);
+            context.replace.CopyTo(result[context.index..]);
+            span[(context.index + context.Length)..].CopyTo(result[(context.index + context.replace.Length)..]);
+        });
+    }
+
 }
