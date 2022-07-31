@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit.Collections;
+using Dist = System.ValueTuple<int, int>;
 
 namespace AdventToolkit.Utilities;
 
@@ -10,6 +11,8 @@ public class Dijkstra<TCell, TMid>
     public Func<TCell, IEnumerable<TMid>> Neighbors;
     public Func<TMid, int> Distance;
     public Func<TCell, TMid, TCell> Cell;
+    // Setting a heuristic will cause the pathfinder to behave like A*
+    public Func<TCell, int> Heuristic = _ => 0;
 
     public Dictionary<TCell, int> ComputeAll(TCell start, IEnumerable<TCell> all)
     {
@@ -41,8 +44,8 @@ public class Dijkstra<TCell, TMid>
     {
         var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
         var seen = new HashSet<TCell>();
-        var queue = new PriorityQueue<TCell, int>();
-        queue.Enqueue(start, 0);
+        var queue = new PriorityQueue<TCell, Dist>();
+        queue.Enqueue(start, new Dist(Heuristic(start), 0));
         while (queue.Count > 0)
         {
             var cell = queue.Dequeue();
@@ -53,10 +56,11 @@ public class Dijkstra<TCell, TMid>
             {
                 var other = Cell(cell, neighbor);
                 var weight = Distance(neighbor);
-                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
-                if (current + weight < dist[other])
+                var newScore = current + weight;
+                if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
+                if (newScore < dist[other])
                 {
-                    dist[other] = current + weight;
+                    dist[other] = newScore;
                 }
             }
         }
@@ -67,8 +71,8 @@ public class Dijkstra<TCell, TMid>
     {
         var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
         var seen = new HashSet<TCell>();
-        var queue = new PriorityQueue<TCell, int>();
-        queue.Enqueue(start, 0);
+        var queue = new PriorityQueue<TCell, Dist>();
+        queue.Enqueue(start, new Dist(Heuristic(start), 0));
         while (queue.Count > 0)
         {
             var cell = queue.Dequeue();
@@ -80,10 +84,11 @@ public class Dijkstra<TCell, TMid>
                 var other = Cell(cell, neighbor);
                 if (!valid(other)) continue;
                 var weight = Distance(neighbor);
-                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
-                if (current + weight < dist[other])
+                var newScore = current + weight;
+                if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
+                if (newScore < dist[other])
                 {
-                    dist[other] = current + weight;
+                    dist[other] = newScore;
                 }
             }
         }
@@ -119,8 +124,8 @@ public class Dijkstra<TCell, TMid>
     {
         var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
         var seen = new HashSet<TCell>();
-        var queue = new PriorityQueue<TCell, int>();
-        queue.Enqueue(start, 0);
+        var queue = new PriorityQueue<TCell, Dist>();
+        queue.Enqueue(start, new Dist(Heuristic(start), 0));
         while (queue.Count > 0)
         {
             var cell = queue.Dequeue();
@@ -132,10 +137,11 @@ public class Dijkstra<TCell, TMid>
                 var other = Cell(cell, neighbor);
                 if (!valid(other)) continue;
                 var weight = Distance(neighbor);
-                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
-                if (current + weight < dist[other])
+                var newScore = current + weight;
+                if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
+                if (newScore < dist[other])
                 {
-                    dist[other] = current + weight;
+                    dist[other] = newScore;
                 }
             }
         }
@@ -147,8 +153,8 @@ public class Dijkstra<TCell, TMid>
         valid ??= _ => true;
         var dist = new DefaultDict<TCell, (int Dist, TCell From)> {DefaultValue = (int.MaxValue, default), [start] = (0, default)};
         var seen = new HashSet<TCell>();
-        var queue = new PriorityQueue<TCell, int>();
-        queue.Enqueue(start, 0);
+        var queue = new PriorityQueue<TCell, Dist>();
+        queue.Enqueue(start, new Dist(Heuristic(start), 0));
         while (queue.Count > 0)
         {
             var cell = queue.Dequeue();
@@ -160,10 +166,11 @@ public class Dijkstra<TCell, TMid>
                 var other = Cell(cell, neighbor);
                 if (!valid(other)) continue;
                 var weight = Distance(neighbor);
-                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
-                if (current + weight < dist[other].Dist)
+                var newScore = current + weight;
+                if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
+                if (newScore < dist[other].Dist)
                 {
-                    dist[other] = (current + weight, cell);
+                    dist[other] = (newScore, cell);
                 }
             }
         }
@@ -175,8 +182,8 @@ public class Dijkstra<TCell, TMid>
         valid ??= (_, _) => true;
         var dist = new DefaultDict<TCell, (int Dist, TCell From)> {DefaultValue = (int.MaxValue, default), [start] = (0, default)};
         var seen = new HashSet<TCell>();
-        var queue = new PriorityQueue<TCell, int>();
-        queue.Enqueue(start, 0);
+        var queue = new PriorityQueue<TCell, Dist>();
+        queue.Enqueue(start, new Dist(Heuristic(start), 0));
         while (queue.Count > 0)
         {
             var cell = queue.Dequeue();
@@ -187,11 +194,12 @@ public class Dijkstra<TCell, TMid>
             {
                 var other = Cell(cell, neighbor);
                 var weight = Distance(neighbor);
-                if (!valid(other, current + weight)) continue;
-                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
-                if (current + weight < dist[other].Dist)
+                var newScore = current + weight;
+                if (!valid(other, newScore)) continue;
+                if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
+                if (newScore < dist[other].Dist)
                 {
-                    dist[other] = (current + weight, cell);
+                    dist[other] = (newScore, cell);
                 }
             }
         }
@@ -203,8 +211,8 @@ public class Dijkstra<TCell, TMid>
         valid ??= _ => true;
         var dist = new DefaultDict<TCell, (int Dist, TCell From)> {DefaultValue = (int.MaxValue, default), [start] = (0, default)};
         var seen = new HashSet<TCell>();
-        var queue = new PriorityQueue<TCell, int>();
-        queue.Enqueue(start, 0);
+        var queue = new PriorityQueue<TCell, Dist>();
+        queue.Enqueue(start, new Dist(Heuristic(start), 0));
         while (queue.Count > 0)
         {
             var cell = queue.Dequeue();
@@ -217,10 +225,11 @@ public class Dijkstra<TCell, TMid>
                 var other = Cell(cell, neighbor);
                 if (!valid(other)) continue;
                 var weight = Distance(neighbor);
-                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
-                if (current + weight < dist[other].Dist)
+                var newScore = current + weight;
+                if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
+                if (newScore < dist[other].Dist)
                 {
-                    dist[other] = (current + weight, cell);
+                    dist[other] = (newScore, cell);
                 }
             }
         }
@@ -232,8 +241,8 @@ public class Dijkstra<TCell, TMid>
         valid ??= _ => true; 
         var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
         var seen = new HashSet<TCell>();
-        var queue = new PriorityQueue<TCell, int>();
-        queue.Enqueue(start, 0);
+        var queue = new PriorityQueue<TCell, Dist>();
+        queue.Enqueue(start, new Dist(Heuristic(start), 0));
         while (queue.Count > 0)
         {
             var cell = queue.Dequeue();
@@ -246,10 +255,11 @@ public class Dijkstra<TCell, TMid>
                 var other = Cell(cell, neighbor);
                 if (!valid(other)) continue;
                 var weight = Distance(neighbor);
-                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
-                if (current + weight < dist[other])
+                var newScore = current + weight;
+                if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
+                if (newScore < dist[other])
                 {
-                    dist[other] = current + weight;
+                    dist[other] = newScore;
                 }
             }
         }
@@ -261,8 +271,8 @@ public class Dijkstra<TCell, TMid>
         valid ??= _ => true; 
         var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
         var seen = new HashSet<TCell>();
-        var queue = new PriorityQueue<TCell, int>();
-        queue.Enqueue(start, 0);
+        var queue = new PriorityQueue<TCell, Dist>();
+        queue.Enqueue(start, new Dist(Heuristic(start), 0));
         while (queue.Count > 0)
         {
             var cell = queue.Dequeue();
@@ -275,10 +285,11 @@ public class Dijkstra<TCell, TMid>
                 var other = Cell(cell, neighbor);
                 if (!valid(other)) continue;
                 var weight = Distance(neighbor);
-                if (!seen.Contains(other)) queue.Enqueue(other, current + weight);
-                if (current + weight < dist[other])
+                var newScore = current + weight;
+                if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
+                if (newScore < dist[other])
                 {
-                    dist[other] = current + weight;
+                    dist[other] = newScore;
                 }
             }
         }
