@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Utilities;
 using AdventToolkit.Utilities.Arithmetic;
@@ -8,7 +9,7 @@ using MoreLinq;
 
 namespace AdventToolkit.Extensions;
 
-public static class Algorithms
+public static partial class Algorithms
 {
     public static int SumRange(int min, int max)
     {
@@ -168,14 +169,34 @@ public static class Algorithms
     // index = true makes the sequence start from 0 and n is exclusive
     public static IEnumerable<int[]> Sequences(int length, int n, bool index = false)
     {
-        if (n < (index ? 0 : 1)) yield break;
-        var arr = new int[length];
-        Array.Fill(arr, index ? 0 : 1);
+        var args = new Interval[length];
+        Array.Fill(args, new Interval(index ? 0 : 1, n));
+        return Sequences(args);
+
+        // if (n < (index ? 0 : 1)) yield break;
+        // var arr = new int[length];
+        // Array.Fill(arr, index ? 0 : 1);
+        // Main:
+        // yield return arr;
+        // for (var i = 0; i < arr.Length; i++)
+        // {
+        //     if (arr[i] == (index ? n - 1 : n)) arr[i] = index ? 0 : 1;
+        //     else
+        //     {
+        //         arr[i]++;
+        //         goto Main;
+        //     }
+        // }
+    }
+
+    public static IEnumerable<int[]> Sequences(params Interval[] intervals)
+    {
+        var arr = intervals.Select(i => i.Start).ToArray(intervals.Length);
         Main:
         yield return arr;
         for (var i = 0; i < arr.Length; i++)
         {
-            if (arr[i] == (index ? n - 1 : n)) arr[i] = index ? 0 : 1;
+            if (arr[i] == intervals[i].Last) arr[i] = intervals[i].Start;
             else
             {
                 arr[i]++;
@@ -221,6 +242,12 @@ public static class Algorithms
     public static IEnumerable<int[]> ExclusivePairs(int n, bool index = false)
     {
         return Sequences(2, n, index).Where(ints => ints[0] != ints[1]);
+    }
+    
+    // Every increasing pair of integers [a, b] from 1 to n where a != b
+    public static IEnumerable<int[]> ExclusivePairsIncreasing(int n, bool index = false)
+    {
+        return SequencesIncreasing(2, n, index).Where(ints => ints[0] != ints[1]);
     }
 
     // Cycles returns components of an object. Finds the cycle time of each component

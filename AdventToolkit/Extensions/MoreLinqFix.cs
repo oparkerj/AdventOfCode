@@ -21,4 +21,9 @@ public static class MoreLinqFix
     {
         return Enumerable.ToHashSet(items);
     }
+
+    public static IEnumerable<T> Before<T>(this IEnumerable<T> items, T item)
+    {
+        return Enumerable.Prepend(items, item);
+    }
 }
