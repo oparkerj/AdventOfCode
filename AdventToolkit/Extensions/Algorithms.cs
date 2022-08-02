@@ -9,7 +9,7 @@ using MoreLinq;
 
 namespace AdventToolkit.Extensions;
 
-public static partial class Algorithms
+public static class Algorithms
 {
     public static int SumRange(int min, int max)
     {
