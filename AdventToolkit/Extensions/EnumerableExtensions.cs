@@ -802,4 +802,10 @@ public static class EnumerableExtensions
         return Enumerable.Append(items, item);
     }
 
+    public static int UnorderedHash<T>(this IEnumerable<T> items)
+    {
+        if (items == null) return 0;
+        return items.Select(arg => arg.GetHashCode()).Sorted().DefaultIfEmpty().Aggregate(HashCode.Combine);
+    }
+
 }
