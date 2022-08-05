@@ -4,7 +4,7 @@ using MoreLinq;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day5 : Puzzle
+public class Day5 : Puzzle<int>
 {
     public bool IsNice(string s)
     {
@@ -14,9 +14,9 @@ public class Day5 : Puzzle
         return !s.Contains("ab") && !s.Contains("cd") && !s.Contains("pq") && !s.Contains("xy");
     }
     
-    public override void PartOne()
+    public override int PartOne()
     {
-        WriteLn(Input.Count(IsNice));
+        return Input.Count(IsNice);
     }
 
     public bool IsNice2(string s)
@@ -27,8 +27,8 @@ public class Day5 : Puzzle
         return pair && s.SlideView(3).Any(view => view[0] == view[2]);
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
-        WriteLn(Input.Count(IsNice2));
+        return Input.Count(IsNice2);
     }
 }

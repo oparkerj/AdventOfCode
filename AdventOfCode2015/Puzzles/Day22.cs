@@ -4,7 +4,7 @@ using AdventToolkit.Utilities;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day22 : Puzzle
+public class Day22 : Puzzle<int>
 {
     public const int MagicMissile = 1;
     public const int Drain = 2;
@@ -12,7 +12,7 @@ public class Day22 : Puzzle
     public const int Poison = 4;
     public const int Recharge = 5;
     
-    public override void PartOne()
+    public override int PartOne()
     {
         var bossHealth = Input[0].After(':').Trim().AsInt();
         var bossDamage = Input[1].After(':').Trim().AsInt();
@@ -33,7 +33,7 @@ public class Day22 : Puzzle
         };
 
         var (mana, _) = path.ComputeFind(start, s => s.Boss <= 0, state => state.Valid());
-        WriteLn(mana); // 1235 < x
+        return mana;
     }
 
     public class State
@@ -43,7 +43,7 @@ public class Day22 : Puzzle
         public int Mana { get; init; }
         public int ManaSpent { get; init; }
         public bool PlayerTurn { get; init; }
-        public Effect[] Effects { get; init; }
+        public Effect[] Effects { get; init; } = null!;
 
         public IEnumerable<Effect> TimeStep() => Effects.Where(e => e.Duration > 1).Select(e => e with {Duration = e.Duration - 1});
 

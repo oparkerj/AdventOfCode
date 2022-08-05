@@ -4,7 +4,7 @@ using AdventToolkit.Utilities;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day7 : Puzzle
+public class Day7 : Puzzle<int>
 {
     public Dictionary<string, Signal> Wires = new();
     public ushort BOverride;
@@ -34,13 +34,13 @@ public class Day7 : Puzzle
         }
     }
     
-    public override void PartOne()
+    public override int PartOne()
     {
         ReadWires();
-        WriteLn(GetSignal("a"));
+        return GetSignal("a");
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
         Part = 1;
         ReadWires();
@@ -48,7 +48,7 @@ public class Day7 : Puzzle
         Part = 2;
         Wires.Clear();
         ReadWires();
-        WriteLn(GetSignal("a"));
+        return GetSignal("a");
     }
 
     public abstract class Signal

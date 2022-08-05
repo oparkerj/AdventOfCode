@@ -3,7 +3,7 @@ using AdventToolkit.Extensions;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day8 : Puzzle
+public class Day8 : Puzzle<int>
 {
     public int MemoryLength(string s)
     {
@@ -13,19 +13,19 @@ public class Day8 : Puzzle
         return s.Length - remove - 2;
     }
     
-    public override void PartOne()
+    public override int PartOne()
     {
         var code = Input.Select(s => s.Length).Sum();
         var memory = Input.Select(MemoryLength).Sum();
-        WriteLn(code - memory);
+        return code - memory;
     }
 
     public int EncodedLength(string s) => s.Length + s.Count('\\') + s.Count('"') + 2;
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
         var result = Input.Select(EncodedLength).Sum();
         var code = Input.Select(s => s.Length).Sum();
-        WriteLn(result - code);
+        return result - code;
     }
 }

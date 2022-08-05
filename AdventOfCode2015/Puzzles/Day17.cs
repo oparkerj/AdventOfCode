@@ -3,25 +3,23 @@ using AdventToolkit.Extensions;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day17 : Puzzle
+public class Day17 : Puzzle<int>
 {
     public int[] Values;
     public const int Target = 150;
 
     public Day17() => Values = Input.Ints().ToArray();
 
-    public override void PartOne()
+    public override int PartOne()
     {
-        var result = Algorithms.Sequences(Values.Length, 2, true)
+        return Algorithms.Sequences(Values.Length, 2, true)
             .Count(ints => ints.Zip(Values, Num.Mul).Sum() == Target);
-        WriteLn(result);
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
-        var result = Algorithms.Sequences(Values.Length, 2, true)
+        return Algorithms.Sequences(Values.Length, 2, true)
             .MinsBy(ints => ints.Zip(Values, Num.Mul).Sum() == Target ? ints.Count(1) : int.MaxValue)
             .Count();
-        WriteLn(result);
     }
 }

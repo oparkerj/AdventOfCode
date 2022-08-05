@@ -7,7 +7,7 @@ using MoreLinq;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day18 : Puzzle
+public class Day18 : Puzzle<int>
 {
     public GameOfLife Game = new(true);
 
@@ -18,10 +18,10 @@ public class Day18 : Puzzle
         Game.WithLivingDeadRules(i => i is not (2 or 3), i => i == 3);
     }
 
-    public override void PartOne()
+    public override int PartOne()
     {
         Game.Step(100);
-        WriteLn(Game.CountActive());
+        return Game.CountActive();
     }
 
     public void ResetLights(GameOfLife<Pos, bool> game)
@@ -29,10 +29,10 @@ public class Day18 : Puzzle
         ((Grid<bool>) game.Space).Bounds.Corners().ForEach(pos => game[pos] = true);
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
         ResetLights(Game);
         Game.StepAnd(100, ResetLights);
-        WriteLn(Game.CountActive());
+        return Game.CountActive();
     }
 }

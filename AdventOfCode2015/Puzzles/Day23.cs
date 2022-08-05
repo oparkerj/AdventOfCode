@@ -5,12 +5,12 @@ using AdventToolkit.Utilities;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day23 : Puzzle
+public class Day23 : Puzzle<BigInteger>
 {
     public BigInteger[] Register = new BigInteger[2];
     public int Ptr = 0;
     
-    public override void PartOne()
+    public override BigInteger PartOne()
     {
         var matcher = new StringMatcher();
         matcher.AddPrefix<char>("hlf", @"hlf (.)", Half);
@@ -25,14 +25,14 @@ public class Day23 : Puzzle
             matcher.Handle(Input[Ptr]);
             Ptr++;
         }
-        
-        WriteLn(Register[Reg('b')]);
+
+        return Register[Reg('b')];
     }
 
-    public override void PartTwo()
+    public override BigInteger PartTwo()
     {
         Register[Reg('a')] = 1;
-        PartOne();
+        return PartOne();
     }
 
     public int Reg(char c) => c - 'a';

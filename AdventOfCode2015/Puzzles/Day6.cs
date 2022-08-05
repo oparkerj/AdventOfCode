@@ -7,7 +7,7 @@ using RegExtract;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day6 : Puzzle
+public class Day6 : Puzzle<int>
 {
     public Grid<int> Lights = new();
 
@@ -29,7 +29,7 @@ public class Day6 : Puzzle
         }
     }
 
-    public override void PartOne()
+    public override int PartOne()
     {
         var plan = ExtractionPlan<(int, int, int, int)>.CreatePlan(Patterns.Int4);
         foreach (var s in Input)
@@ -39,12 +39,12 @@ public class Day6 : Puzzle
             else if (s.StartsWith("turn off")) Turn(rect, false);
             else Toggle(rect);
         }
-        WriteLn(Lights.Values.Count(1));
+        return Lights.Values.Count(1);
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
         Run(PartOne);
-        WriteLn(Lights.Values.Sum());
+        return Lights.Values.Sum();
     }
 }
