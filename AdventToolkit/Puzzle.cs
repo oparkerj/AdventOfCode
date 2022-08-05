@@ -3,22 +3,41 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using AdventToolkit.Extensions;
 using TextCopy;
 
 namespace AdventToolkit;
 
-public abstract class Puzzle
+public abstract class PuzzleBase
 {
-    protected Puzzle()
+    protected PuzzleBase()
     {
         InputName = GetType().Name + ".txt";
     }
 
     public static void Run<T>()
-        where T : Puzzle, new()
+        where T : PuzzleBase, new()
     {
         var puzzle = new T();
+        if (puzzle is Puzzle p) RunPuzzle(p);
+        else if (puzzle.IsGenericType(typeof(Puzzle<>)))
+        {
+            var info = typeof(PuzzleBase).GetMethod(nameof(RunPuzzle1), BindingFlags.Public | BindingFlags.Static);
+            var args = puzzle.GetGenericArguments(typeof(Puzzle<>)).Prepend(typeof(T)).ToArray();
+            info!.MakeGenericMethod(args).Invoke(null, new object[] {puzzle});
+        }
+        else if (puzzle.IsGenericType(typeof(Puzzle<,>)))
+        {
+            var info = typeof(PuzzleBase).GetMethod(nameof(RunPuzzle2), BindingFlags.Public | BindingFlags.Static);
+            var args = puzzle.GetGenericArguments(typeof(Puzzle<,>)).Prepend(typeof(T)).ToArray();
+            info!.MakeGenericMethod(args).Invoke(null, new object[] {puzzle});
+        }
+    }
+
+    public static void RunPuzzle<T>(T puzzle)
+        where T : Puzzle
+    {
         if (!puzzle.Measure)
         {
             if (puzzle.Part == 1) puzzle.PartOne();
@@ -34,9 +53,61 @@ public abstract class Puzzle
             Console.WriteLine(watch.Elapsed);
         }
     }
+    
+    public static void RunPuzzle1<T, TR>(T puzzle)
+        where T : Puzzle<TR>
+    {
+        if (!puzzle.Measure)
+        {
+            if (puzzle.Part == 1) puzzle.WriteLn(puzzle.PartOne());
+            else puzzle.WriteLn(puzzle.PartTwo());
+        }
+        else
+        {
+            TR result;
+            var watch = new Stopwatch();
+            watch.Start();
+            if (puzzle.Part == 1) result = puzzle.PartOne();
+            else result = puzzle.PartTwo();
+            watch.Stop();
+            puzzle.WriteLn(result);
+            Console.WriteLine(watch.Elapsed);
+        }
+    }
+    
+    public static void RunPuzzle2<T, T1, T2>(T puzzle)
+        where T : Puzzle<T1, T2>
+    {
+        if (!puzzle.Measure)
+        {
+            if (puzzle.Part == 1) puzzle.WriteLn(puzzle.PartOne());
+            else puzzle.WriteLn(puzzle.PartTwo());
+        }
+        else
+        {
+            var watch = new Stopwatch();
+            if (puzzle.Part == 1)
+            {
+                T1 result;
+                watch.Start();
+                result = puzzle.PartOne();
+                watch.Stop();
+                puzzle.WriteLn(result);
+            }
+            else
+            {
+                T2 result;
+                watch.Start();
+                result = puzzle.PartTwo();
+                watch.Stop();
+                puzzle.WriteLn(result);
+            }
+            Console.WriteLine(watch.Elapsed);
+        }
+    }
 
     public static string RunCapture<T>()
-        where T : Puzzle, new()
+        where T : PuzzleBase, new()
     {
         var old = Console.Out;
         using var output = new StringWriter();
@@ -52,10 +123,6 @@ public abstract class Puzzle
 
     public bool Measure { get; set; }
 
-    public abstract void PartOne();
-
-    public virtual void PartTwo() => PartOne();
-
     // Execute the provided action with no console output
     public void Run(Action action)
     {
@@ -63,6 +130,11 @@ public abstract class Puzzle
         Console.SetOut(TextWriter.Null);
         action();
         Console.SetOut(old);
+    }
+
+    public void Run<T>(Func<T> func)
+    {
+        Run((Action) (() => func()));
     }
 
     public void WriteLn(object o) => Console.WriteLine(o);
@@ -129,7 +201,7 @@ public abstract class Puzzle
             var current = 0;
             foreach (var s in Input)
             {
-                if (s == "")
+                if (string.IsNullOrEmpty(s))
                 {
                     if (last != current) yield return Input[last..current];
                     last = current + 1;
@@ -139,4 +211,25 @@ public abstract class Puzzle
             if (last < current) yield return Input[last..current];
         }
     }
+}
+
+public abstract class Puzzle : PuzzleBase
+{
+    public abstract void PartOne();
+
+    public virtual void PartTwo() => PartOne();
+}
+
+public abstract class Puzzle<T> : PuzzleBase
+{
+    public abstract T PartOne();
+
+    public virtual T PartTwo() => PartOne();
+}
+
+public abstract class Puzzle<T1, T2> : PuzzleBase
+{
+    public abstract T1 PartOne();
+
+    public abstract T2 PartTwo();
 }
