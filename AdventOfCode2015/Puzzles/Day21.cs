@@ -4,7 +4,7 @@ using AdventToolkit.Extensions;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day21 : Puzzle
+public class Day21 : Puzzle<int>
 {
     public List<Item> Weapons = new()
     {
@@ -67,21 +67,19 @@ public class Day21 : Puzzle
         return myDamage >= bossDamage;
     }
 
-    public override void PartOne()
+    public override int PartOne()
     {
-        var result = GetCombinations()
+        return GetCombinations()
             .Where(CheckWin)
             .Select(list => list.Sum(item => item.Cost))
             .Min();
-        WriteLn(result);
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
-        var result = GetCombinations()
+        return GetCombinations()
             .Where(items => !CheckWin(items))
             .Select(list => list.Sum(item => item.Cost))
             .Max();
-        WriteLn(result);
     }
 }

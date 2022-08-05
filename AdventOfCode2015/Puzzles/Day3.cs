@@ -5,21 +5,21 @@ using MoreLinq;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day3 : Puzzle
+public class Day3 : Puzzle<int>
 {
     public Grid<int> Houses = new();
 
-    public override void PartOne()
+    public override int PartOne()
     {
         var points = InputLine.Select(Pos.RelativeDirection).Scan(Pos.Origin, Pos.Add);
         foreach (var point in points)
         {
             Houses[point]++;
         }
-        WriteLn(Houses.Count);
+        return Houses.Count;
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
         var offsets = InputLine.Select(Pos.RelativeDirection).ToList();
         var santa = offsets.TakeEvery(2).Scan(Pos.Origin, Pos.Add);
@@ -28,6 +28,6 @@ public class Day3 : Puzzle
         {
             Houses[point]++;
         }
-        WriteLn(Houses.Count);
+        return Houses.Count;
     }
 }

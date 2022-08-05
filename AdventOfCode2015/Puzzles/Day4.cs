@@ -4,21 +4,19 @@ using AdventToolkit.Extensions;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day4 : Puzzle
+public class Day4 : Puzzle<int>
 {
-    public override void PartOne()
+    public override int PartOne()
     {
         using var md5 = MD5.Create();
         var key = InputLine;
-        var result = Num.Positive().First(i => (key + i).Hash(md5).StartsWith("00000"));
-        WriteLn(result);
+        return Num.Positive().First(i => (key + i).Hash(md5).StartsWith("00000"));
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
         using var md5 = MD5.Create();
         var key = InputLine;
-        var result = Num.Positive().First(i => (key + i).Hash(md5).StartsWith("000000"));
-        WriteLn(result);
+        return Num.Positive().First(i => (key + i).Hash(md5).StartsWith("000000"));
     }
 }

@@ -4,7 +4,7 @@ using AdventToolkit.Utilities;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day19 : Puzzle
+public class Day19 : Puzzle<int>
 {
     public Dictionary<string, List<string>> Reactions = new();
 
@@ -26,18 +26,17 @@ public class Day19 : Puzzle
             select current.ReplaceAt(i, key.Length, s);
     }
 
-    public override void PartOne()
+    public override int PartOne()
     {
         ReadInput();
-        WriteLn(Replacements(AllGroups[1][0]).Distinct().Count());
+        return Replacements(AllGroups[1][0]).Distinct().Count();
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
         ReadInput();
         var path = new Dijkstra<string>(Replacements);
         path.Heuristic = s => s.Length;
-        var result = path.ComputeFind(AllGroups[1][0], "e");
-        WriteLn(result);
+        return path.ComputeFind(AllGroups[1][0], "e");
     }
 }

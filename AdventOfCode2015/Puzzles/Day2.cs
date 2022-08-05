@@ -4,7 +4,7 @@ using RegExtract;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day2 : Puzzle
+public class Day2 : Puzzle<int>
 {
     public record Box(int X, int Y, int Z)
     {
@@ -13,15 +13,13 @@ public class Day2 : Puzzle
         public int Ribbon => Math.Min(X + Y, Math.Min(X + Z, Y + Z)) * 2 + X * Y * Z;
     }
 
-    public override void PartOne()
+    public override int PartOne()
     {
-        var sum = Input.Extract<Box>(Patterns.Int3).Select(box => box.Paper).Sum();
-        WriteLn(sum);
+        return Input.Extract<Box>(Patterns.Int3).Select(box => box.Paper).Sum();
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
-        var sum = Input.Extract<Box>(Patterns.Int3).Select(box => box.Ribbon).Sum();
-        WriteLn(sum);
+        return Input.Extract<Box>(Patterns.Int3).Select(box => box.Ribbon).Sum();
     }
 }

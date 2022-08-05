@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day12 : Puzzle
+public class Day12 : Puzzle<int>
 {
     public int Sum(JToken token)
     {
@@ -13,9 +13,8 @@ public class Day12 : Puzzle
         return token.Children().Select(Sum).Sum();
     }
     
-    public override void PartOne()
+    public override int PartOne()
     {
-        var json = JToken.Parse(InputLine);
-        WriteLn(Sum(json));
+        return Sum(JToken.Parse(InputLine));
     }
 }

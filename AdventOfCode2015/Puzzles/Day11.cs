@@ -4,7 +4,7 @@ using MoreLinq;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day11 : Puzzle
+public class Day11 : Puzzle<string>
 {
     public string Next(string s)
     {
@@ -56,13 +56,13 @@ public class Day11 : Puzzle
         }
     }
     
-    public override void PartOne()
+    public override string PartOne()
     {
-        WriteLn(Next(InputLine));
+        return Next(InputLine);
     }
 
-    public override void PartTwo()
+    public override string PartTwo()
     {
-        WriteLn(Next(Next(InputLine)));
+        return Next(Next(InputLine));
     }
 }

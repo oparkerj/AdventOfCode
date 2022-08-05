@@ -5,7 +5,7 @@ using RegExtract;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day16 : Puzzle
+public class Day16 : Puzzle<int>
 {
     public Dictionary<string, int> Target = new();
 
@@ -45,11 +45,8 @@ public class Day16 : Puzzle
         return true;
     }
 
-    public override void PartOne()
+    public override int PartOne()
     {
-        foreach (var s in Input.Where(Fits))
-        {
-            WriteLn(s.Extract<int>(Patterns.Int));
-        }
+        return Input.First(Fits).Extract<int>(Patterns.Int);
     }
 }

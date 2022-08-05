@@ -6,7 +6,7 @@ using RegExtract;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day14 : Puzzle
+public class Day14 : Puzzle<int>
 {
     public const int TimeLimit = 2503;
 
@@ -19,13 +19,12 @@ public class Day14 : Puzzle
         }
     }
     
-    public override void PartOne()
+    public override int PartOne()
     {
-        var result = Input.Extract<Reindeer>(Patterns.Int3).Select(r => r.ComputeDistance(TimeLimit)).Max();
-        WriteLn(result);
+        return Input.Extract<Reindeer>(Patterns.Int3).Select(r => r.ComputeDistance(TimeLimit)).Max();
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
         var reindeer = Input.Extract<Reindeer>(Patterns.Int3).ToList();
         var points = new int[reindeer.Count];
@@ -39,6 +38,6 @@ public class Day14 : Puzzle
                 points[winner]++;
             }
         }
-        WriteLn(points.Max());
+        return points.Max();
     }
 }

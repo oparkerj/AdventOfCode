@@ -4,9 +4,9 @@ using AdventToolkit.Common;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day25 : Puzzle
+public class Day25 : Puzzle<BigInteger>
 {
-    public override void PartOne()
+    public override BigInteger PartOne()
     {
         BigInteger current = 20151125;
         Pos pos = (1, 1);
@@ -19,7 +19,7 @@ public class Day25 : Puzzle
             pos = pos.Y == 1 ? (1, pos.X + 1) : (pos.X + 1, pos.Y - 1);
             current = current * mul % mod;
         }
-        
-        WriteLn(current);
+
+        return current;
     }
 }

@@ -3,7 +3,7 @@ using AdventToolkit.Extensions;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day20 : Puzzle
+public class Day20 : Puzzle<int>
 {
     public int Target;
 
@@ -21,10 +21,9 @@ public class Day20 : Puzzle
         return total >= Target;
     }
 
-    public override void PartOne()
+    public override int PartOne()
     {
-        var result = Num.Positive().First(CheckValid);
-        WriteLn(result);
+        return Num.Positive().First(CheckValid);
     }
     
     public bool CheckValid2(int i)
@@ -39,9 +38,8 @@ public class Day20 : Puzzle
         return total >= Target;
     }
 
-    public override void PartTwo()
+    public override int PartTwo()
     {
-        var result = Num.Positive().First(CheckValid2);
-        WriteLn(result);
+        return Num.Positive().First(CheckValid2);
     }
 }

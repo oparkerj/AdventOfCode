@@ -5,7 +5,7 @@ using RegExtract;
 
 namespace AdventOfCode2015.Puzzles;
 
-public class Day9 : Puzzle
+public class Day9 : Puzzle<int>
 {
     public Dictionary<(string, string), int> Graph = new();
 
@@ -29,7 +29,7 @@ public class Day9 : Puzzle
         return places.Permutations().Select(list => list.Pairwise((a, b) => Graph[(a, b).Sorted()]).Sum());
     }
 
-    public override void PartOne() => WriteLn(Paths().Min());
+    public override int PartOne() => Paths().Min();
 
-    public override void PartTwo() => WriteLn(Paths().Max());
+    public override int PartTwo() => Paths().Max();
 }
