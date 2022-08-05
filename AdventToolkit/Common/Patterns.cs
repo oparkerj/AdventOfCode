@@ -9,7 +9,7 @@ public static class Patterns
     
     public static Regex NonDigit => new(@"[^0-9\-]");
 
-    public static Regex Int => new(@"(-?\d+)");
+    public static Regex Int => new(@"((?:-|\+)?\d+)");
 
     public static Regex IntPattern(int amount) => new(string.Join($"{NonDigit}+", Enumerable.Repeat(Int.ToString(), amount)));
     
