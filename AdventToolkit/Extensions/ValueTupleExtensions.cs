@@ -34,6 +34,21 @@ public static class ValueTupleExtensions
         comparer ??= Comparer<T>.Default;
         return comparer.Compare(tuple.a, tuple.b) <= 0 ? tuple : (tuple.b, tuple.a);
     }
+    
+    public static (T, T, T) Sorted<T>(this (T a, T b, T c) tuple, IComparer<T> comparer = default)
+    {
+        comparer ??= Comparer<T>.Default;
+        var (a, b, c) = tuple;
+        if (comparer.Compare(a, b) <= 0)
+        {
+            if (comparer.Compare(b, c) <= 0) return tuple;
+            if (comparer.Compare(a, c) <= 0) return (a, c, b);
+            return (c, a, b);
+        }
+        if (comparer.Compare(a, c) <= 0) return (b, a, c);
+        if (comparer.Compare(b, c) <= 0) return (b, c, a);
+        return (c, b, a);
+    }
 
     public static TR Select<TA, TB, TR>(this (TA A, TB B) tuple, Func<TA, TB, TR> func)
     {
