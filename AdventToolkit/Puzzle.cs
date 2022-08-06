@@ -23,16 +23,19 @@ public abstract class PuzzleBase
         if (puzzle is Puzzle p) RunPuzzle(p);
         else if (puzzle.IsGenericType(typeof(Puzzle<>)))
         {
-            var info = typeof(PuzzleBase).GetMethod(nameof(RunPuzzle1), BindingFlags.Public | BindingFlags.Static);
-            var args = puzzle.GetGenericArguments(typeof(Puzzle<>)).Prepend(typeof(T)).ToArray();
-            info!.MakeGenericMethod(args).Invoke(null, new object[] {puzzle});
+            RunGenericMethod<T>(puzzle, typeof(Puzzle<>), nameof(RunPuzzle1));
         }
         else if (puzzle.IsGenericType(typeof(Puzzle<,>)))
         {
-            var info = typeof(PuzzleBase).GetMethod(nameof(RunPuzzle2), BindingFlags.Public | BindingFlags.Static);
-            var args = puzzle.GetGenericArguments(typeof(Puzzle<,>)).Prepend(typeof(T)).ToArray();
-            info!.MakeGenericMethod(args).Invoke(null, new object[] {puzzle});
+            RunGenericMethod<T>(puzzle, typeof(Puzzle<,>), nameof(RunPuzzle2));
         }
+    }
+
+    private static void RunGenericMethod<T>(object puzzle, Type type, string method)
+    {
+        var info = typeof(PuzzleBase).GetMethod(method, BindingFlags.Public | BindingFlags.Static)!;
+        var args = puzzle.GetGenericArguments(type).Prepend(typeof(T)).ToArray(info.GetGenericArguments().Length);
+        info.MakeGenericMethod(args).Invoke(null, new[] {puzzle});
     }
 
     public static void RunPuzzle<T>(T puzzle)
