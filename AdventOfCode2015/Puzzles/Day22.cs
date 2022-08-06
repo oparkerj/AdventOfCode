@@ -83,6 +83,7 @@ public class Day22 : Puzzle<int>
                         Shield => (6, 113),
                         Poison => (6, 173),
                         Recharge => (5, 229),
+                        _ => throw new Exception()
                     };
                     if (cost > mana) continue;
                     cast = true;
