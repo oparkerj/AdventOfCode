@@ -47,12 +47,22 @@ public static class StringExtensions
     public static IEnumerable<int> IndicesOf(this string s, string sub, bool overlap = false)
     {
         var i = 0;
+        if (overlap)
+        {
+            while (true)
+            {
+                i = s.IndexOf(sub, i, StringComparison.Ordinal);
+                if (i < 0) yield break;
+                yield return i;
+                i += 1;
+            }
+        }
         while (true)
         {
             i = s.IndexOf(sub, i, StringComparison.Ordinal);
             if (i < 0) yield break;
             yield return i;
-            i += overlap ? 1 : sub.Length;
+            i += sub.Length;
         }
     }
 

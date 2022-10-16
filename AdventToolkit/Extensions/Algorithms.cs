@@ -324,7 +324,7 @@ public static class Algorithms
     // Only positions from notify are yielded.
     // Can specify if invalid locations may be notified (but not explored)
     // Note that this does not return the from value.
-    public static IEnumerable<TPos> Bfs<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, Func<TPos, bool> valid, Func<TPos, bool> notify, bool includeInvalid = false)
+    public static IEnumerable<TPos> Bfs<TPos>(this ISpace<TPos> space, TPos from, Func<TPos, bool> valid, Func<TPos, bool> notify, bool includeInvalid = false)
     {
         var visited = new HashSet<TPos>();
         var queue = new Queue<TPos>();
@@ -345,7 +345,7 @@ public static class Algorithms
         }
     }
 
-    public static int ShortestPathBfs<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, TPos to, Func<TPos, bool> valid)
+    public static int ShortestPathBfs<TPos>(this ISpace<TPos> space, TPos from, TPos to, Func<TPos, bool> valid)
     {
         var visited = new HashSet<TPos>();
         var queue = new Queue<(TPos pos, int dist)>();
@@ -368,7 +368,7 @@ public static class Algorithms
         return -1;
     }
 
-    public static int LongestPathBfs<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, Func<TPos, bool> valid)
+    public static int LongestPathBfs<TPos>(this ISpace<TPos> space, TPos from, Func<TPos, bool> valid)
     {
         var visited = new HashSet<TPos>();
         var queue = new Queue<(TPos pos, int dist)>();
@@ -392,7 +392,34 @@ public static class Algorithms
         return max;
     }
 
-    public static bool IsReachable<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos from, TPos target, Func<TPos, bool> valid)
+    public static IEnumerable<(T, int)> Dfs<T>(this ISpace<T> space, T start, Func<T, bool> valid = null, Func<T, bool> notify = null, bool includeInvalid = false)
+    {
+        valid ??= _ => true;
+        notify ??= _ => true;
+        
+        var visited = new HashSet<T>();
+        var paths = new Stack<IEnumerator<T>>();
+        paths.Push(space.GetNeighbors(start).GetEnumerator());
+        visited.Add(start);
+        
+        while (paths.Count > 0)
+        {
+            var current = paths.Peek();
+            while (current.MoveNext())
+            {
+                var next = current.Current;
+                if (visited.Contains(next)) continue;
+                visited.Add(next);
+                var v = valid(next);
+                if ((v || includeInvalid) && notify(next)) yield return (next, paths.Count);
+                paths.Push(space.GetNeighbors(next).GetEnumerator());
+            }
+            current.Dispose();
+            paths.Pop();
+        }
+    }
+
+    public static bool IsReachable<TPos>(this ISpace<TPos> space, TPos from, TPos target, Func<TPos, bool> valid)
     {
         return space.ShortestPathBfs(@from, target, valid) > -1;
     }
