@@ -232,4 +232,32 @@ public static class StringExtensions
         });
     }
 
+    public static int LevenshteinDistance(this string a, string b)
+    {
+        var length = b.Length + 1;
+        var last = length <= 256 ? stackalloc int[length] : new int[length];
+        var current = length <= 256 ? stackalloc int[length] : new int[length];
+
+        for (var i = 0; i < length; i++)
+        {
+            last[i] = i;
+        }
+
+        for (var i = 0; i < a.Length; i++)
+        {
+            current[0] = i + 1;
+            for (var j = 0; j < b.Length; j++)
+            {
+                var delete = last[j + 1] + 1;
+                var insert = current[j] + 1;
+                var change = a[i] == b[j] ? last[j] : last[j] + 1;
+                current[j + 1] = Math.Min(delete, Math.Min(insert, change));
+            }
+            var temp = last;
+            last = current;
+            current = temp;
+        }
+        return last[b.Length];
+    }
+
 }

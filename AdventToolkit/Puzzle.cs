@@ -16,10 +16,14 @@ public abstract class PuzzleBase
         InputName = GetType().Name + ".txt";
     }
 
+    public void Run() => Run(this);
+
     public static void Run<T>()
-        where T : PuzzleBase, new()
+        where T : PuzzleBase, new() => Run(new T());
+
+    private static void Run<T>(T puzzle)
+        where T : PuzzleBase
     {
-        var puzzle = new T();
         if (puzzle is Puzzle p) RunPuzzle(p);
         else if (puzzle.IsGenericType(typeof(Puzzle<>)))
         {
@@ -91,17 +95,15 @@ public abstract class PuzzleBase
             var watch = new Stopwatch();
             if (puzzle.Part == 1)
             {
-                T1 result;
                 watch.Start();
-                result = puzzle.PartOne();
+                var result = puzzle.PartOne();
                 watch.Stop();
                 puzzle.WriteLn(result);
             }
             else
             {
-                T2 result;
                 watch.Start();
-                result = puzzle.PartTwo();
+                var result = puzzle.PartTwo();
                 watch.Stop();
                 puzzle.WriteLn(result);
             }
