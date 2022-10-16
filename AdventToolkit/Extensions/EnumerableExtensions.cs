@@ -525,9 +525,9 @@ public static class EnumerableExtensions
     // Put an enumerable in an array assuming it can hold all the elements.
     public static T[] ToArray<T>(this IEnumerable<T> source, T[] array)
     {
-        if (source is T[] t)
+        if (source is IList<T> list)
         {
-            t.CopyTo(array, 0);
+            list.CopyTo(array, 0);
             return array;
         }
         

@@ -23,10 +23,12 @@ public class Day9 : Puzzle<int>
         }
     }
 
+    public int Dist(string a, string b) => Graph[(a, b).Sorted()];
+
     public IEnumerable<int> Paths()
     {
         var places = Graph.Keys.UnpackAll().Distinct();
-        return places.Permutations().Select(list => list.Pairwise((a, b) => Graph[(a, b).Sorted()]).Sum());
+        return places.Permutations().Select(list => list.Pairwise(Dist).Sum());
     }
 
     public override int PartOne() => Paths().Min();
