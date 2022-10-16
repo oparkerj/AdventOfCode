@@ -22,6 +22,8 @@ public static class Zzz
 
     public static ZExpr IntConst(this string s) => Context.MkIntConst(s);
 
+    public static ZExpr Variable(this string s) => s.IntConst();
+
     public static ZExpr Condition(this ZbExpr expr, ZExpr left, ZExpr right)
     {
         return (ArithExpr) Context.MkITE(expr, left, right);

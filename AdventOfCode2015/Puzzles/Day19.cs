@@ -1,6 +1,5 @@
 using AdventToolkit;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities;
 
 namespace AdventOfCode2015.Puzzles;
 
@@ -13,7 +12,6 @@ public class Day19 : Puzzle<int>
         foreach (var s in AllGroups[0])
         {
             var (part, result) = s.SingleSplit(" => ");
-            if (Part == 2) Data.Swap(ref part, ref result);
             Reactions.GetOrNew(part).Add(result);
         }
     }
@@ -34,9 +32,18 @@ public class Day19 : Puzzle<int>
 
     public override int PartTwo()
     {
-        ReadInput();
-        var path = new Dijkstra<string>(Replacements);
-        path.Heuristic = s => s.Length;
-        return path.ComputeFind(AllGroups[1][0], "e");
+        var target = AllGroups[1][0];
+        var result = -1;
+
+        for (var i = 0; i < target.Length; i++)
+        {
+            var c = target[i];
+            if (c == 'R' && i < target.Length - 1 && target[i + 1] == 'n') continue;
+            if (c == 'A' && i < target.Length - 1 && target[i + 1] == 'r') continue;
+            if (c == 'Y') result--;
+            else if (char.IsUpper(c)) result++;
+        }
+        
+        return result;
     }
 }

@@ -79,6 +79,20 @@ public static class StringMatcherExtensions
     {
         return matcher.AddPrefix<(T1, T2, T3)>(prefix, pattern, tuple => action(tuple.Item1, tuple.Item2, tuple.Item3));
     }
+
+    public static StringMatcher AddPrefixType<T>(this StringMatcher matcher, string prefix, Action<T> action, bool trim = true)
+    {
+        var t = typeof(T);
+
+        var length = prefix.Length;
+        Func<string, string> getInput = trim ? s => s[length..].Trim() : s => s[length..];
+
+        Func<string, TC> Converter<TC>(Func<string, TC> parser) => s => parser(getInput(s));
+
+        if (t == typeof(int) && action is Action<int> ai) return matcher.Add(new PrefixTypeHandler<int>(prefix, Converter(int.Parse), ai, trim));
+        if (t == typeof(char) && action is Action<char> ac) return matcher.Add(new PrefixTypeHandler<char>(prefix, Converter(char.Parse), ac, trim));
+        throw new Exception("Unsupported type");
+    }
 }
 
 public class PrefixStringMatcher : IStringMatcher, IStringHandler
@@ -94,7 +108,7 @@ public class PrefixStringMatcher : IStringMatcher, IStringHandler
 
     public bool TryMatch(string s) => s.StartsWith(Prefix);
 
-    public void Handle(string s) => Handler?.Handle(s);
+    public virtual void Handle(string s) => Handler?.Handle(s);
 }
 
 public class RegexStringExtractor<T> : IStringMatcher, IStringHandler
@@ -114,5 +128,22 @@ public class RegexStringExtractor<T> : IStringMatcher, IStringHandler
     public bool TryMatch(string s) => _regex.IsMatch(s);
 
     public void Handle(string s) => _action?.Invoke(_plan.Extract(s));
+}
+
+public class PrefixTypeHandler<T> : PrefixStringMatcher
+{
+    public readonly Func<string, T> Converter;
+    public readonly Action<T> Action;
+
+    public PrefixTypeHandler(string prefix, Func<string, T> converter, Action<T> action, bool trim = true) : base(prefix)
+    {
+        Converter = converter;
+        Action = action;
+    }
+
+    public override void Handle(string s)
+    {
+        Action(Converter(s));
+    }
 }
 

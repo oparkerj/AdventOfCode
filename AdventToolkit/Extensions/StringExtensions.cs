@@ -47,12 +47,22 @@ public static class StringExtensions
     public static IEnumerable<int> IndicesOf(this string s, string sub, bool overlap = false)
     {
         var i = 0;
+        if (overlap)
+        {
+            while (true)
+            {
+                i = s.IndexOf(sub, i, StringComparison.Ordinal);
+                if (i < 0) yield break;
+                yield return i;
+                i += 1;
+            }
+        }
         while (true)
         {
             i = s.IndexOf(sub, i, StringComparison.Ordinal);
             if (i < 0) yield break;
             yield return i;
-            i += overlap ? 1 : sub.Length;
+            i += sub.Length;
         }
     }
 
@@ -230,6 +240,34 @@ public static class StringExtensions
             context.replace.CopyTo(result[context.index..]);
             span[(context.index + context.count)..].CopyTo(result[(context.index + context.replace.Length)..]);
         });
+    }
+
+    public static int LevenshteinDistance(this string a, string b)
+    {
+        var length = b.Length + 1;
+        var last = length <= 256 ? stackalloc int[length] : new int[length];
+        var current = length <= 256 ? stackalloc int[length] : new int[length];
+
+        for (var i = 0; i < length; i++)
+        {
+            last[i] = i;
+        }
+
+        for (var i = 0; i < a.Length; i++)
+        {
+            current[0] = i + 1;
+            for (var j = 0; j < b.Length; j++)
+            {
+                var delete = last[j + 1] + 1;
+                var insert = current[j] + 1;
+                var change = a[i] == b[j] ? last[j] : last[j] + 1;
+                current[j + 1] = Math.Min(delete, Math.Min(insert, change));
+            }
+            var temp = last;
+            last = current;
+            current = temp;
+        }
+        return last[b.Length];
     }
 
 }

@@ -13,12 +13,12 @@ public class Day23 : Puzzle<BigInteger>
     public override BigInteger PartOne()
     {
         var matcher = new StringMatcher();
-        matcher.AddPrefix<char>("hlf", @"hlf (.)", Half);
-        matcher.AddPrefix<char>("tpl", @"tpl (.)", Triple);
-        matcher.AddPrefix<char>("inc", @"inc (.)", Increment);
+        matcher.AddPrefix<char>("hlf", "hlf (.)", Half);
+        matcher.AddPrefix<char>("tpl", "tpl (.)", Triple);
+        matcher.AddPrefix<char>("inc", "inc (.)", Increment);
         matcher.AddPrefix<int>("jmp", Patterns.Int.ToString(), Jump);
-        matcher.AddPrefix<char, int>("jie", @"jie (.), " + Patterns.Int, JumpIfEven);
-        matcher.AddPrefix<char, int>("jio", @"jio (.), " + Patterns.Int, JumpIfOne);
+        matcher.AddPrefix<char, int>("jie", "jie (.), " + Patterns.Int, JumpIfEven);
+        matcher.AddPrefix<char, int>("jio", "jio (.), " + Patterns.Int, JumpIfOne); 
 
         while (Ptr >= 0 && Ptr < Input.Length)
         {

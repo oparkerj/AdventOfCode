@@ -7,7 +7,7 @@ using AdventToolkit.Utilities;
 
 namespace AdventToolkit.Collections.Space;
 
-public abstract class AlignedSpace<TPos, TVal> : IEnumerable<KeyValuePair<TPos, TVal>>, IDijkstra<TPos, TPos>
+public abstract class AlignedSpace<TPos, TVal> : ISpace<TPos>, IEnumerable<KeyValuePair<TPos, TVal>>, IDijkstra<TPos, TPos>
 {
     public bool UseDefault = true;
     public TVal Default = default;
