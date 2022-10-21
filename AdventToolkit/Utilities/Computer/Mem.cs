@@ -24,4 +24,43 @@ public class Mem<TArch>
     }
 
     public static implicit operator TArch(Mem<TArch> mem) => mem.Value;
+
+    public Mem<TArch> When(Func<TArch, bool> condition, Action<TArch> action)
+    {
+        var value = Value;
+        if (condition(value)) action(value);
+        return this;
+    }
+    
+    public Mem<TArch> When(Func<TArch, bool> condition, Action<TArch> action, TArch actionValue)
+    {
+        var value = Value;
+        if (condition(value)) action(actionValue);
+        return this;
+    }
+    
+    public Mem<TArch> When(Func<TArch, bool> condition, Action<TArch> action, Mem<TArch> actionValue)
+    {
+        var value = Value;
+        if (condition(value)) action(actionValue);
+        return this;
+    }
+    
+    public Mem<TArch> When(TArch value, Action<TArch> action)
+    {
+        if (Equals(Value, value)) action(value);
+        return this;
+    }
+    
+    public Mem<TArch> When(TArch value, Action<TArch> action, TArch actionValue)
+    {
+        if (Equals(Value, value)) action(actionValue);
+        return this;
+    }
+    
+    public Mem<TArch> When(TArch value, Action<TArch> action, Mem<TArch> actionValue)
+    {
+        if (Equals(Value, value)) action(actionValue);
+        return this;
+    }
 }

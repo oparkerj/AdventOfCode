@@ -57,6 +57,14 @@ public static class Num
 
     public static int RoundToInt(this double d) => (int) Math.Round(d);
 
+    public static bool Even(this int a) => a % 2 == 0;
+
+    public static bool Odd(this int a) => a % 2 == 1;
+
+    public static bool Even(this BigInteger a) => a.IsEven;
+
+    public static bool Odd(this BigInteger a) => !a.IsEven;
+
     public static BigInteger Factorial(this int i)
     {
         var prod = new BigInteger(1);
