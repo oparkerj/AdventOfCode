@@ -808,4 +808,20 @@ public static class EnumerableExtensions
         return items.Select(arg => arg.GetHashCode()).Sorted().DefaultIfEmpty().Aggregate(HashCode.Combine);
     }
 
+    public static IEnumerable<T> ToEnumerable<T>(this IEnumerator<T> enumerator)
+    {
+        while (enumerator.MoveNext()) yield return enumerator.Current;
+        enumerator.Dispose();
+    }
+
+    // Immediately take one item from a source and return the remaining items
+    public static IEnumerable<T> TakeOne<T>(this IEnumerable<T> source, out T result)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var e = source.GetEnumerator();
+        if (!e.MoveNext()) throw new Exception("Source is empty.");
+        result = e.Current;
+        return e.ToEnumerable();
+    }
+
 }

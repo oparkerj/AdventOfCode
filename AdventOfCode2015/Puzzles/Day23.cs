@@ -31,6 +31,7 @@ public class Day23 : Puzzle<BigInteger>
 
     public override BigInteger PartTwo()
     {
+        Run(PartOne);
         Register[Reg('a')] = 1;
         return PartOne();
     }
