@@ -48,6 +48,7 @@ public class LazyExpandingArray<T> : IEnumerable<T>
 
     public void Resize()
     {
+        if (_content.Length > _max) return;
         Array.Resize(ref _content, _max + 1);
         foreach (var (index, value) in _extra)
         {

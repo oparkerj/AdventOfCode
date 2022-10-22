@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit.Collections;
+using AdventToolkit.Collections.Space;
 using Dist = System.ValueTuple<int, int>;
 
 namespace AdventToolkit.Utilities;
@@ -334,6 +335,8 @@ public static class DijkstraExtensions
             Cell = dijkstra.GetNeighbor
         };
     }
+
+    public static Dijkstra<T> ToDijkstra<T>(this ISpace<T> space) => new(space.GetNeighbors);
 
     public static Dijkstra<TCell, TMid> ToDijkstra<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra)
     {
