@@ -10,7 +10,6 @@ namespace AdventToolkit.Utilities.Computer;
 // Also provides parsing of a program for the created instruction set.
 public class OpInstructionBuilder<TArch, TResult>
 {
-    //CpuFunc<TArch, OpArgs<TArch, int>>
     protected readonly Dictionary<string, int> _opCodes;
     protected readonly List<CpuFunc<TArch, OpArgs<TArch, int>, TResult>> _actions;
     protected readonly List<IOpParser<TArch, int, OpArgs<TArch, int>>> _readers;
