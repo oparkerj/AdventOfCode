@@ -1,6 +1,7 @@
 using AdventToolkit;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
+using AdventToolkit.Utilities.Computer;
 
 namespace AdventOfCode2015.Puzzles;
 
@@ -128,5 +129,38 @@ public class Day7 : Puzzle<int>
         }
 
         public override ushort Data => (ushort) (Signals(_wire) >> _amount);
+    }
+}
+
+public class Day7_2 : Puzzle<ushort>
+{
+    public NodeCpu<ushort, string, OpNode<ushort, int, string>> Cpu;
+
+    public Day7_2()
+    {
+        // Part = 1;
+        InputName = "Day7.txt";
+    }
+
+    public override ushort PartOne()
+    {
+        var builder = ValueTreeBuilder<ushort>.Default(ushort.Parse);
+        builder.Add("rd {->} ()", m => m);
+        builder.Add("{NOT} rd _ ()", m => (ushort) ~m.Value);
+        builder.Add("rd {AND} rd _ ()", (l, r) => (ushort) (l.Value & r.Value));
+        builder.Add("rd {OR} rd _ ()", (l, r) => (ushort) (l.Value | r.Value));
+        builder.Add("rd {RSHIFT} d _ ()", (l, r) => (ushort) (l.Value >> r.Value));
+        builder.Add("rd {LSHIFT} d _ ()", (l, r) => (ushort) (l.Value << r.Value));
+        
+        Cpu = builder.ParseNodes(Input);
+        return Cpu.Memory["a"];
+    }
+
+    public override ushort PartTwo()
+    {
+        var signalA = PartOne();
+        Cpu.Memory.Reset();
+        Cpu.Memory["b"] = signalA;
+        return Cpu.Memory["a"];
     }
 }
