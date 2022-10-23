@@ -4,7 +4,7 @@ namespace AdventToolkit.Utilities.Computer;
 // Typically: Execute next instruction, increment pointer.
 public interface IPipeline<TArch>
 {
-    // If this returns false, then the CPU should halt
+    // If this returns true, then the CPU should halt
     bool Tick(Cpu<TArch> cpu);
 
     void JumpRelative(Cpu<TArch> cpu, int offsetToNext);

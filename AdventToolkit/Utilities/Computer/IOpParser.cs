@@ -6,5 +6,5 @@ namespace AdventToolkit.Utilities.Computer;
 public interface IOpParser<TArch, in TOp, out TInst>
     where TInst : IOpInstruction<TOp>
 {
-    TInst Parse(Cpu<TArch> cpu, TOp op, IList<string> args);
+    TInst Parse(Cpu<TArch> cpu, TOp op, IEnumerable<string> args);
 }

@@ -2,12 +2,12 @@ namespace AdventToolkit.Utilities.Computer;
 
 // Stores the functions that executes instructions when the opcode is an
 // array index
-public class OpHandlerArray<TArch, TInst> : IOpInstructionHandler<TArch, int, TInst>
+public class OpHandlerArray<TArch, TInst, TResult> : IOpInstructionHandler<TArch, int, TInst, TResult>
     where TInst : IOpInstruction<int>
 {
-    public OpFunc<TArch, TInst>[] OpActions;
+    public CpuFunc<TArch, TInst, TResult>[] OpActions;
 
-    public bool Handle(Cpu<TArch> cpu, TInst inst)
+    public TResult Handle(Cpu<TArch> cpu, TInst inst)
     {
         return OpActions[inst.Opcode](cpu, inst);
     }

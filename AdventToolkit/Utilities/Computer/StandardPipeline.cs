@@ -5,9 +5,9 @@ public class StandardPipeline<TArch> : IPipeline<TArch>
 {
     public bool Tick(Cpu<TArch> cpu)
     {
-        var ready = cpu.InstructionSet.ExecuteNext(cpu);
+        var halt = cpu.InstructionSet.ExecuteNext(cpu);
         cpu.Pointer++;
-        return ready;
+        return halt;
     }
 
     public void JumpRelative(Cpu<TArch> cpu, int offsetToNext)

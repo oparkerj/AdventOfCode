@@ -11,6 +11,8 @@ public class Registers<T> : IMemory<T>
 
     public Registers(T[] buffer) => Storage = buffer;
 
+    public void Reset() => Array.Fill(Storage, default);
+
     public virtual T this[T t]
     {
         get => throw new NotImplementedException();

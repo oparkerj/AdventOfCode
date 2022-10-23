@@ -519,7 +519,10 @@ public static class EnumerableExtensions
 
     public static T[] ToArray<T>(this IEnumerable<T> source, int size)
     {
-        return source.ToArray(new T[size]);
+        var result = new T[size];
+        if (source is not ICollection<T> col) return source.ToArray(result);
+        col.CopyTo(result, 0);
+        return result;
     }
 
     // Put an enumerable in an array assuming it can hold all the elements.

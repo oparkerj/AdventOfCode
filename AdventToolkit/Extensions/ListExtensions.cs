@@ -131,4 +131,9 @@ public static class ListExtensions
     {
         return items as IList<T> ?? items.ToList();
     }
+
+    public static T[] AsArray<T>(this IEnumerable<T> items)
+    {
+        return items is ICollection<T> col ? col as T[] ?? items.ToArray(col.Count) : items.ToArray();
+    }
 }

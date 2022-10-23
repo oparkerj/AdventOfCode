@@ -23,7 +23,7 @@ public class Cpu<TArch>
     public virtual void Execute()
     {
         var pipeline = Pipeline;
-        while (pipeline.Tick(this)) { }
+        while (!pipeline.Tick(this)) { }
     }
 
     public void JumpRelative(int offsetToNext) => Pipeline.JumpRelative(this, offsetToNext);

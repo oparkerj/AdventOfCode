@@ -3,6 +3,8 @@ namespace AdventToolkit.Utilities.Computer;
 // Represents the memory of the cpu
 public interface IMemory<T>
 {
+    void Reset();
+    
     T this[T t] { get; set; }
     
     T this[int i] { get; set; }

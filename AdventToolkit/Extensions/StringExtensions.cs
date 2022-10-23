@@ -270,4 +270,24 @@ public static class StringExtensions
         return last[b.Length];
     }
 
+    public static IEnumerable<string> SplitSpaceOrComma(this string s)
+    {
+        var start = -1;
+        for (var i = 0; i < s.Length; i++)
+        {
+            var c = s[i];
+            if (c is ' ' or ',')
+            {
+                if (start >= 0)
+                {
+                    yield return new string(s.AsSpan(start, i - start));
+                    start = -1;
+                }
+                else start = -1;
+            }
+            else if (start == -1) start = i;
+        }
+        if (start != -1) yield return new string(s.AsSpan(start));
+    }
+
 }
