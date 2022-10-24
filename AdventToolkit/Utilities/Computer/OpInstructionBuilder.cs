@@ -31,6 +31,7 @@ public class OpInstructionBuilder<TArch, TResult>
     // Create a default builder
     // The default builder uses a parser that splits an instruction on spaces or commas.
     // It adds memory binders for register or digit values.
+    // TODO .net 7 use IParseable interface
     public static OpInstructionBuilder<TArch, TResult> Default(Func<string, TArch> parser)
     {
         var builder = new OpInstructionBuilder<TArch, TResult>();
@@ -48,7 +49,7 @@ public class OpInstructionBuilder<TArch, TResult>
     {
         AddBinder("r", new RegisterBinder<TArch>());
         AddBinder("d", new DirectValueBinder<TArch>(parser));
-        var regOrVal = new RegOrValBinder<TArch>(s => char.IsDigit(s[0]), parser);
+        var regOrVal = new RegOrValBinder<TArch>(s => s[0] is '-' or '+' ? char.IsDigit(s[1]) : char.IsDigit(s[0]), parser);
         AddBinder("rd", regOrVal);
         AddBinder("dr", regOrVal);
     }

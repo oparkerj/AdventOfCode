@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using AdventToolkit;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities.Computer;
 
 namespace AdventOfCode2016.Puzzles;
 
@@ -46,5 +47,38 @@ public class Day12 : Puzzle
         Regs[Reg('c')] = 1;
         
         PartOne();
+    }
+}
+
+public class Day12_2 : Puzzle<BigInteger>
+{
+    public Cpu<BigInteger> Cpu;
+
+    public Day12_2()
+    {
+        // Part = 1;
+        InputName = "Day12.txt";
+        
+        var builder = PrefixInstructionBuilder<BigInteger>.Default(BigInteger.Parse);
+        builder.Add("cpy dr r", (x, y) => y.Value = x);
+        builder.Add("inc r", r => r.Value++);
+        builder.Add("dec r", r => r.Value--);
+        builder.AddCpu("jnz dr dr", (cpu, x, y) => x.When(i => !i.IsZero, cpu.JumpRelative, y));
+
+        Cpu = Cpu<BigInteger>.StandardRegisters(4);
+        Cpu.InstructionSet = builder.BuildAndParseAll(Cpu, Input);
+    }
+
+    public override BigInteger PartOne()
+    {
+        Cpu.Execute();
+        return Cpu.Memory['a'];
+    }
+
+    public override BigInteger PartTwo()
+    {
+        Cpu.Memory['c'] = 1;
+        Cpu.Execute();
+        return Cpu.Memory['a'];
     }
 }

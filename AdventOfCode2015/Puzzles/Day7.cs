@@ -134,7 +134,7 @@ public class Day7 : Puzzle<int>
 
 public class Day7_2 : Puzzle<ushort>
 {
-    public NodeCpu<ushort, string, OpNode<ushort, int, string>> Cpu;
+    public Cpu<ushort> Cpu;
 
     public Day7_2()
     {
