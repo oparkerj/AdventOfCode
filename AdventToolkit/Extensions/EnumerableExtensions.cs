@@ -199,6 +199,8 @@ public static class EnumerableExtensions
     }
 
     public delegate bool Selection<in T, TOut>(T input, out TOut output);
+    
+    public delegate bool IndexedSelection<in T, TOut>(T input, int index, out TOut output);
 
     public static IEnumerable<TOut> SelectWhere<T, TOut>(this IEnumerable<T> source, Selection<T, TOut> selection)
     {
@@ -206,6 +208,17 @@ public static class EnumerableExtensions
         {
             if (!selection(item, out var output)) continue;
             yield return output;
+        }
+    }
+    
+    public static IEnumerable<TOut> SelectWhere<T, TOut>(this IEnumerable<T> source, IndexedSelection<T, TOut> selection)
+    {
+        var index = 0;
+        foreach (var item in source)
+        {
+            if (!selection(item, index, out var output)) continue;
+            yield return output;
+            index++;
         }
     }
 
@@ -825,6 +838,11 @@ public static class EnumerableExtensions
         if (!e.MoveNext()) throw new Exception("Source is empty.");
         result = e.Current;
         return e.ToEnumerable();
+    }
+
+    public static IEnumerable<T> SelectIndex<T>(this IEnumerable<IList<T>> lists, int index)
+    {
+        return lists.Select(list => list[index]);
     }
 
 }

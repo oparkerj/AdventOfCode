@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AdventToolkit.Common;
 
 namespace AdventToolkit.Utilities.Parsing;
 
@@ -73,7 +74,7 @@ public class SingleTypeExpression<T, TContext>
 // compute the expression, but with no context, the final value can be
 // directly computed. Calling Parse on this object will return a wrapper
 // that contains the final computed value.
-public class SingleTypeExpression<T> : SingleTypeExpression<T, NoContext>
+public class SingleTypeExpression<T> : SingleTypeExpression<T, Unit>
 {
     private AstParser<T> _parser;
 
@@ -92,9 +93,9 @@ public class SingleTypeExpression<T> : SingleTypeExpression<T, NoContext>
         return parser;
     }
 
-    public override IContextValue<T, NoContext> Parse(string s)
+    public override IContextValue<T, Unit> Parse(string s)
     {
-        return new ExpDirectValue<T, NoContext>(Eval(s));
+        return new ExpDirectValue<T, Unit>(Eval(s));
     }
 
     public T Eval(string s)

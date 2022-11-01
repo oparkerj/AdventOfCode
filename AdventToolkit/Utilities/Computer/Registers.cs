@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace AdventToolkit.Utilities.Computer;
 
@@ -12,6 +13,11 @@ public class Registers<T> : IMemory<T>
     public Registers(T[] buffer) => Storage = buffer;
 
     public void Reset() => Array.Fill(Storage, default);
+
+    public void CopyIn(ICollection<T> collection)
+    {
+        collection.CopyTo(Storage, 0);
+    }
 
     public virtual T this[T t]
     {

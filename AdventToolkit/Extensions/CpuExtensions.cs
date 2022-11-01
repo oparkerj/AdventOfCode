@@ -14,4 +14,27 @@ public static class CpuExtensions
     {
         cpu.JumpRelative((int) offset);
     }
+
+    public static void AddDefaultRegisterBinders<TArch, TBind, T>(this OpInstructionBuilder<TArch, T> builder)
+        where TBind : ConversionBinder<TArch>, new()
+    {
+        builder.AddBinder("r", new TBind());
+        builder.AddBinder("d", new TBind {DirectValueCondition = _ => true, AllowWrite = false});
+        var binder = new TBind
+        {
+            DirectValueCondition = s => s[0] is '-' or '+' ? char.IsDigit(s[1]) : char.IsDigit(s[0])
+        };
+        builder.AddBinder("rd", binder);
+        builder.AddBinder("dr", binder);
+    }
+    
+    public static void AddDefaultRegisterBinders<T>(this OpInstructionBuilder<int, T> builder)
+    {
+        AddDefaultRegisterBinders<int, IntBinder, T>(builder);
+    }
+    
+    public static void AddDefaultRegisterBinders<T>(this OpInstructionBuilder<long, T> builder)
+    {
+        AddDefaultRegisterBinders<long, LongBinder, T>(builder);
+    }
 }

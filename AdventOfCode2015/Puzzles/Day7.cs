@@ -144,7 +144,7 @@ public class Day7_2 : Puzzle<ushort>
 
     public override ushort PartOne()
     {
-        var builder = ValueTreeBuilder<ushort>.Default(ushort.Parse);
+        var builder = OpFormatBuilder<ushort>.Default(ushort.Parse);
         builder.Add("rd {->} ()", m => m);
         builder.Add("{NOT} rd _ ()", m => (ushort) ~m.Value);
         builder.Add("rd {AND} rd _ ()", (l, r) => (ushort) (l.Value & r.Value));

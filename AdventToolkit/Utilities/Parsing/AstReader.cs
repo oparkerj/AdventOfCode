@@ -46,7 +46,7 @@ public class AstReader
         var groups = GroupSymbols;
         var split = SequenceSplit;
         var escape = Escape;
-        var err = AstErrorReason.None;
+        AstErrorReason err;
             
         var roots = new Stack<AstNode>();
         var currents = new Stack<AstNode>();
@@ -121,7 +121,7 @@ public class AstReader
             return AstErrorReason.None;
         }
 
-        var index = 0;
+        int index;
         for (index = 0; index < tokens.Length; index++)
         {
             var token = tokens[index];

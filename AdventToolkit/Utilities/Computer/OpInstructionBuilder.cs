@@ -168,6 +168,16 @@ public class OpInstructionBuilder<TArch, TResult>
         var id = _opCodes[op];
         return _readers[id].Parse(cpu, id, args);
     }
+    
+    public OpArgs<TArch, int> ParseAsOp(Cpu<TArch> cpu, string instruction, int opIndex)
+    {
+        var parts = Splitter(instruction).AsArray();
+        var op = _opCodes.WhereValue(opIndex).First().Key;
+        var args = ArgSelector(op, parts, false);
+        return _readers[opIndex].Parse(cpu, opIndex, args);
+    }
+    
+    // TODO .net7 parse expression
 
     public IInstructionSet<TArch> BuildInstructionSet()
     {
@@ -179,6 +189,16 @@ public class OpInstructionBuilder<TArch, TResult>
         {
             InstructionHandler = handler
         };
+    }
+
+    public OpcodeArray<TArch, int, OpArgs<TArch, int>, TResult> GetInstructionSet(Cpu<TArch> cpu)
+    {
+        return (OpcodeArray<TArch, int, OpArgs<TArch, int>, TResult>) cpu.InstructionSet;
+    }
+
+    public OpHandlerArray<TArch, OpArgs<TArch, int>, TResult> GetInstructionHandler(Cpu<TArch> cpu)
+    {
+        return (OpHandlerArray<TArch, OpArgs<TArch, int>, TResult>) GetInstructionSet(cpu).InstructionHandler;
     }
 
     public OpArgs<TArch, int>[] ParseAll(Cpu<TArch> cpu, IEnumerable<string> instructions)

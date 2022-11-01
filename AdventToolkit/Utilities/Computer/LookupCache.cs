@@ -8,7 +8,7 @@ public class LookupCache<TArch, TKey> : IMemory<TArch>
     public readonly Dictionary<TKey, TArch> Values;
     public readonly Func<TKey, TArch> Lookup;
 
-    public LookupCache(Func<TKey, TArch> lookup)
+    public LookupCache(Func<TKey, TArch> lookup = null)
     {
         Values = new Dictionary<TKey, TArch>();
         Lookup = lookup;
@@ -19,6 +19,7 @@ public class LookupCache<TArch, TKey> : IMemory<TArch>
         if (t is TKey key)
         {
             if (Values.TryGetValue(key, out var result)) return result;
+            if (Lookup == null) throw new Exception($"No value present for the key \"{key}\"");
             return Values[key] = Lookup(key);
         }
         throw new Exception("Invalid key type.");

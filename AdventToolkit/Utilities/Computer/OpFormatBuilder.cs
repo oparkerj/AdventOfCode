@@ -5,20 +5,20 @@ using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Utilities.Computer;
 
-public class ValueTreeBuilder<TArch> : OpInstructionBuilder<TArch, TArch>
+public class OpFormatBuilder<TArch> : OpInstructionBuilder<TArch, TArch>
 {
     private readonly HashSet<(int, string)> _opTypes;
     private readonly Dictionary<string, NodeParser> _argSelectors;
 
-    public ValueTreeBuilder()
+    public OpFormatBuilder()
     {
         _opTypes = new HashSet<(int, string)>();
         _argSelectors = new Dictionary<string, NodeParser>();
     }
 
-    public new static ValueTreeBuilder<TArch> Default(Func<string, TArch> parser)
+    public new static OpFormatBuilder<TArch> Default(Func<string, TArch> parser)
     {
-        var builder = new ValueTreeBuilder<TArch>();
+        var builder = new OpFormatBuilder<TArch>();
         builder.Splitter = s => s.SplitSpaceOrComma();
         builder.OpSelector = builder.FindOpcode;
         builder.ArgSelector = builder.GetArgs;

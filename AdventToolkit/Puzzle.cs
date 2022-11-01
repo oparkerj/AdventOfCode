@@ -13,8 +13,12 @@ public abstract class PuzzleBase
 {
     protected PuzzleBase()
     {
-        InputName = GetType().Name + ".txt";
+        InputName = CopyInput(GetType());
     }
+
+    public string CopyInput<T>() => CopyInput(typeof(T));
+
+    public string CopyInput(Type type) => type.Name + ".txt";
 
     public void Run() => Run(this);
 

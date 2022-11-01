@@ -32,6 +32,15 @@ public static class StringExtensions
         return strings.Select(s => s.Digits());
     }
 
+    public static int TakeInt(this string s, int start = 0)
+    {
+        var span = s.AsSpan();
+        var i = start;
+        if (span[i] is '-' or '+') i++;
+        while (char.IsDigit(span[i])) i++;
+        return int.Parse(span[start..i]);
+    }
+
     public static IEnumerable<int> IndicesOf(this string s, char c)
     {
         var i = 0;

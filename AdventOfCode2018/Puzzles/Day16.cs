@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit;
+using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 using AdventToolkit.Solvers;
+using AdventToolkit.Utilities.Computer;
 using RegExtract;
 
 namespace AdventOfCode2018.Puzzles;
@@ -116,4 +118,94 @@ public class Day16 : Puzzle
     public record Sample((int Op, int A, int B, int C) Before,
         (int Op, int A, int B, int C) Inst,
         (int Op, int A, int B, int C) After);
+}
+
+public class Day16_2 : Puzzle<int>
+{
+    public Cpu<int> Cpu;
+    public OpInstructionBuilder<int, bool> Builder;
+    public OneToOne<int, int> Possible;
+
+    public Day16_2()
+    {
+        InputName = CopyInput<Day16>();
+        Setup();
+        Possible = new OneToOne<int, int>();
+    }
+
+    public void Setup()
+    {
+        Cpu = Cpu<int>.StandardRegisters(4);
+        Builder = PrefixInstructionBuilder<int>.Default(int.Parse);
+        Builder.AddDefaultRegisterBinders();
+        Builder.Add("addr r r r", (a, b, c) => c.Value = a.Value + b.Value);
+        Builder.Add("addi r d r", (a, b, c) => c.Value = a.Value + b.Value);
+        Builder.Add("mulr r r r", (a, b, c) => c.Value = a.Value * b.Value);
+        Builder.Add("muli r d r", (a, b, c) => c.Value = a.Value * b.Value);
+        Builder.Add("banr r r r", (a, b, c) => c.Value = a.Value & b.Value);
+        Builder.Add("bani r d r", (a, b, c) => c.Value = a.Value & b.Value);
+        Builder.Add("borr r r r", (a, b, c) => c.Value = a.Value | b.Value);
+        Builder.Add("bori r d r", (a, b, c) => c.Value = a.Value | b.Value);
+        Builder.Add("setr r d r", (a, _, c) => c.Value = a.Value);
+        Builder.Add("seti d d r", (a, _, c) => c.Value = a.Value);
+        Builder.Add("gtir d r r", (a, b, c) => c.Value = (a.Value > b.Value).AsInt());
+        Builder.Add("gtri r d r", (a, b, c) => c.Value = (a.Value > b.Value).AsInt());
+        Builder.Add("gtrr r r r", (a, b, c) => c.Value = (a.Value > b.Value).AsInt());
+        Builder.Add("eqir d r r", (a, b, c) => c.Value = (a.Value == b.Value).AsInt());
+        Builder.Add("eqri r d r", (a, b, c) => c.Value = (a.Value == b.Value).AsInt());
+        Builder.Add("eqrr r r r", (a, b, c) => c.Value = (a.Value == b.Value).AsInt());
+        Cpu.InstructionSet = Builder.BuildInstructionSet();
+    }
+
+    public override int PartOne()
+    {
+        var actions = Builder.GetInstructionHandler(Cpu).OpActions;
+        var registers = (Registers<int>) Cpu.Memory;
+
+        // Possible is an object responsible for figuring out the mapping between
+        // instruction numbers and the index of the actual instruction.
+        // Add all instruction numbers.
+        Possible.AddKeys(AllGroups[..^1].SelectIndex(1).Extract<int>(Patterns.Int));
+        // Add all instruction indices.
+        Possible.AddValues(Enumerable.Range(0, actions.Length));
+        
+        // Test all samples
+        return AllGroups[..^1].Count(sample =>
+        {
+            var state = sample.Extract<List<int>>(Patterns.IntList).ToArray();
+            var match = actions.Select((action, i) =>
+                {
+                    // Set up registers
+                    registers.CopyIn(state[0]);
+                    // Test instruction
+                    var inst = Builder.ParseAsOp(Cpu, sample[1], i);
+                    action(Cpu, inst);
+                    // Check registers after
+                    return registers.Storage.SequenceEqual(state[2]) ? i : -1;
+                })
+                .Where(i => i >= 0)
+                .ToList();
+            // We know which instructions worked for this instruction number.
+            // Use that to eliminate some of the possibilities.
+            Possible.ReduceWithValid(state[1][0], match);
+            return match.Count >= 3;
+        });
+    }
+
+    public override int PartTwo()
+    {
+        PartOne();
+        Cpu.Memory.Reset();
+        
+        Possible.ReduceToSingles();
+        var realOp = Possible.Mappings();
+
+        var code = AllGroups[^1]
+            .Select(s => Builder.ParseAsOp(Cpu, s, realOp[s.TakeInt()]))
+            .ToArray();
+        Builder.GetInstructionSet(Cpu).Instructions = code;
+        
+        Cpu.Execute();
+        return Cpu.Memory[0];
+    }
 }

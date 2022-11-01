@@ -65,6 +65,25 @@ public static class Num
 
     public static bool Odd(this BigInteger a) => !a.IsEven;
 
+    public static Func<int, int, int> ToIntFunc(Func<int, int, bool> func) => (a, b) => func(a, b).AsInt();
+
+    public static Func<int, int, int> LookupOperator(string s)
+    {
+        return s switch
+        {
+            "+" => Add,
+            "-" => Sub,
+            "*" => Mul,
+            "/" => Div,
+            "^" => Xor,
+            ">" => ToIntFunc(Gt),
+            "<" => ToIntFunc(Lt),
+            ">=" => ToIntFunc(Ge),
+            "<=" => ToIntFunc(Le),
+            _ => throw new Exception("Unknown operator.")
+        };
+    }
+
     public static BigInteger Factorial(this int i)
     {
         var prod = new BigInteger(1);

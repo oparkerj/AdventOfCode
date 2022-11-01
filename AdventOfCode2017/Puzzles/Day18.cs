@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Threading;
 using AdventToolkit;
 using AdventToolkit.Collections;
-using AdventToolkit.Extensions;
+using AdventToolkit.Utilities.Threads;
 
 namespace AdventOfCode2017.Puzzles;
 
@@ -47,12 +47,7 @@ public class Day18 : Puzzle
 
         public Program(string[] input) => Input = input;
 
-        private int _waiting;
-        public bool Waiting
-        {
-            get => _waiting.AsBool();
-            set => Interlocked.Exchange(ref _waiting, value.AsInt());
-        }
+        public Lock Waiting;
 
         public Program Target;
         public bool Terminate;
@@ -99,10 +94,10 @@ public class Day18 : Puzzle
                     }
                     else
                     {
-                        Waiting = true;
+                        Waiting.Toggle(true);
                         Reg[x] = Data.Take();
                         if (Target.Terminate) Terminate = true;
-                        Waiting = false;
+                        Waiting.Toggle(false);
                     }
                 }
             }

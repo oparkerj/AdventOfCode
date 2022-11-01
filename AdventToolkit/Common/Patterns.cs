@@ -11,6 +11,8 @@ public static class Patterns
 
     public static Regex Int => new(@"((?:-|\+)?\d+)");
 
+    public static Regex IntList => new(@"(?:\D*(\d+)\D*)+");
+
     public static Regex IntPattern(int amount) => new(string.Join($"{NonDigit}+", Enumerable.Repeat(Int.ToString(), amount)));
     
     public static Regex Int2 => IntPattern(2);
