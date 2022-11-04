@@ -6,6 +6,7 @@ using MoreLinq;
 
 namespace AdventOfCode2019.IntCode;
 
+// Thread-safe IO for intcode computers
 public class DataLink
 {
     private readonly BlockingCollection<long> _data = new();
@@ -35,6 +36,12 @@ public class DataLink
     public bool TryTake(out long data) => _data.TryTake(out data);
 
     public long Take() => _data.Take();
+
+    public long TakeLast()
+    {
+        while (Count > 1) Take();
+        return Take();
+    }
 
     public void Insert(long data) => _data.Add(data);
 

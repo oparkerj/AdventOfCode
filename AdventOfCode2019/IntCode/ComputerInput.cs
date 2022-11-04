@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace AdventOfCode2019.IntCode;
 
+// Enumerable input to intcode computer.
 public class ComputerInput : IDisposable
 {
     private IEnumerator<long> _source;

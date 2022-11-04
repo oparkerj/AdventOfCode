@@ -65,20 +65,20 @@ public class IntCodeCpu : Cpu<long>, IPipeline<long>, IInstructionSet<long>
 
     public void JumpRelative(Cpu<long> cpu, int offsetToNext)
     {
-        cpu.Pointer += offsetToNext - 1;
+        cpu.Pointer += offsetToNext;
         _jumped = true;
     }
 
     public void JumpTo(Cpu<long> cpu, int next)
     {
-        cpu.Pointer = next - 1;
+        cpu.Pointer = next;
         _jumped = true;
     }
 
     public bool ExecuteNext(Cpu<long> cpu)
     {
         if (cpu.Pointer < 0 || cpu.Pointer >= Memory.Array.Length) return true;
-        var (action, args) = Actions[(int) (Memory[Pointer] % 99)];
+        var (action, args) = Actions[(int) (Memory[Pointer] % 100 % 99)];
         _argCount = args;
         return action(cpu, _instruction);
     }
