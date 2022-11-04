@@ -8,7 +8,6 @@ public class Day5 : Puzzle
     public Day5()
     {
         Part = 2;
-        Measure = true;
     }
 
     public override void PartOne()
@@ -39,7 +38,6 @@ public class Day5_2 : Puzzle<long>
     public Day5_2()
     {
         InputName = CopyInput<Day5>();
-        Measure = true;
     }
 
     public override long PartOne()
