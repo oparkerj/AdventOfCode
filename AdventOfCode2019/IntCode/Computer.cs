@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities.Threads;
 
 namespace AdventOfCode2019.IntCode;
 
@@ -18,7 +19,6 @@ public class Computer
     public Action<long> LineOut;
         
     private int _pointer = 0;
-    private int _interrupt = 0;
     private int _relativeBase = 0;
 
     public Computer(long[] program)
@@ -80,11 +80,7 @@ public class Computer
         set => Interlocked.Exchange(ref _pointer, value);
     }
 
-    public bool Interrupt
-    {
-        get => _interrupt != 0;
-        set => Interlocked.Exchange(ref _interrupt, value ? 1 : 0);
-    }
+    public Lock Interrupt;
 
     public int RelativeBase
     {
@@ -108,7 +104,7 @@ public class Computer
             op %= 100;
             _ops[op]();
             if (!Interrupt) continue;
-            Interrupt = false;
+            Interrupt.Toggle(false);
             break;
         }
     }
@@ -195,7 +191,7 @@ public class Computer
     {
         LineOut(Arg(1));
         Advance(1);
-        Interrupt = true;
+        Interrupt.Toggle(true);
     }
 
     private void JumpIfTrue()

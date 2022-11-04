@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities.Threads;
 
 namespace AdventOfCode2019.IntCode;
 
@@ -12,13 +12,7 @@ public class Network
     private readonly List<Computer> _computers = new();
     private readonly Dictionary<int, DataLink> _inputs = new();
     private Action<Network, Dictionary<int, DataLink>> _setup;
-    private int _running;
-
-    public bool Running
-    {
-        get => _running.AsBool();
-        set => Interlocked.Exchange(ref _running, value.AsInt());
-    }
+    public Lock Running;
 
     public int Count => _computers.Count;
 
@@ -148,7 +142,7 @@ public class Network
     {
         foreach (var c in _computers)
         {
-            c.Interrupt = true;
+            c.Interrupt.Toggle(true);
         }
     }
 

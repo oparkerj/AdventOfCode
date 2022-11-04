@@ -27,6 +27,10 @@ public class Cpu<TArch>
     }
 
     public void JumpRelative(int offsetToNext) => Pipeline.JumpRelative(this, offsetToNext);
+    
+    public void JumpRelative(long offsetToNext) => Pipeline.JumpRelative(this, (int) offsetToNext);
 
     public void JumpTo(int next) => Pipeline.JumpTo(this, next);
+    
+    public void JumpTo(long next) => Pipeline.JumpTo(this, (int) next);
 }

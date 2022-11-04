@@ -12,6 +12,7 @@ public class OpInstructionBuilder<TArch, TResult>
 {
     protected readonly Dictionary<string, int> _opCodes;
     protected readonly List<CpuFunc<TArch, OpArgs<TArch, int>, TResult>> _actions;
+    protected readonly List<int> _argCounts;
     protected readonly List<IOpParser<TArch, int, OpArgs<TArch, int>>> _readers;
     protected readonly Dictionary<string, IMemBinder<TArch>> _binders;
 
@@ -19,6 +20,7 @@ public class OpInstructionBuilder<TArch, TResult>
     {
         _opCodes = new Dictionary<string, int>();
         _actions = new List<CpuFunc<TArch, OpArgs<TArch, int>, TResult>>();
+        _argCounts = new List<int>();
         _readers = new List<IOpParser<TArch, int, OpArgs<TArch, int>>>();
         _binders = new Dictionary<string, IMemBinder<TArch>>();
     }
@@ -45,6 +47,8 @@ public class OpInstructionBuilder<TArch, TResult>
         return builder;
     }
 
+    public void ClearBinders() => _binders.Clear();
+
     public void AddDefaultRegisterBinders(Func<string, TArch> parser)
     {
         AddBinder("r", new RegisterBinder<TArch>());
@@ -56,13 +60,16 @@ public class OpInstructionBuilder<TArch, TResult>
 
     public void AddBinder(string key, IMemBinder<TArch> binder) => _binders[key] = binder;
 
+    public void AddBinder(string key, Mem<TArch> mem) => AddBinder(key, new PremadeBinder<TArch>(mem));
+
     protected virtual void AddOp((int, string) opInfo, IList<string> parts, CpuFunc<TArch, OpArgs<TArch, int>, TResult> action)
     {
         var (_, opcode) = opInfo;
-        var args = ArgSelector(opcode, parts, true);
+        var args = ArgSelector(opcode, parts, true).ToList();
         var id = _opCodes.Count;
         _opCodes[opcode] = id;
         _actions.Add(action);
+        _argCounts.Add(args.Count);
         _readers.Add(ParserSelector(id, opcode, args, _binders));
     }
 
@@ -73,6 +80,34 @@ public class OpInstructionBuilder<TArch, TResult>
         opText ??= parts[opIndex];
         AddOp((opIndex, opText), parts, action);
         return this;
+    }
+    
+    public OpInstructionBuilder<TArch, TResult> Add(string format, Action action)
+    {
+        return AddOp(format, (_, _) =>
+        {
+            action();
+            return default;
+        });
+    }
+    
+    public OpInstructionBuilder<TArch, TResult> Add(string format, Func<TResult> action)
+    {
+        return AddOp(format, (_, _) => action());
+    }
+    
+    public OpInstructionBuilder<TArch, TResult> AddCpu(string format, Action<Cpu<TArch>> action)
+    {
+        return AddOp(format, (cpu, _) =>
+        {
+            action(cpu);
+            return default;
+        });
+    }
+    
+    public OpInstructionBuilder<TArch, TResult> AddCpu(string format, Func<Cpu<TArch>, TResult> action)
+    {
+        return AddOp(format, (cpu, _) => action(cpu));
     }
 
     public OpInstructionBuilder<TArch, TResult> Add(string format, Action<Mem<TArch>> action)
@@ -179,11 +214,17 @@ public class OpInstructionBuilder<TArch, TResult>
     
     // TODO .net7 parse expression
 
+    public IEnumerable<int> ArgCounts => _argCounts;
+
+    public int ArgCount(int opIndex) => _argCounts[opIndex];
+
+    public IEnumerable<CpuFunc<TArch, OpArgs<TArch, int>, TResult>> Actions => _actions;
+
     public IInstructionSet<TArch> BuildInstructionSet()
     {
         var handler = new OpHandlerArray<TArch, OpArgs<TArch, int>, TResult>
         {
-            OpActions = _actions.ToArray()
+            OpActions = Actions.ToArray()
         };
         return new OpcodeArray<TArch, int, OpArgs<TArch, int>, TResult>
         {

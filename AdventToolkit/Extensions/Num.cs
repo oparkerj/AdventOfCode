@@ -65,6 +65,14 @@ public static class Num
 
     public static bool Odd(this BigInteger a) => !a.IsEven;
 
+    public static bool True(this int i) => i.AsBool();
+
+    public static bool True(this long l) => l.AsBool();
+    
+    public static bool False(this int i) => !i.AsBool();
+
+    public static bool False(this long l) => !l.AsBool();
+
     public static Func<int, int, int> ToIntFunc(Func<int, int, bool> func) => (a, b) => func(a, b).AsInt();
 
     public static Func<int, int, int> LookupOperator(string s)

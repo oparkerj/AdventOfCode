@@ -39,3 +39,37 @@ public class Day2 : Puzzle
         WriteLn("None");
     }
 }
+
+public class Day2_2 : Puzzle<long>
+{
+    public Day2_2()
+    {
+        InputName = CopyInput<Day2>();
+    }
+
+    public override long PartOne()
+    {
+        var c = new IntCodeCpu(InputLine);
+        c.Memory[1] = 12;
+        c.Memory[2] = 2;
+        c.Execute();
+        return c.Memory[0];
+    }
+
+    public override long PartTwo()
+    {
+        var program = IntCodeCpu.Parse(InputLine);
+        var c = new IntCodeCpu(program);
+        foreach (var sequence in Algorithms.Sequences(2, 100, true))
+        {
+            var (noun, verb) = (sequence[0], sequence[1]);
+            c.Pointer = 0;
+            c.Memory = new IntCodeMemory(program.ToArray());
+            c.Memory[1] = noun;
+            c.Memory[2] = verb;
+            c.Execute();
+            if (c.Memory[0] == 19690720) return 100 * noun + verb;
+        }
+        return -1;
+    }
+}
