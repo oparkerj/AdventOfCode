@@ -2,21 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities.Threads;
 
 namespace AdventOfCode2019.IntCode;
 
-public class Computer
+public class Computer : IIntCode
 {
     public readonly LazyExpandingArray<long> Program;
     private readonly Dictionary<int, Action> _ops = new();
     private readonly DataLink _internalLink = new();
 
-    public Func<long> LineIn;
-    public Action<long> LineOut;
+    public Func<long> Input { get; set; }
+    public Action<long> Output { get; set; }
         
     private int _pointer = 0;
     private int _relativeBase = 0;
@@ -63,8 +62,8 @@ public class Computer
     {
         _ops[1] = Add;
         _ops[2] = Mul;
-        _ops[3] = Input;
-        _ops[4] = Output;
+        _ops[3] = ReadInput;
+        _ops[4] = SendOutput;
         _ops[5] = JumpIfTrue;
         _ops[6] = JumpIfFalse;
         _ops[7] = LessThan;
@@ -80,7 +79,7 @@ public class Computer
         set => Interlocked.Exchange(ref _pointer, value);
     }
 
-    public Lock Interrupt;
+    public Lock Interrupt { get; }
 
     public int RelativeBase
     {
@@ -109,19 +108,14 @@ public class Computer
         }
     }
 
-    public Task ExecuteAsync()
-    {
-        return Task.Run(Execute);
-    }
-
     public long NextOutput()
     {
-        var oldOutput = LineOut;
-        LineOut = _internalLink.Input;
+        var oldOutput = Output;
+        Output = _internalLink.Input;
         _ops[4] = OutputInterrupt;
         Execute();
-        LineOut = oldOutput;
-        _ops[4] = Output;
+        Output = oldOutput;
+        _ops[4] = SendOutput;
         _internalLink.TryTake(out var result);
         return result;
     }
@@ -132,10 +126,10 @@ public class Computer
 
     public long LastOutput()
     {
-        var oldOutput = LineOut;
-        LineOut = _internalLink.Input;
+        var oldOutput = Output;
+        Output = _internalLink.Input;
         Execute();
-        LineOut = oldOutput;
+        Output = oldOutput;
         while (_internalLink.Count > 1) _internalLink.TryTake(out _);
         _internalLink.TryTake(out var result);
         return result;
@@ -175,21 +169,21 @@ public class Computer
         Advance(3);
     }
 
-    private void Input()
+    private void ReadInput()
     {
-        Program[Addr(1)] = LineIn();
+        Program[Addr(1)] = Input();
         Advance(1);
     }
 
-    private void Output()
+    private void SendOutput()
     {
-        LineOut(Arg(1));
+        Output(Arg(1));
         Advance(1);
     }
 
     private void OutputInterrupt()
     {
-        LineOut(Arg(1));
+        Output(Arg(1));
         Advance(1);
         Interrupt.Toggle(true);
     }

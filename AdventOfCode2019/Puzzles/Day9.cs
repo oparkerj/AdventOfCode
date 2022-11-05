@@ -8,8 +8,8 @@ public class Day9 : Puzzle
     public override void PartOne()
     {
         var c = Computer.From(InputLine);
-        c.LineIn = Computer.ConsoleReader();
-        c.LineOut = Computer.ConsoleOutput();
+        c.Input = Computer.ConsoleReader();
+        c.Output = Computer.ConsoleOutput();
         c.Execute();
     }
 }

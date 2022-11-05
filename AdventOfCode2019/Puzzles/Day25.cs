@@ -10,7 +10,7 @@ public class Day25 : Puzzle
     {
         var c = Computer.From(InputLine);
         var data = new DataLink(c);
-        c.LineOut = Computer.AsciiOutput();
+        c.Output = Computer.AsciiOutput();
 
         var setup =
             @"south

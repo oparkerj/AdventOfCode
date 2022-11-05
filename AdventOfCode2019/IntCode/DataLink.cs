@@ -18,19 +18,19 @@ public class DataLink
         FallbackOutput = fallbackOutput;
     }
 
-    public DataLink(Computer computer, Func<long> fallbackOutput = null) : this(fallbackOutput)
+    public DataLink(IIntCode computer, Func<long> fallbackOutput = null) : this(fallbackOutput)
     {
-        computer.LineIn = Output;
+        computer.Input = Output;
     }
 
     public int Count => _data.Count;
 
     public bool HasNext => _data.Count > 0;
 
-    public void Link(Computer output, Computer input)
+    public void Link(IIntCode output, IIntCode input)
     {
-        output.LineOut = Input;
-        input.LineIn = Output;
+        output.Output = Input;
+        input.Input = Output;
     }
 
     public bool TryTake(out long data) => _data.TryTake(out data);

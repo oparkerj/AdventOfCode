@@ -22,7 +22,7 @@ public class Day19 : Puzzle
         if (Area.Has(pos)) return Area[pos];
         var c = Computer.From(InputLine);
         using var input = new ComputerInput(pos.X, pos.Y);
-        c.LineIn = input.Line;
+        c.Input = input.Line;
         return Area[pos] = c.NextBool();
     }
 

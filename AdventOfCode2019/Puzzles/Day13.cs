@@ -32,7 +32,7 @@ public class Day13 : Puzzle
     public override void PartOne()
     {
         var c = Computer.From(InputLine);
-        c.LineOut = new OutputSequence()
+        c.Output = new OutputSequence()
             .ThenMultipleInts(3, ints => Display[ints[0], -ints[1]] = Tile(ints[2]))
             .Line;
         c.Execute();
@@ -42,7 +42,7 @@ public class Day13 : Puzzle
     public override void PartTwo()
     {
         var c = Computer.From(InputLine);
-        c.LineOut = new OutputSequence()
+        c.Output = new OutputSequence()
             .ThenMultipleInts(3, ints =>
             {
                 if (ints[0] == -1 && ints[1] == 0) Score = ints[2];
@@ -50,7 +50,7 @@ public class Day13 : Puzzle
             })
             .Line;
         c[0] = 2;
-        c.LineIn = () => Math.Sign(Display.Find(Tile(4)).X - Display.Find(Tile(3)).X);
+        c.Input = () => Math.Sign(Display.Find(Tile(4)).X - Display.Find(Tile(3)).X);
         c.Execute();
         WriteLn(Score);
     }

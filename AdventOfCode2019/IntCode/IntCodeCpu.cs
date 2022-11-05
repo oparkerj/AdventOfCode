@@ -3,19 +3,22 @@ using System.Linq;
 using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities.Computer;
+using AdventToolkit.Utilities.Threads;
 
 namespace AdventOfCode2019.IntCode;
 
-public class IntCodeCpu : Cpu<long>, IPipeline<long>, IInstructionSet<long>
+public class IntCodeCpu : Cpu<long>, IPipeline<long>, IInstructionSet<long>, IIntCode
 {
     public int RelativeBase { get; set; }
     public (CpuFunc<long, OpArgs<long, int>, bool>, int)[] Actions;
     private OpArgs<long, int> _instruction;
     private bool _jumped;
     private int _argCount;
+    
+    public Lock Interrupt { get; }
 
-    public Func<long> Input;
-    public Action<long> Output;
+    public Func<long> Input { get; set; }
+    public Action<long> Output { get; set; }
 
     public IntCodeCpu(long[] program)
     {
@@ -57,6 +60,11 @@ public class IntCodeCpu : Cpu<long>, IPipeline<long>, IInstructionSet<long>
 
     public bool Tick(Cpu<long> cpu)
     {
+        if (Interrupt)
+        {
+            Interrupt.Toggle(false);
+            return true;
+        }
         var halt = cpu.InstructionSet.ExecuteNext(cpu);
         if (!_jumped) cpu.Pointer += _argCount + 1;
         _jumped = false;

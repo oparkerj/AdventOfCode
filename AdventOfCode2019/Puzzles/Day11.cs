@@ -20,8 +20,8 @@ public class Day11 : Puzzle
     public void RunBot()
     {
         var c = Computer.From(InputLine);
-        c.LineIn = () => Map[Bot];
-        c.LineOut = new OutputSequence()
+        c.Input = () => Map[Bot];
+        c.Output = new OutputSequence()
             .ThenInt(data => Map[Bot] = data)
             .ThenBool(dir => Dir = dir ? Dir.Clockwise() : Dir.CounterClockwise())
             .And(() => Bot += Dir)

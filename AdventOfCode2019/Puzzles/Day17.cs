@@ -25,7 +25,7 @@ public class Day17 : Puzzle
     {
         var pos = Pos.Origin;
         var c = Computer.From(InputLine);
-        c.LineOut = new OutputCondition()
+        c.Output = new OutputCondition()
             .CaseInt(i => i != '\n', i =>
             {
                 Map[pos] = i;

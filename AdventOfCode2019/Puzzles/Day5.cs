@@ -14,8 +14,8 @@ public class Day5 : Puzzle
     {
         var c = Computer.From(InputLine);
         var data = new DataLink();
-        c.LineIn = data.Output;
-        c.LineOut = Computer.ConsoleOutput();
+        c.Input = data.Output;
+        c.Output = Computer.ConsoleOutput();
         data.Insert(1);
         c.Execute();
     }
@@ -24,8 +24,8 @@ public class Day5 : Puzzle
     {
         var c = Computer.From(InputLine);
         var data = new DataLink();
-        c.LineIn = data.Output;
-        c.LineOut = Computer.ConsoleOutput();
+        c.Input = data.Output;
+        c.Output = Computer.ConsoleOutput();
         data.Insert(5);
         c.Execute();
     }

@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities.Threads;
 
 namespace AdventOfCode2019.IntCode;
 
 public class Network
 {
-    private readonly List<Computer> _computers = new();
+    private readonly List<IIntCode> _computers = new();
     private readonly Dictionary<int, DataLink> _inputs = new();
     private Action<Network, Dictionary<int, DataLink>> _setup;
-    public Lock Running;
 
     public int Count => _computers.Count;
 
@@ -21,7 +19,7 @@ public class Network
     public int Add(string program)
     {
         var id = _computers.Count;
-        _computers.Add(Computer.From(program));
+        _computers.Add(new IntCodeCpu(program));
         return id;
     }
 
@@ -80,7 +78,7 @@ public class Network
     {
         foreach (var computer in _computers)
         {
-            computer.LineOut = outputs();
+            computer.Output = outputs();
         }
     }
 
@@ -150,13 +148,13 @@ public class Network
     {
         _setup?.Invoke(this, _inputs);
         var output = new DataLink();
-        _computers[^1].LineOut = output.Input;
+        _computers[^1].Output = output.Input;
         foreach (var computer in _computers)
         {
             computer.Execute();
         }
         output.TryTake(out var result);
-        _computers[^1].LineOut = null;
+        _computers[^1].Output = null;
         return result;
     }
 
