@@ -27,6 +27,8 @@ public class DataLink
 
     public bool HasNext => _data.Count > 0;
 
+    public void Link(IIntCode intCode) => Link(intCode, intCode);
+
     public void Link(IIntCode output, IIntCode input)
     {
         output.Output = Input;
