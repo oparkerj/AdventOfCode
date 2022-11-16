@@ -37,4 +37,9 @@ public static class CpuExtensions
     {
         AddDefaultRegisterBinders<long, LongBinder, T>(builder);
     }
+
+    public static void ChangeOp<TArch, TOp, TResult>(this OpcodeArray<TArch, TOp, OpArgs<TArch, TOp>, TResult> array, int index, TOp op)
+    {
+        array.Instructions[index].Opcode = op;
+    }
 }

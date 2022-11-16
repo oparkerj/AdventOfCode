@@ -36,7 +36,12 @@ public class OpInstructionBuilder<TArch, TResult>
     // TODO .net 7 use IParseable interface
     public static OpInstructionBuilder<TArch, TResult> Default(Func<string, TArch> parser)
     {
-        var builder = new OpInstructionBuilder<TArch, TResult>();
+        return InitDefault(new OpInstructionBuilder<TArch, TResult>(), parser);
+    }
+
+    public static T InitDefault<T>(T builder, Func<string, TArch> parser)
+        where T : OpInstructionBuilder<TArch, TResult>
+    {
         builder.Splitter = s => s.SplitSpaceOrComma();
         builder.OpSelector = (_, _) => (0, null);
         builder.ArgSelector = (_, list, _) => list.Skip(1);
@@ -81,7 +86,12 @@ public class OpInstructionBuilder<TArch, TResult>
         AddOp((opIndex, opText), parts, action);
         return this;
     }
-    
+
+    public OpInstructionBuilder<TArch, TResult> Add(string format)
+    {
+        return AddOp(format, (_, _) => default);
+    }
+
     public OpInstructionBuilder<TArch, TResult> Add(string format, Action action)
     {
         return AddOp(format, (_, _) =>
@@ -215,6 +225,8 @@ public class OpInstructionBuilder<TArch, TResult>
     // TODO .net7 parse expression
 
     public IEnumerable<int> ArgCounts => _argCounts;
+
+    public int OpIndex(string op) => _opCodes[op];
 
     public int ArgCount(int opIndex) => _argCounts[opIndex];
 

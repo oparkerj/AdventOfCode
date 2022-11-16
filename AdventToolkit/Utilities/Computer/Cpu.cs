@@ -8,7 +8,7 @@ public class Cpu<TArch>
     public IInstructionSet<TArch> InstructionSet;
 
     // Create a cpu with a standard pipeline
-    public static Cpu<TArch> Standard(IMemory<TArch> memory)
+    public static Cpu<TArch> Standard(IMemory<TArch> memory = null)
     {
         return new Cpu<TArch>
         {

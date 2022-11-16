@@ -6,7 +6,7 @@ public class StandardPipeline<TArch> : IPipeline<TArch>
     public virtual bool Tick(Cpu<TArch> cpu)
     {
         var halt = cpu.InstructionSet.ExecuteNext(cpu);
-        cpu.Pointer++;
+        if (!halt) cpu.Pointer++;
         return halt;
     }
 
