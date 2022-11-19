@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 using AdventToolkit.Utilities.Arithmetic;
 
 namespace AdventToolkit.Common;
 
-public readonly struct Pos : IAdd<Pos>, ISub<Pos>, INegate<Pos>
+public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>, ISub<Pos>, INegate<Pos>
 {
     public readonly int X;
     public readonly int Y;

@@ -1,10 +1,11 @@
 using System;
+using System.Numerics;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities.Arithmetic;
 
 namespace AdventToolkit.Common;
 
-public readonly struct Pos4D : IAdd<Pos4D>, ISub<Pos4D>, INegate<Pos4D>
+public readonly struct Pos4D : IAdditionOperators<Pos4D, Pos4D, Pos4D>, ISub<Pos4D>, INegate<Pos4D>
 {
     public readonly int W;
     public readonly int X;
@@ -56,22 +57,22 @@ public readonly struct Pos4D : IAdd<Pos4D>, ISub<Pos4D>, INegate<Pos4D>
         z = Z;
     }
 
-    public static Pos4D operator -(in Pos4D p) => new(-p.W, -p.X, -p.Y, -p.Z);
+    public static Pos4D operator -(Pos4D p) => new(-p.W, -p.X, -p.Y, -p.Z);
     public Pos4D Negate() => -this;
 
-    public static Pos4D operator +(in Pos4D a, in Pos4D b) => new(a.W + b.W, a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+    public static Pos4D operator +(Pos4D a, Pos4D b) => new(a.W + b.W, a.X + b.X, a.Y + b.Y, a.Z + b.Z);
     public Pos4D Add(Pos4D other) => this + other;
 
-    public static Pos4D operator -(in Pos4D a, in Pos4D b) => new(a.W - b.W, a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+    public static Pos4D operator -(Pos4D a, Pos4D b) => new(a.W - b.W, a.X - b.X, a.Y - b.Y, a.Z - b.Z);
     public Pos4D Sub(Pos4D other) => this - other;
 
-    public static Pos4D operator *(in Pos4D p, int s) => new(p.W * s, p.X * s, p.Y * s, p.Z * s);
+    public static Pos4D operator *(Pos4D p, int s) => new(p.W * s, p.X * s, p.Y * s, p.Z * s);
 
-    public static Pos4D operator *(int s, in Pos4D p) => p * s;
+    public static Pos4D operator *(int s, Pos4D p) => p * s;
 
-    public static Pos4D operator /(in Pos4D p, int s) => new(p.W / s, p.X / s, p.Y / s, p.Z / s);
+    public static Pos4D operator /(Pos4D p, int s) => new(p.W / s, p.X / s, p.Y / s, p.Z / s);
         
-    public static Pos4D operator /(int s, in Pos4D p) => new(s / p.W, s / p.X, s / p.Y, s / p.Z);
+    public static Pos4D operator /(int s, Pos4D p) => new(s / p.W, s / p.X, s / p.Y, s / p.Z);
 
     public static bool operator ==(Pos4D a, Pos4D b) => a.Equals(b);
         

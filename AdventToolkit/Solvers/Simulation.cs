@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdventToolkit.Utilities.Arithmetic;
+using System.Numerics;
 using MoreLinq;
 
 namespace AdventToolkit.Solvers;
@@ -21,11 +21,11 @@ public class Simulation<T>
 
     // Create an update function that aggregates values and then applies the final value
     public static Func<T, IEnumerable<T>, T> Aggregate<TA>(Func<T, T, TA> collect, Action<T, TA> write)
-        where TA : IAdd<TA>
+        where TA : IAdditionOperators<TA, TA, TA>
     {
         return (item, others) =>
         {
-            var aggregate = others.Select(i => collect(item, i)).Aggregate((a, b) => a.Add(b));
+            var aggregate = others.Select(i => collect(item, i)).Aggregate((a, b) => a + b);
             write(item, aggregate);
             return item;
         };

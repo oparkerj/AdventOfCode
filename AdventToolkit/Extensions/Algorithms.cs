@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Utilities;
@@ -45,9 +46,9 @@ public static class Algorithms
     }
         
     public static T Sum<T>(this IEnumerable<T> source)
-        where T : IAdd<T>
+        where T : IAdditionOperators<T, T, T>
     {
-        return source.Aggregate((a, b) => a.Add(b));
+        return source.Aggregate((a, b) => a + b);
     }
 
     public static T Min<T>(this T a, T b)
@@ -68,11 +69,11 @@ public static class Algorithms
     }
 
     public static T Trace<T>(this T pos, T delta, Func<T, bool> hit)
-        where T : IAdd<T>
+        where T : IAdditionOperators<T, T, T>
     {
         while (true)
         {
-            pos = pos.Add(delta);
+            pos += delta;
             if (hit(pos)) break;
         }
         return pos;

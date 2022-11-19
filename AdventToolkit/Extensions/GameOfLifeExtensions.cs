@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Solvers;
-using AdventToolkit.Utilities.Arithmetic;
 
 namespace AdventToolkit.Extensions;
 
@@ -53,7 +53,7 @@ public static class GameOfLifeExtensions
         TPos center,
         GameOfLife<TPos, TVal> game,
         Func<TPos, TVal, bool> hitCondition)
-        where TPos : IAdd<TPos>
+        where TPos : IAdditionOperators<TPos, TPos, TPos>
     {
         return neighbors.Select(dir => center.Trace(dir, pos => !game.Has(pos) || hitCondition(pos, game[pos])));
     }
