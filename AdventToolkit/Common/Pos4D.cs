@@ -5,7 +5,7 @@ using AdventToolkit.Utilities.Arithmetic;
 
 namespace AdventToolkit.Common;
 
-public readonly struct Pos4D : IAdditionOperators<Pos4D, Pos4D, Pos4D>, ISub<Pos4D>, INegate<Pos4D>
+public readonly struct Pos4D : IAdditionOperators<Pos4D, Pos4D, Pos4D>, ISub<Pos4D>, IUnaryNegationOperators<Pos4D, Pos4D>
 {
     public readonly int W;
     public readonly int X;

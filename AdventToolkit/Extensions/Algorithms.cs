@@ -302,7 +302,7 @@ public static class Algorithms
     // Have an explore drone perform a depth-first search, provided a function that tells where
     // the drone has already explored.
     public static int ExploreAll<TPos, TVal>(this IExploreDrone<TPos, TVal> drone, Func<TPos, bool> seen)
-        where TPos : ISub<TPos>, INegate<TPos>
+        where TPos : ISub<TPos>, IUnaryNegationOperators<TPos, TPos>
     {
         var max = 0;
         var path = new Stack<TPos>();
@@ -312,7 +312,7 @@ public static class Algorithms
             if (neighbors.Length == 0 || !neighbors.First(drone.TryMove, out var offset))
             {
                 if (path.Count == 0) return max;
-                drone.TryMove(path.Pop().Negate());
+                drone.TryMove(-path.Pop());
                 continue;
             }
             path.Push(offset);
