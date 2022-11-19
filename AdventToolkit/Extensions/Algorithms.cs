@@ -5,7 +5,6 @@ using System.Numerics;
 using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Utilities;
-using AdventToolkit.Utilities.Arithmetic;
 using MoreLinq;
 
 namespace AdventToolkit.Extensions;
@@ -302,13 +301,13 @@ public static class Algorithms
     // Have an explore drone perform a depth-first search, provided a function that tells where
     // the drone has already explored.
     public static int ExploreAll<TPos, TVal>(this IExploreDrone<TPos, TVal> drone, Func<TPos, bool> seen)
-        where TPos : ISub<TPos>, IUnaryNegationOperators<TPos, TPos>
+        where TPos : ISubtractionOperators<TPos, TPos, TPos>, IUnaryNegationOperators<TPos, TPos>
     {
         var max = 0;
         var path = new Stack<TPos>();
         while (true)
         {
-            var neighbors = drone.GetNeighbors().Where(pos => !seen(pos)).Select(pos => pos.Sub(drone.Position)).ToArray();
+            var neighbors = drone.GetNeighbors().Where(pos => !seen(pos)).Select(pos => pos - drone.Position).ToArray();
             if (neighbors.Length == 0 || !neighbors.First(drone.TryMove, out var offset))
             {
                 if (path.Count == 0) return max;
