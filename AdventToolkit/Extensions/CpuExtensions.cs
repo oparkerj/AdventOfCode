@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using AdventToolkit.Utilities.Computer;
 
@@ -16,6 +17,7 @@ public static class CpuExtensions
     }
 
     public static void AddDefaultRegisterBinders<TArch, TBind, T>(this OpInstructionBuilder<TArch, T> builder)
+        where TArch : IParsable<TArch>
         where TBind : ConversionBinder<TArch>, new()
     {
         builder.AddBinder("r", new TBind());

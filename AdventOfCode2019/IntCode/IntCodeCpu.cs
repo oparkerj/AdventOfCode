@@ -26,7 +26,7 @@ public class IntCodeCpu : Cpu<long>, IPipeline<long>, IInstructionSet<long>, IIn
         Pipeline = this;
         InstructionSet = this;
 
-        var builder = PrefixInstructionBuilder<long>.Default(long.Parse);
+        var builder = PrefixInstructionBuilder<long>.Default();
         builder.ClearBinders();
         builder.AddBinder("1", new IntCodeBind(this, 1));
         builder.AddBinder("2", new IntCodeBind(this, 2));

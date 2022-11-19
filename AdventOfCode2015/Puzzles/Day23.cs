@@ -81,7 +81,7 @@ public class Day23_2 : Puzzle<BigInteger>
 
     public override BigInteger PartOne()
     {
-        var builder = PrefixInstructionBuilder<BigInteger>.Default(BigInteger.Parse);
+        var builder = PrefixInstructionBuilder<BigInteger>.Default();
         builder.Add("hlf r", r => r.Value /= 2);
         builder.Add("tpl r", r => r.Value *= 3);
         builder.Add("inc r", r => r.Value++);

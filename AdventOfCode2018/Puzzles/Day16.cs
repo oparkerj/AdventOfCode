@@ -136,7 +136,7 @@ public class Day16_2 : Puzzle<int>
     public void Setup()
     {
         Cpu = Cpu<int>.StandardRegisters(4);
-        Builder = PrefixInstructionBuilder<int>.Default(int.Parse);
+        Builder = PrefixInstructionBuilder<int>.Default();
         Builder.AddDefaultRegisterBinders();
         Builder.Add("addr r r r", (a, b, c) => c.Value = a.Value + b.Value);
         Builder.Add("addi r d r", (a, b, c) => c.Value = a.Value + b.Value);

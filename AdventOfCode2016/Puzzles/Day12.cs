@@ -59,7 +59,7 @@ public class Day12_2 : Puzzle<BigInteger>
         // Part = 1;
         InputName = "Day12.txt";
         
-        var builder = PrefixInstructionBuilder<BigInteger>.Default(BigInteger.Parse);
+        var builder = PrefixInstructionBuilder<BigInteger>.Default();
         builder.Add("cpy dr r", (x, y) => y.Value = x);
         builder.Add("inc r", r => r.Value++);
         builder.Add("dec r", r => r.Value--);

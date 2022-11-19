@@ -69,7 +69,7 @@ public class Day8_2 : Puzzle<int>
 
     public PrefixInstructionBuilder<int> Setup()
     {
-        var builder = PrefixInstructionBuilder<int>.Default(int.Parse);
+        var builder = PrefixInstructionBuilder<int>.Default();
         builder.Add("acc d", v => Accumulator += v);
         builder.AddCpu("jmp d", (cpu, v) => cpu.JumpRelative(v));
         builder.Add("nop d");

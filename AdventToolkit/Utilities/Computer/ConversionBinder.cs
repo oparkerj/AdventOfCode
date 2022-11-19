@@ -3,17 +3,14 @@ using System;
 namespace AdventToolkit.Utilities.Computer;
 
 public abstract class ConversionBinder<TArch> : IMemBinder<TArch>
+    where TArch : IParsable<TArch>
 {
-    // TODO .net7 replace with IParseable
-    public readonly Func<string, TArch> Parser;
     public bool AllowWrite { get; init; } = true;
     public Func<string, bool> DirectValueCondition { get; init; }
-    
-    public ConversionBinder(Func<string, TArch> parser) => Parser = parser;
 
     public Mem<TArch> Bind(Cpu<TArch> cpu, string source)
     {
-        var binding = Parser(source);
+        var binding = TArch.Parse(source, null);
         if (DirectValueCondition?.Invoke(source) == true) return new Mem<TArch>(() => binding, null);
         return new Mem<TArch>(GetReader(cpu, binding), AllowWrite ? GetWriter(cpu, binding) : null);
     }
@@ -25,8 +22,6 @@ public abstract class ConversionBinder<TArch> : IMemBinder<TArch>
 
 public class IntBinder : ConversionBinder<int>
 {
-    public IntBinder() : base(int.Parse) { }
-
     public override Func<int> GetReader(Cpu<int> cpu, int binding)
     {
         return () => cpu.Memory[binding];
@@ -40,8 +35,6 @@ public class IntBinder : ConversionBinder<int>
 
 public class LongBinder : ConversionBinder<long>
 {
-    public LongBinder() : base(long.Parse) { }
-
     public override Func<long> GetReader(Cpu<long> cpu, long binding)
     {
         return () => cpu.Memory[binding];
