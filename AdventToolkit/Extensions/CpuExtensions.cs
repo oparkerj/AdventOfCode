@@ -44,4 +44,94 @@ public static class CpuExtensions
     {
         array.Instructions[index].Opcode = op;
     }
+
+    private static void SetupMemFilter<TArch, TResult>(OpInstructionBuilder<TArch, TResult> builder)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        builder.SetMemFilter(builder.Count, mem => new MemNumber<TArch>(mem));
+    }
+
+    public static void AddNum<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Action<MemNumber<TArch>> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.Add(format, mem => action((MemNumber<TArch>) mem));
+    }
+    
+    public static void AddNum<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Func<MemNumber<TArch>, TResult> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.Add(format, mem => action((MemNumber<TArch>) mem));
+    }
+    
+    public static void AddNumCpu<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Action<Cpu<TArch>, MemNumber<TArch>> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.AddCpu(format, (cpu, mem) => action(cpu, (MemNumber<TArch>) mem));
+    }
+    
+    public static void AddNumCpu<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Func<Cpu<TArch>, MemNumber<TArch>, TResult> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.AddCpu(format, (cpu, mem) => action(cpu, (MemNumber<TArch>) mem));
+    }
+    
+    public static void AddNum<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Action<MemNumber<TArch>, MemNumber<TArch>> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.Add(format, (a, b) => action((MemNumber<TArch>) a, (MemNumber<TArch>) b));
+    }
+    
+    public static void AddNum<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Func<MemNumber<TArch>, MemNumber<TArch>, TResult> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.Add(format, (a, b) => action((MemNumber<TArch>) a, (MemNumber<TArch>) b));
+    }
+    
+    public static void AddNumCpu<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Action<Cpu<TArch>, MemNumber<TArch>, MemNumber<TArch>> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.AddCpu(format, (cpu, a, b) => action(cpu, (MemNumber<TArch>) a, (MemNumber<TArch>) b));
+    }
+    
+    public static void AddNumCpu<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Func<Cpu<TArch>, MemNumber<TArch>, MemNumber<TArch>, TResult> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.AddCpu(format, (cpu, a, b) => action(cpu, (MemNumber<TArch>) a, (MemNumber<TArch>) b));
+    }
+    
+    public static void AddNum<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Action<MemNumber<TArch>, MemNumber<TArch>, MemNumber<TArch>> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.Add(format, (a, b, c) => action((MemNumber<TArch>) a, (MemNumber<TArch>) b, (MemNumber<TArch>) c));
+    }
+    
+    public static void AddNum<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Func<MemNumber<TArch>, MemNumber<TArch>, MemNumber<TArch>, TResult> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.Add(format, (a, b, c) => action((MemNumber<TArch>) a, (MemNumber<TArch>) b, (MemNumber<TArch>) c));
+    }
+    
+    public static void AddNumCpu<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Action<Cpu<TArch>, MemNumber<TArch>, MemNumber<TArch>, MemNumber<TArch>> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.AddCpu(format, (cpu, a, b, c) => action(cpu, (MemNumber<TArch>) a, (MemNumber<TArch>) b, (MemNumber<TArch>) c));
+    }
+    
+    public static void AddNumCpu<TArch, TResult>(this OpInstructionBuilder<TArch, TResult> builder, string format, Func<Cpu<TArch>, MemNumber<TArch>, MemNumber<TArch>, MemNumber<TArch>, TResult> action)
+        where TArch : struct, IBinaryInteger<TArch>
+    {
+        SetupMemFilter(builder);
+        builder.AddCpu(format, (cpu, a, b, c) => action(cpu, (MemNumber<TArch>) a, (MemNumber<TArch>) b, (MemNumber<TArch>) c));
+    }
 }

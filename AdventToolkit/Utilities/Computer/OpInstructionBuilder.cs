@@ -15,6 +15,7 @@ public class OpInstructionBuilder<TArch, TResult>
     protected readonly List<int> _argCounts;
     protected readonly List<IOpParser<TArch, int, OpArgs<TArch, int>>> _readers;
     protected readonly Dictionary<string, IMemBinder<TArch>> _binders;
+    protected readonly Dictionary<int, Func<Mem<TArch>, Mem<TArch>>> _memFilters; // opIndex to mem Filter
 
     public OpInstructionBuilder()
     {
@@ -23,6 +24,7 @@ public class OpInstructionBuilder<TArch, TResult>
         _argCounts = new List<int>();
         _readers = new List<IOpParser<TArch, int, OpArgs<TArch, int>>>();
         _binders = new Dictionary<string, IMemBinder<TArch>>();
+        _memFilters = new Dictionary<int, Func<Mem<TArch>, Mem<TArch>>>();
     }
 
     public Func<string, IEnumerable<string>> Splitter { get; set; }
@@ -33,7 +35,6 @@ public class OpInstructionBuilder<TArch, TResult>
     // Create a default builder
     // The default builder uses a parser that splits an instruction on spaces or commas.
     // It adds memory binders for register or digit values.
-    // TODO .net 7 use IParseable interface
     public static OpInstructionBuilder<TArch, TResult> Default(Func<string, TArch> parser)
     {
         return InitDefault(new OpInstructionBuilder<TArch, TResult>(), parser);
@@ -52,6 +53,8 @@ public class OpInstructionBuilder<TArch, TResult>
         return builder;
     }
 
+    public int Count => _opCodes.Count;
+
     public void ClearBinders() => _binders.Clear();
 
     public void AddDefaultRegisterBinders(Func<string, TArch> parser)
@@ -66,6 +69,11 @@ public class OpInstructionBuilder<TArch, TResult>
     public void AddBinder(string key, IMemBinder<TArch> binder) => _binders[key] = binder;
 
     public void AddBinder(string key, Mem<TArch> mem) => AddBinder(key, new PremadeBinder<TArch>(mem));
+    
+    public void SetMemFilter(int opIndex, Func<Mem<TArch>, Mem<TArch>> filter)
+    {
+        _memFilters[opIndex] = filter;
+    }
 
     protected virtual void AddOp((int, string) opInfo, IList<string> parts, CpuFunc<TArch, OpArgs<TArch, int>, TResult> action)
     {
@@ -204,6 +212,16 @@ public class OpInstructionBuilder<TArch, TResult>
         return AddOp(format, (cpu, inst) => action(cpu, inst.Args[0], inst.Args[1], inst.Args[2]));
     }
 
+    private void FilterArgs(OpArgs<TArch, int> inst)
+    {
+        if (!_memFilters.TryGetValue(inst.Opcode, out var filter)) return;
+        var mem = inst.Args;
+        for (var i = 0; i < mem.Length; i++)
+        {
+            mem[i] = filter(mem[i]);
+        }
+    }
+
     public OpArgs<TArch, int> Parse(Cpu<TArch> cpu, string instruction)
     {
         var parts = Splitter(instruction).AsArray();
@@ -211,7 +229,9 @@ public class OpInstructionBuilder<TArch, TResult>
         var op = parts[opIndex];
         var args = ArgSelector(op, parts, false);
         var id = _opCodes[op];
-        return _readers[id].Parse(cpu, id, args);
+        var inst = _readers[id].Parse(cpu, id, args);
+        FilterArgs(inst);
+        return inst;
     }
     
     public OpArgs<TArch, int> ParseAsOp(Cpu<TArch> cpu, string instruction, int opIndex)
@@ -219,7 +239,9 @@ public class OpInstructionBuilder<TArch, TResult>
         var parts = Splitter(instruction).AsArray();
         var op = _opCodes.WhereValue(opIndex).First().Key;
         var args = ArgSelector(op, parts, false);
-        return _readers[opIndex].Parse(cpu, opIndex, args);
+        var inst = _readers[opIndex].Parse(cpu, opIndex, args);
+        FilterArgs(inst);
+        return inst;
     }
     
     // TODO .net7 parse expression

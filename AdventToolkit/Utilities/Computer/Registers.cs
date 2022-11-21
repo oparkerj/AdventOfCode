@@ -21,8 +21,8 @@ public class Registers<T> : IMemory<T>
 
     public virtual T this[T t]
     {
-        get => throw new NotImplementedException();
-        set => throw new NotImplementedException();
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
     }
 
     public virtual T this[int i]
