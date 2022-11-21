@@ -1,6 +1,6 @@
 ﻿using AdventToolkit;
 using AdventToolkit.Extensions;
-using RegExtract;
+using AdventToolkit.Utilities;
 
 namespace AdventOfCode2016.Puzzles;
 
@@ -56,23 +56,14 @@ public class Day8 : Puzzle
 
     private void RunInput()
     {
+        var matcher = new StringMatcher();
+        matcher.AddRegex<int, int>(@"rect (\d+)x(\d+)", Rect);
+        matcher.AddRegex<int, int>(@"rotate row y=(\d+) by (\d+)", RotateRow);
+        matcher.AddRegex<int, int>(@"rotate column x=(\d+) by (\d+)", RotateColumn);
+        
         foreach (var line in Input)
         {
-            if (line.StartsWith("rect"))
-            {
-                var (x, y) = line.Extract<(int, int)>(@"rect (\d+)x(\d+)");
-                Rect(x, y);
-            }
-            else if (line.StartsWith("rotate row"))
-            {
-                var (index, amount) = line.Extract<(int, int)>(@"rotate row y=(\d+) by (\d+)");
-                RotateRow(index, amount);
-            }
-            else if (line.StartsWith("rotate column"))
-            {
-                var (index, amount) = line.Extract<(int, int)>(@"rotate column x=(\d+) by (\d+)");
-                RotateColumn(index, amount);
-            }
+            matcher.Handle(line);
         }
     }
     
