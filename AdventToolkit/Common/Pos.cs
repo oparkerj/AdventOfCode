@@ -6,7 +6,10 @@ using AdventToolkit.Utilities;
 
 namespace AdventToolkit.Common;
 
-public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>, ISubtractionOperators<Pos, Pos, Pos>, IUnaryNegationOperators<Pos, Pos>
+public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>,
+        ISubtractionOperators<Pos, Pos, Pos>,
+        IUnaryNegationOperators<Pos, Pos>,
+        IAdditiveIdentity<Pos, Pos>
 {
     public readonly int X;
     public readonly int Y;
@@ -93,6 +96,8 @@ public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>, ISubtractionOper
         x = X;
         y = Y;
     }
+
+    public static Pos AdditiveIdentity => new();
 
     public static Pos operator -(Pos p) => new(-p.X, -p.Y);
     public Pos Negate() => -this;

@@ -45,9 +45,15 @@ public static class Algorithms
     }
         
     public static T Sum<T>(this IEnumerable<T> source)
-        where T : IAdditionOperators<T, T, T>
+        where T : IAdditionOperators<T, T, T>, IAdditiveIdentity<T, T>
     {
-        return source.Aggregate((a, b) => a + b);
+        return source.Aggregate(T.AdditiveIdentity, (a, b) => a + b);
+    }
+
+    public static IEnumerable<T> SumInner<T>(this IEnumerable<IEnumerable<T>> sources)
+        where T : IAdditionOperators<T, T, T>, IAdditiveIdentity<T, T>
+    {
+        return sources.Select(inner => inner.Sum());
     }
 
     public static T Min<T>(this T a, T b)

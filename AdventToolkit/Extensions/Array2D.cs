@@ -10,6 +10,12 @@ namespace AdventToolkit.Extensions;
 
 public static class Array2D
 {
+    public static IEnumerable<IEnumerable<T>> ParseInner<T>(this IEnumerable<IEnumerable<string>> source)
+        where T : IParsable<T>
+    {
+        return source.Select(inner => inner.Select(s => T.Parse(s, null)));
+    }
+    
     public static IEnumerable<Pos> Indices<T>(this T[,] arr, bool yInvert = false)
     {
         if (yInvert)
