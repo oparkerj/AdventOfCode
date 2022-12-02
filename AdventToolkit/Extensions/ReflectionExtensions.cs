@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 namespace AdventToolkit.Extensions;
 
@@ -28,5 +29,11 @@ public static class ReflectionExtensions
             t = t!.BaseType;
         }
         return t!.GetGenericArguments();
+    }
+
+    public static bool HasAttribute<T>(this MemberInfo member)
+        where T : Attribute
+    {
+        return member.GetCustomAttribute<T>() != null;
     }
 }

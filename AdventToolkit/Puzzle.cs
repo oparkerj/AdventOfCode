@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using AdventToolkit.Attributes;
 using AdventToolkit.Extensions;
 using TextCopy;
 
@@ -46,20 +47,37 @@ public abstract class PuzzleBase
         info.MakeGenericMethod(args).Invoke(null, new[] {puzzle});
     }
 
+    private void ClipLast(object value)
+    {
+        var str = value.ToString();
+        Clip(str?.Split('\n')[^1].Trim() ?? "null");
+    }
+
     public static void RunPuzzle<T>(T puzzle)
         where T : Puzzle
     {
+        Action part = puzzle.Part == 1 ? puzzle.PartOne : puzzle.PartTwo;
+        var capture = puzzle.GetType().HasAttribute<CopyResultAttribute>();
+        Action<object> output = capture ? puzzle.ClipLast : puzzle.WriteLn;
+
         if (!puzzle.Measure)
         {
-            if (puzzle.Part == 1) puzzle.PartOne();
-            else puzzle.PartTwo();
+            output(RunCapture(part));
+        }
+        else if (capture)
+        {
+            var watch = new Stopwatch();
+            watch.Start();
+            var console = RunCapture(part);
+            watch.Stop();
+            puzzle.WriteLn(console);
+            Console.WriteLine(watch.Elapsed);
         }
         else
         {
             var watch = new Stopwatch();
             watch.Start();
-            if (puzzle.Part == 1) puzzle.PartOne();
-            else puzzle.PartTwo();
+            part();
             watch.Stop();
             Console.WriteLine(watch.Elapsed);
         }
@@ -68,20 +86,21 @@ public abstract class PuzzleBase
     public static void RunPuzzle1<T, TR>(T puzzle)
         where T : Puzzle<TR>
     {
+        Action<object> output;
+        if (puzzle.GetType().HasAttribute<CopyResultAttribute>()) output = puzzle.Clip;
+        else output = puzzle.WriteLn;
+        
         if (!puzzle.Measure)
         {
-            if (puzzle.Part == 1) puzzle.WriteLn(puzzle.PartOne());
-            else puzzle.WriteLn(puzzle.PartTwo());
+            output(puzzle.Part == 1 ? puzzle.PartOne() : puzzle.PartTwo());
         }
         else
         {
-            TR result;
             var watch = new Stopwatch();
             watch.Start();
-            if (puzzle.Part == 1) result = puzzle.PartOne();
-            else result = puzzle.PartTwo();
+            var result = puzzle.Part == 1 ? puzzle.PartOne() : puzzle.PartTwo();
             watch.Stop();
-            puzzle.WriteLn(result);
+            output(result);
             Console.WriteLine(watch.Elapsed);
         }
     }
@@ -89,10 +108,14 @@ public abstract class PuzzleBase
     public static void RunPuzzle2<T, T1, T2>(T puzzle)
         where T : Puzzle<T1, T2>
     {
+        Action<object> output;
+        if (puzzle.GetType().HasAttribute<CopyResultAttribute>()) output = puzzle.Clip;
+        else output = puzzle.WriteLn;
+        
         if (!puzzle.Measure)
         {
-            if (puzzle.Part == 1) puzzle.WriteLn(puzzle.PartOne());
-            else puzzle.WriteLn(puzzle.PartTwo());
+            if (puzzle.Part == 1) output(puzzle.PartOne());
+            else output(puzzle.PartTwo());
         }
         else
         {
@@ -102,14 +125,14 @@ public abstract class PuzzleBase
                 watch.Start();
                 var result = puzzle.PartOne();
                 watch.Stop();
-                puzzle.WriteLn(result);
+                output(result);
             }
             else
             {
                 watch.Start();
                 var result = puzzle.PartTwo();
                 watch.Stop();
-                puzzle.WriteLn(result);
+                output(result);
             }
             Console.WriteLine(watch.Elapsed);
         }
@@ -118,10 +141,15 @@ public abstract class PuzzleBase
     public static string RunCapture<T>()
         where T : PuzzleBase, new()
     {
+        return RunCapture(Run<T>);
+    }
+
+    public static string RunCapture(Action action)
+    {
         var old = Console.Out;
         using var output = new StringWriter();
         Console.SetOut(output);
-        Run<T>();
+        action();
         Console.SetOut(old);
         return output.ToString();
     }
@@ -135,10 +163,7 @@ public abstract class PuzzleBase
     // Execute the provided action with no console output
     public void Run(Action action)
     {
-        var old = Console.Out;
-        Console.SetOut(TextWriter.Null);
-        action();
-        Console.SetOut(old);
+        RunCapture(action);
     }
 
     public void Run<T>(Func<T> func)
