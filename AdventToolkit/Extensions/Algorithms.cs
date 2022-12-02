@@ -67,7 +67,17 @@ public static class Algorithms
     {
         return a.CompareTo(b) > 0 ? a : b;
     }
-        
+    
+    public static IEnumerable<T> TakeMin<T>(this IEnumerable<T> source, int amount)
+    {
+        return source.Order().Take(amount);
+    }
+
+    public static IEnumerable<T> TakeMax<T>(this IEnumerable<T> source, int amount)
+    {
+        return source.OrderDescending().Take(amount);
+    }
+
     public static void Times(this int i, Action action)
     {
         for (var j = 0; j < i; j++) action();
