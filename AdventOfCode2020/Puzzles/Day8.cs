@@ -56,16 +56,11 @@ public class Day8 : Puzzle
     }
 }
 
-public class Day8_2 : Puzzle<int>
+public class Day8_2 : Improve<Day8, int>
 {
     public Cpu<int> Cpu;
     public int Accumulator;
     public HashSet<int> Executed;
-
-    public Day8_2()
-    {
-        InputName = CopyInput<Day8>();
-    }
 
     public PrefixInstructionBuilder<int> Setup()
     {

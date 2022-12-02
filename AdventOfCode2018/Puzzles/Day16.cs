@@ -120,7 +120,7 @@ public class Day16 : Puzzle
         (int Op, int A, int B, int C) After);
 }
 
-public class Day16_2 : Puzzle<int>
+public class Day16_2 : Improve<Day16, int>
 {
     public Cpu<int> Cpu;
     public OpInstructionBuilder<int, bool> Builder;
@@ -128,7 +128,6 @@ public class Day16_2 : Puzzle<int>
 
     public Day16_2()
     {
-        InputName = CopyInput<Day16>();
         Setup();
         Possible = new OneToOne<int, int>();
     }

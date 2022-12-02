@@ -31,14 +31,9 @@ public class Day5 : Puzzle
     }
 }
 
-public class Day5_2 : Puzzle<long>
+public class Day5_2 : Improve<Day5, long>
 {
     public int Id = 1;
-    
-    public Day5_2()
-    {
-        InputName = CopyInput<Day5>();
-    }
 
     public override long PartOne()
     {

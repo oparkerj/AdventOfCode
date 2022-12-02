@@ -77,3 +77,26 @@ public class Day2 : Puzzle<int>
             .Sum();
     }
 }
+
+public class Day2V2 : Improve<Day2, int>
+{
+    public override int PartOne()
+    {
+        var outcomes = new[] {0, 6, 3, 0, 6};
+        var scores = from round in Input 
+            let opponent = round[0] - 'A'
+            let mine = round[2] - 'X'
+            select outcomes[opponent - mine + 2] + mine + 1;
+        return scores.Sum();
+    }
+
+    public override int PartTwo()
+    {
+        var outcomes = new[] {0, 6, 3, 0, 6};
+        var scores = from round in Input 
+            let opponent = round[0] - 'A'
+            let mine = (round[2] - 'X' + 2 + opponent) % 3
+            select outcomes[opponent - mine + 2] + mine + 1;
+        return scores.Sum();
+    }
+}

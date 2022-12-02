@@ -267,3 +267,18 @@ public abstract class Puzzle<T1, T2> : PuzzleBase
 
     public abstract T2 PartTwo();
 }
+
+public abstract class Improve<TDay> : Puzzle
+{
+    protected Improve() => InputName = CopyInput<TDay>();
+}
+
+public abstract class Improve<TDay, T> : Puzzle<T>
+{
+    protected Improve() => InputName = CopyInput<TDay>();
+}
+
+public abstract class Improve<TDay, T1, T2> : Puzzle<T1, T2>
+{
+    protected Improve() => InputName = CopyInput<TDay>();
+}

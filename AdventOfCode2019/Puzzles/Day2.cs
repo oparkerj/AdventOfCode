@@ -40,13 +40,8 @@ public class Day2 : Puzzle
     }
 }
 
-public class Day2_2 : Puzzle<long>
+public class Day2_2 : Improve<Day2, long>
 {
-    public Day2_2()
-    {
-        InputName = CopyInput<Day2>();
-    }
-
     public override long PartOne()
     {
         var c = new IntCodeCpu(InputLine);

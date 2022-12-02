@@ -64,14 +64,8 @@ public class Day19 : Puzzle
     }
 }
 
-public class Day19_2 : Puzzle<int>
+public class Day19_2 : Improve<Day19, int>
 {
-    public Day19_2()
-    {
-        InputName = CopyInput<Day19>();
-        Part = 1;
-    }
-
     public override int PartOne()
     {
         var day = new Day16_2();
