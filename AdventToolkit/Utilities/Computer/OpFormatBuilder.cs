@@ -107,7 +107,7 @@ public class OpFormatBuilder<TArch> : OpInstructionBuilder<TArch, TArch>
 
         public override OpArgs<TArch, int> Parse(Cpu<TArch> cpu, int op, IEnumerable<string> args)
         {
-            args = args.TakeOne(out var key);
+            args = args.PullOne(out var key);
             var argBinds = GetBinds(cpu, Binders, args);
             return new OpNode<TArch, int, string>
             {

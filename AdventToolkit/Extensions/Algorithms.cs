@@ -5,6 +5,7 @@ using System.Numerics;
 using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Utilities;
+using AdventToolkit.Utilities.Parsing;
 using MoreLinq;
 
 namespace AdventToolkit.Extensions;
@@ -605,5 +606,24 @@ public static class Algorithms
     public static T Circular<T>(this T[] arr, int index)
     {
         return arr[index.CircularMod(arr.Length)];
+    }
+    
+    public static int LetterIndex(this char c, LetterMode mode = LetterMode.ZeroIndexed)
+    {
+        return mode switch
+        {
+            LetterMode.ZeroIndexed => char.ToLower(c) - 'a',
+            LetterMode.OneIndexed => char.ToLower(c) - 'a' + 1,
+            LetterMode.LowerThenUpper => char.IsLower(c) ? c - 'a' : c - 'A' + 26,
+            LetterMode.UpperThenLower => char.IsLower(c) ? c - 'a' + 26 : c - 'A',
+            LetterMode.LowerThenUpperOneIndexed => char.IsLower(c) ? c - 'a' + 1 : c - 'A' + 27,
+            LetterMode.UpperThenLowerOneIndexed => char.IsLower(c) ? c - 'a' + 27 : c - 'A' + 1,
+            _ => throw new Exception("Invalid option")
+        };
+    }
+
+    public static IEnumerable<T> IntersectAll<T>(this IEnumerable<IEnumerable<T>> sources)
+    {
+        return sources.Aggregate((a, b) => a.Intersect(b));
     }
 }

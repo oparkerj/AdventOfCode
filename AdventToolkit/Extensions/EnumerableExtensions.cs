@@ -824,20 +824,35 @@ public static class EnumerableExtensions
         return items.Select(arg => arg.GetHashCode()).Sorted().DefaultIfEmpty().Aggregate(HashCode.Combine);
     }
 
-    public static IEnumerable<T> ToEnumerable<T>(this IEnumerator<T> enumerator)
+    private class ExistingEnumerable<T> : IEnumerable<T>
     {
-        while (enumerator.MoveNext()) yield return enumerator.Current;
-        enumerator.Dispose();
+        private readonly IEnumerator<T> _enumerator;
+
+        public ExistingEnumerable(IEnumerator<T> enumerator) => _enumerator = enumerator;
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public IEnumerator<T> GetEnumerator() => _enumerator;
     }
 
     // Immediately take one item from a source and return the remaining items
-    public static IEnumerable<T> TakeOne<T>(this IEnumerable<T> source, out T result)
+    public static IEnumerable<T> PullOne<T>(this IEnumerable<T> source, out T result)
     {
         // ReSharper disable once GenericEnumeratorNotDisposed
         var e = source.GetEnumerator();
         if (!e.MoveNext()) throw new Exception("Source is empty.");
         result = e.Current;
-        return e.ToEnumerable();
+        return new ExistingEnumerable<T>(e);
+    }
+
+    public static T TakeOne<T>(this IEnumerable<T> items)
+    {
+        return items.First();
+    }
+
+    public static TR TakeOne<T, TR>(this IEnumerable<T> items, Func<T, TR> func)
+    {
+        return func(items.First());
     }
 
     public static IEnumerable<T> SelectIndex<T>(this IEnumerable<IList<T>> lists, int index)

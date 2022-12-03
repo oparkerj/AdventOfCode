@@ -299,4 +299,9 @@ public static class StringExtensions
         if (start != -1) yield return new string(s.AsSpan(start));
     }
 
+    public static (string First, string Second) SplitHalf(this string s)
+    {
+        var len = s.Length / 2;
+        return (s[..len], s[len..]);
+    }
 }
