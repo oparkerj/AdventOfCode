@@ -70,7 +70,7 @@ public abstract class PuzzleBase
             watch.Start();
             var console = RunCapture(part);
             watch.Stop();
-            puzzle.WriteLn(console);
+            puzzle.ClipLast(console);
             Console.WriteLine(watch.Elapsed);
         }
         else
