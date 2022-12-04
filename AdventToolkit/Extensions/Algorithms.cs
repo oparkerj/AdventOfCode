@@ -626,4 +626,16 @@ public static class Algorithms
     {
         return sources.Aggregate((a, b) => a.Intersect(b));
     }
+
+    public static IEnumerable<T> UnionAll<T>(this IEnumerable<IEnumerable<T>> sources)
+    {
+        var total = new HashSet<T>();
+        foreach (var enumerable in sources)
+        {
+            foreach (var item in enumerable)
+            {
+                if (total.Add(item)) yield return item;
+            }
+        }
+    }
 }
