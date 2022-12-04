@@ -66,11 +66,11 @@ public static class ListExtensions
         list.RemoveAt(index--);
         return true;
     }
-        
+
     // For each pair of elements in the input, groups ones which meet a condition.
     // If A,B and B,C both meet the conditions, A, B, and C will be in the same group.
     // The integer key in the result is arbitrary and only used to mark groups.
-    public static IEnumerable<IGrouping<int, T>> GroupPairs<T>(this IList<T> items, Func<T, T, bool> predicate)
+    public static ILookup<int, T> GroupPairs<T>(this IList<T> items, Func<T, T, bool> predicate)
     {
         var count = 0;
         var groups = new Dictionary<T, int>();
@@ -96,7 +96,7 @@ public static class ListExtensions
             else Group(b);
         }
 
-        return items.GroupBy(t => groups[t]);
+        return items.ToLookup(t => groups[t]);
     }
 
     public static IEnumerable<LinkedListNode<T>> Nodes<T>(this LinkedList<T> list)

@@ -12,7 +12,7 @@ public class Day25 : Puzzle
         
     public override void PartOne()
     {
-        var count = ReadPoints().GroupPairs((a, b) => a.MDist(b) <= 3).Count();
+        var count = ReadPoints().GroupPairs((a, b) => a.MDist(b) <= 3).Count;
         WriteLn(count);
     }
 }
