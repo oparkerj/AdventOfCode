@@ -3,23 +3,88 @@ using System.Text.RegularExpressions;
 
 namespace AdventToolkit.Common;
 
-public static class Patterns
+public static partial class Patterns
 {
-    public static Regex Word => new(@"(\w+)");
-    
-    public static Regex NonDigit => new(@"[^0-9\-]");
+    public const string WordStr = @"(\w+)";
 
-    public static Regex Int => new(@"((?:-|\+)?\d+)");
+    [GeneratedRegex(WordStr)]
+    public static partial Regex GetWord();
+    
+    public static Regex Word => GetWord();
 
-    public static Regex IntList => new(@"(?:\D*(\d+)\D*)+");
+    public const string NonIntStr = "[^-+0-9]";
 
-    public static Regex IntPattern(int amount) => new(string.Join($"{NonDigit}+", Enumerable.Repeat(Int.ToString(), amount)));
+    [GeneratedRegex(NonIntStr)]
+    public static partial Regex GetNonInt();
+
+    public static Regex NonInt => GetNonInt();
+
+    public const string IntStr = @"((?:-|\+)?\d+)";
+
+    [GeneratedRegex(IntStr)]
+    public static partial Regex GetInt();
+
+    public static Regex Int => GetInt();
+
+    public const string UIntStr = @"(\d+)";
+
+    [GeneratedRegex(UIntStr)]
+    public static partial Regex GetUInt();
     
-    public static Regex Int2 => IntPattern(2);
+    public static Regex UInt => GetUInt();
+
+    public const string IntListStr = @$"(?:{NonIntStr}*{IntStr}{NonIntStr}*)+";
+
+    [GeneratedRegex(IntListStr)]
+    public static partial Regex GetIntList();
+
+    public static Regex IntList => GetIntList();
+
+    public static Regex IntPattern(int amount) => new(string.Join($"{NonInt}+", Enumerable.Repeat(Int.ToString(), amount)));
     
-    public static Regex Int3 => IntPattern(3);
+    public static Regex UIntPattern(int amount) => new(string.Join(@"\D+", Enumerable.Repeat(UInt.ToString(), amount)));
+
+    private const string Sep = $@".{NonIntStr}*";
+
+    private const string USep = @"\D+";
+
+    [GeneratedRegex($"{IntStr}{Sep}{IntStr}")]
+    public static partial Regex GetInt2();
     
-    public static Regex Int4 => IntPattern(4);
+    public static Regex Int2 => GetInt2();
+
+    [GeneratedRegex($"{UIntStr}{USep}{UIntStr}")]
+    public static partial Regex GetUInt2();
     
-    public static Regex Int5 => IntPattern(5);
+    public static Regex UInt2 => GetUInt2();
+    
+    [GeneratedRegex($"{IntStr}{Sep}{IntStr}{Sep}{IntStr}")]
+    public static partial Regex GetInt3();
+
+    public static Regex Int3 => GetInt3();
+    
+    [GeneratedRegex($"{UIntStr}{USep}{UIntStr}{USep}{UIntStr}")]
+    public static partial Regex GetUInt3();
+    
+    public static Regex UInt3 => GetUInt3();
+    
+    [GeneratedRegex($"{IntStr}{Sep}{IntStr}{Sep}{IntStr}{Sep}{IntStr}")]
+    public static partial Regex GetInt4();
+    
+    public static Regex Int4 => GetInt4();
+    
+    [GeneratedRegex($"{UIntStr}{USep}{UIntStr}{USep}{UIntStr}{USep}{UIntStr}")]
+    public static partial Regex GetUInt4();
+    
+    public static Regex UInt4 => GetUInt4();
+    
+    [GeneratedRegex($"{IntStr}{Sep}{IntStr}{Sep}{IntStr}{Sep}{IntStr}{Sep}{IntStr}")]
+    public static partial Regex GetInt5();
+
+    public static Regex Int5 => GetInt5();
+    
+    [GeneratedRegex($"{UIntStr}{USep}{UIntStr}{USep}{UIntStr}{USep}{UIntStr}{USep}{UIntStr}")]
+    public static partial Regex GetUInt5();
+    
+    public static Regex UInt5 => GetUInt5();
 }

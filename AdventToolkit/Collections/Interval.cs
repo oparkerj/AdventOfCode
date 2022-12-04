@@ -44,6 +44,14 @@ public readonly struct Interval : IEnumerable<int>
     // Be careful not to use both this method and RangeInclusive
     public bool ContainsInclusive(int i) => i >= Start && i <= End;
 
+    public bool Contains(Interval other) => Overlap(other).Equals(other);
+
+    public bool ContainsOrInside(Interval other)
+    {
+        var overlap = Overlap(other);
+        return Equals(overlap) || other.Equals(overlap);
+    }
+
     public bool Overlaps(Interval other)
     {
         var (a, b) = (this, other);
