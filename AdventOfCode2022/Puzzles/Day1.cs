@@ -7,11 +7,11 @@ public class Day1 : Puzzle<int>
 {
     public override int PartOne()
     {
-        return AllGroups.Select(strings => strings.Ints().Sum()).Max();
+        return AllGroups.ParseInner<int>().SumInner().Max();
     }
 
     public override int PartTwo()
     {
-        return AllGroups.Select(strings => strings.Ints().Sum()).Order().TakeLast(3).Sum();
+        return AllGroups.ParseInner<int>().SumInner().TakeMax(3).Sum();
     }
 }
