@@ -325,4 +325,9 @@ public static class StringExtensions
     {
         return s.GetAll<int>(Patterns.Int, 1);
     }
+    
+    public static int Count(this string s, Regex regex)
+    {
+        return s.GetAll<object>(regex, _ => null).Count();
+    }
 }
