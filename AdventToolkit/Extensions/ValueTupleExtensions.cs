@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using AdventToolkit.Collections;
 
 namespace AdventToolkit.Extensions;
 
@@ -69,6 +70,16 @@ public static class ValueTupleExtensions
     {
         return tuples.Select(tuple => func(tuple.Item1, tuple.Item2));
     }
+    
+    public static IEnumerable<TO> SpreadSelect<TA, TB, TC, TO>(this IEnumerable<(TA, TB, TC)> tuples, Func<TA, TB, TC, TO> func)
+    {
+        return tuples.Select(tuple => func(tuple.Item1, tuple.Item2, tuple.Item3));
+    }
+    
+    public static IEnumerable<TO> SpreadSelect<TA, TB, TC, TD, TO>(this IEnumerable<(TA, TB, TC, TD)> tuples, Func<TA, TB, TC, TD, TO> func)
+    {
+        return tuples.Select(tuple => func(tuple.Item1, tuple.Item2, tuple.Item3, tuple.Item4));
+    }
 
     public static IEnumerable<TA> TupleFirst<TA, TB>(this IEnumerable<(TA, TB)> items)
     {
@@ -78,5 +89,15 @@ public static class ValueTupleExtensions
     public static IEnumerable<TB> TupleSecond<TA, TB>(this IEnumerable<(TA, TB)> items)
     {
         return items.Select(tuple => tuple.Item2);
+    }
+
+    public static Interval ToInterval(this (int, int) tuple)
+    {
+        return Interval.Range(tuple.Item1, tuple.Item2);
+    }
+    
+    public static Interval ToIntervalInclusive(this (int, int) tuple)
+    {
+        return Interval.RangeInclusive(tuple.Item1, tuple.Item2);
     }
 }
