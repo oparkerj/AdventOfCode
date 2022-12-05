@@ -17,7 +17,7 @@ public class Day6 : Puzzle
 
     public override void PartOne()
     {
-        var code = Input.Transpose().StrEach().Select(MostCommonLetter).Str();
+        var code = Input.Transposed().StrEach().Select(MostCommonLetter).Str();
         WriteLn(code);
     }
     
@@ -28,7 +28,7 @@ public class Day6 : Puzzle
 
     public override void PartTwo()
     {
-        var code = Input.Transpose().StrEach().Select(LeastCommonLetter).Str();
+        var code = Input.Transposed().StrEach().Select(LeastCommonLetter).Str();
         WriteLn(code);
     }
 }

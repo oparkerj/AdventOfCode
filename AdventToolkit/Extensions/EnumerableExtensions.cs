@@ -783,12 +783,20 @@ public static class EnumerableExtensions
         while (e.MoveNext()) yield return e.Current;
     }
 
-    public static IEnumerable<IEnumerable<T>> Transpose<T>(this IEnumerable<IEnumerable<T>> items)
+    public static IEnumerable<IEnumerable<T>> Transposed<T>(this IEnumerable<IEnumerable<T>> items)
     {
         var content = items.Select(e => e.AsList()).ToList();
         if (content.Count == 0) return Enumerable.Empty<IEnumerable<T>>();
         var innerSize = content[0].Count;
         return Enumerable.Range(0, innerSize).Select(i => content.Select(list => list[i]));
+    }
+    
+    public static IEnumerable<IEnumerable<T>> TransposeReverse<T>(this IEnumerable<IEnumerable<T>> items)
+    {
+        var content = items.Select(e => e.AsList()).ToList();
+        if (content.Count == 0) return Enumerable.Empty<IEnumerable<T>>();
+        var innerSize = content[0].Count;
+        return Algorithms.Sequence(innerSize - 1, innerSize, -1).Select(i => content.Select(list => list[i]));
     }
 
     public static (List<T> First, List<T> Second) Separate<T>(this IEnumerable<(T, T)> items)

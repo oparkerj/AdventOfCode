@@ -255,6 +255,15 @@ public static class Algorithms
         }
     }
 
+    public static IEnumerable<int> Sequence(int start, int count, int step = 1)
+    {
+        for (var i = 0; i < count; i++)
+        {
+            yield return start;
+            start += step;
+        }
+    }
+
     // Every pair of integers [a, b] from 1 to n where a != b
     public static IEnumerable<int[]> ExclusivePairs(int n, bool index = false)
     {
