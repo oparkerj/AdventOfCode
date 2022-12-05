@@ -122,4 +122,13 @@ public static class Data
     {
         return t => t;
     }
+
+    public static void Init<T>(this T[] array)
+        where T : new()
+    {
+        for (var i = 0; i < array.Length; i++)
+        {
+            array[i] = new T();
+        }
+    }
 }

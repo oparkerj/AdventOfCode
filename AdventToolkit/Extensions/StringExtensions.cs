@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using AdventToolkit.Common;
 using RegExtract;
 
 namespace AdventToolkit.Extensions;
@@ -303,5 +304,25 @@ public static class StringExtensions
     {
         var len = s.Length / 2;
         return (s[..len], s[len..]);
+    }
+
+    public static IEnumerable<T> GetAll<T>(this string s, Regex regex, Func<string, T> parse, int gap = 0, int start = 0)
+    {
+        while (regex.Match(s, start) is var match && match.Success)
+        {
+            yield return parse(match.Value);
+            start = match.Index + match.Length + gap;
+        }
+    }
+
+    public static IEnumerable<T> GetAll<T>(this string s, Regex regex, int gap = 0)
+        where T : IParsable<T>
+    {
+        return s.GetAll(regex, str => T.Parse(str, null), gap);
+    }
+
+    public static IEnumerable<int> GetInts(this string s)
+    {
+        return s.GetAll<int>(Patterns.Int, 1);
     }
 }

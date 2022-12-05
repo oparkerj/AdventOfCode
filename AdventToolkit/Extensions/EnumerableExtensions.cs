@@ -860,4 +860,9 @@ public static class EnumerableExtensions
         return lists.Select(list => list[index]);
     }
 
+    public static IEnumerable<T> TakeEvery<T>(this IEnumerable<T> source, int step, int offset)
+    {
+        return source.Skip(offset).TakeEvery(step);
+    }
+
 }
