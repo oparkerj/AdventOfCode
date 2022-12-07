@@ -113,14 +113,25 @@ public class QuantityTree<T> : Tree<T, QuantityVertex<T>, DataEdge<T, long>>
     }
 }
 
-public class QuantityVertex<T> : TreeVertex<T, DataEdge<T, long>>
+public class QuantityVertexBase<T, TEdge> : TreeVertex<T, TEdge>
+    where TEdge : Edge<T>
 {
     public long Quantity;
 
-    public QuantityVertex(T value, long quantity) : base(value)
+    public QuantityVertexBase(T value, long quantity) : base(value)
     {
         Quantity = quantity;
     }
+
+    public override string ToString()
+    {
+        return $"\"{Value} ({Quantity})\"";
+    }
+}
+
+public class QuantityVertex<T> : QuantityVertexBase<T, DataEdge<T, long>>
+{
+    public QuantityVertex(T value, long quantity) : base(value, quantity) { }
 
     public long SumBranches()
     {
@@ -133,11 +144,6 @@ public class QuantityVertex<T> : TreeVertex<T, DataEdge<T, long>>
     }
 
     public new IEnumerable<QuantityVertex<T>> Neighbors => base.Neighbors.Cast<QuantityVertex<T>>();
-
-    public override string ToString()
-    {
-        return $"\"{Value} ({Quantity})\"";
-    }
 }
 
 public class QuantityTreeHelper<T>
