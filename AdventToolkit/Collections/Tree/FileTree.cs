@@ -103,14 +103,14 @@ public class FileTree : Tree<string, FileVertex, Edge<string>>
     
     public FileVertex ChangeDirCreate(string path)
     {
-        if (path == "/")
+        if (path == Separator.ToString())
         {
             _path.Clear();
             return GetEntry(CurrentDir);
         }
-        if (path == "..") return Exit();
+        if (path == Parent) return Exit();
         
-        if (!path.StartsWith('/'))
+        if (!path.StartsWith(Separator))
         {
             path = ResolvePath(Combine(CurrentDir, path));
         }
@@ -132,7 +132,7 @@ public class FileTree : Tree<string, FileVertex, Edge<string>>
             {
                 _path.Clear();
             }
-            foreach (var part in path[1..].Split('/'))
+            foreach (var part in path[1..].Split(Separator))
             {
                 dir = CreateAndEnter(part);
             }
@@ -187,7 +187,7 @@ public class FileVertex : QuantityVertexBase<string, Edge<string>>
 
     public string Path => Value;
 
-    public string Name => Value.Substring(Value.LastIndexOf('/') + 1);
+    public string Name => Value.Substring(Value.LastIndexOf(FileTree.Separator) + 1);
 
     public long Size
     {
