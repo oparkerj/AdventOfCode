@@ -46,3 +46,27 @@ public class Day8 : Puzzle<int>
         return grid.Positions.Max(Score);
     }
 }
+
+public class Day8V2 : Improve<Day8, int>
+{
+    public override int PartOne()
+    {
+        var grid = Input.ToGrid();
+        return grid.Positions.Count(check =>
+        {
+            return check.TraceAll(Pos.Directions(), pos => !grid.Has(pos) || grid[pos] >= grid[check])
+                .Any(pos => !grid.Has(pos));
+        });
+    }
+
+    public override int PartTwo()
+    {
+        var grid = Input.ToGrid();
+        return grid.Positions.Max(check =>
+        {
+            return check.TraceAll(Pos.Directions(), pos => !grid.Has(pos) || grid[pos] >= grid[check])
+                .Select(pos => grid.Has(pos) ? check.MDist(pos) : check.MDist(pos) - 1)
+                .Product();
+        });
+    }
+}

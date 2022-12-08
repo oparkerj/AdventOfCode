@@ -95,6 +95,12 @@ public static class Algorithms
         return pos;
     }
 
+    public static IEnumerable<T> TraceAll<T>(this T pos, IEnumerable<T> deltas, Func<T, bool> hit)
+        where T : IAdditionOperators<T, T, T>
+    {
+        return deltas.Select(delta => pos.Trace(delta, hit));
+    }
+
     public static int ExtendedEuclidean(this (int a, int m) p, out int x, out int y)
     {
         var (oldR, r) = p;
