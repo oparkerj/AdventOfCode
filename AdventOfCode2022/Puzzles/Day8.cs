@@ -15,7 +15,7 @@ public class Day8 : Puzzle<int>
         {
             var height = grid[check];
             var visible = false;
-            foreach (var dir in Pos.Directions())
+            foreach (var dir in Pos.Origin.Adjacent())
             {
                 var hit = check.Trace(dir, pos => !grid.Has(pos) || grid[pos] >= height);
                 if (!grid.Has(hit)) visible = true;
@@ -34,7 +34,7 @@ public class Day8 : Puzzle<int>
         {
             var total = 1;
             var height = grid[check];
-            foreach (var dir in Pos.Directions())
+            foreach (var dir in Pos.Origin.Adjacent())
             {
                 var hit = check.Trace(dir, pos => !grid.Has(pos) || grid[pos] >= height);
                 if (!grid.Has(hit)) total *= check.MDist(hit) - 1;
@@ -54,7 +54,7 @@ public class Day8V2 : Improve<Day8, int>
         var grid = Input.ToGrid();
         return grid.Positions.Count(check =>
         {
-            return check.TraceAll(Pos.Directions(), pos => !grid.Has(pos) || grid[pos] >= grid[check])
+            return check.TraceAll(Pos.Directions, pos => !grid.Has(pos) || grid[pos] >= grid[check])
                 .Any(pos => !grid.Has(pos));
         });
     }
@@ -64,7 +64,7 @@ public class Day8V2 : Improve<Day8, int>
         var grid = Input.ToGrid();
         return grid.Positions.Max(check =>
         {
-            return check.TraceAll(Pos.Directions(), pos => !grid.Has(pos) || grid[pos] >= grid[check])
+            return check.TraceAll(Pos.Directions, pos => !grid.Has(pos) || grid[pos] >= grid[check])
                 .Select(pos => grid.Has(pos) ? check.MDist(pos) : check.MDist(pos) - 1)
                 .Product();
         });

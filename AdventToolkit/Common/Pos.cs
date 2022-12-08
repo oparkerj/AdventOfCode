@@ -34,7 +34,9 @@ public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>,
 
     public static implicit operator Pos((int x, int y) p) => new(p.x, p.y);
 
-    public static IEnumerable<Pos> Directions(bool diagonal = false)
+    public static IEnumerable<Pos> Directions => GetDirections();
+
+    public static IEnumerable<Pos> GetDirections(bool diagonal = false)
     {
         yield return Up;
         yield return Right;
