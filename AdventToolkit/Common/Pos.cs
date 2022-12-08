@@ -34,6 +34,21 @@ public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>,
 
     public static implicit operator Pos((int x, int y) p) => new(p.x, p.y);
 
+    public static IEnumerable<Pos> Directions(bool diagonal = false)
+    {
+        yield return Up;
+        yield return Right;
+        yield return Down;
+        yield return Left;
+        if (diagonal)
+        {
+            yield return new Pos(1, 1);
+            yield return new Pos(1, -1);
+            yield return new Pos(-1, 1);
+            yield return new Pos(-1, -1);
+        }
+    }
+
     public static Pos Parse(string s)
     {
         if (s.StartsWith('(') && s.EndsWith(')')) s = s[1..^1];
