@@ -186,4 +186,6 @@ public static class PosExtensions
         if (!r.Contains(p)) return target;
         return r.Contains(target) ? target : p;
     }
+
+    public static Pos Abs(this Pos p) => new(Math.Abs(p.X), Math.Abs(p.Y));
 }
