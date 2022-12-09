@@ -18,11 +18,7 @@ public class Day9 : Puzzle<int>
             for (var i = 0; i < knots.Length - 1; i++)
             {
                 var delta = knots[i] - knots[i + 1];
-                var (dx, dy) = delta.Abs();
-                if (dx > 1 || dy > 1)
-                {
-                    knots[i + 1] += delta.Normalize();
-                }
+                if (delta.Abs().Max() > 1) knots[i + 1] += delta.Normalize();
             }
             seen.Add(knots[^1]);
         }

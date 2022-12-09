@@ -196,6 +196,10 @@ public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>,
     }
 
     public Pos Min(Pos other) => new(Math.Min(X, other.X), Math.Min(Y, other.Y));
+
+    public int Min() => Math.Min(X, Y);
         
     public Pos Max(Pos other) => new(Math.Max(X, other.X), Math.Max(Y, other.Y));
+
+    public int Max() => Math.Max(X, Y);
 }
