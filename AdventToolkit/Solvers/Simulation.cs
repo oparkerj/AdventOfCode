@@ -19,7 +19,9 @@ public class Simulation<T>
 
     public Simulation(IEnumerable<T> items) => Objects.AddRange(items);
 
-    // Create an update function that aggregates values and then applies the final value
+    // Create an update function that aggregates values and then applies the final value.
+    // Collect defines how to apply the aggregate to the current item.
+    // Write defines how to update the item with the aggregate value.
     public static Func<T, IEnumerable<T>, T> Aggregate<TA>(Func<T, T, TA> collect, Action<T, TA> write)
         where TA : IAdditionOperators<TA, TA, TA>
     {

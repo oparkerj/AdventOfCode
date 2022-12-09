@@ -41,7 +41,7 @@ public abstract class AlignedSpace<TPos, TVal> : ISpace<TPos>, IEnumerable<KeyVa
         
     public virtual void Clear()
     {
-        foreach (var pos in Positions.ToArray())
+        foreach (var pos in Positions.ToList())
         {
             Remove(pos);
         }

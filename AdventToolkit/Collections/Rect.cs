@@ -81,6 +81,7 @@ public class Rect : IEnumerable<Pos>
         set
         {
             Width -= value - _minX;
+            if (Width < 0) throw new ArgumentException("Rect resized to negative width.");
             _minX = value;
         }
     }
@@ -91,6 +92,7 @@ public class Rect : IEnumerable<Pos>
         set
         {
             Height -= value - _minY;
+            if (Height < 0) throw new ArgumentException("Rect resized to negative height.");
             _minY = value;
         }
     }

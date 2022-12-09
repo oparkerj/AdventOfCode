@@ -151,6 +151,10 @@ public static class Algorithms
         return x.CircularMod(mod);
     }
     
+    /*
+     * Each a-value should pair with an m-value. This will find N ≡ a (mod m) which works for each
+     * pair of a and m.
+     */
     public static long ChineseRemainder(this IEnumerable<int> aValues, IEnumerable<int> mValues)
     {
         return ChineseRemainder(aValues.Longs(), mValues.Longs());
@@ -326,9 +330,11 @@ public static class Algorithms
     }
 
     // Given an offset and cycle period, find the offset needed to reach i iterations
-    public static int CycleOffset(this int i, int offset, int cycle) => i > offset ? offset + (i - offset) % cycle : i;
-
-    public static long CycleOffset(this long l, long offset, long cycle) => l > offset ? offset + (l - offset) % cycle : l;
+    public static T CycleOffset<T>(this T i, T offset, T cycle)
+        where T : INumber<T>
+    {
+        return i > offset ? offset + (i - offset) % cycle : i;
+    }
 
     // Have an explore drone perform a depth-first search, provided a function that tells where
     // the drone has already explored.

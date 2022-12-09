@@ -38,17 +38,7 @@ public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>,
 
     public static IEnumerable<Pos> GetDirections(bool diagonal = false)
     {
-        yield return Up;
-        yield return Right;
-        yield return Down;
-        yield return Left;
-        if (diagonal)
-        {
-            yield return new Pos(1, 1);
-            yield return new Pos(1, -1);
-            yield return new Pos(-1, 1);
-            yield return new Pos(-1, -1);
-        }
+        return diagonal ? Origin.Around() : Origin.Adjacent();
     }
 
     public static Pos Parse(string s)
