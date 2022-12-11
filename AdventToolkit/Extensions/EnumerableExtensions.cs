@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using AdventToolkit.Collections;
 using MoreLinq;
 
@@ -143,14 +144,10 @@ public static class EnumerableExtensions
         return source.Select(items => items.QuickMap(value, equal, notEqual));
     }
 
-    public static int Product(this IEnumerable<int> ints)
+    public static T Product<T>(this IEnumerable<T> ints)
+        where T : IMultiplyOperators<T, T, T>
     {
-        return ints.Aggregate(Num.Mul);
-    }
-
-    public static long Product(this IEnumerable<long> longs)
-    {
-        return longs.Aggregate(Num.Mul);
+        return ints.Aggregate((a, b) => a * b);
     }
 
     public static long LongProduct(this IEnumerable<int> ints)

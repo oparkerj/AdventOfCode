@@ -308,22 +308,27 @@ public static class StringExtensions
 
     public static IEnumerable<T> GetAll<T>(this string s, Regex regex, Func<string, T> parse, int gap = 0, int start = 0)
     {
-        while (regex.Match(s, start) is var match && match.Success)
+        while (start < s.Length && regex.Match(s, start) is var match && match.Success)
         {
             yield return parse(match.Value);
             start = match.Index + match.Length + gap;
         }
     }
 
-    public static IEnumerable<T> GetAll<T>(this string s, Regex regex, int gap = 0)
+    public static IEnumerable<T> GetAll<T>(this string s, Regex regex, int gap = 0, int start = 0)
         where T : IParsable<T>
     {
-        return s.GetAll(regex, str => T.Parse(str, null), gap);
+        return s.GetAll(regex, str => T.Parse(str, null), gap, start);
     }
 
     public static IEnumerable<int> GetInts(this string s)
     {
         return s.GetAll<int>(Patterns.Int, 1);
+    }
+
+    public static int GetNextInt(this string s, int start = 0)
+    {
+        return s.GetAll<int>(Patterns.Int, 1, start).First();
     }
     
     public static int Count(this string s, Regex regex)

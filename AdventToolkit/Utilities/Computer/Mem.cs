@@ -16,6 +16,8 @@ public class Mem<TArch>
         Write = write;
     }
 
+    public static Mem<T> Const<T>(T value) => new(() => value, null);
+
     public TArch Value
     {
         get => Read();
