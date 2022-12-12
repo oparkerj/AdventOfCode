@@ -243,7 +243,7 @@ public class Dijkstra<TCell, TMid>
         return ComputeFind(start, target, valid != null ? (_, to) => valid(to) : null);
     }
     
-    public int ComputeFind(TCell start, TCell target, Func<TCell, TCell, bool> valid = null)
+    public int ComputeFind(TCell start, TCell target, Func<TCell, TCell, bool> valid)
     {
         valid ??= (_, _) => true; 
         var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
@@ -278,7 +278,7 @@ public class Dijkstra<TCell, TMid>
         return ComputeFind(start, target, valid != null ? (_, to) => valid(to) : null);
     }
     
-    public (int, TCell) ComputeFind(TCell start, Func<TCell, bool> target, Func<TCell, TCell, bool> valid = null)
+    public (int, TCell) ComputeFind(TCell start, Func<TCell, bool> target, Func<TCell, TCell, bool> valid)
     {
         valid ??= (_, _) => true; 
         var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
@@ -379,7 +379,7 @@ public static class DijkstraExtensions
         return dijkstra.Build().ComputeFind(start, target, valid);
     }
     
-    public static int DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, TCell target, Func<TCell, TCell, bool> valid = null)
+    public static int DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, TCell target, Func<TCell, TCell, bool> valid)
     {
         return dijkstra.Build().ComputeFind(start, target, valid);
     }
@@ -399,7 +399,7 @@ public static class DijkstraExtensions
         return dijkstra.Build().ComputeFind(start, target, valid);
     }
     
-    public static (int, TCell) DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, Func<TCell, bool> target, Func<TCell, TCell, bool> valid = null)
+    public static (int, TCell) DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, Func<TCell, bool> target, Func<TCell, TCell, bool> valid)
     {
         return dijkstra.Build().ComputeFind(start, target, valid);
     }
