@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
+using AdventToolkit.Extensions;
 using Dist = System.ValueTuple<int, int>;
 
 namespace AdventToolkit.Utilities;
@@ -239,7 +240,12 @@ public class Dijkstra<TCell, TMid>
 
     public int ComputeFind(TCell start, TCell target, Func<TCell, bool> valid = null)
     {
-        valid ??= _ => true; 
+        return ComputeFind(start, target, valid != null ? (_, to) => valid(to) : null);
+    }
+    
+    public int ComputeFind(TCell start, TCell target, Func<TCell, TCell, bool> valid = null)
+    {
+        valid ??= (_, _) => true; 
         var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
         var seen = new HashSet<TCell>();
         var queue = new PriorityQueue<TCell, Dist>();
@@ -254,7 +260,7 @@ public class Dijkstra<TCell, TMid>
             foreach (var neighbor in Neighbors(cell))
             {
                 var other = Cell(cell, neighbor);
-                if (!valid(other)) continue;
+                if (!valid(cell, other)) continue;
                 var weight = Distance(neighbor);
                 var newScore = current + weight;
                 if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
@@ -269,7 +275,12 @@ public class Dijkstra<TCell, TMid>
     
     public (int, TCell) ComputeFind(TCell start, Func<TCell, bool> target, Func<TCell, bool> valid = null)
     {
-        valid ??= _ => true; 
+        return ComputeFind(start, target, valid != null ? (_, to) => valid(to) : null);
+    }
+    
+    public (int, TCell) ComputeFind(TCell start, Func<TCell, bool> target, Func<TCell, TCell, bool> valid = null)
+    {
+        valid ??= (_, _) => true; 
         var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
         var seen = new HashSet<TCell>();
         var queue = new PriorityQueue<TCell, Dist>();
@@ -284,7 +295,7 @@ public class Dijkstra<TCell, TMid>
             foreach (var neighbor in Neighbors(cell))
             {
                 var other = Cell(cell, neighbor);
-                if (!valid(other)) continue;
+                if (!valid(cell, other)) continue;
                 var weight = Distance(neighbor);
                 var newScore = current + weight;
                 if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
@@ -368,7 +379,27 @@ public static class DijkstraExtensions
         return dijkstra.Build().ComputeFind(start, target, valid);
     }
     
+    public static int DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, TCell target, Func<TCell, TCell, bool> valid = null)
+    {
+        return dijkstra.Build().ComputeFind(start, target, valid);
+    }
+
+    public static int ShortestPath<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TVal start, TVal target, Func<TVal, TVal, bool> valid = null)
+    {
+        return space.ShortestPath(space.Find(start), pos => Equals(space[pos], target), valid != null ? (from, to) => space.Has(to) && valid(space[from], space[to]) : null);
+    }
+
+    public static int ShortestPath<TPos, TVal>(this AlignedSpace<TPos, TVal> space, TPos start, Func<TPos, bool> target, Func<TPos, TPos, bool> valid = null)
+    {
+        return space.DijkstraFind(start, target, valid).Item1;
+    }
+    
     public static (int, TCell) DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, Func<TCell, bool> target, Func<TCell, bool> valid = null)
+    {
+        return dijkstra.Build().ComputeFind(start, target, valid);
+    }
+    
+    public static (int, TCell) DijkstraFind<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra, TCell start, Func<TCell, bool> target, Func<TCell, TCell, bool> valid = null)
     {
         return dijkstra.Build().ComputeFind(start, target, valid);
     }
