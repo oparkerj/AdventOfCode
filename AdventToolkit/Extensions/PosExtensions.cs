@@ -152,6 +152,12 @@ public static class PosExtensions
     {
         return points.Pairwise(EachTo).Flatten();
     }
+    
+    public static IEnumerable<Pos> ConnectLinesAll(this IEnumerable<Pos> points)
+    {
+        var items = points.AsList();
+        return items.Pairwise(EachTo).Flatten().Before(items[0]);
+    }
 
     public static IEnumerable<Pos> SimplifyPath(this IEnumerable<Pos> points)
     {

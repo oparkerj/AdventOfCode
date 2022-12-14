@@ -869,5 +869,4 @@ public static class EnumerableExtensions
     {
         return source.Skip(offset).TakeEvery(step);
     }
-
 }
