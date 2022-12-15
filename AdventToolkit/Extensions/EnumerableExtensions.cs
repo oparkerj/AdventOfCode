@@ -869,4 +869,20 @@ public static class EnumerableExtensions
     {
         return source.Skip(offset).TakeEvery(step);
     }
+
+    // Yields items (once) if they appear multiple times in the sequence.
+    public static IEnumerable<T> WhereMultiple<T>(this IEnumerable<T> source)
+    {
+        var seen = new HashSet<T>();
+        var used = new HashSet<T>();
+        
+        foreach (var item in source)
+        {
+            if (used.Contains(item)) continue;
+            if (seen.Add(item)) continue;
+            seen.Remove(item);
+            used.Add(item);
+            yield return item;
+        }
+    }
 }

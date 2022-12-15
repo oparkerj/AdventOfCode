@@ -68,6 +68,10 @@ public class MultiInterval : IEnumerable<int>
         return i.Start < check.Start && check.End < i.End;
     }
 
+    public int IntervalCount => _intervals.Count;
+
+    public int Count => _intervals.Select(i => i.Length).Sum();
+
     public IList<Interval> Intervals => _intervals.AsReadOnly();
 
     public bool Contains(int i)

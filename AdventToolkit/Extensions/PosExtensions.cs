@@ -194,4 +194,21 @@ public static class PosExtensions
     }
 
     public static Pos Abs(this Pos p) => new(Math.Abs(p.X), Math.Abs(p.Y));
+    
+    public static IEnumerable<Pos> GetMDistRing(this Pos pos, int range)
+    {
+        return Pos.Directions.Select(dir => dir * range + pos)
+            .PullOne(out var first)
+            .Before(first)
+            .Then(first)
+            .ConnectLines();
+    }
+
+    public static IEnumerable<Pos> GetMDistFill(this Pos pos, int range)
+    {
+        return Enumerable.Range(1, range)
+            .Select(i => pos.GetMDistRing(i))
+            .Flatten()
+            .Before(pos);
+    }
 }
