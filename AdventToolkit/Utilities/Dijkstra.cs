@@ -307,6 +307,37 @@ public class Dijkstra<TCell, TMid>
         }
         return (-1, default);
     }
+    
+    public (int, TCell) ComputeMax(TCell start, Func<TCell, bool> target, Func<TCell, TCell, bool> valid)
+    {
+        valid ??= (_, _) => true; 
+        var dist = new DefaultDict<TCell, int> {DefaultValue = int.MinValue, [start] = 0};
+        var seen = new HashSet<TCell>();
+        var queue = new PriorityQueue<TCell, int>();
+        queue.Enqueue(start, 0);
+        while (queue.Count > 0)
+        {
+            var cell = queue.Dequeue();
+            if (seen.Contains(cell)) continue;
+            var current = dist[cell];
+            // if (target(cell)) return (current, cell);
+            seen.Add(cell);
+            foreach (var neighbor in Neighbors(cell))
+            {
+                var other = Cell(cell, neighbor);
+                if (!valid(cell, other)) continue;
+                var weight = Distance(neighbor);
+                var newScore = current + weight;
+                if (!seen.Contains(other)) queue.Enqueue(other, newScore);
+                if (newScore > dist[other])
+                {
+                    dist[other] = newScore;
+                }
+            }
+        }
+        var (result, totalDist) = dist.WhereKey(target).MaxBy(pair => pair.Value);
+        return (totalDist, result);
+    }
 }
 
 // If the cell and neighbor types are the same,

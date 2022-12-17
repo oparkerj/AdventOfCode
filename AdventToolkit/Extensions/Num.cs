@@ -130,6 +130,32 @@ public static class Num
         return a % b == 0;
     }
 
+    public static T MaxOrDefault<T>(this IEnumerable<T> nums)
+        where T : IComparisonOperators<T, T, bool>
+    {
+        using var e = nums.GetEnumerator();
+        if (!e.MoveNext()) return default;
+        var best = e.Current;
+        while (e.MoveNext())
+        {
+            if (e.Current > best) best = e.Current;
+        }
+        return best;
+    }
+    
+    public static T MinOrDefault<T>(this IEnumerable<T> nums)
+        where T : IComparisonOperators<T, T, bool>
+    {
+        using var e = nums.GetEnumerator();
+        if (!e.MoveNext()) return default;
+        var best = e.Current;
+        while (e.MoveNext())
+        {
+            if (e.Current < best) best = e.Current;
+        }
+        return best;
+    }
+
     public static int Gcd(this int a, int b)
     {
         a = Math.Abs(a);

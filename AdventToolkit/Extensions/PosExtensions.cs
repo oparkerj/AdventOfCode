@@ -159,6 +159,8 @@ public static class PosExtensions
         return items.Pairwise(EachTo).Flatten().Before(items[0]);
     }
 
+    // Removes intermediate points that are traveling in the same direction.
+    // Returns only the corners that make up the path.
     public static IEnumerable<Pos> SimplifyPath(this IEnumerable<Pos> points)
     {
         using var e = points.GetEnumerator();
@@ -210,5 +212,10 @@ public static class PosExtensions
             .Select(i => pos.GetMDistRing(i))
             .Flatten()
             .Before(pos);
+    }
+
+    public static IEnumerable<Pos> Shift(this IEnumerable<Pos> points, Pos offset)
+    {
+        return points.Select(pos => pos + offset);
     }
 }

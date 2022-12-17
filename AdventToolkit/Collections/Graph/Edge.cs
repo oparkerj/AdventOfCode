@@ -39,7 +39,7 @@ public interface IEdgeData<out T>
 
 public class DataEdge<T, TData> : Edge<T>, IEdgeData<TData>
 {
-    public TData Data { get; }
+    public TData Data { get; set; }
         
     public DataEdge(VertexBase<T> from, VertexBase<T> to, TData data) : base(from, to)
     {

@@ -108,13 +108,43 @@ public static class Data
         return arg => arg != null;
     }
 
-    public static Func<TIn, TOut> Memoize<TIn, TOut>(Func<TIn, TOut> func)
+    public static Func<T1, TR> Memoize<T1, TR>(Func<T1, TR> func)
     {
-        var inputs = new Dictionary<TIn, TOut>();
+        var inputs = new Dictionary<T1, TR>();
         return input =>
         {
             if (inputs.TryGetValue(input, out var result)) return result;
             return inputs[input] = func(input);
+        };
+    }
+    
+    public static Func<T1, T2, TR> Memoize<T1, T2, TR>(Func<T1, T2, TR> func)
+    {
+        var inputs = new Dictionary<(T1, T2), TR>();
+        return (a, b) =>
+        {
+            if (inputs.TryGetValue((a, b), out var result)) return result;
+            return inputs[(a, b)] = func(a, b);
+        };
+    }
+    
+    public static Func<T1, T2, T3, TR> Memoize<T1, T2, T3, TR>(Func<T1, T2, T3, TR> func)
+    {
+        var inputs = new Dictionary<(T1, T2, T3), TR>();
+        return (a, b, c) =>
+        {
+            if (inputs.TryGetValue((a, b, c), out var result)) return result;
+            return inputs[(a, b, c)] = func(a, b, c);
+        };
+    }
+    
+    public static Func<T1, T2, T3, T4, TR> Memoize<T1, T2, T3, T4, TR>(Func<T1, T2, T3, T4, TR> func)
+    {
+        var inputs = new Dictionary<(T1, T2, T3, T4), TR>();
+        return (a, b, c, d) =>
+        {
+            if (inputs.TryGetValue((a, b, c, d), out var result)) return result;
+            return inputs[(a, b, c, d)] = func(a, b, c, d);
         };
     }
 

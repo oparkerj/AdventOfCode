@@ -63,6 +63,11 @@ public abstract class Vertex<T, TEdge> : VertexBase<T>
 
     public abstract void RemoveEdge(TEdge edge);
 
+    public TEdge GetEdge(T value)
+    {
+        return NeighborEdges.First(edge => Equals(edge.Other(this).Value, value));
+    }
+
     public virtual bool ConnectedTo(Vertex<T, TEdge> other)
     {
         return Edges.Any(edge => edge.IsBetween(this, other));

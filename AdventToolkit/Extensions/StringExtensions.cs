@@ -335,4 +335,13 @@ public static class StringExtensions
     {
         return s.GetAll<object>(regex, _ => null).Count();
     }
+
+    public static string Cut(this string s, string search, int extraLeft = 0, int extraRight = 0)
+    {
+        var i = s.IndexOf(search, StringComparison.Ordinal);
+        if (i < 0) return s;
+        var start = Math.Max(0, i - extraLeft);
+        var length = Math.Min(s.Length - start, search.Length + extraRight);
+        return string.Concat(s.AsSpan(0, start), s.AsSpan(i + length));
+    }
 }
