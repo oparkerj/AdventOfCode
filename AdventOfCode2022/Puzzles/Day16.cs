@@ -1,12 +1,10 @@
 using AdventToolkit;
-using AdventToolkit.Attributes;
 using AdventToolkit.Collections.Graph;
 using AdventToolkit.Extensions;
 using RegExtract;
 
 namespace AdventOfCode2022.Puzzles;
 
-[CopyResult]
 public class Day16 : Puzzle<int>
 {
     public UniqueDataGraph<string, int> Relevant;
