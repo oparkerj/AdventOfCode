@@ -115,6 +115,13 @@ public readonly struct Pos3D : IAdditionOperators<Pos3D, Pos3D, Pos3D>, ISubtrac
 
     public int Dot(Pos3D o) => X * o.X + Y * o.Y + Z * o.Z;
 
+    public Pos3D Towards(Pos3D other)
+    {
+        var delta = other - this;
+        if (delta.X == 0 || delta.Y == 0) return delta.Normalize();
+        return delta / delta.Z.Gcd(delta.X.Gcd(delta.Y));
+    }
+
     public Pos3D XClockwise(Pos3D center = default) => new(X, Z - center.Z + center.Y, center.Y - Y + center.Z);
 
     public Pos3D XCounterClockwise(Pos3D center = default) => new(X, -(Z - center.Z) + center.Y, -(center.Y - Y) + center.Z);

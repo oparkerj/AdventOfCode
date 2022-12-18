@@ -4,10 +4,10 @@ using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Collections.Space;
 
-public class Blocks<T> : SparseSpace<Pos3D, T>
+public class BlocksAround<T> : SparseSpace<Pos3D, T>
 {
     public override IEnumerable<Pos3D> GetNeighbors(Pos3D pos)
     {
-        return pos.Adjacent();
+        return pos.Around();
     }
 }

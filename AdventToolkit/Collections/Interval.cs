@@ -39,6 +39,8 @@ public readonly struct Interval : IEnumerable<int>
 
     public int Last => End - 1;
 
+    public int Mid => Length / 2 + Start;
+
     public bool Contains(int i) => i >= Start && i < End;
 
     // Be careful not to use both this method and RangeInclusive
@@ -76,6 +78,17 @@ public readonly struct Interval : IEnumerable<int>
         i -= Start;
         var half = Length / 2;
         return i == half && Length % 2 == 0 ? equal : i <= half;
+    }
+
+    public Interval Fit(int i)
+    {
+        if (Length == 0) return i;
+        return RangeInclusive(Math.Min(Start, i), Math.Max(Last, i));
+    }
+
+    public Interval Expand(int left, int right)
+    {
+        return RangeInclusive(Math.Min(Start - left, Start), Math.Max(Last, Last + right));
     }
 
     public int Sum() => Algorithms.SumRange(Start, Last);
