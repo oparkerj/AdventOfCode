@@ -744,6 +744,11 @@ public static class EnumerableExtensions
     {
         return source.Select((t, i) => new KeyValuePair<int, T>(i, t));
     }
+    
+    public static IEnumerable<(int Index, T Value)> IndexedTuple<T>(this IEnumerable<T> source)
+    {
+        return source.Select((t, i) => (i, t));
+    }
 
     public static int FirstIndex<T>(this IEnumerable<T> items, Func<T, bool> func)
     {
