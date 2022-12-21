@@ -226,7 +226,7 @@ public class OpInstructionBuilder<TArch, TResult>
     {
         var parts = Splitter(instruction).AsArray();
         var (opIndex, _) = OpSelector(parts, false);
-        var op = parts[opIndex];
+        var op = opIndex >= 0 ? parts[opIndex] : "";
         var args = ArgSelector(op, parts, false);
         var id = _opCodes[op];
         var inst = _readers[id].Parse(cpu, id, args);

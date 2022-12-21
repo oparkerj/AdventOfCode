@@ -10,6 +10,8 @@ public static class Conversions
     public static int AsInt(this char c) => c - '0';
 
     public static int AsInt(this bool b) => b ? 1 : 0;
+
+    public static long AsLong(this string s) => long.Parse(s);
         
     public static bool AsBool(this int i) => i != 0;
         

@@ -46,6 +46,7 @@ public class OpFormatBuilder<TArch> : OpInstructionBuilder<TArch, TArch>
         if (setup)
         {
             var i = parts.FirstIndex(s => s.StartsWith('{') && s.EndsWith('}'));
+            if (i < 0) return (-1, "");
             return (i, parts[i][1..^1]);
         }
         
@@ -66,6 +67,28 @@ public class OpFormatBuilder<TArch> : OpInstructionBuilder<TArch, TArch>
         var selector = _argSelectors[opcode];
         selector.Binders = binders.GetValues(args).ToArray();
         return selector;
+    }
+
+    private OpNode<TArch, int, string> GetNode(OpArgs<TArch, int> args) => (OpNode<TArch, int, string>) args;
+
+    public OpInstructionBuilder<TArch, TArch> AddKey(string format, Func<string, TArch> action)
+    {
+        return AddOp(format, (_, inst) => action(GetNode(inst).Key));
+    }
+    
+    public OpInstructionBuilder<TArch, TArch> AddKey(string format, Func<string, Mem<TArch>, TArch> action)
+    {
+        return AddOp(format, (_, inst) => action(GetNode(inst).Key, inst.Args[0]));
+    }
+    
+    public OpInstructionBuilder<TArch, TArch> AddKey(string format, Func<string, Mem<TArch>, Mem<TArch>, TArch> action)
+    {
+        return AddOp(format, (_, inst) => action(GetNode(inst).Key, inst.Args[0], inst.Args[1]));
+    }
+    
+    public OpInstructionBuilder<TArch, TArch> AddKey(string format, Func<string, Mem<TArch>, Mem<TArch>, Mem<TArch>, TArch> action)
+    {
+        return AddOp(format, (_, inst) => action(GetNode(inst).Key, inst.Args[0], inst.Args[1], inst.Args[2]));
     }
 
     public NodeCpu<TArch, string, OpNode<TArch, int, string>> ParseNodes(IEnumerable<string> nodes)
