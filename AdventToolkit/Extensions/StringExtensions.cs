@@ -344,4 +344,34 @@ public static class StringExtensions
         var length = Math.Min(s.Length - start, search.Length + extraRight);
         return string.Concat(s.AsSpan(0, start), s.AsSpan(i + length));
     }
+
+    public static IEnumerable<string> SplitRegex(this string s, string r) => s.SplitRegex(new Regex(r));
+
+    public static IEnumerable<string> SplitRegex(this string s, Regex r, StringSplitOptions options = StringSplitOptions.None)
+    {
+        var start = 0;
+        while (r.Match(s, start) is var match && match.Success)
+        {
+            if (start == match.Index && options.HasFlag(StringSplitOptions.RemoveEmptyEntries)) goto Next;
+            yield return s[start..match.Index];
+            Next:
+            start = match.Index + Math.Max(match.Length, 1);
+        }
+        if (start < s.Length || !options.HasFlag(StringSplitOptions.RemoveEmptyEntries))
+        {
+            yield return s[start..];
+        }
+    }
+
+    public static IEnumerable<string> TakeRegex(this string s, string r) => s.TakeRegex(new Regex(r));
+
+    public static IEnumerable<string> TakeRegex(this string s, Regex r)
+    {
+        var start = 0;
+        while (r.Match(s, start) is var match && match.Success)
+        {
+            yield return s[match.Index..(match.Index + match.Length)];
+            start = match.Index + match.Length;
+        }
+    }
 }

@@ -179,7 +179,7 @@ public class FileTree : Tree<string, FileVertex, Edge<string>>
     }
 }
 
-public class FileVertex : QuantityVertexBase<string, Edge<string>>
+public class FileVertex : QuantityVertexBase<string, Edge<string>, long>
 {
     public bool IsDirectory { get; set; }
     

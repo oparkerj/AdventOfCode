@@ -11,7 +11,8 @@ public class CircularBuffer<T> : IEnumerable<T>
     public readonly T[] Data;
     private int _index;
     private int _size;
-        
+    
+    // Offset is what is currently considered index 0
     public int Offset { get; set; }
 
     public CircularBuffer(int size)
@@ -31,12 +32,14 @@ public class CircularBuffer<T> : IEnumerable<T>
 
     public bool Full => _size == Data.Length;
 
+    private int InternalIndex(int i) => (i + Offset).CircularMod(Data.Length);
+
     public T this[int index]
     {
-        get => Data[(index + Offset).CircularMod(Data.Length)];
+        get => Data[InternalIndex(index)];
         set
         {
-            var realIndex = (index + Offset).CircularMod(Data.Length);
+            var realIndex = InternalIndex(index);
             Data[realIndex] = value;
             _size = Math.Max(_size, realIndex + 1);
         }
@@ -61,7 +64,7 @@ public class CircularBuffer<T> : IEnumerable<T>
     public int RotatedIndexOf(T value)
     {
         var index = IndexOf(value);
-        return index < 0 ? index : (index + Offset).CircularMod(Data.Length);
+        return index < 0 ? index : InternalIndex(index);
     }
 
     public static void RotateTo(T[] array, int offset)
@@ -71,6 +74,39 @@ public class CircularBuffer<T> : IEnumerable<T>
         var data = array.ToArray(array.Length);
         Array.Copy(data, offset, array, 0, array.Length - offset);
         if (offset > 0) Array.Copy(data, 0, array, array.Length - offset, offset);
+    }
+
+    public int Find(Func<T, bool> predicate)
+    {
+        return (Array.FindIndex(Data, obj => predicate(obj)) - Offset).CircularMod(Data.Length);
+    }
+
+    // TODO fix?
+    public void Move(long fromIndex, long toIndex)
+    {
+        Move((int) (fromIndex + Offset).CircularMod(Data.Length),
+             (int) (toIndex + Offset).CircularMod(Data.Length));
+    }
+
+    // TODO fix?
+    public void Move(int fromIndex, int toIndex)
+    {
+        var from = InternalIndex(fromIndex);
+        var to = InternalIndex(toIndex);
+        if (from == to) return;
+        
+        var t = Data[from];
+        if (from < to)
+        {
+            Array.Copy(Data, from + 1, Data, from, to - from);
+            if (Offset > from && Offset <= to) Offset--;
+        }
+        else
+        {
+            Array.Copy(Data, to, Data, to + 1, from - to);
+            if (Offset >= to && Offset < from) Offset++;
+        }
+        Data[to] = t;
     }
 
     public void RotateTo(int offset)

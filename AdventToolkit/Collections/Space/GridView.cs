@@ -49,6 +49,7 @@ public class GridView<T> : GridBase<T>
         var (x, y) = windowPos;
         if (Transpose) (x, y) = (y, x);
         var bounds = Bounds;
+        // TODO fix to not use floating points
         if (FlipH) x = (int) (x + (bounds.MidX - x) * 2);
         if (FlipV) y = (int) (y + (bounds.MidY - y) * 2);
         return new Pos(x, y) + Offset;
@@ -81,16 +82,33 @@ public class GridView<T> : GridBase<T>
 
     public override int Count => Source.Positions.Count(Bounds.Contains);
 
-    public void OverlayTransformed(Func<T, T, T> combine)
+    private Rect GetSourceWindow()
     {
         var target = new Rect(Bounds);
         if (Transpose) (target.Width, target.Height) = (target.Height, target.Width);
         (target.MinXFixed, target.MinYFixed) = target.Min + Offset;
+        return target;
+    }
+
+    // Overlay the points from the source window onto the transformed window.
+    // Combine args (value in transformed window, value in source window).
+    public void OverlayTransformed(Func<T, T, T> combine)
+    {
+        var target = GetSourceWindow();
         foreach (var pos in Source.Positions.Where(target.Contains).ToList())
         {
             var windowPos = Reverse(pos);
             Source[windowPos] = combine(Source[windowPos], Source[pos]);
         }
+    }
+    
+    public bool EqualToSource()
+    {
+        var target = GetSourceWindow();
+        return Source.Positions.Where(Bounds.Contains)
+            .Concat(Source.Positions.Where(target.Contains).Select(Reverse))
+            .Distinct()
+            .All(pos => Equals(Source[pos], Source[RealPos(pos)]));
     }
 
     public override IEnumerator<KeyValuePair<Pos, T>> GetEnumerator()

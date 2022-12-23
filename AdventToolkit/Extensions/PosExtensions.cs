@@ -63,6 +63,28 @@ public static class PosExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
         };
     }
+    
+    public static Side ToSide(this Pos dir)
+    {
+        return dir switch
+        {
+            (0, 1) => Side.Top,
+            (1, 0) => Side.Right,
+            (0, -1) => Side.Bottom,
+            (-1, 0) => Side.Left
+        };
+    }
+    
+    public static Pos ToSide(this Side side)
+    {
+        return side switch
+        {
+            Side.Bottom => Pos.Down,
+            Side.Left => Pos.Left,
+            Side.Right => Pos.Right,
+            Side.Top => Pos.Up,
+        };
+    }
 
     public static IEnumerable<Pos3D> Around(this Pos3D p)
     {

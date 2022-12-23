@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Collections.Graph;
@@ -147,10 +148,18 @@ public class DataVertex<T, TData> : SimpleVertex<T, DataEdge<T, TData>>
 public class VertexInfo<T>
 {
     public T Value { get; set; }
-    public long Amount { get; set; } = 1;
     public T Child { get; set; }
-    public long ChildAmount { get; set; } = 1;
     public List<T> Children { get; set; }
-    public List<(T Child, long Amount)> ChildWeight { get; set; }
-    public List<(long Amount, T Child)> WeightChild { get; set; }
+}
+
+public class QuantityVertexInfo<T, TNum>
+    where TNum : INumber<TNum>
+{
+    public T Value { get; set; }
+    public TNum Amount { get; set; } = TNum.One;
+    public T Child { get; set; }
+    public TNum ChildAmount { get; set; } = TNum.One;
+    public List<T> Children { get; set; }
+    public List<(T Child, TNum Amount)> ChildWeight { get; set; }
+    public List<(TNum Amount, T Child)> WeightChild { get; set; }
 }

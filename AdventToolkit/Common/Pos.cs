@@ -155,6 +155,19 @@ public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>,
 
     public Pos CounterClockwise(Pos center = default) => new(center.Y - Y + center.X, X - center.X + center.Y);
 
+    public int GetDirection()
+    {
+        var d = Normalize();
+        return d switch
+        {
+            (0, 1) => 0,
+            (1, 0) => 1,
+            (0, -1) => 2,
+            (-1, 0) => 3,
+            _ => -1,
+        };
+    }
+
     public Pos Turn(int dir)
     {
         if (dir < 0) return CounterClockwise();

@@ -110,6 +110,25 @@ public class PortalGrid<T, TTag> : SparseSpace<(Pos Pos, TTag Tag), T>
         yield return Side.Left;
     }
 
+    public bool Has(Pos pos)
+    {
+        return Positions.Any(tuple => tuple.Pos == pos);
+    }
+
+    public T GetAny(Pos pos) => this[Positions.First(tuple => tuple.Pos == pos)];
+
+    public (Pos Pos, TTag Tag) GetNeighborSide(Pos pos, Side side)
+    {
+        if (!_portals.TryGetValue(pos, out var sides)) return (pos.GetSide(side), default);
+        if (sides.TryGetValue(side, out var otherPos)) return otherPos;
+        return (pos.GetSide(side), default);
+    }
+
+    public (Pos Pos, TTag Tag) GetNeighborSide((Pos Pos, TTag Tag) pos, Side side)
+    {
+        return GetNeighborSide(pos.Pos, side);
+    }
+
     public override IEnumerable<(Pos Pos, TTag Tag)> GetNeighbors((Pos Pos, TTag Tag) pos)
     {
         if (!_portals.TryGetValue(pos.Pos, out var sides)) return pos.Pos.Adjacent().Select(p => (p, pos.Tag));

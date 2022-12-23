@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using AdventToolkit.Collections.Graph;
+using AdventToolkit.Extensions;
 
 namespace AdventToolkit.Collections.Tree;
 
-public class QuantityTree<T> : Tree<T, QuantityVertex<T>, DataEdge<T, long>>
+public class QuantityTree<T, TNum> : Tree<T, QuantityVertex<T, TNum>, DataEdge<T, TNum>>
+    where TNum : INumber<TNum>
 {
-    public long TotalVertexWeight(QuantityVertex<T> vertex)
+    public TNum TotalVertexWeight(QuantityVertex<T, TNum> vertex)
     {
         return Bfs(vertex).Select(v => v.Quantity).Sum();
         // var total = vertex.Quantity;
@@ -21,38 +24,24 @@ public class QuantityTree<T> : Tree<T, QuantityVertex<T>, DataEdge<T, long>>
         // return total;
         // return vertex.Quantity + vertex.Descendants.Cast<QuantityVertex<T>>().Select(v => v.Quantity).Sum();
     }
-        
-    public long ProduceFrom(T item, Dictionary<T, long> have)
-    {
-        var made = new DefaultDict<T, long>();
-        var extra = new DefaultDict<T, long>(have);
-        long count = 0;
-        while (true)
-        {
-            Produce(item, 1, made, extra);
-            if (have.Any(pair => made[pair.Key] > pair.Value)) break;
-            count++;
-        }
-        return count;
-    }
-        
+
     // Find how much item can be produced using a number of source items.
     // Finds the answer by seeing how many source are used to produce one
     // item and using that to quickly converge to the result.
-    public long ProduceUsing(T item, T source, long amount)
+    public TNum ProduceUsing(T item, T source, TNum amount)
     {
-        long last = 0;
-        long estimate = 1;
-        long unit = -1;
+        var last = TNum.Zero;
+        var estimate = TNum.One;
+        var unit = -TNum.One;
         while (true)
         {
             var made = Produce(item, estimate)[source];
-            if (unit == -1) unit = made;
+            if (unit == -TNum.One) unit = made;
             if (made == amount) return estimate;
             if (made < amount)
             {
                 last = estimate;
-                estimate += Math.Max((amount - made) / unit, 1);
+                estimate += TNum.Max((amount - made) / unit, TNum.One);
             }
             else if (made > amount)
             {
@@ -61,29 +50,29 @@ public class QuantityTree<T> : Tree<T, QuantityVertex<T>, DataEdge<T, long>>
         }
     }
         
-    public Dictionary<T, long> Produce(T item, long quantity = 1)
+    public Dictionary<T, TNum> Produce(T item, TNum quantity)
     {
         return Produce(item, quantity, out _);
     }
 
-    public Dictionary<T, long> Produce(T item, long quantity, out DefaultDict<T, long> extra)
+    public Dictionary<T, TNum> Produce(T item, TNum quantity, out DefaultDict<T, TNum> extra)
     {
-        extra = new DefaultDict<T, long>();
-        var count = new DefaultDict<T, long>();
+        extra = new DefaultDict<T, TNum>();
+        var count = new DefaultDict<T, TNum>();
         Produce(item, quantity, count, extra);
         return count;
     }
 
-    private void Produce(T item, long quantity, DefaultDict<T, long> count, DefaultDict<T, long> extra)
+    private void Produce(T item, TNum quantity, DefaultDict<T, TNum> count, DefaultDict<T, TNum> extra)
     {
         if (!TryGet(item, out var vertex)) throw new Exception("Cannot produce needed item.");
-        long willProduce;
-        var scale = 1L;
-        if (vertex.Quantity == 0 && vertex.Count != 0) throw new Exception("Only 0 of the item can be made.");
-        if (vertex.Quantity == 0) willProduce = quantity;
+        TNum willProduce;
+        var scale = TNum.Zero;
+        if (vertex.Quantity == TNum.Zero && vertex.Count != 0) throw new Exception("Only 0 of the item can be made.");
+        if (vertex.Quantity == TNum.Zero) willProduce = quantity;
         else
         {
-            willProduce = quantity % vertex.Quantity == 0 ? quantity : quantity + (vertex.Quantity - (quantity % vertex.Quantity));
+            willProduce = quantity % vertex.Quantity == TNum.Zero ? quantity : quantity + (vertex.Quantity - (quantity % vertex.Quantity));
             scale = willProduce / vertex.Quantity;
         }
         foreach (var (child, amount) in vertex.Produced())
@@ -113,12 +102,13 @@ public class QuantityTree<T> : Tree<T, QuantityVertex<T>, DataEdge<T, long>>
     }
 }
 
-public class QuantityVertexBase<T, TEdge> : TreeVertex<T, TEdge>
+public class QuantityVertexBase<T, TEdge, TNum> : TreeVertex<T, TEdge>
     where TEdge : Edge<T>
+    where TNum : INumber<TNum>
 {
-    public long Quantity;
+    public TNum Quantity;
 
-    public QuantityVertexBase(T value, long quantity) : base(value)
+    public QuantityVertexBase(T value, TNum quantity) : base(value)
     {
         Quantity = quantity;
     }
@@ -129,60 +119,62 @@ public class QuantityVertexBase<T, TEdge> : TreeVertex<T, TEdge>
     }
 }
 
-public class QuantityVertex<T> : QuantityVertexBase<T, DataEdge<T, long>>
+public class QuantityVertex<T, TNum> : QuantityVertexBase<T, DataEdge<T, TNum>, TNum>
+    where TNum : INumber<TNum>
 {
-    public QuantityVertex(T value, long quantity) : base(value, quantity) { }
+    public QuantityVertex(T value, TNum quantity) : base(value, quantity) { }
 
-    public long SumBranches()
+    public TNum SumBranches()
     {
         return DescendantLinks.Select(edge => edge.Data).Sum();
     }
 
-    public IEnumerable<(QuantityVertex<T>, long)> Produced()
+    public IEnumerable<(QuantityVertex<T, TNum>, TNum)> Produced()
     {
         return NeighborEdges.Select(edge => (edge.OtherAs(this), edge.Data));
     }
 
-    public new IEnumerable<QuantityVertex<T>> Neighbors => base.Neighbors.Cast<QuantityVertex<T>>();
+    public new IEnumerable<QuantityVertex<T, TNum>> Neighbors => base.Neighbors.Cast<QuantityVertex<T, TNum>>();
 }
 
-public class QuantityTreeHelper<T>
+public class QuantityTreeHelper<T, TNum>
+    where TNum : INumber<TNum>
 {
-    public readonly QuantityTree<T> Tree;
-    private QuantityVertex<T> _parent;
+    public readonly QuantityTree<T, TNum> Tree;
+    private QuantityVertex<T, TNum> _parent;
 
-    public QuantityTreeHelper(QuantityTree<T> tree) => Tree = tree;
+    public QuantityTreeHelper(QuantityTree<T, TNum> tree) => Tree = tree;
 
-    public QuantityVertex<T> GetOrCreate(T item)
+    public QuantityVertex<T, TNum> GetOrCreate(T item)
     {
         if (Tree.TryGet(item, out var vertex)) return vertex;
-        vertex = new QuantityVertex<T>(item, 0);
+        vertex = new QuantityVertex<T, TNum>(item, TNum.Zero);
         Tree.AddVertex(vertex);
         return vertex;
     }
         
-    public QuantityVertex<T> GetOrCreate(T item, long amount)
+    public QuantityVertex<T, TNum> GetOrCreate(T item, TNum amount)
     {
         if (Tree.TryGet(item, out var vertex))
         {
             vertex.Quantity = amount;
             return vertex;
         }
-        vertex = new QuantityVertex<T>(item, amount);
+        vertex = new QuantityVertex<T, TNum>(item, amount);
         Tree.AddVertex(vertex);
         return vertex;
     }
 
-    public QuantityTreeHelper<T> Add(T item, long amount = 1)
+    public QuantityTreeHelper<T, TNum> Add(T item, TNum amount)
     {
         _parent = GetOrCreate(item, amount);
         return this;
     }
 
-    public QuantityTreeHelper<T> AddChild(T item, long amount)
+    public QuantityTreeHelper<T, TNum> AddChild(T item, TNum amount)
     {
         var node = GetOrCreate(item);
-        _parent.LinkTo(node, new DataEdge<T, long>(_parent, node, amount));
+        _parent.LinkTo(node, new DataEdge<T, TNum>(_parent, node, amount));
         return this;
     }
 }
