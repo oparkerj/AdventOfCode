@@ -63,9 +63,19 @@ public static class KeyValuePairExtensions
     {
         return pairs.OrderBy(pair => pair.Key);
     }
+    
+    public static IOrderedEnumerable<KeyValuePair<TKey, TValue>> OrderByKeyDescending<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs)
+    {
+        return pairs.OrderByDescending(pair => pair.Key);
+    }
         
     public static IOrderedEnumerable<KeyValuePair<TKey, TValue>> OrderByValue<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs)
     {
         return pairs.OrderBy(pair => pair.Value);
+    }
+    
+    public static IOrderedEnumerable<KeyValuePair<TKey, TValue>> OrderByValueDescending<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs)
+    {
+        return pairs.OrderByDescending(pair => pair.Value);
     }
 }
