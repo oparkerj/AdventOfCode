@@ -58,8 +58,7 @@ public class Day14 : Puzzle<int>
 
         foreach (var line in Input)
         {
-            var points = line.Split(" -> ").Select(Pos.Parse).ToList();
-            var rocks = points.ConnectLines().Prepend(points[0]);
+            var rocks = line.Split(" -> ").Select(Pos.Parse).ConnectLinesAll();
             foreach (var rock in rocks)
             {
                 used.Add(rock);
@@ -88,6 +87,54 @@ public class Day14 : Puzzle<int>
         {
             Produce();
             count++;
+        }
+        return count;
+    }
+}
+
+// Trying to figure out why the same implementation fails when Grid is used.
+public class Day14V2 : Improve<Day14, int>
+{
+    public override int PartOne()
+    {
+        return new Day14().PartOne();
+    }
+
+    public override int PartTwo()
+    {
+        var map = new Grid<bool>();
+
+        foreach (var line in Input)
+        {
+            var rocks = line.Split(" -> ").Select(Pos.Parse).ConnectLinesAll();
+            foreach (var rock in rocks)
+            {
+                map[rock] = true;
+            }
+        }
+
+        var source = new Pos(500, 0);
+        
+        void Produce()
+        {
+            var current = source;
+            while (true)
+            {
+                if (current.Y >= map.Bounds.MaxY + 1) break;
+                if (!map[current + Pos.Up]) current += Pos.Up;
+                else if (!map[current + Pos.Up + Pos.Left]) current += Pos.Up + Pos.Left;
+                else if (!map[current + Pos.Up + Pos.Right]) current += Pos.Up + Pos.Right;
+                else break;
+            }
+            map[current] = true;
+        }
+
+        var count = 0;
+        while (!map[source])
+        {
+            Produce();
+            count++;
+            if (count % 1000 == 0) WriteLn(count);
         }
         return count;
     }
