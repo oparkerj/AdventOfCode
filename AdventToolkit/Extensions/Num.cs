@@ -291,7 +291,7 @@ public static class Num
 
     public static int CircularMod(this int i, int mod)
     {
-        if (i < 0) return mod + i % mod;
+        if (i < 0) return (mod + i % mod) % mod;
         return i % mod;
     }
     

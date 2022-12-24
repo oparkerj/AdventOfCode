@@ -890,4 +890,9 @@ public static class EnumerableExtensions
             yield return item;
         }
     }
+
+    public static IEnumerable<T> AppendIf<T>(this IEnumerable<T> items, T value, bool condition)
+    {
+        return condition ? items.Then(value) : items;
+    }
 }
