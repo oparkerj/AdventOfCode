@@ -204,6 +204,19 @@ public static class Num
         }
         return ret;
     }
+    
+    public static long Pow(this long i, long power)
+    {
+        var pow = (ulong) power;
+        var ret = 1L;
+        while (pow != 0)
+        {
+            if ((pow & 1) == 1) ret *= i;
+            i *= i;
+            pow >>= 1;
+        }
+        return ret;
+    }
 
     public static int Log(this int i, int @base = 0)
     {
