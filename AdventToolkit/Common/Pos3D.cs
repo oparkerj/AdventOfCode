@@ -35,6 +35,17 @@ public readonly struct Pos3D : IAdditionOperators<Pos3D, Pos3D, Pos3D>, ISubtrac
         return new Pos3D(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()), int.Parse(parts[2].Trim()));
     }
 
+    public static Pos3D Index(int i)
+    {
+        return i switch
+        {
+            0 => new Pos3D(1, 0, 0),
+            1 => new Pos3D(0, 1, 0),
+            2 => new Pos3D(0, 0, 1),
+            _ => throw new Exception("Invalid index")
+        };
+    }
+
     public static Pos3D ParseHexDir(string s)
     {
         return s.ToLower() switch
@@ -48,6 +59,15 @@ public readonly struct Pos3D : IAdditionOperators<Pos3D, Pos3D, Pos3D>, ISubtrac
             _ => throw new Exception("Invalid direction.")
         };
     }
+    
+    public int this[int i] =>
+        i switch
+        {
+            0 => X,
+            1 => Y,
+            2 => Z,
+            _ => throw new ArgumentOutOfRangeException(nameof(i), i, null)
+        };
 
     public bool Equals(Pos3D p) => X == p.X && Y == p.Y && Z == p.Z;
 

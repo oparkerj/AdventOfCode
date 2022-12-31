@@ -31,6 +31,28 @@ public readonly struct Pos4D : IAdditionOperators<Pos4D, Pos4D, Pos4D>, ISubtrac
         return new Pos4D(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()), int.Parse(parts[2].Trim()), int.Parse(parts[3].Trim()));
     }
 
+    public static Pos4D Index(int i)
+    {
+        return i switch
+        {
+            0 => new Pos4D(1, 0, 0, 0),
+            1 => new Pos4D(0, 1, 0, 0),
+            2 => new Pos4D(0, 0, 1, 0),
+            3 => new Pos4D(0, 0, 0, 1),
+            _ => throw new Exception("Invalid index")
+        };
+    }
+
+    public int this[int i] =>
+        i switch
+        {
+            0 => W,
+            1 => X,
+            2 => Y,
+            3 => Z,
+            _ => throw new ArgumentOutOfRangeException(nameof(i), i, null)
+        };
+
     public bool Equals(Pos4D p) => W == p.W && X == p.X && Y == p.Y && Z == p.Z;
 
     public override bool Equals(object obj)
@@ -76,6 +98,14 @@ public readonly struct Pos4D : IAdditionOperators<Pos4D, Pos4D, Pos4D>, ISubtrac
     public static bool operator ==(Pos4D a, Pos4D b) => a.Equals(b);
         
     public static bool operator !=(Pos4D a, Pos4D b) => !a.Equals(b);
+
+    public static bool operator <(Pos4D a, Pos4D b) => a.W < b.W && a.X < b.X && a.Y < b.Y && a.Z < b.Z;
+    
+    public static bool operator >(Pos4D a, Pos4D b) => a.W > b.W && a.X > b.X && a.Y > b.Y && a.Z > b.Z;
+    
+    public static bool operator <=(Pos4D a, Pos4D b) => a.W <= b.W && a.X <= b.X && a.Y <= b.Y && a.Z <= b.Z;
+    
+    public static bool operator >=(Pos4D a, Pos4D b) => a.W >= b.W && a.X >= b.X && a.Y >= b.Y && a.Z >= b.Z;
 
     public Pos4D Normalize() => new(Math.Sign(W), Math.Sign(X), Math.Sign(Y), Math.Sign(Z));
 

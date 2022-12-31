@@ -58,6 +58,16 @@ public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>,
         throw new FormatException("Unknown format.");
     }
 
+    public static Pos Index(int i)
+    {
+        return i switch
+        {
+            0 => new Pos(1, 0),
+            1 => new Pos(0, 1),
+            _ => throw new Exception("Invalid index")
+        };
+    }
+
     public static IEnumerable<char> RelativeDirections => "UDRL";
 
     public static Pos ParseRelative(string s)
@@ -80,6 +90,14 @@ public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>,
             _ => throw new Exception("Invalid direction."),
         };
     }
+    
+    public int this[int i] =>
+        i switch
+        {
+            0 => X,
+            1 => Y,
+            _ => throw new ArgumentOutOfRangeException(nameof(i), i, null)
+        };
 
     public bool Equals(Pos p) => X == p.X && Y == p.Y;
 
