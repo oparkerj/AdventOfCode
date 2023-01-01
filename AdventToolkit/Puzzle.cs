@@ -171,6 +171,8 @@ public abstract class PuzzleBase
         Run((Action) (() => func()));
     }
 
+    public void WriteLn() => Console.WriteLine();
+
     public void WriteLn(object o) => Console.WriteLine(o);
 
     public void WriteLn(string s) => Console.WriteLine(s);

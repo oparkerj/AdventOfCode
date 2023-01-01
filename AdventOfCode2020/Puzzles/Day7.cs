@@ -66,10 +66,10 @@ public class Day7 : Puzzle
 
     public record Bag(string Name, List<(int Amount, string Bag)> Bags);
 
-    public QuantityTree<string> GetBags()
+    public QuantityTree<string, long> GetBags()
     {
         return Input.Where(s => !s.Contains("no other bags"))
-            .ToQuantityTree(@"(?<Value>.+?) bags contain (?<WeightChild>(\d+) (.+?) bags?(?:, )?)+.");
+            .ToQuantityTree<long>(@"(?<Value>.+?) bags contain (?<WeightChild>(\d+) (.+?) bags?(?:, )?)+.");
     }
         
     public override void PartOne()
@@ -80,7 +80,7 @@ public class Day7 : Puzzle
 
     public override void PartTwo()
     {
-        var count = GetBags().Produce("shiny gold").Values.Sum() - 1;
+        var count = GetBags().Produce("shiny gold", 1).Values.Sum() - 1;
         WriteLn(count);
     }
 }

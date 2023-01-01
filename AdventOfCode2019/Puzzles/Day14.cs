@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using AdventToolkit;
 using AdventToolkit.Collections.Tree;
 using AdventToolkit.Extensions;
@@ -7,22 +6,20 @@ namespace AdventOfCode2019.Puzzles;
 
 public class Day14 : Puzzle
 {
-    public record Reaction(List<(int amount, string type)> Inputs, int Amount, string Output);
-
     public Day14()
     {
         Part = 2;
     }
 
-    public QuantityTree<string> GetReactions()
+    public QuantityTree<string, long> GetReactions()
     {
-        return Input.ToQuantityTree(@"(?<Children>(\d+) (\w+)(?:, )?)+ => (?<Amount>\d+) (?<Value>\w+)");
+        return Input.ToQuantityTree<long>(@"(?<Children>(\d+) (\w+)(?:, )?)+ => (?<Amount>\d+) (?<Value>\w+)");
     }
 
     public override void PartOne()
     {
         var tree = GetReactions();
-        var counts = tree.Produce("FUEL");
+        var counts = tree.Produce("FUEL", 1);
         WriteLn(counts["ORE"]);
     }
 

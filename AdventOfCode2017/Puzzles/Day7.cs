@@ -16,12 +16,12 @@ public class Day7 : Puzzle
 
     public override void PartOne()
     {
-        var tree = Input.ToQuantityTree(@"(?<Value>\w+) \((?<Amount>\d+)\)(?: -> (?:(?<Children>\w+)(?:, )?)+)?");
+        var tree = Input.ToQuantityTree<long>(@"(?<Value>\w+) \((?<Amount>\d+)\)(?: -> (?:(?<Children>\w+)(?:, )?)+)?");
         var vertex = tree.DetermineRoot();
         WriteLn(vertex.Value);
     }
 
-    private long FindCorrectValue(QuantityVertex<string> vertex)
+    private long FindCorrectValue(QuantityVertex<string, long> vertex)
     {
         var count = vertex.NeighborCount;
         if (count == 2) return vertex.Neighbors.Select(FindCorrectValue).Max();
@@ -51,9 +51,9 @@ public class Day7 : Puzzle
             weights[value] = amount;
         }
         var tree = Input.Extract<(string, List<string>)>(@"(\w+) \(\d+\)(?: -> (?:(\w+)(?:, )?)+)?")
-            .ToQuantityTree<(string Value, List<string> Children), string>((tuple, helper) =>
+            .ToQuantityTree<(string Value, List<string> Children), string, long>((tuple, helper) =>
             {
-                helper.Add(tuple.Value);
+                helper.Add(tuple.Value, 1);
                 foreach (var child in tuple.Children)
                 {
                     helper.AddChild(child, weights[child]);
