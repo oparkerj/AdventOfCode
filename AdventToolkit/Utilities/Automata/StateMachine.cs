@@ -11,7 +11,7 @@ public class StateMachine<TUpdate>
     internal readonly Dictionary<int, Links<TUpdate>> Table = new();
     internal readonly HashSet<int> AcceptingStates = new();
 
-    public Links<TUpdate> this[int id] => Table.GetOrSetValue(id, () => new Links<TUpdate>());
+    public Links<TUpdate> this[int id] => Table.GetOrNew(id);
 
     public int InitialState => default;
 

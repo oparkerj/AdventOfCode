@@ -88,10 +88,14 @@ public static class PosExtensions
 
     public static IEnumerable<Pos3D> Around(this Pos3D p)
     {
-        return Enumerable.Append(Enumerable.Append(p.EnumerateSingle(), p + Pos3D.Forward), p + Pos3D.Backward)
-            .SelectMany(pos => Around(pos.To2D).Select(p2 => p2.To3D(pos.Z)));
+        foreach (var pos in p.To2D.Around())
+        {
+            yield return pos.To3D(p.Z - 1);
+            yield return pos.To3D(p.Z);
+            yield return pos.To3D(p.Z + 1);
+        }
     }
-    
+
     public static IEnumerable<Pos3D> Adjacent(this Pos3D p)
     {
         return Adjacent(p.To2D).Select(p2 => p2.To3D(p.Z)).Then(p + Pos3D.Forward).Then(p + Pos3D.Backward);

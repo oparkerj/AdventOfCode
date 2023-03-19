@@ -17,6 +17,6 @@ public class MatchPoint<T>
 
     public MatchPoint<T> WithBacktrack(Backtrack<T> backtrack)
     {
-        return new(State, Link, Index, backtrack);
+        return new MatchPoint<T>(State, Link, Index, backtrack);
     }
 }
