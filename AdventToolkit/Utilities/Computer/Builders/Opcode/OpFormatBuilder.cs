@@ -99,7 +99,7 @@ public class OpFormatBuilder<TArch> : OpInstructionBuilder<TArch, TArch>
         cpu.NodeSet = new NodeSet<TArch, string, OpNode<TArch, int, string>>();
         
         var handler = new OpHandlerArray<TArch, OpNode<TArch, int, string>, TArch>();
-        handler.OpActions = _actions.Select(func => new CpuFunc<TArch, OpNode<TArch, int, string>, TArch>(func)).ToArray(_actions.Count);
+        handler.OpActions = Actions.Select(func => new CpuFunc<TArch, OpNode<TArch, int, string>, TArch>(func)).ToArray(_ops.Count);
         cpu.NodeSet.Handler = handler;
         
         cpu.Memory = new LookupCache<TArch, string>(s =>

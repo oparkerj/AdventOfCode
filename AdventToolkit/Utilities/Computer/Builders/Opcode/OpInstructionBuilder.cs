@@ -13,18 +13,14 @@ namespace AdventToolkit.Utilities.Computer.Builders.Opcode;
 public class OpInstructionBuilder<TArch, TResult>
 {
     protected readonly Dictionary<string, int> _opCodes;
-    protected readonly List<CpuFunc<TArch, OpArgs<TArch, int>, TResult>> _actions;
-    protected readonly List<int> _argCounts;
-    protected readonly List<IOpParser<TArch, int, OpArgs<TArch, int>>> _readers;
+    protected readonly List<OpInfo<TArch, TResult>> _ops;
     protected readonly Dictionary<string, IMemBinder<TArch>> _binders;
     protected readonly Dictionary<int, Func<Mem<TArch>, Mem<TArch>>> _memFilters; // opIndex to mem Filter
 
     public OpInstructionBuilder()
     {
         _opCodes = new Dictionary<string, int>();
-        _actions = new List<CpuFunc<TArch, OpArgs<TArch, int>, TResult>>();
-        _argCounts = new List<int>();
-        _readers = new List<IOpParser<TArch, int, OpArgs<TArch, int>>>();
+        _ops = new List<OpInfo<TArch, TResult>>();
         _binders = new Dictionary<string, IMemBinder<TArch>>();
         _memFilters = new Dictionary<int, Func<Mem<TArch>, Mem<TArch>>>();
     }
@@ -83,9 +79,12 @@ public class OpInstructionBuilder<TArch, TResult>
         var args = ArgSelector(opcode, parts, true).ToList();
         var id = _opCodes.Count;
         _opCodes[opcode] = id;
-        _actions.Add(action);
-        _argCounts.Add(args.Count);
-        _readers.Add(ParserSelector(id, opcode, args, _binders));
+        _ops.Add(new OpInfo<TArch, TResult>
+        {
+            Action = action,
+            ArgCount = args.Count,
+            Parser = ParserSelector(id, opcode, args, _binders)
+        });
     }
 
     public OpInstructionBuilder<TArch, TResult> AddOp(string format, CpuFunc<TArch, OpArgs<TArch, int>, TResult> action)
@@ -231,7 +230,7 @@ public class OpInstructionBuilder<TArch, TResult>
         var op = opIndex >= 0 ? parts[opIndex] : "";
         var args = ArgSelector(op, parts, false);
         var id = _opCodes[op];
-        var inst = _readers[id].Parse(cpu, id, args);
+        var inst = _ops[id].Parser.Parse(cpu, id, args);
         FilterArgs(inst);
         return inst;
     }
@@ -241,20 +240,20 @@ public class OpInstructionBuilder<TArch, TResult>
         var parts = Splitter(instruction).AsArray();
         var op = _opCodes.WhereValue(opIndex).First().Key;
         var args = ArgSelector(op, parts, false);
-        var inst = _readers[opIndex].Parse(cpu, opIndex, args);
+        var inst = _ops[opIndex].Parser.Parse(cpu, opIndex, args);
         FilterArgs(inst);
         return inst;
     }
     
     // TODO .net7 parse expression
 
-    public IEnumerable<int> ArgCounts => _argCounts;
+    public IEnumerable<int> ArgCounts => _ops.Select(info => info.ArgCount);
 
     public int OpIndex(string op) => _opCodes[op];
 
-    public int ArgCount(int opIndex) => _argCounts[opIndex];
+    public int ArgCount(int opIndex) => _ops[opIndex].ArgCount;
 
-    public IEnumerable<CpuFunc<TArch, OpArgs<TArch, int>, TResult>> Actions => _actions;
+    public IEnumerable<CpuFunc<TArch, OpArgs<TArch, int>, TResult>> Actions => _ops.Select(info => info.Action);
 
     public IInstructionSet<TArch> BuildInstructionSet()
     {
