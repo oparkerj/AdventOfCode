@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using AdventToolkit;
-using AdventToolkit.Utilities.Computer;
+using AdventToolkit.Utilities.Computer.Builders.Opcode;
+using AdventToolkit.Utilities.Computer.Core;
+using AdventToolkit.Utilities.Computer.Pipelines;
 
 namespace AdventOfCode2020.Puzzles;
 

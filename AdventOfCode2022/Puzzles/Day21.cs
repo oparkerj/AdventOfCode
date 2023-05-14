@@ -1,6 +1,6 @@
 using AdventToolkit;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities.Computer;
+using AdventToolkit.Utilities.Computer.Builders.Opcode;
 using Microsoft.Z3;
 using Z3Helper;
 

@@ -1,7 +1,8 @@
 ﻿using System.Numerics;
 using AdventToolkit;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities.Computer;
+using AdventToolkit.Utilities.Computer.Builders.Opcode;
+using AdventToolkit.Utilities.Computer.Core;
 
 namespace AdventOfCode2016.Puzzles;
 

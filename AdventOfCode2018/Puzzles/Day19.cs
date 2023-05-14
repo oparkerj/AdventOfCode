@@ -2,7 +2,11 @@ using System.Linq;
 using AdventToolkit;
 using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities.Computer;
+using AdventToolkit.Utilities.Computer.Binders;
+using AdventToolkit.Utilities.Computer.Builders;
+using AdventToolkit.Utilities.Computer.Core;
+using AdventToolkit.Utilities.Computer.Memory;
+using AdventToolkit.Utilities.Computer.Pipelines;
 using RegExtract;
 
 namespace AdventOfCode2018.Puzzles;

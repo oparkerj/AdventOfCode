@@ -3,7 +3,8 @@ using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities.Computer;
+using AdventToolkit.Utilities.Computer.Builders.Opcode;
+using AdventToolkit.Utilities.Computer.Core;
 
 namespace AdventOfCode2022.Puzzles;
 

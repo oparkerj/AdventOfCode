@@ -2,7 +2,9 @@ using System;
 using System.Linq;
 using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
-using AdventToolkit.Utilities.Computer;
+using AdventToolkit.Utilities.Computer.Builders;
+using AdventToolkit.Utilities.Computer.Builders.Opcode;
+using AdventToolkit.Utilities.Computer.Core;
 using AdventToolkit.Utilities.Threads;
 
 namespace AdventOfCode2019.IntCode;

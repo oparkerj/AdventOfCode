@@ -5,7 +5,9 @@ using AdventToolkit;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 using AdventToolkit.Solvers;
-using AdventToolkit.Utilities.Computer;
+using AdventToolkit.Utilities.Computer.Builders.Opcode;
+using AdventToolkit.Utilities.Computer.Core;
+using AdventToolkit.Utilities.Computer.Memory;
 using RegExtract;
 
 namespace AdventOfCode2018.Puzzles;

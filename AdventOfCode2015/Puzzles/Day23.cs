@@ -3,7 +3,8 @@ using AdventToolkit;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
-using AdventToolkit.Utilities.Computer;
+using AdventToolkit.Utilities.Computer.Builders.Opcode;
+using AdventToolkit.Utilities.Computer.Core;
 
 namespace AdventOfCode2015.Puzzles;
 

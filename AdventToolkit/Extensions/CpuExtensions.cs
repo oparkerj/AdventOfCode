@@ -1,6 +1,9 @@
 using System;
 using System.Numerics;
-using AdventToolkit.Utilities.Computer;
+using AdventToolkit.Utilities.Computer.Binders;
+using AdventToolkit.Utilities.Computer.Builders;
+using AdventToolkit.Utilities.Computer.Builders.Opcode;
+using AdventToolkit.Utilities.Computer.Core;
 
 namespace AdventToolkit.Extensions;
 
