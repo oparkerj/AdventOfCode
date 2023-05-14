@@ -814,7 +814,7 @@ public static class EnumerableExtensions
             a = new List<T>();
             b = new List<T>();
         }
-        
+
         foreach (var (ai, bi) in items)
         {
             a.Add(ai);
@@ -823,26 +823,10 @@ public static class EnumerableExtensions
         return (a, b);
     }
 
-    public static IEnumerable<T> Then<T>(this IEnumerable<T> items, T item)
-    {
-        return Enumerable.Append(items, item);
-    }
-
     public static int UnorderedHash<T>(this IEnumerable<T> items)
     {
         if (items == null) return 0;
         return items.Select(arg => arg.GetHashCode()).Sorted().DefaultIfEmpty().Aggregate(HashCode.Combine);
-    }
-
-    private class ExistingEnumerable<T> : IEnumerable<T>
-    {
-        private readonly IEnumerator<T> _enumerator;
-
-        public ExistingEnumerable(IEnumerator<T> enumerator) => _enumerator = enumerator;
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public IEnumerator<T> GetEnumerator() => _enumerator;
     }
 
     // Immediately take one item from a source and return the remaining items
@@ -852,7 +836,32 @@ public static class EnumerableExtensions
         var e = source.GetEnumerator();
         if (!e.MoveNext()) throw new Exception("Source is empty.");
         result = e.Current;
-        return new ExistingEnumerable<T>(e);
+        return YieldRest(e);
+
+        IEnumerable<T> YieldRest(IEnumerator<T> enumerator)
+        {
+            using (enumerator)
+            {
+                while (enumerator.MoveNext()) yield return enumerator.Current;
+            }
+        }
+    }
+
+    public static IEnumerable<T> PeekFirst<T>(this IEnumerable<T> source, out T first)
+    {
+        var e = source.GetEnumerator();
+        if (!e.MoveNext()) throw new Exception("Source is empty.");
+        first = e.Current;
+        return YieldRest(e, first);
+
+        IEnumerable<T> YieldRest(IEnumerator<T> enumerator, T first)
+        {
+            using (enumerator)
+            {
+                yield return first;
+                while (enumerator.MoveNext()) yield return enumerator.Current;
+            }
+        }
     }
 
     public static T TakeOne<T>(this IEnumerable<T> items)
@@ -894,5 +903,29 @@ public static class EnumerableExtensions
     public static IEnumerable<T> AppendIf<T>(this IEnumerable<T> items, T value, bool condition)
     {
         return condition ? items.Then(value) : items;
+    }
+
+    // Repeats a specific number of items from the source
+    public static IEnumerable<T> RepeatAmount<T>(this IEnumerable<T> items, int amount, bool allocate = true)
+    {
+        var buffer = allocate ? new List<T>(items is ICollection<T> col ? Math.Min(col.Count, amount) : amount) : new List<T>();
+        using var e = items.GetEnumerator();
+        while (e.MoveNext())
+        {
+            if (buffer.Count < amount)
+            {
+                buffer.Add(e.Current);
+            }
+            yield return e.Current;
+        }
+        var ptr = 0;
+        while (amount-- > 0)
+        {
+            yield return buffer[ptr];
+            if (++ptr == buffer.Count)
+            {
+                ptr = 0;
+            }
+        }
     }
 }

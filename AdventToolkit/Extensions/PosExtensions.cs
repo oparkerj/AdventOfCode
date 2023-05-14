@@ -146,19 +146,19 @@ public static class PosExtensions
     // exclusive at other
     public static IEnumerable<Pos> FromTo(this Pos p, Pos other)
     {
-        return Enumerable.Prepend(p.EachBetween(other), p);
+        return p.EachBetween(other).Before(p);
     }
 
     // exclusive at p
     public static IEnumerable<Pos> EachTo(this Pos p, Pos other)
     {
-        return Enumerable.Append(p.EachBetween(other), other);
+        return p.EachBetween(other).Then(other);
     }
 
     // inclusive on both ends
     public static IEnumerable<Pos> Connect(this Pos p, Pos other)
     {
-        return Enumerable.Append(Enumerable.Prepend(p.EachBetween(other), p), other);
+        return p.EachBetween(other).Before(p).Then(other);
     }
 
     public static bool AdjacentTo(this Pos p, Pos other)
@@ -192,6 +192,7 @@ public static class PosExtensions
 
     // Removes intermediate points that are traveling in the same direction.
     // Returns only the corners that make up the path.
+    // This is the inverse of ConnectLinesAll.
     public static IEnumerable<Pos> SimplifyPath(this IEnumerable<Pos> points)
     {
         using var e = points.GetEnumerator();
@@ -231,9 +232,7 @@ public static class PosExtensions
     public static IEnumerable<Pos> GetMDistRing(this Pos pos, int range)
     {
         return Pos.Directions.Select(dir => dir * range + pos)
-            .PullOne(out var first)
-            .Before(first)
-            .Then(first)
+            .RepeatAmount(1)
             .ConnectLines();
     }
 
