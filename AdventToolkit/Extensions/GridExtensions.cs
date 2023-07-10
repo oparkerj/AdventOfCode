@@ -144,8 +144,7 @@ public static class GridExtensions
         }
         grid.ResetBounds();
     }
-
-    // TODO remove this once generic math feature is available
+    
     public static Dijkstra<Pos, (Pos, int)> ToDijkstraWeights(this GridBase<int> grid, bool inBounds = true)
     {
         return new Dijkstra<Pos, (Pos, int)>

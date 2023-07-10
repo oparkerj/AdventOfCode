@@ -8,7 +8,6 @@ using RegExtract;
 
 namespace AdventOfCode2017.Puzzles;
 
-// TODO .net7 try to write with OpFormatBuilder
 public class Day8 : Puzzle
 {
     public Day8()

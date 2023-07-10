@@ -100,7 +100,7 @@ public class IntCodeMemory : IMemory<long>
 
     public IntCodeMemory(long[] program) => Array = new LazyExpandingArray<long>(program);
 
-    public void Reset() => throw new System.NotImplementedException();
+    public void Reset() => throw new NotSupportedException();
 
     public long this[long t]
     {
@@ -116,14 +116,14 @@ public class IntCodeMemory : IMemory<long>
 
     public long this[char c]
     {
-        get => throw new System.NotImplementedException();
-        set => throw new System.NotImplementedException();
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
     }
 
     public long this[string s]
     {
-        get => throw new System.NotImplementedException();
-        set => throw new System.NotImplementedException();
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
     }
 }
 

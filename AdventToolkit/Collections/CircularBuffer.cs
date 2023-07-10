@@ -81,34 +81,6 @@ public class CircularBuffer<T> : IEnumerable<T>
         return (Array.FindIndex(Data, obj => predicate(obj)) - Offset).CircularMod(Data.Length);
     }
 
-    // TODO fix?
-    public void Move(long fromIndex, long toIndex)
-    {
-        Move((int) (fromIndex + Offset).CircularMod(Data.Length),
-             (int) (toIndex + Offset).CircularMod(Data.Length));
-    }
-
-    // TODO fix?
-    public void Move(int fromIndex, int toIndex)
-    {
-        var from = InternalIndex(fromIndex);
-        var to = InternalIndex(toIndex);
-        if (from == to) return;
-        
-        var t = Data[from];
-        if (from < to)
-        {
-            Array.Copy(Data, from + 1, Data, from, to - from);
-            if (Offset > from && Offset <= to) Offset--;
-        }
-        else
-        {
-            Array.Copy(Data, to, Data, to + 1, from - to);
-            if (Offset >= to && Offset < from) Offset++;
-        }
-        Data[to] = t;
-    }
-
     public void RotateTo(int offset)
     {
         RotateTo(Data, offset);

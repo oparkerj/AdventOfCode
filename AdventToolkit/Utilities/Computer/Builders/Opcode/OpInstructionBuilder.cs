@@ -244,8 +244,6 @@ public class OpInstructionBuilder<TArch, TResult>
         FilterArgs(inst);
         return inst;
     }
-    
-    // TODO .net7 parse expression
 
     public IEnumerable<int> ArgCounts => _ops.Select(info => info.ArgCount);
 

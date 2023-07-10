@@ -49,9 +49,34 @@ public class GridView<T> : GridBase<T>
         var (x, y) = windowPos;
         if (Transpose) (x, y) = (y, x);
         var bounds = Bounds;
-        // TODO fix to not use floating points
-        if (FlipH) x = (int) (x + (bounds.MidX - x) * 2);
-        if (FlipV) y = (int) (y + (bounds.MidY - y) * 2);
+        if (FlipH || FlipV)
+        {
+            var (midX, midY) = bounds.MidPos;
+            if (FlipH)
+            {
+                if (bounds.Width % 2 == 0)
+                {
+                    var diff = midX - x;
+                    x += diff >= 0 ? diff * 2 + 1 : diff * 2 - 1;
+                }
+                else
+                {
+                    x += (midX - x) * 2;
+                }
+            }
+            if (FlipV)
+            {
+                if (bounds.Height % 2 == 0)
+                {
+                    var diff = midY - y;
+                    y += diff >= 0 ? diff * 2 + 1 : diff * 2 - 1;
+                }
+                else
+                {
+                    x += (midY - y) * 2;
+                }
+            }
+        }
         return new Pos(x, y) + Offset;
     }
 
