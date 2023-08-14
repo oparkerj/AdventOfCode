@@ -1,5 +1,4 @@
 using AdventToolkit;
-using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
 using AdventToolkit.Utilities;
 
@@ -55,7 +54,7 @@ public class Day21 : Puzzle
 
     public void Reverse(int x, int y)
     {
-        Current.AsSpan(Interval.RangeInclusive(x, y)).Reverse();
+        Current.AsSpan(x..++y).Reverse();
     }
 
     public void Move(int x, int y)

@@ -44,11 +44,13 @@ public readonly struct Pos : IAdditionOperators<Pos, Pos, Pos>,
     public static Pos Parse(string s)
     {
         if (s.StartsWith('(') && s.EndsWith(')')) s = s[1..^1];
-        if (s.StartsWith('<') && s.EndsWith('>')) s = s[1..^1];
+        else if (s.StartsWith('<') && s.EndsWith('>')) s = s[1..^1];
         if (s.Contains(','))
         {
-            var parts = s.Csv();
-            return new Pos(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()));
+            // var parts = s.Csv();
+            // return new Pos(int.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()));
+            var (left, right) = s.SingleSplit(',');
+            return new Pos(left.Trim().AsInt(), right.Trim().AsInt());
         }
         if (s.Contains('x'))
         {
