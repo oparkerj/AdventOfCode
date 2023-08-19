@@ -1,4 +1,4 @@
-namespace AdventToolkit.New.Parser;
+namespace AdventToolkit.New.Transform;
 
 public interface IParse<out T>
 {
