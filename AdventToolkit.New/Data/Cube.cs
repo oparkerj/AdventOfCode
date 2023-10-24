@@ -4,6 +4,14 @@ using AdventToolkit.New.Interface;
 
 namespace AdventToolkit.New.Data;
 
+/// <summary>
+/// Cube implemented as a record.
+/// Uses intervals to represent each dimension's span.
+/// </summary>
+/// <param name="X"></param>
+/// <param name="Y"></param>
+/// <param name="Z"></param>
+/// <typeparam name="T"></typeparam>
 public record Cube<T>(Interval<T> X, Interval<T> Y, Interval<T> Z) : ICube<Cube<T>, T>
     where T : INumber<T>
 {

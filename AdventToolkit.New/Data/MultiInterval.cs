@@ -2,6 +2,12 @@ using System.Numerics;
 
 namespace AdventToolkit.New.Data;
 
+/// <summary>
+/// Represents multiple discontinuous intervals.
+/// This class takes care of joining adjacent/overlapping
+/// intervals.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class MultiInterval<T>
     where T : INumber<T>
 {

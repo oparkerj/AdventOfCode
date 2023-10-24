@@ -5,6 +5,13 @@ using AdventToolkit.New.Interface;
 
 namespace AdventToolkit.New.Data;
 
+/// <summary>
+/// A 3-dimensional position.
+/// </summary>
+/// <param name="X"></param>
+/// <param name="Y"></param>
+/// <param name="Z"></param>
+/// <typeparam name="T"></typeparam>
 public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
     where T : INumber<T>
 {

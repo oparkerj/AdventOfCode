@@ -10,7 +10,6 @@ namespace AdventToolkit.New.Data;
 /// </summary>
 /// <param name="Value">Original string.</param>
 /// <param name="Interval">View interval.</param>
-/// TODO Use interval alias.
 public readonly record struct Str(string Value, Interval<int> Interval) : IEnumerable<char>
 {
     /// <summary>

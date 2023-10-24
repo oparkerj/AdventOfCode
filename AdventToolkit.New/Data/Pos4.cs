@@ -5,6 +5,14 @@ using AdventToolkit.New.Interface;
 
 namespace AdventToolkit.New.Data;
 
+/// <summary>
+/// A 4-dimensional position.
+/// </summary>
+/// <param name="W"></param>
+/// <param name="X"></param>
+/// <param name="Y"></param>
+/// <param name="Z"></param>
+/// <typeparam name="T"></typeparam>
 public readonly record struct Pos4<T>(T W, T X, T Y, T Z) : IPos<Pos4<T>, T>
     where T : INumber<T>
 {

@@ -4,7 +4,13 @@ using AdventToolkit.New.Interface;
 
 namespace AdventToolkit.New.Data;
 
-// TODO replace with interval alias
+/// <summary>
+/// Rect implemented as a record.
+/// Uses intervals to represent horizontal and vertical ranges.
+/// </summary>
+/// <param name="Horizontal"></param>
+/// <param name="Vertical"></param>
+/// <typeparam name="T"></typeparam>
 public record Rect<T>(Interval<T> Horizontal, Interval<T> Vertical) : IRect<Rect<T>, T>
     where T : INumber<T>
 {
