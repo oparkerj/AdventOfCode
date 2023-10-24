@@ -16,6 +16,8 @@ public interface IPos<T, TNum> :
     IUnaryNegationOperators<T, T>,
     IEqualityOperators<T, T, bool>,
     IAdditiveIdentity<T, T>,
+    IDecrementOperators<T>,
+    IIncrementOperators<T>,
     ISpanParsable<T>
     where T : IPos<T, TNum>
     where TNum : notnull
@@ -25,6 +27,16 @@ public interface IPos<T, TNum> :
     /// the position type.
     /// </summary>
     static abstract T Zero { get; }
+
+    /// <summary>
+    /// Parse a position from a simplified span.
+    /// This span contains only the components of the position joined by the given split
+    /// character, and optionally whitespace.
+    /// </summary>
+    /// <param name="span">Input span.</param>
+    /// <param name="separator">Component separator.</param>
+    /// <returns>Parsed position.</returns>
+    static abstract T ParseSimple(ReadOnlySpan<char> span, char separator = ',');
 
     /// <summary>
     /// Compute the distance to another position.
@@ -69,10 +81,16 @@ public interface IPos<T, TNum> :
 
     /// <summary>
     /// Get adjacent positions.
-    /// Adjacent positions are obtained by changing 
+    /// Adjacent positions are positions with a Manhattan distance of 1.
     /// </summary>
     /// <returns></returns>
     IEnumerable<T> Adjacent();
 
+    /// <summary>
+    /// Get positions around.
+    /// This is similar to <see cref="Adjacent"/> positions but also includes
+    /// diagonal positions that are touching this position.
+    /// </summary>
+    /// <returns></returns>
     IEnumerable<T> Around();
 }

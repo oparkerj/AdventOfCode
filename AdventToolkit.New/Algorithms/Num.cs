@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace AdventToolkit.New.Extensions;
+namespace AdventToolkit.New.Algorithms;
 
 /// <summary>
 /// Number extensions
@@ -20,5 +20,19 @@ public static class Num
     {
         var r = num % mod;
         return r < T.Zero ? r + mod : r;
+    }
+
+    /// <summary>
+    /// Similar to <see cref="Math.Sign(int)"/> but the return
+    /// type matches the input type.
+    /// </summary>
+    /// <param name="num"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns><see cref="INumberBase{T}.Zero"/> if the value is zero.
+    /// Otherwise, positive or negative <see cref="INumberBase{T}.One"/></returns>
+    public static T Sign<T>(this T num)
+        where T : INumber<T>
+    {
+        return num == T.Zero ? T.Zero : T.IsPositive(num) ? T.One : -T.One;
     }
 }

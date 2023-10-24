@@ -1,43 +1,66 @@
+using System.Diagnostics;
+using System.Numerics;
+using AdventToolkit.New.Algorithms;
 using AdventToolkit.New.Interface;
 
 namespace AdventToolkit.New.Data;
 
-public readonly record struct Pos4(int W, int X, int Y, int Z) : IPos<Pos4, int>
+public readonly record struct Pos4<T>(T W, T X, T Y, T Z) : IPos<Pos4<T>, T>
+    where T : INumber<T>
 {
-    public static Pos4 Zero => default;
+    public static Pos4<T> Zero => default;
 
-    public static Pos4 AdditiveIdentity => Zero;
+    public static Pos4<T> AdditiveIdentity => Zero;
 
-    public static Pos4 operator +(Pos4 left, Pos4 right) => new(left.W + right.W, left.X + right.X, left.Y + right.Y, left.Z + right.Z);
+    public static Pos4<T> operator +(Pos4<T> left, Pos4<T> right) => new(left.W + right.W, left.X + right.X, left.Y + right.Y, left.Z + right.Z);
 
-    public static Pos4 operator -(Pos4 left, Pos4 right) => new(left.W - right.W, left.X - right.X, left.Y - right.Y, left.Z - right.Z);
+    public static Pos4<T> operator -(Pos4<T> left, Pos4<T> right) => new(left.W - right.W, left.X - right.X, left.Y - right.Y, left.Z - right.Z);
 
-    public static Pos4 operator *(Pos4 left, Pos4 right) => new(left.W * right.W, left.X * right.X, left.Y * right.Y, left.Z * right.Z);
+    public static Pos4<T> operator *(Pos4<T> left, Pos4<T> right) => new(left.W * right.W, left.X * right.X, left.Y * right.Y, left.Z * right.Z);
 
-    public static Pos4 operator *(Pos4 left, int right) => new(left.W * right, left.X * right, left.Y * right, left.Z * right);
+    public static Pos4<T> operator *(Pos4<T> left, T right) => new(left.W * right, left.X * right, left.Y * right, left.Z * right);
 
-    public static Pos4 operator /(Pos4 left, Pos4 right) => new(left.W / right.W, left.X / right.X, left.Y / right.Y, left.Z / right.Z);
+    public static Pos4<T> operator /(Pos4<T> left, Pos4<T> right) => new(left.W / right.W, left.X / right.X, left.Y / right.Y, left.Z / right.Z);
 
-    public static Pos4 operator /(Pos4 left, int right) => new(left.W + right, left.X / right, left.Y / right, left.Z / right);
+    public static Pos4<T> operator /(Pos4<T> left, T right) => new(left.W + right, left.X / right, left.Y / right, left.Z / right);
 
-    public static Pos4 operator -(Pos4 value) => new(-value.W, -value.X, -value.Y, -value.Z);
+    public static Pos4<T> operator -(Pos4<T> value) => new(-value.W, -value.X, -value.Y, -value.Z);
+    
+    public static Pos4<T> operator --(Pos4<T> value) => new(value.X - T.One, value.X - T.One, value.Y - T.One, value.Z - T.One);
 
-    public static Pos4 Parse(string s, IFormatProvider? provider) => Parse(s.AsSpan(), provider);
-
-    public static Pos4 Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
+    public static Pos4<T> operator ++(Pos4<T> value) => new(value.X + T.One, value.X + T.One, value.Y + T.One, value.Z + T.One);
+    
+    public static Pos4<T> ParseSimple(ReadOnlySpan<char> span, char separator = ',')
     {
-        if (TryParse(s, provider, out var pos)) return pos;
-        throw new FormatException($"Unknown format for {nameof(Pos4)}");
+        var split0 = span.IndexOf(separator);
+        Debug.Assert(split0 > -1, "Input contains no separator.");
+        var split2 = span.LastIndexOf(separator);
+        Debug.Assert(split2 > -1 && split2 != split0, "Input only contains one separator.");
+        var mid = span[(split0 + 1)..split2];
+        var split1 = mid.IndexOf(separator);
+        Debug.Assert(split1 > -1, "Input only contains two separators.");
+        return new Pos4<T>(T.Parse(span[..split0].Trim(), null),
+            T.Parse(mid[..split1].Trim(), null),
+            T.Parse(mid[(split1 + 1)..].Trim(), null),
+            T.Parse(span[(split2 + 1)..].Trim(), null));
     }
 
-    public static bool TryParse(string? s, IFormatProvider? provider, out Pos4 result)
+    public static Pos4<T> Parse(string s, IFormatProvider? provider) => Parse(s.AsSpan(), provider);
+
+    public static Pos4<T> Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
+    {
+        if (TryParse(s, provider, out var pos)) return pos;
+        throw new FormatException($"Unknown format for {nameof(Pos4<T>)}");
+    }
+
+    public static bool TryParse(string? s, IFormatProvider? provider, out Pos4<T> result)
     {
         if (s is not null) return TryParse(s.AsSpan(), provider, out result);
         result = default;
         return false;
     }
 
-    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Pos4 result)
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Pos4<T> result)
     {
         if (s.IsEmpty)
         {
@@ -66,16 +89,16 @@ public readonly record struct Pos4(int W, int X, int Y, int Z) : IPos<Pos4, int>
             var cross3 = s.LastIndexOf('x');
             return ParseSplit(s, cross, cross2, cross3, out result);
         }
-        throw new FormatException($"Unknown format for {nameof(Pos4)}");
+        throw new FormatException($"Unknown format for {nameof(Pos4<T>)}");
 
-        bool ParseSplit(ReadOnlySpan<char> span, int split, int split2, int split3, out Pos4 result)
+        bool ParseSplit(ReadOnlySpan<char> span, int split, int split2, int split3, out Pos4<T> result)
         {
-            if (int.TryParse(span[..split].Trim(), provider, out var w) &&
-                int.TryParse(span[(split + 1)..split2].Trim(), provider, out var x) &&
-                int.TryParse(span[(split2 + 1)..split3].Trim(), provider, out var y) &&
-                int.TryParse(span[(split3 + 1)..].Trim(), provider, out var z))
+            if (T.TryParse(span[..split].Trim(), provider, out var w) &&
+                T.TryParse(span[(split + 1)..split2].Trim(), provider, out var x) &&
+                T.TryParse(span[(split2 + 1)..split3].Trim(), provider, out var y) &&
+                T.TryParse(span[(split3 + 1)..].Trim(), provider, out var z))
             {
-                result = new Pos4(w, x, y, z);
+                result = new Pos4<T>(w, x, y, z);
                 return true;
             }
             result = default;
@@ -83,27 +106,27 @@ public readonly record struct Pos4(int W, int X, int Y, int Z) : IPos<Pos4, int>
         }
     }
     
-    public IEnumerable<Pos4> Adjacent()
+    public IEnumerable<Pos4<T>> Adjacent()
     {
         yield break;
     }
 
-    public IEnumerable<Pos4> Around()
+    public IEnumerable<Pos4<T>> Around()
     {
         yield break;
     }
 
-    public int Dist(Pos4 other) => Math.Abs(W - other.W) + Math.Abs(X - other.X) + Math.Abs(Y - other.Y) + Math.Abs(Z - other.Z);
+    public T Dist(Pos4<T> other) => T.Abs(W - other.W) + T.Abs(X - other.X) + T.Abs(Y - other.Y) + T.Abs(Z - other.Z);
 
-    public int Min() => Math.Min(W, Math.Min(X, Math.Min(Y, Z)));
+    public T Min() => T.Min(W, T.Min(X, T.Min(Y, Z)));
 
-    public int Max() => Math.Max(W, Math.Max(X, Math.Max(Y, Z)));
+    public T Max() => T.Max(W, T.Max(X, T.Max(Y, Z)));
 
-    public Pos4 Min(Pos4 other) => new(Math.Min(W, other.W), Math.Min(X, other.X), Math.Min(Y, other.Y), Math.Min(Z, other.Z));
+    public Pos4<T> Min(Pos4<T> other) => new(T.Min(W, other.W), T.Min(X, other.X), T.Min(Y, other.Y), T.Min(Z, other.Z));
 
-    public Pos4 Max(Pos4 other) => new(Math.Max(W, other.W), Math.Max(X, other.X), Math.Max(Y, other.Y), Math.Max(Z, other.Z));
+    public Pos4<T> Max(Pos4<T> other) => new(T.Max(W, other.W), T.Max(X, other.X), T.Max(Y, other.Y), T.Max(Z, other.Z));
 
-    public Pos4 Normalize() => new(Math.Sign(W), Math.Sign(X), Math.Sign(Y), Math.Sign(Z));
+    public Pos4<T> Normalize() => new(W.Sign(), X.Sign(), Y.Sign(), Z.Sign());
 
     public override string ToString() => $"({W}, {X}, {Y}, {Z})";
 }

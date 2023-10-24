@@ -43,9 +43,6 @@ public sealed class ConsoleCapture : IDisposable
             _oldOutput = oldOutput;
         }
 
-        public void Dispose()
-        {
-            Console.SetOut(_oldOutput);
-        }
+        public void Dispose() => Console.SetOut(_oldOutput);
     }
 }

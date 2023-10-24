@@ -1,43 +1,79 @@
+using System.Diagnostics;
+using System.Numerics;
+using AdventToolkit.New.Algorithms;
 using AdventToolkit.New.Interface;
 
 namespace AdventToolkit.New.Data;
 
-public readonly record struct Pos3(int X, int Y, int Z) : IPos<Pos3, int>
+public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
+    where T : INumber<T>
 {
-    public static Pos3 Zero => default;
+    public static Pos3<T> Zero => default;
 
-    public static Pos3 AdditiveIdentity => Zero;
+    public static Pos3<T> AdditiveIdentity => Zero;
 
-    public static Pos3 operator +(Pos3 left, Pos3 right) => new(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
+    public static Pos3<T> operator +(Pos3<T> left, Pos3<T> right) => new(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
 
-    public static Pos3 operator -(Pos3 left, Pos3 right) => new(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
+    public static Pos3<T> operator -(Pos3<T> left, Pos3<T> right) => new(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
 
-    public static Pos3 operator *(Pos3 left, Pos3 right) => new(left.X * right.X, left.Y * right.Y, left.Z * right.Z);
+    public static Pos3<T> operator *(Pos3<T> left, Pos3<T> right) => new(left.X * right.X, left.Y * right.Y, left.Z * right.Z);
 
-    public static Pos3 operator *(Pos3 left, int right) => new(left.X * right, left.Y * right, left.Z * right);
+    public static Pos3<T> operator *(Pos3<T> left, T right) => new(left.X * right, left.Y * right, left.Z * right);
 
-    public static Pos3 operator /(Pos3 left, Pos3 right) => new(left.X / right.X, left.Y / right.Y, left.Z / right.Z);
+    public static Pos3<T> operator /(Pos3<T> left, Pos3<T> right) => new(left.X / right.X, left.Y / right.Y, left.Z / right.Z);
 
-    public static Pos3 operator /(Pos3 left, int right) => new(left.X / right, left.Y / right, left.Z / right);
+    public static Pos3<T> operator /(Pos3<T> left, T right) => new(left.X / right, left.Y / right, left.Z / right);
 
-    public static Pos3 operator -(Pos3 value) => new(-value.X, -value.Y, -value.Z);
+    public static Pos3<T> operator -(Pos3<T> value) => new(-value.X, -value.Y, -value.Z);
+    
+    public static Pos3<T> operator --(Pos3<T> value) => new(value.X - T.One, value.Y - T.One, value.Z - T.One);
 
-    public static Pos3 Parse(string s, IFormatProvider? provider) => Parse(s.AsSpan(), provider);
-
-    public static Pos3 Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
+    public static Pos3<T> operator ++(Pos3<T> value) => new(value.X + T.One, value.Y + T.One, value.Z + T.One);
+    
+    public static Pos3<T> ParseSimple(ReadOnlySpan<char> span, char separator = ',')
     {
-        if (TryParse(s, provider, out var pos)) return pos;
-        throw new FormatException($"Unknown format for {nameof(Pos3)}");
+        var split0 = span.IndexOf(separator);
+        Debug.Assert(split0 > -1, "Input contains no separator.");
+        var split1 = span.LastIndexOf(separator);
+        Debug.Assert(split1 > -1 && split0 != split1, "Input only contains one separator.");
+        return new Pos3<T>(T.Parse(span[..split0].Trim(), null),
+            T.Parse(span[(split0 + 1)..split1].Trim(), null),
+            T.Parse(span[(split1 + 1)..].Trim(), null));
     }
 
-    public static bool TryParse(string? s, IFormatProvider? provider, out Pos3 result)
+    public static Pos3<T> Parse(string s, IFormatProvider? provider) => Parse(s.AsSpan(), provider);
+
+    public static Pos3<T> Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
+    {
+        Debug.Assert(!s.IsEmpty, "Span is empty.");
+        if (s is ['(', .. var parenInner, ')'])
+        {
+            s = parenInner;
+        }
+        else if (s is ['<', .. var bracketInner, '>'])
+        {
+            s = bracketInner;
+        }
+        Debug.Assert(!s.IsEmpty, "Inside of brackets is empty.");
+
+        var split0 = s.IndexOfAny(',', 'x');
+        Debug.Assert(split0 > -1, "Input has no separator.");
+        var split1 = s.LastIndexOfAny(',', 'x');
+        Debug.Assert(split1 > -1 && split0 != split1, "Input only contains one separator.");
+
+        return new Pos3<T>(T.Parse(s[..split0].Trim(), provider),
+            T.Parse(s[(split0 + 1)..split1].Trim(), provider),
+            T.Parse(s[(split1 + 1)..].Trim(), provider));
+    }
+
+    public static bool TryParse(string? s, IFormatProvider? provider, out Pos3<T> result)
     {
         if (s is not null) return TryParse(s.AsSpan(), provider, out result);
         result = default;
         return false;
     }
 
-    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Pos3 result)
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Pos3<T> result)
     {
         if (s.IsEmpty)
         {
@@ -45,13 +81,13 @@ public readonly record struct Pos3(int X, int Y, int Z) : IPos<Pos3, int>
             return false;
         }
 
-        if (s[0] == '(' && s[^1] == ')')
+        if (s is ['(', .. var parenInner, ')'])
         {
-            s = s[1..^1];
+            s = parenInner;
         }
-        else if (s[0] == '<' && s[^1] == '>')
+        else if (s is ['<', .. var bracketInner, '>'])
         {
-            s = s[1..^1];
+            s = bracketInner;
         }
 
         if (s.IndexOf(',') is var comma and > -1)
@@ -64,15 +100,15 @@ public readonly record struct Pos3(int X, int Y, int Z) : IPos<Pos3, int>
             var cross2 = s.LastIndexOf('x');
             return ParseSplit(s, cross, cross2, out result);
         }
-        throw new FormatException($"Unknown format for {nameof(Pos3)}");
+        throw new FormatException($"Unknown format for {nameof(Pos3<T>)}");
 
-        bool ParseSplit(ReadOnlySpan<char> span, int split, int split2, out Pos3 result)
+        bool ParseSplit(ReadOnlySpan<char> span, int split, int split2, out Pos3<T> result)
         {
-            if (int.TryParse(span[..split].Trim(), provider, out var x) &&
-                int.TryParse(span[(split + 1)..split2].Trim(), provider, out var y) &&
-                int.TryParse(span[(split2 + 1)..].Trim(), provider, out var z))
+            if (T.TryParse(span[..split].Trim(), provider, out var x) &&
+                T.TryParse(span[(split + 1)..split2].Trim(), provider, out var y) &&
+                T.TryParse(span[(split2 + 1)..].Trim(), provider, out var z))
             {
-                result = new Pos3(x, y, z);
+                result = new Pos3<T>(x, y, z);
                 return true;
             }
             result = default;
@@ -80,30 +116,31 @@ public readonly record struct Pos3(int X, int Y, int Z) : IPos<Pos3, int>
         }
     }
 
-    public int Dist(Pos3 other) => Math.Abs(X - other.X) + Math.Abs(Y - other.Y) + Math.Abs(Z - other.Z);
+    public T Dist(Pos3<T> other) => T.Abs(X - other.X) + T.Abs(Y - other.Y) + T.Abs(Z - other.Z);
 
-    public int Min() => Math.Min(X, Math.Min(Y, Z));
+    public T Min() => T.Min(X, T.Min(Y, Z));
 
-    public int Max() => Math.Max(X, Math.Max(Y, Z));
+    public T Max() => T.Max(X, T.Max(Y, Z));
 
-    public Pos3 Min(Pos3 other) => new(Math.Min(X, other.X), Math.Min(Y, other.Y), Math.Min(Z, other.Z));
+    public Pos3<T> Min(Pos3<T> other) => new(T.Min(X, other.X), T.Min(Y, other.Y), T.Min(Z, other.Z));
 
-    public Pos3 Max(Pos3 other) => new(Math.Max(X, other.X), Math.Max(Y, other.Y), Math.Max(Z, other.Z));
+    public Pos3<T> Max(Pos3<T> other) => new(T.Max(X, other.X), T.Max(Y, other.Y), T.Max(Z, other.Z));
 
-    public Pos3 Normalize() => new(Math.Sign(X), Math.Sign(Y), Math.Sign(Z));
+    public Pos3<T> Normalize() => new(X.Sign(), Y.Sign(), Z.Sign());
     
-    public IEnumerable<Pos3> Adjacent()
+    public IEnumerable<Pos3<T>> Adjacent()
     {
-        yield return this with {Z = Z + 1};
-        yield return this with {Y = Y + 1};
-        yield return this with {X = X - 1};
-        yield return this with {X = X + 1};
-        yield return this with {Y = Y - 1};
-        yield return this with {Z = Z - 1};
+        yield return this with {Z = Z + T.One};
+        yield return this with {Y = Y + T.One};
+        yield return this with {X = X - T.One};
+        yield return this with {X = X + T.One};
+        yield return this with {Y = Y - T.One};
+        yield return this with {Z = Z - T.One};
     }
 
-    public IEnumerable<Pos3> Around()
+    public IEnumerable<Pos3<T>> Around()
     {
+        // TODO
         yield break;
     }
 

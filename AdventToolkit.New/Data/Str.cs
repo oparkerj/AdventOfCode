@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Diagnostics;
 
 namespace AdventToolkit.New.Data;
@@ -9,7 +10,8 @@ namespace AdventToolkit.New.Data;
 /// </summary>
 /// <param name="Value">Original string.</param>
 /// <param name="Interval">View interval.</param>
-public readonly record struct StringView(string Value, Interval Interval)
+/// TODO Use interval alias.
+public readonly record struct Str(string Value, Interval<int> Interval) : IEnumerable<char>
 {
     /// <summary>
     /// Create a view with bounds checking.
@@ -19,11 +21,11 @@ public readonly record struct StringView(string Value, Interval Interval)
     /// <param name="value">Original string.</param>
     /// <param name="interval">View interval.</param>
     /// <returns>String view.</returns>
-    public static StringView From(string value, Interval interval)
+    public static Str From(string value, Interval<int> interval)
     {
         var start = Math.Max(0, interval.Start);
         var length = Math.Min(Math.Max(start, interval.End), value.Length) - start;
-        return new StringView(value, new Interval(start, length));
+        return new Str(value, new Interval<int>(start, length));
     }
 
     /// <summary>
@@ -31,7 +33,7 @@ public readonly record struct StringView(string Value, Interval Interval)
     /// </summary>
     /// <param name="view">String view.</param>
     /// <returns>Read-only span.</returns>
-    public static implicit operator ReadOnlySpan<char>(StringView view) => view.Span;
+    public static implicit operator ReadOnlySpan<char>(Str view) => view.Span;
 
     /// <summary>
     /// A string can be converted to a view.
@@ -39,7 +41,7 @@ public readonly record struct StringView(string Value, Interval Interval)
     /// </summary>
     /// <param name="s">String.</param>
     /// <returns>String view.</returns>
-    public static implicit operator StringView(string s) => new(s, new Interval(s.Length));
+    public static implicit operator Str(string s) => new(s, new Interval<int>(s.Length));
 
     /// <summary>
     /// Get the character at the given index in the view.
@@ -58,31 +60,17 @@ public readonly record struct StringView(string Value, Interval Interval)
     public ReadOnlySpan<char> Span => Value.AsSpan(Interval.Start, Interval.Length);
 
     /// <summary>
-    /// Get a character enumerator for the view.
-    /// </summary>
-    public IEnumerable<char> Chars
-    {
-        get
-        {
-            Debug.Assert(Interval.Length >= 0, "Interval has negative length.");
-            for (var i = Interval.Start; i < Interval.End; i++)
-            {
-                yield return Value[i];
-            }
-        }
-    }
-
-    /// <summary>
     /// Create a slice of the view.
     /// </summary>
     /// <param name="start">View index.</param>
     /// <param name="length">View length.</param>
     /// <returns>Sliced view.</returns>
-    public StringView Slice(int start, int length)
+    public Str Slice(int start, int length)
     {
+        Debug.Assert(length >= 0, "Negative length.");
         Debug.Assert(Interval.Start + start >= 0 && Interval.Start + start <= Value.Length, "Start index out of range.");
-        Debug.Assert(Interval.Start + start + length < 0 && Interval.Start + start + length <= Value.Length, "Length out of range.");
-        return this with {Interval = new Interval(Interval.Start + start, length)};
+        Debug.Assert(Interval.Start + start + length >= 0 && Interval.Start + start + length <= Value.Length, "Length out of range.");
+        return this with {Interval = new Interval<int>(Interval.Start + start, length)};
     }
 
     /// <summary>
@@ -90,6 +78,17 @@ public readonly record struct StringView(string Value, Interval Interval)
     /// </summary>
     /// <returns>View enumerator.</returns>
     public ReadOnlySpan<char>.Enumerator GetEnumerator() => Span.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<char>) this).GetEnumerator();
+
+    IEnumerator<char> IEnumerable<char>.GetEnumerator()
+    {
+        var value = Value;
+        for (var i = Interval.Start; i < Interval.End; i++)
+        {
+            yield return value[i];
+        }
+    }
 
     /// <summary>
     /// Get the actual string represented by the view.
