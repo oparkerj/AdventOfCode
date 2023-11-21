@@ -24,7 +24,7 @@ public readonly ref struct Split<T>
     /// <returns></returns>
     public static Split<T> From(Span<T> span, int split)
     {
-        return new Split<T>(span[..split], span[(split + 1)..]);
+        return new Split<T>(span[..split], span[split..]);
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public readonly ref struct Split<T>
     /// <returns></returns>
     public static Split<T> FromReverse(Span<T> span, int split)
     {
-        return new Split<T>(span[(split + 1)..], span[..split]);
+        return new Split<T>(span[split..], span[..split]);
     }
 
     public void Deconstruct(out Span<T> first, out Span<T> second)

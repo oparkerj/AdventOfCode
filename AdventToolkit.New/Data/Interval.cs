@@ -43,6 +43,8 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     /// <returns>Interval form [min(a, b), max(a, b)].</returns>
     public static Interval<T> Span(T a, T b) => new(T.Min(a, b), T.Abs(a - b) + T.One);
 
+    public static Interval<T> Empty => new(T.Zero, T.Zero);
+
     /// <summary>
     /// Cast the interval to another number type.
     /// The values are cast in a truncating manner.
@@ -177,7 +179,7 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
 
         var i = 0;
         var t = Start;
-        for (; t < End; ++i, ++t)
+        for (; t <= Last; ++i, ++t)
         {
             span[i] = t;
         }
@@ -190,24 +192,6 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
-
-    public IEnumerable<T> GetEnumerator2()
-    {
-        var (current, end) = (Start, End);
-        for (; current < end; ++current)
-        {
-            yield return current;
-        }
-    }
-
-    public IEnumerator<T> GetEnumerator3()
-    {
-        var (current, end) = (Start, End);
-        for (; current < end; ++current)
-        {
-            yield return current;
-        }
-    }
 
     /// <summary>
     /// Enumerate each value in the interval.

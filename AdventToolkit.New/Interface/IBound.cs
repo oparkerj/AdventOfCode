@@ -25,6 +25,8 @@ public interface IBound<T, TNum> : IEnumerable<TNum>
     /// <returns></returns>
     static abstract T From(TNum start, TNum end);
     
+    static abstract T Empty { get; }
+    
     /// <summary>
     /// Minimum value in the bound.
     /// </summary>

@@ -31,6 +31,8 @@ public record Cube<T>(Interval<T> X, Interval<T> Y, Interval<T> Z) : ICube<Cube<
             Interval<T>.From(start.Z, end.Z));
     }
 
+    public static Cube<T> Empty => new(Interval<T>.Empty, Interval<T>.Empty, Interval<T>.Empty);
+
     public Pos3<T> Min => new(MinX, MinY, MinZ);
 
     public Pos3<T> Max => new(MaxX, MaxY, MaxZ);

@@ -23,6 +23,8 @@ public record Rect<T>(Interval<T> Horizontal, Interval<T> Vertical) : IRect<Rect
 
     public static Rect<T> Span(Pos<T> a, Pos<T> b) => new(a, b);
 
+    public static Rect<T> Empty => new(Interval<T>.Empty, Interval<T>.Empty);
+
     public T Width => Horizontal.Length;
 
     public T Height => Vertical.Length;

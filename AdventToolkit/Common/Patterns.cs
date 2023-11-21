@@ -33,7 +33,7 @@ public static partial class Patterns
     
     public static Regex UInt => GetUInt();
 
-    public const string IntListStr = @$"(?:{NonIntStr}*{IntStr}{NonIntStr}*)+";
+    public const string IntListStr = @$"(?:{NonIntStr}*{IntStr})+{NonIntStr}*";
 
     [GeneratedRegex(IntListStr)]
     public static partial Regex GetIntList();

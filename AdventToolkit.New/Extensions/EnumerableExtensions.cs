@@ -25,12 +25,8 @@ public static class EnumerableExtensions
     /// Enumerable where the enumerator has already been created.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public readonly struct EnumeratorWrap<T> : IEnumerable<T>
+    public readonly record struct EnumeratorWrap<T>(IEnumerator<T> Enumerator) : IEnumerable<T>
     {
-        public readonly IEnumerator<T> Enumerator;
-        
-        public EnumeratorWrap(IEnumerator<T> enumerator) => Enumerator = enumerator;
-        
         public IEnumerator<T> GetEnumerator() => Enumerator;
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
