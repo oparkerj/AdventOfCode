@@ -29,11 +29,9 @@ public abstract class PuzzleBase
 
     /// <summary>
     /// Get the input for the puzzle.
-    /// By default, reads a text file with the same name as the
-    /// implementing class.
     /// </summary>
     /// <returns></returns>
-    public virtual string GetInput() => File.ReadAllText(GetType().Name + ".txt");
+    public virtual string GetInput() => string.Empty;
 
     /// <summary>
     /// Print some output during puzzle execution.

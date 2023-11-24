@@ -71,14 +71,12 @@ public class CircularArray<T> : IEnumerable<T>
         var (first, second) = GetSplit(target);
         if (first.Length < second.Length)
         {
-            // var buffer = first.ToArray();
             using var buffer = Arr<T>.Temp(first);
             second.CopyTo(Data.AsSpan(first.Length));
             buffer.CopyTo(Data.AsSpan());
         }
         else
         {
-            // var buffer = second.ToArray();
             using var buffer = Arr<T>.Temp(second);
             first.CopyTo(Data.AsSpan());
             buffer.CopyTo(Data.AsSpan(first.Length));

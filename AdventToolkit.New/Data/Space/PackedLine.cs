@@ -186,40 +186,50 @@ public class PackedLine<TNum, T> : ISpace<TNum, T>
         return false;
     }
 
-    public T Get(TNum pos)
-    {
-        return TypeInterval.Contains(pos) ? this[pos] : Default;
-    }
+    public T Get(TNum pos) => this[pos];
 
-    public T Get(int pos)
-    {
-        return Interval.Contains(pos) ? this[pos] : Default;
-    }
+    public T Get(int pos) => this[pos];
+
+    public T GetStrict(TNum pos) => Data[int.CreateTruncating(pos - TypeStart)];
+
+    public T GetString(int pos) => Data[pos - Start];
 
     public T this[TNum pos]
     {
-        get => Data[int.CreateTruncating(pos - TypeStart)];
-        set => Data[int.CreateTruncating(pos - TypeStart)] = value;
+        get => TypeInterval.Contains(pos) ? Data[int.CreateTruncating(pos - TypeStart)] : Default;
+        set
+        {
+            if (TypeInterval.Contains(pos))
+            {
+                Data[int.CreateTruncating(pos - TypeStart)] = value;
+            }
+        }
     }
-    
+
     /// <summary>
     /// Overload of the indexer for int indexing.
     /// </summary>
     /// <param name="pos"></param>
     public T this[int pos]
     {
-        get => Data[pos - Start];
-        set => Data[pos - Start] = value;
+        get => Interval.Contains(pos) ? Data[pos - Start] : Default;
+        set
+        {
+            if (Interval.Contains(pos))
+            {
+                Data[pos - Start] = value;
+            }
+        }
     }
-    
+
     /// <summary>
     /// Overload of the indexer for long indexing.
     /// </summary>
     /// <param name="pos"></param>
     public T this[long pos]
     {
-        get => Data[pos - Start];
-        set => Data[pos - Start] = value;
+        get => this[(int) pos];
+        set => this[(int) pos] = value;
     }
 
     public bool Contains(TNum pos) => TypeInterval.Contains(pos);
@@ -230,7 +240,7 @@ public class PackedLine<TNum, T> : ISpace<TNum, T>
 
     public void Clear() => Array.Clear(Data);
 
-    public IEnumerable<TNum> Positions => Interval.As<TNum>();
+    public IEnumerable<TNum> Positions => TypeInterval;
 
     public IEnumerable<T> Values => Data;
 }

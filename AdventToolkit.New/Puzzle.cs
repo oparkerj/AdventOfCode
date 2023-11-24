@@ -31,6 +31,8 @@ public abstract class Puzzle<T1, T2> : PuzzleBase
         if (Part == 1) WriteLn(PartOne());
         else WriteLn(PartTwo());
     }
+    
+    public override string GetInput() => File.ReadAllText(GetType().Name + ".txt");
 }
 
 /// <summary>

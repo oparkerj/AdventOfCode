@@ -60,7 +60,7 @@ public interface ISpace<TPos, TVal> : ISpace<TPos>
     /// </summary>
     /// <param name="pos"></param>
     /// <returns></returns>
-    TVal Get(TPos pos);
+    TVal Get(TPos pos) => this[pos];
 
     /// <summary>
     /// Get the mapped value for a position, throwing an exception if the
@@ -68,11 +68,10 @@ public interface ISpace<TPos, TVal> : ISpace<TPos>
     /// </summary>
     /// <param name="pos"></param>
     /// <returns></returns>
-    TVal GetStrict(TPos pos) => this[pos];
+    TVal GetStrict(TPos pos);
     
     /// <summary>
-    /// Get/Set position mappings. This throws an exception if the position is
-    /// not mapped.
+    /// Get/Set position mappings.
     /// </summary>
     /// <param name="pos"></param>
     TVal this[TPos pos] { get; set; }

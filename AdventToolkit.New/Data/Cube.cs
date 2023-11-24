@@ -86,34 +86,21 @@ public record Cube<T>(Interval<T> X, Interval<T> Y, Interval<T> Z) : ICube<Cube<
 
     IEnumerator<Pos3<T>> IEnumerable<Pos3<T>>.GetEnumerator() => GetEnumerator();
 
-    public struct Enumerator : IEnumerator<Pos3<T>>
+    public struct Enumerator(Interval<T> x, Interval<T> y, Interval<T> z) : IEnumerator<Pos3<T>>
     {
-        private readonly Interval<T> _x;
-        private readonly Interval<T> _y;
-        private readonly Interval<T> _z;
-        private T _currentX;
-        private T _currentY;
-        private T _currentZ;
-
-        public Enumerator(Interval<T> x, Interval<T> y, Interval<T> z)
-        {
-            _x = x;
-            _y = y;
-            _z = z;
-            _currentX = x.Start - T.One;
-            _currentY = y.Start;
-            _currentZ = z.Start;
-        }
+        private T _currentX = x.Start - T.One;
+        private T _currentY = y.Start;
+        private T _currentZ = z.Start;
 
         public Pos3<T> Current => new(_currentX, _currentY, _currentZ);
 
         public bool MoveNext()
         {
-            if (++_currentX < _x.End) return true;
-            _currentX = _x.Start;
-            if (++_currentY < _y.End) return true;
-            _currentY = _y.Start;
-            return ++_currentZ < _z.End;
+            if (++_currentX < x.End) return true;
+            _currentX = x.Start;
+            if (++_currentY < y.End) return true;
+            _currentY = y.Start;
+            return ++_currentZ < z.End;
         }
 
         public void Reset() => throw new NotSupportedException();

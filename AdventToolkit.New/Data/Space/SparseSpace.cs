@@ -21,6 +21,8 @@ public abstract class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IEnumerable<
 
     public TVal Get(TPos pos) => Points.TryGetValue(pos, out var value) ? value : Default;
 
+    public TVal GetStrict(TPos pos) => Points[pos];
+
     public bool TryGet(TPos pos, out TVal val) => Points.TryGetValue(pos, out val!);
 
     public TVal this[TPos pos]
