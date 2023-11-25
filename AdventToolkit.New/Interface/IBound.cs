@@ -55,6 +55,13 @@ public interface IBound<T, TNum> : IEnumerable<TNum>
     bool Contains(TNum t);
 
     /// <summary>
+    /// Check if a bound is contained within another bound.
+    /// </summary>
+    /// <param name="t"></param>
+    /// <returns></returns>
+    bool Contains(T t);
+
+    /// <summary>
     /// Get the intersection of this bound and another.
     /// </summary>
     /// <param name="other"></param>

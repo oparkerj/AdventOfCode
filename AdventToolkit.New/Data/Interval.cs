@@ -77,6 +77,11 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     /// <param name="i">Value.</param>
     /// <returns>True if the value is in the interval, false otherwise.</returns>
     public bool Contains(T i) => i >= Start && i <= Last;
+    
+    public bool Contains(Interval<T> t)
+    {
+        return t.Start >= Start && t.Last <= Last;
+    }
 
     /// <summary>
     /// Get the intersection of this interval and another.

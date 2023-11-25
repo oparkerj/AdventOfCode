@@ -11,8 +11,6 @@ namespace AdventToolkit.New.Data;
 public class MultiInterval<T>
     where T : INumber<T>
 {
-    private static readonly IComparer<Interval<T>> Comparison = Comparer<Interval<T>>.Create(static (a, b) => a.Start.CompareTo(b.Start));
-    
     private readonly List<Interval<T>> _intervals = new();
 
     /// <summary>
@@ -31,7 +29,26 @@ public class MultiInterval<T>
     /// <returns></returns>
     private int FindInsertIndex(T value)
     {
-        return _intervals.BinarySearch(new Interval<T>(value, T.One), Comparison);
+        var list = _intervals;
+        var lower = 0;
+        var upper = list.Count;
+
+        while (lower < upper)
+        {
+            var test = (upper + lower) / 2;
+            var comp = list[test].Start.CompareTo(value);
+            if (comp == 0) return test;
+            if (comp < 0)
+            {
+                lower = test + 1;
+            }
+            else
+            {
+                upper = test;
+            }
+        }
+        
+        return ~lower;
     }
 
     /// <summary>
@@ -88,7 +105,7 @@ public class MultiInterval<T>
         possible = ~possible - 1;
         return possible > -1 && _intervals[possible].Contains(value);
     }
-
+    
     /// <summary>
     /// Add an interval to the collection.
     /// The collection will be updated such that overlapping and adjacent intervals
@@ -119,10 +136,11 @@ public class MultiInterval<T>
         }
 
         // If interval is completely inside first overlap, then no merge
-        if (interval.Last <= _intervals[merge.Start].Last) return;
+        var first = _intervals[merge.Start];
+        if (first.Contains(interval)) return;
 
         // Merge with first/last overlaps
-        var full = Merge(_intervals[merge.Start], merge.Length > 1 ? Merge(interval, _intervals[merge.Last]) : interval);
+        var full = Merge(first, merge.Length > 1 ? Merge(interval, _intervals[merge.Last]) : interval);
         // Remove entries that are no longer needed
         _intervals.RemoveRange(merge.Start + 1, merge.Length - 1);
         // Update with new interval
@@ -141,7 +159,34 @@ public class MultiInterval<T>
 
         var overlaps = GetOverlaps(interval);
         if (overlaps.Length == 0) return;
+
+        var first = _intervals[overlaps.Start];
+
+        // If the interval is contained entirely within the first interval
+        // then split it into two.
+        if (first.Contains(interval))
+        {
+            _intervals[overlaps.Start] = first with {Length = interval.Start - first.Start};
+            _intervals.Insert(overlaps.Start + 1, Interval<T>.From(interval.End, first.End));
+            return;
+        }
         
-        // TODO
+        // Adjust first interval if partially outside
+        if (first.Start < interval.Start)
+        {
+            _intervals[overlaps.Start] = first with {Length = interval.Start - first.Start};
+            overlaps = new Interval<int>(overlaps.Start + 1, overlaps.Length - 1);
+        }
+        
+        // Adjust last interval if partially outside
+        var last = _intervals[overlaps.Last];
+        if (interval.Last < last.Last)
+        {
+            _intervals[overlaps.Last] = Interval<T>.From(interval.End, last.End);
+            overlaps = overlaps with {Length = overlaps.Length - 1};
+        }
+        
+        // Delete everything in the middle
+        _intervals.RemoveRange(overlaps.Start, overlaps.Length);
     }
 }

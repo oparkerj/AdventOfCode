@@ -47,6 +47,13 @@ public record Cube<T>(Interval<T> X, Interval<T> Y, Interval<T> Z) : ICube<Cube<
                && Y.Contains(t.Y)
                && Z.Contains(t.Z);
     }
+    
+    public bool Contains(Cube<T> t)
+    {
+        return X.Contains(t.X)
+               && Y.Contains(t.Y)
+               && Z.Contains(t.Z);
+    }
 
     public Cube<T> Intersect(Cube<T> other)
     {

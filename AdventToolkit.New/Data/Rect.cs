@@ -50,6 +50,8 @@ public record Rect<T>(Interval<T> Horizontal, Interval<T> Vertical) : IRect<Rect
     public Pos<T> Size => new(Width, Height);
 
     public bool Contains(Pos<T> p) => Horizontal.Contains(p.X) && Vertical.Contains(p.Y);
+    
+    public bool Contains(Rect<T> t) => Horizontal.Contains(t.Horizontal) && Vertical.Contains(t.Vertical);
 
     public Rect<T> Intersect(Rect<T> other) => new(Horizontal.Intersect(other.Horizontal), Vertical.Intersect(other.Vertical));
 
