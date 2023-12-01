@@ -144,11 +144,20 @@ public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
         yield return this with {Y = Y - T.One};
         yield return this with {Z = Z - T.One};
     }
-
+    
     public IEnumerable<Pos3<T>> Around()
     {
-        // TODO
-        yield break;
+        for (var x = -T.One; x <= T.One; x++)
+        {
+            for (var y = -T.One; y <= T.One; y++)
+            {
+                for (var z = -T.One; z <= T.One; z++)
+                {
+                    if (x == T.Zero && y == T.Zero && z == T.Zero) continue;
+                    yield return new Pos3<T>(x, y, z);
+                }
+            }
+        }
     }
 
     public override string ToString() => $"({X}, {Y}, {Z})";

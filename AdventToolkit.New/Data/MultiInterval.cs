@@ -35,7 +35,7 @@ public class MultiInterval<T>
 
         while (lower < upper)
         {
-            var test = (upper + lower) / 2;
+            var test = lower + (upper - lower) / 2;
             var comp = list[test].Start.CompareTo(value);
             if (comp == 0) return test;
             if (comp < 0)
@@ -153,6 +153,12 @@ public class MultiInterval<T>
         }
     }
 
+    /// <summary>
+    /// Remove an interval from the collection.
+    /// Any chunks of intervals which overlap with the given
+    /// interval will be removed.
+    /// </summary>
+    /// <param name="interval"></param>
     public void Remove(Interval<T> interval)
     {
         if (interval.Length == T.Zero) return;

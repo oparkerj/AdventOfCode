@@ -41,6 +41,18 @@ public readonly ref struct Split<T>
         return new Split<T>(span[split..], span[..split]);
     }
 
+    /// <summary>
+    /// Create a split where the item at the split index
+    /// is not included in either split.
+    /// </summary>
+    /// <param name="span">Input span.</param>
+    /// <param name="split">Split index.</param>
+    /// <returns>Separated span.</returns>
+    public static Split<T> Separate(Span<T> span, int split)
+    {
+        return new Split<T>(span[..split], span[(split + 1)..]);
+    }
+
     public void Deconstruct(out Span<T> first, out Span<T> second)
     {
         first = First;

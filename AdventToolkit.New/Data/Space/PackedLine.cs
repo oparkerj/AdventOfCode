@@ -31,7 +31,7 @@ public class PackedLine<TNum, T> : ISpace<TNum, T>
 
     private PackedLine(Interval<int> interval, Interval<TNum> typeInterval)
     {
-        Debug.Assert(interval.Length == int.CreateTruncating(typeInterval.Length));
+        Debug.Assert(interval.Length == int.CreateChecked(typeInterval.Length));
         Data = new T[interval.Length];
         Interval = interval;
         TypeInterval = typeInterval;
@@ -105,6 +105,7 @@ public class PackedLine<TNum, T> : ISpace<TNum, T>
         get => Interval.Length;
         set
         {
+            Debug.Assert(value >= 0);
             Interval = Interval with {Length = value};
             TypeInterval = TypeInterval with {Length = TNum.CreateTruncating(value)};
             var data = Data;
@@ -121,6 +122,7 @@ public class PackedLine<TNum, T> : ISpace<TNum, T>
         get => TypeInterval.Length;
         set
         {
+            Debug.Assert(value >= TNum.Zero);
             var length = int.CreateTruncating(value);
             Interval = Interval with {Length = length};
             TypeInterval = TypeInterval with {Length = value};

@@ -116,12 +116,32 @@ public readonly record struct Pos4<T>(T W, T X, T Y, T Z) : IPos<Pos4<T>, T>
     
     public IEnumerable<Pos4<T>> Adjacent()
     {
-        yield break;
+        yield return this with {X = X + T.One};
+        yield return this with {X = X - T.One};
+        yield return this with {Y = Y + T.One};
+        yield return this with {Y = Y - T.One};
+        yield return this with {Z = Z + T.One};
+        yield return this with {Z = Z - T.One};
+        yield return this with {W = W + T.One};
+        yield return this with {W = W - T.One};
     }
 
     public IEnumerable<Pos4<T>> Around()
     {
-        yield break;
+        for (var w = -T.One; w <= T.One; w++)
+        {
+            for (var x = -T.One; x <= T.One; x++)
+            {
+                for (var y = -T.One; y <= T.One; y++)
+                {
+                    for (var z = -T.One; z <= T.One; z++)
+                    {
+                        if (w == T.Zero && x == T.Zero && y == T.Zero && z == T.Zero) continue;
+                        yield return new Pos4<T>(w, x, y, z);
+                    }
+                }
+            }
+        }
     }
 
     public T Dist(Pos4<T> other) => T.Abs(W - other.W) + T.Abs(X - other.X) + T.Abs(Y - other.Y) + T.Abs(Z - other.Z);
