@@ -1,5 +1,4 @@
-﻿using AdventOfCode2023.Puzzles;
-using AdventToolkit.New;
+﻿using AdventToolkit.New;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -13,7 +12,7 @@ public class BenchmarkMain
     {
         // var summary = BenchmarkRunner.Run<BenchmarkMain>();
         // var summary = BenchmarkPuzzle<TestPuzzle>();
-        var summary = ComparePuzzle<Day1, Day1Better>();
+        // var summary = ComparePuzzle<Day1, Day1Better>();
     }
     
     private static Type GenericType(Type t) => t.IsGenericType ? t.GetGenericTypeDefinition() : t;
