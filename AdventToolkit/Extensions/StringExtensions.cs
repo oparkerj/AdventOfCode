@@ -375,36 +375,28 @@ public static class StringExtensions
         }
     }
 
-    public static int IndexOfFirst(this string source, IEnumerable<string> search)
+    public static KeyValuePair<string, int> FindFirst(this string source, IEnumerable<string> search)
     {
         return search.With(s => source.AsSpan().IndexOf(s))
             .OrderByValue()
-            .FirstOrDefault(pair => pair.Value > -1, new KeyValuePair<string, int>(null, -1))
-            .Value;
+            .FirstOrDefault(pair => pair.Value > -1, new KeyValuePair<string, int>(null, -1));
+    }
+    
+    public static KeyValuePair<string, int> FindLast(this string source, IEnumerable<string> search)
+    {
+        return search.With(s => source.AsSpan().LastIndexOf(s))
+            .OrderByValueDescending()
+            .FirstOrDefault(pair => pair.Value > -1, new KeyValuePair<string, int>(null, -1));
+    }
+    
+    public static int IndexOfFirst(this string source, IEnumerable<string> search)
+    {
+        return source.FindFirst(search).Value;
     }
 
     public static int IndexOfLast(this string source, IEnumerable<string> search)
     {
-        return search.With(s => source.AsSpan().LastIndexOf(s))
-            .OrderByValueDescending()
-            .FirstOrDefault(pair => pair.Value > -1, new KeyValuePair<string, int>(null, -1))
-            .Value;
-    }
-
-    public static string FindFirst(this string source, IEnumerable<string> search)
-    {
-        return search.With(s => source.AsSpan().IndexOf(s))
-            .OrderByValue()
-            .FirstOrDefault(pair => pair.Value > -1)
-            .Key;
-    }
-    
-    public static string FindLast(this string source, IEnumerable<string> search)
-    {
-        return search.With(s => source.AsSpan().LastIndexOf(s))
-            .OrderByValueDescending()
-            .FirstOrDefault(pair => pair.Value > -1)
-            .Key;
+        return source.FindLast(search).Value;
     }
 
     public static string StartsWith(this string source, IEnumerable<string> test, int index = 0)
