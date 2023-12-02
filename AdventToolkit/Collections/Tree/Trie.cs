@@ -19,9 +19,9 @@ public class Trie<TBin, T> : IEnumerable<TBin>
         return !fail;
     }
 
-    public void Add(TBin value)
+    private void AddInternal(TBin value, IEnumerable<T> sequence)
     {
-        var last = value.Aggregate(Root, (node, t) => node.Add(t));
+        var last = sequence.Aggregate(Root, (node, t) => node.Add(t));
         if (!last.IsEnd)
         {
             last.Source = value;
@@ -29,6 +29,10 @@ public class Trie<TBin, T> : IEnumerable<TBin>
             Count++;
         }
     }
+
+    public void Add(TBin value) => AddInternal(value, value);
+
+    public void AddReverse(TBin value) => AddInternal(value, value.Reverse());
 
     public bool Contains(TBin value)
     {
@@ -78,6 +82,11 @@ public class Trie<TBin, T> : IEnumerable<TBin>
 
         value = default;
         return false;
+    }
+
+    public bool TryFindValueLast(IEnumerable<T> sequence, out TBin value)
+    {
+        return TryFindValue(sequence.Reverse(), out value);
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
