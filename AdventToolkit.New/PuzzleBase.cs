@@ -16,7 +16,7 @@ public abstract class PuzzleBase
     /// Get the puzzle input. If unset, calls <see cref="GetInput"/> and
     /// caches the value.
     /// </summary>
-    public string Input
+    public string RawInput
     {
         get => _input ??= GetInput();
         set => _input = value;
