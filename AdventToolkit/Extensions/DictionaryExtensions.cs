@@ -28,4 +28,12 @@ public static class DictionaryExtensions
     {
         return keys.Select(key => dictionary[key]);
     }
+
+    public static void UpdateMany<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, IEnumerable<KeyValuePair<TKey, TValue>> pairs)
+    {
+        foreach (var (key, value) in pairs)
+        {
+            dictionary[key] = value;
+        }
+    }
 }

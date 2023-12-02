@@ -6,6 +6,11 @@ namespace AdventToolkit.Extensions;
 
 public static class KeyValuePairExtensions
 {
+    public static KeyValuePair<TKey, TValue> ToPair<TKey, TValue>(this (TKey, TValue) tuple)
+    {
+        return new KeyValuePair<TKey, TValue>(tuple.Item1, tuple.Item2);
+    }
+    
     public static IEnumerable<KeyValuePair<TValue, TKey>> Swap<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
     {
         return source.Select(pair => new KeyValuePair<TValue, TKey>(pair.Value, pair.Key));
