@@ -19,6 +19,11 @@ public static class DictionaryExtensions
         return dictionary[key] = new TValue();
     }
 
+    public static TValue GetOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue value = default)
+    {
+        return key is null ? value : dictionary.GetValueOrDefault(key, value);
+    }
+
     public static IEnumerable<TValue> GetValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, IEnumerable<TKey> keys)
     {
         return keys.Select(key => dictionary[key]);

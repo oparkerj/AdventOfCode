@@ -374,4 +374,41 @@ public static class StringExtensions
             start = match.Index + match.Length;
         }
     }
+
+    public static int IndexOfFirst(this string source, IEnumerable<string> search)
+    {
+        return search.With(s => source.AsSpan().IndexOf(s))
+            .OrderByValue()
+            .FirstOrDefault(pair => pair.Value > -1, new KeyValuePair<string, int>(null, -1))
+            .Value;
+    }
+
+    public static int IndexOfLast(this string source, IEnumerable<string> search)
+    {
+        return search.With(s => source.AsSpan().LastIndexOf(s))
+            .OrderByValueDescending()
+            .FirstOrDefault(pair => pair.Value > -1, new KeyValuePair<string, int>(null, -1))
+            .Value;
+    }
+
+    public static string FindFirst(this string source, IEnumerable<string> search)
+    {
+        return search.With(s => source.AsSpan().IndexOf(s))
+            .OrderByValue()
+            .FirstOrDefault(pair => pair.Value > -1)
+            .Key;
+    }
+    
+    public static string FindLast(this string source, IEnumerable<string> search)
+    {
+        return search.With(s => source.AsSpan().LastIndexOf(s))
+            .OrderByValueDescending()
+            .FirstOrDefault(pair => pair.Value > -1)
+            .Key;
+    }
+
+    public static string StartsWith(this string source, IEnumerable<string> test, int index = 0)
+    {
+        return test.First(s => source.AsSpan(index).StartsWith(s));
+    }
 }

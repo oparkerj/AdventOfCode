@@ -355,4 +355,9 @@ public static class Num
         var i = 1;
         while (true) yield return i++;
     }
+
+    public static int MinCompare(this int i)
+    {
+        return i < 0 ? int.MaxValue : i;
+    }
 }
