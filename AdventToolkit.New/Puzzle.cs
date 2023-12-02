@@ -64,14 +64,12 @@ public abstract class Puzzle<T1, T2> : PuzzleBase
     /// <returns></returns>
     public virtual string InputName() => InputName(GetType());
 
+    /// <summary>
+    /// Set the directory where the input file is read.
+    /// </summary>
     public string InputDirectory { get; set; } = string.Empty;
     
-    public override string GetInput()
-    {
-        var path = Path.Combine(InputDirectory, InputName());
-        Console.WriteLine($"Reading {path}");
-        return File.ReadAllText(path);
-    }
+    public override string GetInput() => File.ReadAllText(Path.Combine(InputDirectory, InputName()));
 
     /// <summary>
     /// Split the input into lines.
