@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Common;
@@ -153,5 +155,38 @@ public static class GridExtensions
             Distance = tuple => tuple.Item2,
             Cell = (_, tuple) => tuple.Item1
         };
+    }
+
+    public static IEnumerable<Pos> AroundWhere<T>(this GridBase<T> grid, Pos pos, Func<T, bool> predicate)
+    {
+        return pos.Around().Where(p => predicate(grid[p]));
+    }
+
+    public static Pos FindNumberBeginning(this GridBase<char> grid, Pos start)
+    {
+        return start.Trace(Pos.Left, p => !char.IsDigit(grid[p])) + Pos.Right;
+    }
+    
+    public static Pos FindNumberBeginning(this GridBase<char> grid, Pos start, Pos dir)
+    {
+        return start.Trace(-dir, p => !char.IsDigit(grid[p])) + dir;
+    }
+    
+    public static T Read<T>(this GridBase<char> grid, Pos start)
+        where T : IParsable<T>
+    {
+        return grid.Read<T>(start, Pos.Right);
+    }
+
+    public static T Read<T>(this GridBase<char> grid, Pos start, Pos dir)
+        where T : IParsable<T>
+    {
+        var builder = new StringBuilder();
+        while (char.IsDigit(grid[start]))
+        {
+            builder.Append(grid[start]);
+            start += dir;
+        }
+        return T.Parse(builder.ToString(), null);
     }
 }
