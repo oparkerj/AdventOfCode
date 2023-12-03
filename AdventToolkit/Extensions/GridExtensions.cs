@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
@@ -172,21 +173,52 @@ public static class GridExtensions
         return start.Trace(-dir, p => !char.IsDigit(grid[p])) + dir;
     }
     
-    public static T Read<T>(this GridBase<char> grid, Pos start)
-        where T : IParsable<T>
-    {
-        return grid.Read<T>(start, Pos.Right);
-    }
-
-    public static T Read<T>(this GridBase<char> grid, Pos start, Pos dir)
+    public static T Read<T>(this GridBase<char> grid, Pos start, Pos dir, int length)
         where T : IParsable<T>
     {
         var builder = new StringBuilder();
-        while (char.IsDigit(grid[start]))
+        while (length > 0)
+        {
+            builder.Append(grid[start]);
+            start += dir;
+            length--;
+        }
+        return T.Parse(builder.ToString(), null);
+    }
+    
+    public static T Read<T>(this GridBase<char> grid, Pos start, Pos dir, Func<char, bool> accept)
+        where T : IParsable<T>
+    {
+        var builder = new StringBuilder();
+        while (accept(grid[start]))
         {
             builder.Append(grid[start]);
             start += dir;
         }
         return T.Parse(builder.ToString(), null);
+    }
+    
+    public static T Read<T>(this GridBase<char> grid, Pos start, Pos dir, Func<char, Pos, StringBuilder, bool> accept)
+        where T : IParsable<T>
+    {
+        var builder = new StringBuilder();
+        while (accept(grid[start], start, builder))
+        {
+            builder.Append(grid[start]);
+            start += dir;
+        }
+        return T.Parse(builder.ToString(), null);
+    }
+    
+    public static T ReadNumber<T>(this GridBase<char> grid, Pos start)
+        where T : INumber<T>
+    {
+        return grid.ReadNumber<T>(start, Pos.Right);
+    }
+
+    public static T ReadNumber<T>(this GridBase<char> grid, Pos start, Pos dir)
+        where T : INumber<T>
+    {
+        return grid.Read<T>(start, dir, char.IsDigit);
     }
 }

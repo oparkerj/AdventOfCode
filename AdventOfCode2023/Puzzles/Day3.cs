@@ -15,7 +15,7 @@ public class Day3 : Puzzle<int>
             if (char.IsDigit(value) || value == '.') continue;
             numbers.UnionWith(grid.AroundWhere(pos, char.IsDigit).Select(grid.FindNumberBeginning));
         }
-        return numbers.Select(grid.Read<int>).Sum();
+        return numbers.Select(grid.ReadNumber<int>).Sum();
     }
 
     public override int PartTwo()
@@ -27,7 +27,7 @@ public class Day3 : Puzzle<int>
             if (value != '*') continue;
             var numbers = grid.AroundWhere(pos, char.IsDigit).Select(grid.FindNumberBeginning).ToHashSet();
             if (numbers.Count != 2) continue;
-            sum += numbers.Select(grid.Read<int>).Product();
+            sum += numbers.Select(grid.ReadNumber<int>).Product();
         }
         return sum;
     }
