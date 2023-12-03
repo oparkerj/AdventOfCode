@@ -7,6 +7,7 @@ namespace AdventOfCode2023.Puzzles;
 
 public class Day2 : Puzzle<int>
 {
+    // TODO make a better way to extract this data
     public KeyValuePair<int, Dictionary<string, int>> GameInfo(string game)
     {
         var id = game.Extract<int>(Patterns.Int);
@@ -15,10 +16,7 @@ public class Day2 : Puzzle<int>
         {
             foreach (var (value, key) in hand.Split(',').Extract<KeyValuePair<int, string>>(@"(\d+) (\w+)"))
             {
-                if (!shown.TryAdd(key, value))
-                {
-                    shown[key] = Math.Max(shown[key], value);
-                }
+                shown[key] = Math.Max(shown.GetOrDefault(key, value), value);
             }
         }
         return new KeyValuePair<int, Dictionary<string, int>>(id, shown);
@@ -34,7 +32,7 @@ public class Day2 : Puzzle<int>
         };
 
         return Input.Select(GameInfo)
-            .Where(pair => pair.Value.All(count => available[count.Key] >= count.Value))
+            .Where(pair => pair.Value.Le(available))
             .Keys()
             .Sum();
     }

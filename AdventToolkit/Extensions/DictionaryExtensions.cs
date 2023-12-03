@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace AdventToolkit.Extensions;
 
@@ -35,5 +36,39 @@ public static class DictionaryExtensions
         {
             dictionary[key] = value;
         }
+    }
+    
+    public static bool Compare<TKey, TValue>(this IDictionary<TKey, TValue> left, IDictionary<TKey, TValue> right, Func<TValue, TValue, bool> comp)
+    {
+        foreach (var (key, leftValue) in left)
+        {
+            if (!right.TryGetValue(key, out var rightValue)) return false;
+            if (!comp(leftValue, rightValue)) return false;
+        }
+        return true;
+    }
+
+    public static bool Lt<TKey, TValue>(this IDictionary<TKey, TValue> left, IDictionary<TKey, TValue> right)
+        where TValue : IComparisonOperators<TValue, TValue, bool>
+    {
+        return left.Compare(right, (l, r) => l < r);
+    }
+    
+    public static bool Le<TKey, TValue>(this IDictionary<TKey, TValue> left, IDictionary<TKey, TValue> right)
+        where TValue : IComparisonOperators<TValue, TValue, bool>
+    {
+        return left.Compare(right, (l, r) => l <= r);
+    }
+    
+    public static bool Gt<TKey, TValue>(this IDictionary<TKey, TValue> left, IDictionary<TKey, TValue> right)
+        where TValue : IComparisonOperators<TValue, TValue, bool>
+    {
+        return left.Compare(right, (l, r) => l > r);
+    }
+    
+    public static bool Ge<TKey, TValue>(this IDictionary<TKey, TValue> left, IDictionary<TKey, TValue> right)
+        where TValue : IComparisonOperators<TValue, TValue, bool>
+    {
+        return left.Compare(right, (l, r) => l >= r);
     }
 }
