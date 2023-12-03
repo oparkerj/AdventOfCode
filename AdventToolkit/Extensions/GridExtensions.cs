@@ -164,7 +164,7 @@ public static class GridExtensions
 
     public static Pos FindNumberBeginning(this GridBase<char> grid, Pos start)
     {
-        return start.Trace(Pos.Left, p => !char.IsDigit(grid[p])) + Pos.Right;
+        return grid.FindNumberBeginning(start, Pos.Right);
     }
     
     public static Pos FindNumberBeginning(this GridBase<char> grid, Pos start, Pos dir)
