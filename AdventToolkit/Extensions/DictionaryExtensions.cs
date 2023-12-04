@@ -37,6 +37,36 @@ public static class DictionaryExtensions
             dictionary[key] = value;
         }
     }
+
+    public static void Merge<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, IEnumerable<KeyValuePair<TKey, TValue>> pairs, Func<TKey, TValue, TValue, TValue> update)
+    {
+        foreach (var (key, newValue) in pairs)
+        {
+            if (!dictionary.TryGetValue(key, out var oldValue))
+            {
+                dictionary[key] = newValue;
+            }
+            else
+            {
+                dictionary[key] = update(key, oldValue, newValue);
+            }
+        }
+    }
+    
+    public static void Merge<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, IEnumerable<KeyValuePair<TKey, TValue>> pairs, Func<TValue, TValue, TValue> update)
+    {
+        foreach (var (key, newValue) in pairs)
+        {
+            if (!dictionary.TryGetValue(key, out var oldValue))
+            {
+                dictionary[key] = newValue;
+            }
+            else
+            {
+                dictionary[key] = update(oldValue, newValue);
+            }
+        }
+    }
     
     public static bool Compare<TKey, TValue>(this IDictionary<TKey, TValue> left, IDictionary<TKey, TValue> right, Func<TValue, TValue, bool> comp)
     {
