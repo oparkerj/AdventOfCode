@@ -1,17 +1,15 @@
 using AdventToolkit;
-using AdventToolkit.Attributes;
 using AdventToolkit.Extensions;
 
 namespace AdventOfCode2023.Puzzles;
 
-[CopyResult]
 public class Day4 : Puzzle<int>
 {
     public int WinCount(int index)
     {
         var card = Input[index];
-        var winning = card.Between(':', '|').Spaced().Ints().ToList();
-        var have = card.After('|').Spaced().Ints().ToList();
+        var winning = card.Between(':', '|').Spaced().Ints().ToHashSet();
+        var have = card.After('|').Spaced().Ints().ToHashSet();
         return have.Count(winning.Contains);
     }
     
@@ -25,19 +23,18 @@ public class Day4 : Puzzle<int>
 
     public override int PartTwo()
     {
-        var wins = Data.Memoize<int, int>(WinCount);
-        
-        var queue = new Queue<int>(Enumerable.Range(0, Input.Length));
+        var scores = new List<int>();
         var total = 0;
-        while (queue.Count > 0)
+        for (var i = 0; i < Input.Length; i++)
         {
-            total++;
-            var index = queue.Dequeue();
-            var count = wins(index);
-            foreach (var next in Enumerable.Range(index + 1, count))
+            var wins = WinCount(Input.Length - i - 1);
+            var gain = 1;
+            for (var prev = 1; prev <= wins; prev++)
             {
-                queue.Enqueue(next);
+                gain += scores[i - prev];
             }
+            scores.Add(gain);
+            total += gain;
         }
         return total;
     }
