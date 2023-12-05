@@ -7,21 +7,16 @@ namespace AdventOfCode2023.Puzzles;
 
 public class Day2 : Puzzle<int>
 {
-    public KeyValuePair<int, Dictionary<string, int>> GameInfo(string game)
+    public Pair<int, Dictionary<string, int>> GameInfo(string game)
     {
         var id = game.Extract<int>(Patterns.Int);
         var shown = new Dictionary<string, int>();
         foreach (var hand in game.After(':').Split(';'))
         {
-            foreach (var (value, key) in hand.Split(',').Extract<KeyValuePair<int, string>>(@"(\d+) (\w+)"))
-            {
-                if (!shown.TryAdd(key, value))
-                {
-                    shown[key] = Math.Max(shown[key], value);
-                }
-            }
+            var cubes = hand.Split(',').Extract<Pair<int, string>>(@"(\d+) (\w+)").ToKv().Swap();
+            shown.Merge(cubes, Math.Max);
         }
-        return new KeyValuePair<int, Dictionary<string, int>>(id, shown);
+        return (id, shown);
     }
     
     public override int PartOne()
@@ -34,7 +29,7 @@ public class Day2 : Puzzle<int>
         };
 
         return Input.Select(GameInfo)
-            .Where(pair => pair.Value.All(count => available[count.Key] >= count.Value))
+            .Where(pair => pair.Value.Le(available))
             .Keys()
             .Sum();
     }

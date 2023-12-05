@@ -204,6 +204,15 @@ public static class StringExtensions
         return empty ? "" : null;
     }
 
+    public static string Between(this string s, char first, char last)
+    {
+        var start = s.IndexOf(first);
+        if (start == -1) return string.Empty;
+        var end = s.IndexOf(last, start + 1);
+        if (end == -1) return string.Empty;
+        return s[(start + 1)..end];
+    }
+
     public static string Hash(this string s, MD5 md5, bool upper = true)
     {
         const int length = 32;

@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdventToolkit.Common;
 
 namespace AdventToolkit.Extensions;
 
 public static class KeyValuePairExtensions
 {
-    public static KeyValuePair<TKey, TValue> ToPair<TKey, TValue>(this (TKey, TValue) tuple)
+    public static KeyValuePair<TKey, TValue> ToKv<TKey, TValue>(this (TKey, TValue) tuple)
     {
         return new KeyValuePair<TKey, TValue>(tuple.Item1, tuple.Item2);
     }
@@ -20,8 +21,18 @@ public static class KeyValuePairExtensions
     {
         return source.Select(pair => pair.Key);
     }
+    
+    public static IEnumerable<TKey> Keys<TKey, TValue>(this IEnumerable<Pair<TKey, TValue>> source)
+    {
+        return source.Select(pair => pair.Key);
+    }
         
     public static IEnumerable<TValue> Values<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
+    {
+        return source.Select(pair => pair.Value);
+    }
+    
+    public static IEnumerable<TValue> Values<TKey, TValue>(this IEnumerable<Pair<TKey, TValue>> source)
     {
         return source.Select(pair => pair.Value);
     }
@@ -31,9 +42,19 @@ public static class KeyValuePairExtensions
         return pairs.Select(pair => new KeyValuePair<TOut, TValue>(func(pair.Key), pair.Value));
     }
     
+    public static IEnumerable<Pair<TOut, TValue>> SelectKey<TKey, TValue, TOut>(this IEnumerable<Pair<TKey, TValue>> pairs, Func<TKey, TOut> func)
+    {
+        return pairs.Select(pair => new Pair<TOut, TValue>(func(pair.Key), pair.Value));
+    }
+    
     public static IEnumerable<KeyValuePair<TKey, TOut>> SelectValue<TKey, TValue, TOut>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs, Func<TValue, TOut> func)
     {
         return pairs.Select(pair => new KeyValuePair<TKey, TOut>(pair.Key, func(pair.Value)));
+    }
+    
+    public static IEnumerable<Pair<TKey, TOut>> SelectValue<TKey, TValue, TOut>(this IEnumerable<Pair<TKey, TValue>> pairs, Func<TValue, TOut> func)
+    {
+        return pairs.Select(pair => new Pair<TKey, TOut>(pair.Key, func(pair.Value)));
     }
 
     public static IEnumerable<KeyValuePair<TKey, TValue>> WhereKey<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, TKey key)
@@ -82,5 +103,15 @@ public static class KeyValuePairExtensions
     public static IOrderedEnumerable<KeyValuePair<TKey, TValue>> OrderByValueDescending<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs)
     {
         return pairs.OrderByDescending(pair => pair.Value);
+    }
+    
+    public static IEnumerable<KeyValuePair<TKey, TValue>> ToKv<TKey, TValue>(this IEnumerable<Pair<TKey, TValue>> items)
+    {
+        return items.Select(pair => (KeyValuePair<TKey, TValue>) pair);
+    }
+    
+    public static IEnumerable<Pair<TKey, TValue>> ToPair<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items)
+    {
+        return items.Select(pair => (Pair<TKey, TValue>) pair);
     }
 }

@@ -43,16 +43,17 @@ public class Day1 : Puzzle<int>
         }.ToFrozenDictionary();
 
         var trie = new Trie<string, char>();
+        var reverseTrie = new Trie<string, char>();
         foreach (var word in numbers.Keys)
         {
             trie.Add(word);
-            trie.AddReverse(word);
+            reverseTrie.AddReverse(word);
         }
 
         return Input.Select(s =>
         {
             trie.TryFindValue(s, out var first);
-            trie.TryFindValueLast(s, out var last);
+            reverseTrie.TryFindValueLast(s, out var last);
             return numbers[first] * 10 + numbers[last];
         }).Sum();
     }
