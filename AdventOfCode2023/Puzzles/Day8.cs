@@ -52,10 +52,8 @@ public class Day8 : Puzzle<int, long>
             .Select(pair => new KeyValuePair<string, (string, string)>(pair.Key, pair.Value.SingleSplit(", ")))
             .ToDictionary();
 
-        var starting = nodes.Keys.Where(s => s.EndsWith('A'));
-
         var cycles = new List<long>();
-        foreach (var start in starting)
+        foreach (var start in nodes.Keys.Where(s => s.EndsWith('A')))
         {
             var step = new Step {Node = start};
             // TODO this could be improved with a self-state version
