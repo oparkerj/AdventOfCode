@@ -330,6 +330,8 @@ public static class Num
         return (int) Math.Sqrt(i);
     }
 
+    public static long SqrtFloor(this long l) => (long) Math.Sqrt(l);
+
     public static bool IsIncreasing(this IEnumerable<int> ints)
     {
         return ints.Pairwise((a, b) => a < b).AllEqual(true);
