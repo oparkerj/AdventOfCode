@@ -64,8 +64,6 @@ public class Day7 : Puzzle<int>
                 dict.Remove('J');
             }
         }
-        
-        
 
         var leftFive = leftCards.ContainsValue(5);
         var rightFive = rightCards.ContainsValue(5);

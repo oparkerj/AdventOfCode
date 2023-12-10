@@ -554,6 +554,17 @@ public static class EnumerableExtensions
         return array;
     }
 
+    public static void ToSpan<T>(this IEnumerable<T> source, Span<T> span)
+    {
+        var i = 0;
+        using var e = source.GetEnumerator();
+        while (e.MoveNext())
+        {
+            span[i] = e.Current;
+            i++;
+        }
+    }
+
     public static void RotateTo<T>(this T[] array, int steps)
     {
         CircularBuffer<T>.RotateTo(array, steps);

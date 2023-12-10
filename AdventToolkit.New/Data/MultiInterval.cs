@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Numerics;
 
 namespace AdventToolkit.New.Data;
@@ -8,10 +9,36 @@ namespace AdventToolkit.New.Data;
 /// intervals.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MultiInterval<T>
+public class MultiInterval<T> : IEnumerable<Interval<T>>
     where T : INumber<T>
 {
     private readonly List<Interval<T>> _intervals = new();
+
+    /// <summary>
+    /// Number of intervals.
+    /// </summary>
+    public int Count => _intervals.Count;
+
+    /// <summary>
+    /// Get all intervals in the multiinterval.
+    /// </summary>
+    public IEnumerable<Interval<T>> Intervals => _intervals;
+
+    /// <summary>
+    /// Get the total length of all intervals
+    /// </summary>
+    public T TotalLength
+    {
+        get
+        {
+            var sum = T.Zero;
+            foreach (var interval in _intervals)
+            {
+                sum += interval.Length;
+            }
+            return sum;
+        }
+    }
 
     /// <summary>
     /// Do a binary search for the given value. The search only considers the
@@ -47,7 +74,7 @@ public class MultiInterval<T>
                 upper = test;
             }
         }
-        
+
         return ~lower;
     }
 
@@ -63,9 +90,14 @@ public class MultiInterval<T>
         if (_intervals.Count == 0) return new Interval<int>(0);
 
         var possible = Interval<int>.Span(PossibleOverlap(interval.Start), PossibleOverlap(interval.Last));
-        if (!_intervals[possible.Start].Intersects(interval))
+        var first = _intervals[possible.Start];
+        if (interval.Start > first.Last)
         {
             possible = new Interval<int>(possible.Start + 1, possible.Length - 1);
+        }
+        else if (interval.Last < first.Start)
+        {
+            possible = possible with {Length = 0};
         }
         return possible;
 
@@ -105,7 +137,7 @@ public class MultiInterval<T>
         possible = ~possible - 1;
         return possible > -1 && _intervals[possible].Contains(value);
     }
-    
+
     /// <summary>
     /// Add an interval to the collection.
     /// The collection will be updated such that overlapping and adjacent intervals
@@ -176,14 +208,14 @@ public class MultiInterval<T>
             _intervals.Insert(overlaps.Start + 1, Interval<T>.From(interval.End, first.End));
             return;
         }
-        
+
         // Adjust first interval if partially outside
         if (first.Start < interval.Start)
         {
             _intervals[overlaps.Start] = first with {Length = interval.Start - first.Start};
             overlaps = new Interval<int>(overlaps.Start + 1, overlaps.Length - 1);
         }
-        
+
         // Adjust last interval if partially outside
         var last = _intervals[overlaps.Last];
         if (interval.Last < last.Last)
@@ -191,8 +223,33 @@ public class MultiInterval<T>
             _intervals[overlaps.Last] = Interval<T>.From(interval.End, last.End);
             overlaps = overlaps with {Length = overlaps.Length - 1};
         }
-        
+
         // Delete everything in the middle
         _intervals.RemoveRange(overlaps.Start, overlaps.Length);
     }
+
+    /// <summary>
+    /// Get all intersections between an interval and this multi-interval.
+    /// </summary>
+    /// <param name="interval"></param>
+    /// <returns></returns>
+    public IEnumerable<Interval<T>> Intersect(Interval<T> interval)
+    {
+        var overlaps = GetOverlaps(interval);
+        if (overlaps.Length == 0) yield break;
+
+        yield return interval.Intersect(_intervals[overlaps.Start]);
+        if (overlaps.Length <= 1) yield break;
+
+        var i = overlaps.Start + 1;
+        for (; i < overlaps.Last; ++i)
+        {
+            yield return _intervals[i];
+        }
+        yield return interval.Intersect(_intervals[i]);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<Interval<T>> GetEnumerator() => _intervals.GetEnumerator();
 }

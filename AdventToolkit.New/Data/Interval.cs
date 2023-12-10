@@ -94,13 +94,13 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     {
         if (other.Start < Start)
         {
-            if (Start < other.End)
+            if (Start <= other.Last)
             {
                 return this with {Length = T.Min(other.End - Start, Length)};
             }
             return default;
         }
-        if (other.Start < End)
+        if (other.Start <= Last)
         {
             return other with {Length = T.Min(End - other.Start, other.Length)};
         }
@@ -190,7 +190,7 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
         }
     }
 
-    public override string ToString() => $"[{Start}, {End})";
+    public override string ToString() => Length > T.Zero ? $"[{Start}, {Last}]" : $"[{Start}]";
 
     public Enumerator GetEnumerator() => new(Start, End);
     
