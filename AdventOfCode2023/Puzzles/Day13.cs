@@ -1,5 +1,5 @@
 using AdventToolkit;
-using AdventToolkit.Collections.Space;
+using AdventToolkit.Collections;
 using AdventToolkit.Extensions;
 
 namespace AdventOfCode2023.Puzzles;
@@ -9,55 +9,33 @@ public class Day13 : Puzzle<int>
     public override int PartOne()
     {
         var tolerance = Part == 2 ? 1 : 0;
-        return AllGroups.Select(s => s.ToGrid()).Select(Summarize).Sum();
+        return AllGroups.Select(s => s.ToGrid()).Sum(grid =>
+        {
+            // Horizontal symmetry + 100 * vertical symmetry
+            return CheckLine(grid.Bounds.XRange, grid.Col, i => i + 1) + 100 * CheckLine(grid.Bounds.YRange, grid.Row, i => -i);
 
-        int Summarize(Grid<char> grid)
-        {
-            return CheckHorizontal(grid) + 100 * CheckVertical(grid);
-        }
-        
-        int CheckHorizontal(Grid<char> grid)
-        {
-            var range = grid.Bounds.XRange;
-            foreach (var start in range[..^1])
+            // Range to check
+            // Getter for line
+            // How to fix the line number if we found the answer
+            int CheckLine(Interval range, Func<int, IEnumerable<char>> get, Func<int, int> fix)
             {
-                var found = true;
-                var differences = 0;
-                for (int first = start, last = start + 1; first >= range.Start && last < range.End; first--, last++)
+                foreach (var start in range[..^1])
                 {
-                    var count = grid.Col(first).Zip(grid.Col(last), (a, b) => a == b).Count(false);
-                    differences += count;
-                    if (differences > tolerance)
+                    var totalDiff = 0;
+                    for (var first = start; first >= range.Start; first--)
                     {
-                        found = false;
-                        break;
+                        var last = start * 2 - first + 1;
+                        if (last >= range.End) break;
+                        totalDiff += get(first).Zip(get(last)).Count(tuple => tuple.First != tuple.Second);
+                        if (totalDiff > tolerance) break;
+                    }
+                    if (totalDiff == tolerance)
+                    {
+                        return fix(start);
                     }
                 }
-                if (found && differences == tolerance) return start + 1;
+                return 0;
             }
-            return 0;
-        }
-
-        int CheckVertical(Grid<char> grid)
-        {
-            var range = grid.Bounds.YRange;
-            foreach (var start in range[..^1])
-            {
-                var found = true;
-                var differences = 0;
-                for (int first = start, last = start + 1; first >= range.Start && last < range.End; first--, last++)
-                {
-                    var count = grid.Row(first).Zip(grid.Row(last), (a, b) => a == b).Count(false);
-                    differences += count;
-                    if (differences > tolerance)
-                    {
-                        found = false;
-                        break;
-                    }
-                }
-                if (found && differences == tolerance) return -start;
-            }
-            return 0;
-        }
+        });
     }
 }
