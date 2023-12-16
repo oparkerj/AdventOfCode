@@ -526,6 +526,11 @@ public static class EnumerableExtensions
     {
         return source.Select(item => new KeyValuePair<T, TV>(item, func(item)));
     }
+    
+    public static IEnumerable<KeyValuePair<T, TV>> With<T, TV>(this IEnumerable<T> source, TV value)
+    {
+        return source.Select(item => new KeyValuePair<T, TV>(item, value));
+    }
 
     public static T[] ToArray<T>(this IEnumerable<T> source, int size)
     {
