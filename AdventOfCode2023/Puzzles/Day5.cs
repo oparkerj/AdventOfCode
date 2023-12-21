@@ -29,4 +29,10 @@ public class Day5 : Puzzle<long>
             return seed;
         }
     }
+
+    public override long PartTwo()
+    {
+        // Part two solved in toolkit branch
+        return base.PartTwo();
+    }
 }

@@ -8,7 +8,16 @@ namespace AdventOfCode2023.Puzzles;
 public class Day17 : Puzzle<int>
 {
     // State includes current position, direction, and straight-line distance
-    public record Cart(Pos Current, Pos Dir, int Line);
+    public record Cart(Pos Current, Pos Dir, int Line)
+    {
+        public Cart Move(Pos dir) => new(Current + dir, dir, Dir == dir ? Line + 1 : 1);
+
+        public Cart Forward() => Move(Dir);
+
+        public Cart Left() => Move(Dir.CounterClockwise());
+        
+        public Cart Right() => Move(Dir.Clockwise());
+    }
     
     public override int PartOne()
     {
@@ -19,59 +28,7 @@ public class Day17 : Puzzle<int>
         {
             Cell = (_, b) => b,
             Distance = state => grid[state.Current],
-            Neighbors = state =>
-            {
-                var (current, dir, line) = state;
-                var left = state.Dir.CounterClockwise();
-                var right = state.Dir.Clockwise();
-
-                if (Part == 2)
-                {
-                    if (line < 4)
-                    {
-                        // Can only go forward
-                        return [state with {Current = current + dir, Line = line + 1}];
-                    }
-                    if (line == 10)
-                    {
-                        // Must turn
-                        return
-                        [
-                            new Cart(current + left, left, 1),
-                            new Cart(current + right, right, 1)
-                        ];
-                    }
-                    // Can go left, right, or forward
-                    return
-                    [
-                        new Cart(current + left, left, 1),
-                        new Cart(current + right, right, 1),
-                        state with {Current = current + dir, Line = line + 1}
-                    ];
-                }
-                else
-                {
-                    if (line < 3)
-                    {
-                        // Can go left, right, or forward
-                        return
-                        [
-                            new Cart(current + left, left, 1),
-                            new Cart(current + right, right, 1),
-                            state with {Current = current + dir, Line = line + 1}
-                        ];
-                    }
-                    else
-                    {
-                        // Must turn
-                        return
-                        [
-                            new Cart(current + left, left, 1),
-                            new Cart(current + right, right, 1)
-                        ];
-                    }
-                }
-            },
+            Neighbors = NextCarts,
         };
         
         // From the start you can go right or down
@@ -85,5 +42,20 @@ public class Day17 : Puzzle<int>
             if (state.Current != grid.Bounds.DiagMaxMin) return false;
             return Part != 2 || state.Line >= 4;
         }
+    }
+
+    private IEnumerable<Cart> NextCarts(Cart cart)
+    {
+        var straight = cart.Line;
+
+        if (Part == 2)
+        {
+            if (straight < 4) return [cart.Forward()];
+            if (straight == 10) return [cart.Left(), cart.Right()];
+            return [cart.Left(), cart.Right(), cart.Forward()];
+        }
+        
+        if (straight < 3) return [cart.Left(), cart.Right(), cart.Forward()];
+        return [cart.Left(), cart.Right()];
     }
 }

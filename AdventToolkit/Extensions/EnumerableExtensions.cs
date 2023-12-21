@@ -609,6 +609,20 @@ public static class EnumerableExtensions
         return d;
     }
 
+    public static Dictionary<TKey, TValue> ToDictionaryMerge<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items, Func<TValue, TValue, TValue> merge)
+    {
+        var d = new Dictionary<TKey, TValue>();
+        d.Merge(items, merge);
+        return d;
+    }
+    
+    public static Dictionary<TKey, TValue> ToDictionaryMerge<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items, Func<TKey, TValue, TValue, TValue> merge)
+    {
+        var d = new Dictionary<TKey, TValue>();
+        d.Merge(items, merge);
+        return d;
+    }
+
     public static DefaultDict<TKey, TValue> ToDefaultDictFirst<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs)
     {
         var d = new DefaultDict<TKey, TValue>();
