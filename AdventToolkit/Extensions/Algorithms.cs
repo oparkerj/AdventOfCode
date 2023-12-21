@@ -568,9 +568,10 @@ public static class Algorithms
         return t;
     }
 
-    public static T RepeatAction<T>(this T t, Action<T> action, int amount)
+    public static T RepeatAction<T, TNum>(this T t, Action<T> action, TNum amount)
+        where TNum : INumber<TNum>
     {
-        for (var i = 0; i < amount; i++)
+        for (var i = TNum.Zero; i < amount; i++)
         {
             action(t);
         }

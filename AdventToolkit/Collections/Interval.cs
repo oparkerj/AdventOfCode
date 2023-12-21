@@ -8,13 +8,16 @@ namespace AdventToolkit.Collections;
 
 public readonly struct Interval : IEnumerable<int>
 {
-    public readonly int Start;
-    public readonly int Length;
+    private readonly int _start;
+    private readonly int _length;
+    
+    public int Start => _start;
+    public int Length => _length;
 
     public Interval(int start, int length)
     {
-        Start = start;
-        Length = length;
+        _start = start;
+        _length = length;
     }
         
     public Interval(int length) : this(0, length) { }
@@ -33,7 +36,7 @@ public readonly struct Interval : IEnumerable<int>
         
     public static Interval RangeInclusive(int start, int end) => new(start, end - start + 1);
 
-    public static Interval Count(int count, int start = 0) => new(start, count);
+    public static Interval Span(int count, int start = 0) => new(start, count);
 
     public int End => Start + Length;
 
@@ -90,6 +93,8 @@ public readonly struct Interval : IEnumerable<int>
     {
         return RangeInclusive(Math.Min(Start - left, Start), Math.Max(Last, Last + right));
     }
+
+    public Interval Slice(int start, int length) => new(Start + start, length);
 
     public int Sum() => Algorithms.SumRange(Start, Last);
 

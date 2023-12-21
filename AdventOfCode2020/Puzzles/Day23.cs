@@ -56,7 +56,7 @@ public class Day23 : Puzzle
         100.Times(Move);
         var result = "";
         var c = 1;
-        foreach (var _ in Interval.Count(Max - 1))
+        foreach (var _ in Interval.Span(Max - 1))
         {
             result += c = Next[c];
         }

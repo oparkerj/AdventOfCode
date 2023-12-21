@@ -28,6 +28,7 @@ public class Day4 : Puzzle<int>
         for (var i = 0; i < Input.Length; i++)
         {
             var wins = WinCount(Input.Length - i - 1);
+            // var gain = scores[(i - wins)..].Sum() + 1
             var gain = 1;
             for (var prev = 1; prev <= wins; prev++)
             {

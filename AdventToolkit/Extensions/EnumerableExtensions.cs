@@ -526,6 +526,11 @@ public static class EnumerableExtensions
     {
         return source.Select(item => new KeyValuePair<T, TV>(item, func(item)));
     }
+    
+    public static IEnumerable<KeyValuePair<T, TV>> With<T, TV>(this IEnumerable<T> source, TV value)
+    {
+        return source.Select(item => new KeyValuePair<T, TV>(item, value));
+    }
 
     public static T[] ToArray<T>(this IEnumerable<T> source, int size)
     {
@@ -612,6 +617,20 @@ public static class EnumerableExtensions
         {
             d[key] = value;
         }
+        return d;
+    }
+
+    public static Dictionary<TKey, TValue> ToDictionaryMerge<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items, Func<TValue, TValue, TValue> merge)
+    {
+        var d = new Dictionary<TKey, TValue>();
+        d.Merge(items, merge);
+        return d;
+    }
+    
+    public static Dictionary<TKey, TValue> ToDictionaryMerge<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items, Func<TKey, TValue, TValue, TValue> merge)
+    {
+        var d = new Dictionary<TKey, TValue>();
+        d.Merge(items, merge);
         return d;
     }
 
