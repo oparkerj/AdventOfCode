@@ -1,62 +1,48 @@
-using System.Numerics;
 using AdventToolkit;
 using AdventToolkit.Attributes;
-using AdventToolkit.Collections;
-using AdventToolkit.Common;
 using AdventToolkit.Extensions;
+using AdventToolkit.Utilities;
 
 namespace AdventOfCode2023.Puzzles;
 
 [CopyResult]
-public class Day21 : Puzzle<int, BigInteger>
+public class Day21 : Puzzle<long>
 {
-    public override int PartOne()
+    public Day21()
     {
-        var grid = Input.ToGrid();
-
-        var current = new HashSet<Pos>();
-        var temp = new HashSet<Pos>();
-        current.Add(grid.Find('S'));
-
-        var result = 0;
-        for (var i = 0; i < 64; i++)
-        {
-            temp.Clear();
-            foreach (var pos in current)
-            {
-                foreach (var next in pos.Adjacent().Where(p => grid.Has(p) && grid[p] != '#'))
-                {
-                    temp.Add(next);
-                }
-            }
-            (current, temp) = (temp, current);
-        }
-
-        return current.Count;
+        Part = 1;
     }
 
-    public override BigInteger PartTwo()
+    public override long PartOne()
     {
         var grid = Input.ToGrid();
-
-        var current = new DefaultDict<Pos, BigInteger>();
-        var temp = new DefaultDict<Pos, BigInteger>();
-        current[grid.Find('S')] = 1;
         
-        // TODO figure this out (super duper wrong)
-        for (var i = 0; i < 64; i++)
-        {
-            temp.Clear();
-            foreach (var (pos, amount) in current)
-            {
-                foreach (var next in pos.Adjacent().Where(p => grid[p] != '#'))
-                {
-                    temp[next] += amount;
-                }
-            }
-            (current, temp) = (temp, current);
-        }
+        var reachable = grid.DijkstraFrom(grid.Find('S'), pos => grid[pos] == '.');
 
-        return current.Values.Sum();
+        if (Part == 1)
+        {
+            return reachable.Values.Count(tuple => tuple.Dist.Even() && tuple.Dist <= 64);
+        }
+        else
+        {
+            // Number of steps is designed so you will exactly walk to the edge of one of
+            // the infinite tiles.
+            const long steps = 26501365;
+            var half = grid.Bounds.Width / 2;
+            var tiles = (steps - half) / grid.Bounds.Width;
+
+            // The center row and column is empty, so the resulting area of travel will be a diamond.
+            // Here calculate the number of whole grids that are contained in that area, as well as
+            // the are of the partial grids that the edge passes through.
+            var oddGrids = reachable.Values.Count(tuple => tuple.Dist.Odd());
+            var evenGrids = reachable.Values.Count(tuple => tuple.Dist.Even());
+            var oddCorners = reachable.Values.Count(tuple => tuple.Dist.Odd() && tuple.Dist > half);
+            var evenCorners = reachable.Values.Count(tuple => tuple.Dist.Even() && tuple.Dist > half);
+        
+            return (tiles + 1) * (tiles + 1) * oddGrids
+                   + tiles * tiles * evenGrids
+                   - (tiles + 1) * oddCorners
+                   + tiles * evenCorners;
+        }
     }
 }
