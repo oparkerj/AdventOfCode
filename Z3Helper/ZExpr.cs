@@ -13,6 +13,8 @@ public readonly struct ZExpr
     public static implicit operator ArithExpr(ZExpr expr) => expr.Expr;
 
     public static implicit operator ZExpr(int i) => i.Int();
+    
+    public static implicit operator ZExpr(long i) => i.Int();
 
     public static implicit operator ZExpr(string s) => s.IntConst();
 
