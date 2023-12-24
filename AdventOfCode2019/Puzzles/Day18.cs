@@ -93,7 +93,7 @@ public class Day18 : Puzzle
 
         var result = Solve(graph, new State<DataVertex<char, int>>(start, 0, ""), state =>
         {
-            var search = graph.ToDijkstra().ComputeWhere(state.Pos, vertex => char.IsLower(vertex.Value) || state.Keys.Contains(char.ToLower(vertex.Value)) || vertex.Value == You);
+            var search = graph.ToDijkstraDataEdge().ComputeWhere(state.Pos, vertex => char.IsLower(vertex.Value) || state.Keys.Contains(char.ToLower(vertex.Value)) || vertex.Value == You);
             var useless = search.Keys.Where(vertex => char.IsUpper(vertex.Value) || state.Keys.Contains(vertex.Value) || vertex.Value == You).ToList();
             foreach (var vertex in useless)
             {
@@ -140,7 +140,7 @@ public class Day18 : Puzzle
             var bots = state.Pos.Positions;
             for (var i = 0; i < bots.Length; i++)
             {
-                var search = graph.ToDijkstra().ComputeWhere(bots[i], vertex => char.IsLower(vertex.Value) || char.IsNumber(vertex.Value) || state.Keys.Contains(char.ToLower(vertex.Value)));
+                var search = graph.ToDijkstraDataEdge().ComputeWhere(bots[i], vertex => char.IsLower(vertex.Value) || char.IsNumber(vertex.Value) || state.Keys.Contains(char.ToLower(vertex.Value)));
                 var useless = search.Keys.Where(vertex => char.IsUpper(vertex.Value) || char.IsNumber(vertex.Value) || state.Keys.Contains(vertex.Value)).ToList();
                 foreach (var vertex in useless)
                 {

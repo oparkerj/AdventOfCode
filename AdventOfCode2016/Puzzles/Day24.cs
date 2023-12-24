@@ -90,7 +90,7 @@ public class Day24 : Puzzle
 
         var result = Solve(graph, new State<DataVertex<char, int>>(start, 0, "0"), state =>
         {
-            var search = graph.ToDijkstra().ComputeWhere(state.Pos, vertex => char.IsNumber(vertex.Value) || state.Keys.Contains(vertex.Value));
+            var search = graph.ToDijkstraDataEdge().ComputeWhere(state.Pos, vertex => char.IsNumber(vertex.Value) || state.Keys.Contains(vertex.Value));
             var useless = search.Keys.Where(vertex => state.Keys.Contains(vertex.Value)).ToList();
             foreach (var vertex in useless)
             {
@@ -108,7 +108,7 @@ public class Day24 : Puzzle
 
         var result = Solve(graph, new State<DataVertex<char, int>>(start, 0, ""), state =>
         {
-            var search = graph.ToDijkstra().ComputeWhere(state.Pos, vertex => char.IsNumber(vertex.Value) || state.Keys.Contains(vertex.Value));
+            var search = graph.ToDijkstraDataEdge().ComputeWhere(state.Pos, vertex => char.IsNumber(vertex.Value) || state.Keys.Contains(vertex.Value));
             var useless = search.Keys.Where(vertex => state.Keys.Contains(vertex.Value)).ToList();
             foreach (var vertex in useless)
             {
