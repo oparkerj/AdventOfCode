@@ -15,6 +15,12 @@ public static class Zzz
 
     public static Solver Solver() => Context.MkSolver();
 
+    public static T Get<T>(this Model model, Expr expr)
+        where T : IParsable<T>
+    {
+        return T.Parse(model.ConstInterp(expr).ToString(), null);
+    }
+
     public static IEnumerable<ArithExpr> Z3(this IEnumerable<ZExpr> exprs)
     {
         return exprs.Select(expr => (ArithExpr) expr);
@@ -25,17 +31,13 @@ public static class Zzz
         return exprs.Select(expr => (BoolExpr) expr);
     }
 
-    public static ZExpr Int(this int i) => Context.MkInt(i);
+    public static ZExpr ZInt(this int i) => Context.MkInt(i);
     
-    public static ZExpr Int(this long i) => Context.MkInt(i);
+    public static ZExpr ZInt(this long i) => Context.MkInt(i);
 
     public static ZExpr IntConst(this string s) => Context.MkIntConst(s);
     
     public static ZExpr RealConst(this string s) => Context.MkRealConst(s);
-
-    public static ZExpr Variable(this string s) => s.IntConst();
-    
-    public static ZExpr RealVariable(this string s) => s.RealConst();
 
     public static ZExpr Condition(this ZbExpr expr, ZExpr left, ZExpr right)
     {

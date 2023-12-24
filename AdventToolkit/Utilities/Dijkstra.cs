@@ -4,7 +4,7 @@ using System.Linq;
 using AdventToolkit.Collections;
 using AdventToolkit.Collections.Space;
 using AdventToolkit.Extensions;
-using Dist = System.ValueTuple<int, int>;
+using Dist = (int, int);
 
 namespace AdventToolkit.Utilities;
 
@@ -308,35 +308,38 @@ public class Dijkstra<TCell, TMid>
         return (-1, default);
     }
     
-    public (int, TCell) ComputeMax(TCell start, Func<TCell, bool> target, Func<TCell, TCell, bool> valid)
+    public Dictionary<TCell, int> ComputeFindMany(TCell start, Func<TCell, bool> target, Func<TCell, TCell, bool> valid)
     {
         valid ??= (_, _) => true; 
-        var dist = new DefaultDict<TCell, int> {DefaultValue = int.MinValue, [start] = 0};
+        var dist = new DefaultDict<TCell, int> {DefaultValue = int.MaxValue, [start] = 0};
+        var result = new Dictionary<TCell, int>();
         var seen = new HashSet<TCell>();
-        var queue = new PriorityQueue<TCell, int>();
-        queue.Enqueue(start, 0);
+        var queue = new PriorityQueue<TCell, Dist>();
+        queue.Enqueue(start, new Dist(Heuristic(start), 0));
         while (queue.Count > 0)
         {
             var cell = queue.Dequeue();
-            if (seen.Contains(cell)) continue;
+            if (!seen.Add(cell)) continue;
             var current = dist[cell];
-            // if (target(cell)) return (current, cell);
-            seen.Add(cell);
+            if (target(cell))
+            {
+                result[cell] = current;
+                continue;
+            }
             foreach (var neighbor in Neighbors(cell))
             {
                 var other = Cell(cell, neighbor);
                 if (!valid(cell, other)) continue;
                 var weight = Distance(neighbor);
                 var newScore = current + weight;
-                if (!seen.Contains(other)) queue.Enqueue(other, newScore);
-                if (newScore > dist[other])
+                if (!seen.Contains(other)) queue.Enqueue(other, new Dist(newScore + Heuristic(other), newScore));
+                if (newScore < dist[other])
                 {
                     dist[other] = newScore;
                 }
             }
         }
-        var (result, totalDist) = dist.WhereKey(target).MaxBy(pair => pair.Value);
-        return (totalDist, result);
+        return result;
     }
 }
 
@@ -378,7 +381,7 @@ public static class DijkstraExtensions
         };
     }
 
-    public static Dijkstra<T> ToDijkstra<T>(this ISpace<T> space) => new(space.GetNeighbors);
+    public static Dijkstra<T> SpaceToDijkstra<T>(this ISpace<T> space) => new(space.GetNeighbors);
 
     public static Dijkstra<TCell, TMid> ToDijkstra<TCell, TMid>(this IDijkstra<TCell, TMid> dijkstra)
     {

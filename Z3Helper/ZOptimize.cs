@@ -33,4 +33,10 @@ public static class ZOptimize
         }
         return o;
     }
+    
+    public static T Get<T>(this Optimize o, Expr expr)
+        where T : IParsable<T>
+    {
+        return o.Model.Get<T>(expr);
+    }
 }

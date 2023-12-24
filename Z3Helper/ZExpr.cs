@@ -1,7 +1,12 @@
 using Microsoft.Z3;
 
+#pragma warning disable CS0660, CS0661
+
 namespace Z3Helper;
 
+/// <summary>
+/// Wrapper for an expr in Z3
+/// </summary>
 public readonly struct ZExpr
 {
     public readonly ArithExpr Expr;
@@ -12,9 +17,9 @@ public readonly struct ZExpr
 
     public static implicit operator ArithExpr(ZExpr expr) => expr.Expr;
 
-    public static implicit operator ZExpr(int i) => i.Int();
+    public static implicit operator ZExpr(int i) => i.ZInt();
     
-    public static implicit operator ZExpr(long i) => i.Int();
+    public static implicit operator ZExpr(long i) => i.ZInt();
 
     public static implicit operator ZExpr(string s) => s.IntConst();
 

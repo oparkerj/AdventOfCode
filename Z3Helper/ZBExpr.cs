@@ -2,6 +2,9 @@ using Microsoft.Z3;
 
 namespace Z3Helper;
 
+/// <summary>
+/// Wrapper for a bool expr in Z3.
+/// </summary>
 public readonly struct ZbExpr
 {
     public readonly BoolExpr Expr;

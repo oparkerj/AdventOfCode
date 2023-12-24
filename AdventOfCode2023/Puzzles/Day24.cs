@@ -48,10 +48,10 @@ public class Day24 : Puzzle<long>
         solver.Add(stones.SelectMany(GetEquations).Z3());
         
         WriteLn(solver.Check());
-        return solver.Model.ConstInterp(x).ToString().AsLong()
-               + solver.Model.ConstInterp(y).ToString().AsLong()
-               + solver.Model.ConstInterp(z).ToString().AsLong();
+        return solver.GetAll<long>(x, y, z).Sum();
         
+        // Get the equations that set the xyz of the hailstone equal to
+        // the xyz of the thrown rock.
         ZbExpr[] GetEquations((long[], long[]) stone, int i)
         {
             var (pos, vel) = stone;
@@ -60,7 +60,7 @@ public class Day24 : Puzzle<long>
             [
                 pos[0] + vel[0] * t == x + vx * t,
                 pos[1] + vel[1] * t == y + vy * t,
-                pos[2] + vel[2] * t == z * vz * t,
+                pos[2] + vel[2] * t == z + vz * t,
             ];
         }
     }
