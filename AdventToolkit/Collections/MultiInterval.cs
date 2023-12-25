@@ -74,6 +74,8 @@ public class MultiInterval : IEnumerable<int>
 
     public IList<Interval> Intervals => _intervals.AsReadOnly();
 
+    public void Clear() => _intervals.Clear();
+
     public bool Contains(int i)
     {
         if (_intervals.Count == 0) return false;
@@ -108,43 +110,75 @@ public class MultiInterval : IEnumerable<int>
         _intervals[check.Start] = replace;
     }
 
+    public void AddRange(IEnumerable<Interval> intervals)
+    {
+        foreach (var interval in intervals)
+        {
+            Add(interval);
+        }
+    }
+
+    // Copied from new toolkit version
     public void Remove(Interval interval)
     {
         if (interval.Length == 0) return;
-        var check = GetOverlaps(interval);
-        if (check.Length == 0) return;
 
-        var first = -1;
-        var last = -1;
-        if (CheckOutside(interval, _intervals[check.Start]))
-        {
-            first = check.Start;
-            check = new Interval(check.Start + 1, check.Length - 1);
-        }
-        if (check.Length > 0 && CheckOutside(interval, _intervals[check.Last]))
-        {
-            last = check.Last;
-            check = new Interval(check.Start, check.Length - 1);
-        }
+        var overlaps = GetOverlaps(interval);
+        if (overlaps.Length == 0) return;
 
-        if (first > -1)
+        var first = _intervals[overlaps.Start];
+
+        // If the interval is contained entirely within the first interval
+        // then split it into two.
+        if (first.Contains(interval))
         {
-            if (CheckSplit(_intervals[first], interval))
+            if (first.Start == interval.Start)
             {
-                var chunk = _intervals[first];
-                _intervals[first] = Interval.Range(chunk.Start, interval.Start);
-                _intervals.Insert(first + 1, Interval.Range(interval.End, chunk.End));
+                _intervals[overlaps.Start] = Interval.Range(interval.End, first.End);
                 return;
             }
-
-            _intervals[first] = Interval.Range(_intervals[first].Start, interval.Start);
+            if (first.End != interval.End)
+            {
+                _intervals.Insert(overlaps.Start + 1, Interval.Range(interval.End, first.End));
+            }
+            _intervals[overlaps.Start] = new Interval(first.Start, interval.Start - first.Start);
+            return;
         }
-        if (last > -1)
+
+        // Adjust first interval if partially outside
+        if (first.Start < interval.Start)
         {
-            _intervals[last] = Interval.Range(interval.End, _intervals[last].End);
+            _intervals[overlaps.Start] = new Interval(first.Start, interval.Start - first.Start);
+            overlaps = new Interval(overlaps.Start + 1, overlaps.Length - 1);
         }
 
-        _intervals.RemoveRange(check.Start, check.Length);
+        // Adjust last interval if partially outside
+        var last = _intervals[overlaps.Last];
+        if (interval.Last < last.Last)
+        {
+            _intervals[overlaps.Last] = Interval.Range(interval.End, last.End);
+            overlaps = new Interval(overlaps.Start, overlaps.Length - 1);
+        }
+
+        // Delete everything in the middle
+        _intervals.RemoveRange(overlaps.Start, overlaps.Length);
+    }
+
+    // Copied from new toolkit version
+    public IEnumerable<Interval> Intersect(Interval interval)
+    {
+        var overlaps = GetOverlaps(interval);
+        if (overlaps.Length == 0) yield break;
+
+        yield return interval.Overlap(_intervals[overlaps.Start]);
+        if (overlaps.Length <= 1) yield break;
+
+        var i = overlaps.Start + 1;
+        for (; i < overlaps.Last; ++i)
+        {
+            yield return _intervals[i];
+        }
+        yield return interval.Overlap(_intervals[i]);
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -156,4 +190,9 @@ public class MultiInterval : IEnumerable<int>
     public int Max() => _intervals[^1].Last;
 
     public int Min() => _intervals[0].Start;
+
+    public override string ToString()
+    {
+        return string.Join(", ", _intervals);
+    }
 }

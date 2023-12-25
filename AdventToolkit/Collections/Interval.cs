@@ -36,7 +36,9 @@ public readonly struct Interval : IEnumerable<int>
         
     public static Interval RangeInclusive(int start, int end) => new(start, end - start + 1);
 
-    public static Interval Span(int count, int start = 0) => new(start, count);
+    public static Interval Count(int count, int start = 0) => new(start, count);
+
+    public static Interval Span(int a, int b) => new(Math.Min(a, b), Math.Abs(a - b) + 1);
 
     public int End => Start + Length;
 
@@ -95,6 +97,12 @@ public readonly struct Interval : IEnumerable<int>
     }
 
     public Interval Slice(int start, int length) => new(Start + start, length);
+
+    public void Deconstruct(out int start, out int length)
+    {
+        start = _start;
+        length = _length;
+    }
 
     public int Sum() => Algorithms.SumRange(Start, Last);
 
