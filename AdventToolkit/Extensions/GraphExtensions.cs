@@ -72,6 +72,13 @@ public static class GraphExtensions
         return start.Reachable<T, TVertex, TEdge>(valid);
     }
 
+    public static IEnumerable<TVertex> ReachableIgnoreDirection<T, TVertex, TEdge>(this Graph<T, TVertex, TEdge> graph, TVertex start, Func<TVertex, bool> valid = null)
+        where TVertex : Vertex<T, TEdge>
+        where TEdge : Edge<T>
+    {
+        return start.ReachableIgnoreDirection<T, TVertex, TEdge>(valid);
+    }
+
     public static IEnumerable<TVertex> Reachable<T, TVertex, TEdge>(this TVertex start, Func<TVertex, bool> valid = null)
         where TVertex : Vertex<T, TEdge>
         where TEdge : Edge<T>
@@ -88,6 +95,31 @@ public static class GraphExtensions
             var neighbors = current.Edges
                 .Select(edge => edge.OtherAs(current))
                 .Where(Data.NotNull<TVertex>())
+                .Where(valid)
+                .Where(v => !visited.Contains(v));
+            foreach (var next in neighbors)
+            {
+                queue.Enqueue(next);
+                visited.Add(next);
+            }
+        }
+    }
+    
+    public static IEnumerable<TVertex> ReachableIgnoreDirection<T, TVertex, TEdge>(this TVertex start, Func<TVertex, bool> valid = null)
+        where TVertex : Vertex<T, TEdge>
+        where TEdge : Edge<T>
+    {
+        valid ??= _ => true;
+        var visited = new HashSet<TVertex>();
+        var queue = new Queue<TVertex>();
+        queue.Enqueue(start);
+        visited.Add(start);
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            yield return current;
+            var neighbors = current.Edges
+                .Select(edge => edge.OtherVertexAs(current))
                 .Where(valid)
                 .Where(v => !visited.Contains(v));
             foreach (var next in neighbors)
