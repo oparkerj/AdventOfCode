@@ -1,5 +1,4 @@
 using AdventToolkit;
-using AdventToolkit.Collections.Space;
 using AdventToolkit.Common;
 using AdventToolkit.Extensions;
 
@@ -7,35 +6,47 @@ namespace AdventOfCode2023.Puzzles;
 
 public class Day18 : Puzzle<long>
 {
-    public Day18()
+    public long GetArea(IEnumerable<Pos> offsets)
     {
-        // InputName = "Day18Ex.txt";
+        var total = 0L;
+        var x = 0L;
+        var perimeter = 0L;
+        foreach (var delta in offsets)
+        {
+            x += delta.X;
+            total += x * delta.Y;
+            perimeter += delta.MDist(Pos.Zero);
+        }
+        return Math.Abs(total) + perimeter / 2 + 1;
     }
 
     public override long PartOne()
     {
-        var grid = new Grid<int>();
-        var last = Pos.Origin;
-
-        foreach (var inst in Input)
+        var offsets = Input.Select(s =>
         {
-            var parts = inst.Spaced().ToArray(3);
-            var (dir, len, color) = (parts[0][0], parts[1].AsInt(), Convert.ToInt32(parts[2][2..^1], 16));
-            var offset = Pos.RelativeDirection(dir) * len;
-            foreach (var pos in last.EachTo(last + offset))
-            {
-                grid[pos] = color;
-            }
-            last += offset;
-        }
-
-        var inside = false;
-        foreach (var pos in grid.Bounds)
-        {
-            if (grid.Has(pos) && grid.Has(pos + Pos.Down)) inside = !inside;
-            else if (inside) grid[pos] = 0;
-        }
+            var (dir, len) = s.Spaced().ToTuple2();
+            return Pos.RelativeDirection(dir[0]) * len.AsInt();
+        });
         
-        return grid.Count;
+        return GetArea(offsets);
+    }
+
+    public override long PartTwo()
+    {
+        var offsets = Input.Select(s =>
+        {
+            var hex = s.Spaced().Last()[2..^1];
+            var dir = hex[^1] switch
+            {
+                '0' => 'R',
+                '1' => 'D',
+                '2' => 'L',
+                '3' => 'U',
+            };
+            var dist = Convert.ToInt32(hex[..^1], 16);
+            return Pos.RelativeDirection(dir) * dist;
+        });
+        
+        return GetArea(offsets);
     }
 }
