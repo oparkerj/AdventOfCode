@@ -17,11 +17,24 @@ public class Edge<T>
         if (vertex == To) return From;
         return null;
     }
+    
+    public virtual VertexBase<T> OtherVertex(VertexBase<T> vertex)
+    {
+        if (vertex == From) return To;
+        if (vertex == To) return From;
+        return null;
+    }
 
     public TVertex OtherAs<TVertex>(TVertex vertex)
         where TVertex : VertexBase<T>
     {
         return Other(vertex) as TVertex;
+    }
+    
+    public TVertex OtherVertexAs<TVertex>(TVertex vertex)
+        where TVertex : VertexBase<T>
+    {
+        return OtherVertex(vertex) as TVertex;
     }
 
     public bool IsBetween(VertexBase<T> a, VertexBase<T> b)

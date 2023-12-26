@@ -54,7 +54,7 @@ public static class GraphExtensions
         var graph = new UniqueDigraph<TT>();
         foreach (var item in source)
         {
-            graph.GetOrCreate(parent(item)).LinkTo(graph.GetOrCreate(child(item)));
+            graph.GetOrCreate(parent(item)).LinkToDirected(graph.GetOrCreate(child(item)));
         }
         return graph;
     }
@@ -70,6 +70,13 @@ public static class GraphExtensions
         where TEdge : Edge<T>
     {
         return start.Reachable<T, TVertex, TEdge>(valid);
+    }
+
+    public static IEnumerable<TVertex> ReachableIgnoreDirection<T, TVertex, TEdge>(this Graph<T, TVertex, TEdge> graph, TVertex start, Func<TVertex, bool> valid = null)
+        where TVertex : Vertex<T, TEdge>
+        where TEdge : Edge<T>
+    {
+        return start.ReachableIgnoreDirection<T, TVertex, TEdge>(valid);
     }
 
     public static IEnumerable<TVertex> Reachable<T, TVertex, TEdge>(this TVertex start, Func<TVertex, bool> valid = null)
@@ -97,11 +104,47 @@ public static class GraphExtensions
             }
         }
     }
+    
+    public static IEnumerable<TVertex> ReachableIgnoreDirection<T, TVertex, TEdge>(this TVertex start, Func<TVertex, bool> valid = null)
+        where TVertex : Vertex<T, TEdge>
+        where TEdge : Edge<T>
+    {
+        valid ??= _ => true;
+        var visited = new HashSet<TVertex>();
+        var queue = new Queue<TVertex>();
+        queue.Enqueue(start);
+        visited.Add(start);
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            yield return current;
+            var neighbors = current.Edges
+                .Select(edge => edge.OtherVertexAs(current))
+                .Where(valid)
+                .Where(v => !visited.Contains(v));
+            foreach (var next in neighbors)
+            {
+                queue.Enqueue(next);
+                visited.Add(next);
+            }
+        }
+    }
 
-    public static Dijkstra<TVertex, DataEdge<T, int>> ToDijkstra<T, TVertex>(this Graph<T, TVertex, DataEdge<T, int>> graph)
+    public static Dijkstra<TVertex, DataEdge<T, int>> ToDijkstraDataEdge<T, TVertex>(this Graph<T, TVertex, DataEdge<T, int>> graph)
         where TVertex : Vertex<T, DataEdge<T, int>>
     {
         return new Dijkstra<TVertex, DataEdge<T, int>>
+        {
+            Neighbors = vertex => vertex.NeighborEdges,
+            Distance = edge => edge.Data,
+            Cell = (vertex, edge) => edge.OtherAs(vertex)
+        };
+    }
+    
+    public static Dijkstra<TVertex, DirectedDataEdge<T, int>> ToDijkstraDataEdge<T, TVertex>(this Graph<T, TVertex, DirectedDataEdge<T, int>> graph)
+        where TVertex : Vertex<T, DirectedDataEdge<T, int>>
+    {
+        return new Dijkstra<TVertex, DirectedDataEdge<T, int>>
         {
             Neighbors = vertex => vertex.NeighborEdges,
             Distance = edge => edge.Data,
@@ -152,9 +195,14 @@ public static class GraphExtensions
         vertex.LinkTo(other, (a, b) => new Edge<T>(a, b));
     }
         
-    public static void LinkTo<T>(this Vertex<T, DirectedEdge<T>> vertex, Vertex<T, DirectedEdge<T>> other)
+    public static void LinkToDirected<T>(this Vertex<T, DirectedEdge<T>> vertex, Vertex<T, DirectedEdge<T>> other)
     {
         vertex.LinkTo(other, (a, b) => new DirectedEdge<T>(a, b));
+    }
+    
+    public static void LinkToDirected<T, TData>(this Vertex<T, DirectedDataEdge<T, TData>> vertex, Vertex<T, DirectedDataEdge<T, TData>> other, TData data)
+    {
+        vertex.LinkTo(other, (a, b) => new DirectedDataEdge<T, TData>(a, b, data));
     }
 
     public static void LinkTo<T, TEdge>(this Vertex<T, TEdge> vertex, Vertex<T, TEdge> other, Func<Vertex<T, TEdge>, Vertex<T, TEdge>, TEdge> cons)

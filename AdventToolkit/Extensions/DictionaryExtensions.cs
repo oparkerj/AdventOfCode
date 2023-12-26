@@ -13,7 +13,7 @@ public static class DictionaryExtensions
         return dictionary[key] = cons();
     }
     
-    public static TValue GetOrNew<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key)
+    public static TValue GetOrNew<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         where TValue : new()
     {
         if (dictionary.TryGetValue(key, out var value)) return value;

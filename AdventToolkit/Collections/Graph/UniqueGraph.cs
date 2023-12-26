@@ -50,7 +50,8 @@ public class UniqueDataDigraph<T, TData> : UniqueGraph<T, Vertex<T, DirectedData
 public class DataGraphHelper<T, TData>
 {
     public readonly UniqueDataGraph<T, TData> Graph;
-    private DataVertex<T, TData> _parent;
+    
+    public DataVertex<T, TData> Parent { get; set; }
 
     public DataGraphHelper(UniqueDataGraph<T, TData> graph) => Graph = graph;
 
@@ -64,14 +65,22 @@ public class DataGraphHelper<T, TData>
 
     public DataGraphHelper<T, TData> Add(T item)
     {
-        _parent = GetOrCreate(item);
+        Parent = GetOrCreate(item);
         return this;
     }
 
     public DataGraphHelper<T, TData> AddLink(T item, TData data)
     {
         var node = GetOrCreate(item);
-        _parent.LinkTo(node, new DataEdge<T, TData>(_parent, node, data));
+        Parent.LinkTo(node, new DataEdge<T, TData>(Parent, node, data));
+        return this;
+    }
+    
+    public DataGraphHelper<T, TData> AddLink(T from, T to, TData data)
+    {
+        var fromNode = GetOrCreate(from);
+        var toNode = GetOrCreate(to);
+        fromNode.LinkTo(toNode, new DataEdge<T, TData>(fromNode, toNode, data));
         return this;
     }
 }

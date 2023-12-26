@@ -37,7 +37,7 @@ public class Day21 : Puzzle<long>
             vars[name] = name.IntConst();
             if (s.Count(' ') == 1)
             {
-                parts[name] = s.After(' ').AsInt().Int();
+                parts[name] = s.After(' ').AsInt().ZInt();
             }
             else
             {
