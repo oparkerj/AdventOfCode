@@ -10,7 +10,7 @@ namespace AdventToolkit.New.Data;
 /// </summary>
 /// <param name="Value"></param>
 /// <typeparam name="T"></typeparam>
-public record struct Num<T>(T Value) : INumber<Num<T>>
+public readonly record struct Num<T>(T Value) : INumber<Num<T>>
     where T : struct, INumber<T>
 {
     public static Num<T> AdditiveIdentity => new(T.AdditiveIdentity);
@@ -85,9 +85,13 @@ public record struct Num<T>(T Value) : INumber<Num<T>>
 
     public static implicit operator Num<T>(T t) => new(t);
 
-    public static explicit operator bool(Num<T> num) => num.Value != T.Zero;
+    public static implicit operator bool(Num<T> num) => num.Value != T.Zero;
 
     public static implicit operator Num<T>(bool b) => new(b ? T.One : T.Zero);
+
+    public static bool operator true(Num<T> num) => num.Value != T.Zero;
+
+    public static bool operator false(Num<T> num) => num.Value == T.Zero;
 
     public static Num<T> operator +(Num<T> left, Num<T> right) => new(left.Value + right.Value);
 
@@ -203,4 +207,6 @@ public record struct Num<T>(T Value) : INumber<Num<T>>
     {
         return T.TryConvertToTruncating(value.Value, out result);
     }
+
+    public override string? ToString() => Value.ToString();
 }

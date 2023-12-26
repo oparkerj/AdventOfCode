@@ -11,11 +11,17 @@ namespace AdventToolkit.New.Data;
 public class CircularArray<T> : IEnumerable<T>
 {
     public readonly T[] Data;
+
+    private int _pointer;
     
     /// <summary>
     /// Index in the array where the next element will be added.
     /// </summary>
-    public int Pointer { get; set; }
+    public int Pointer
+    {
+        get => _pointer;
+        set => _pointer = value.Mod(Data.Length);
+    }
     
     /// <summary>
     /// Size of the array.
@@ -51,10 +57,10 @@ public class CircularArray<T> : IEnumerable<T>
     /// <param name="item"></param>
     public void Add(T item)
     {
-        Data[Pointer] = item;
-        if (++Pointer >= Data.Length)
+        Data[_pointer] = item;
+        if (++_pointer >= Data.Length)
         {
-            Pointer = 0;
+            _pointer = 0;
         }
     }
     
@@ -95,12 +101,12 @@ public class CircularArray<T> : IEnumerable<T>
 
     /// <summary>
     /// Clear the internal array.
-    /// Also resets <see cref="Offset"/> and <see cref="Pointer"/>.
+    /// Also resets <see cref="Pointer"/>.
     /// </summary>
     public void Clear()
     {
         Array.Clear(Data);
-        Pointer = 0;
+        _pointer = 0;
     }
     
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

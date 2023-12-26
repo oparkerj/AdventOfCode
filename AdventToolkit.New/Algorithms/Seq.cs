@@ -88,7 +88,7 @@ public static class Seq
 
     /// <summary>
     /// Yields sequences of strictly increasing values.
-    /// The initial sequence is [start, start + 1, .., start + delta - 1].
+    /// The initial sequence is [start, start + 1, .., start + length - 1].
     /// The final sequence is the initial sequence increased by the delta.
     /// Generates every sequence between the initial and final sequence.
     /// The same array is yielded each time.

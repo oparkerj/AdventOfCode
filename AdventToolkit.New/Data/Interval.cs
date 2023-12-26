@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using AdventToolkit.New.Extensions;
 using AdventToolkit.New.Interface;
 
 namespace AdventToolkit.New.Data;
@@ -11,6 +13,7 @@ namespace AdventToolkit.New.Data;
 /// </summary>
 /// <param name="Start">Start of the interval.</param>
 /// <param name="Length">Length of the interval.</param>
+[CollectionBuilder(typeof(IntervalExtensions), nameof(IntervalExtensions.Create))]
 public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T>, T>
     where T : INumber<T>
 {
@@ -19,6 +22,8 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     /// </summary>
     /// <param name="length">Interval length.</param>
     public Interval(T length) : this(T.Zero, length) { }
+    
+    public static Interval<T> Empty => new(T.Zero, T.Zero);
 
     /// <summary>
     /// Create an interval from the start and end points.
@@ -43,7 +48,12 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     /// <returns>Interval form [min(a, b), max(a, b)].</returns>
     public static Interval<T> Span(T a, T b) => new(T.Min(a, b), T.Abs(a - b) + T.One);
 
-    public static Interval<T> Empty => new(T.Zero, T.Zero);
+    /// <summary>
+    /// Convert a number to an interval containing only that number.
+    /// </summary>
+    /// <param name="t"></param>
+    /// <returns></returns>
+    public static implicit operator Interval<T>(T t) => new(t, T.One);
 
     /// <summary>
     /// Cast the interval to another number type.
@@ -171,6 +181,39 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
         Debug.Assert(Length + amount >= T.Zero, "Length is negative.");
         return this with {Length = Length + amount};
     }
+
+    /// <summary>
+    /// Slice the interval.
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="length"></param>
+    /// <returns></returns>
+    public Interval<T> Slice(T start, T length) => new(Start + start, length);
+
+    /// <summary>
+    /// Slice the interval using a range.
+    /// </summary>
+    /// <param name="r"></param>
+    public Interval<T> this[Range r]
+    {
+        get
+        {
+            var (start, end) = r.GetOffsets(Length);
+            return From(start, end);
+        }
+    }
+
+    /// <summary>
+    /// Get the value in the interval at the given index.
+    /// </summary>
+    /// <param name="i"></param>
+    public T this[Index i] => Start + i.GetOffset(Length);
+
+    /// <summary>
+    /// Get the value in the interval at the given offset.
+    /// </summary>
+    /// <param name="offset"></param>
+    public T this[T offset] => Start + offset;
 
     /// <summary>
     /// Copy the interval sequence to the span.
