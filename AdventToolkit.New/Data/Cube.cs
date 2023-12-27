@@ -32,6 +32,8 @@ public record Cube<T>(Interval<T> X, Interval<T> Y, Interval<T> Z) : ICube<Cube<
     }
 
     public static Cube<T> Empty => new(Interval<T>.Empty, Interval<T>.Empty, Interval<T>.Empty);
+    
+    public static implicit operator Cube<T>(Pos3<T> num) => new(num.X, num.Y, num.Z);
 
     public Pos3<T> Min => new(MinX, MinY, MinZ);
 

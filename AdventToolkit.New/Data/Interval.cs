@@ -24,35 +24,15 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     public Interval(T length) : this(T.Zero, length) { }
     
     public static Interval<T> Empty => new(T.Zero, T.Zero);
-
-    /// <summary>
-    /// Create an interval from the start and end points.
-    /// </summary>
-    /// <param name="start">Start value.</param>
-    /// <param name="end">End value (exclusive).</param>
-    /// <returns>Interval from [start, end).</returns>
+    
     public static Interval<T> From(T start, T end)
     {
         Debug.Assert(start <= end, "Start is after end.");
         return new Interval<T>(start, end - start);
     }
-
-    /// <summary>
-    /// Get an integer that inclusively spans between two values.
-    ///
-    /// This method will produce an interval with a positive length
-    /// which is always at least 1.
-    /// </summary>
-    /// <param name="a">First endpoint.</param>
-    /// <param name="b">Second endpoint.</param>
-    /// <returns>Interval form [min(a, b), max(a, b)].</returns>
+    
     public static Interval<T> Span(T a, T b) => new(T.Min(a, b), T.Abs(a - b) + T.One);
-
-    /// <summary>
-    /// Convert a number to an interval containing only that number.
-    /// </summary>
-    /// <param name="t"></param>
-    /// <returns></returns>
+    
     public static implicit operator Interval<T>(T t) => new(t, T.One);
 
     /// <summary>
@@ -69,37 +49,21 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     public T Max => Last;
 
     public T Size => Length;
-
-    /// <summary>
-    /// Get the end of the interval.
-    /// This is the value after the last value in the interval.
-    /// </summary>
+    
     public T End => Start + Length;
 
     /// <summary>
     /// Get the last value contained in the interval.
     /// </summary>
     public T Last => End - T.One;
-
-    /// <summary>
-    /// Check if a value is in the interval.
-    /// </summary>
-    /// <param name="i">Value.</param>
-    /// <returns>True if the value is in the interval, false otherwise.</returns>
+    
     public bool Contains(T i) => i >= Start && i <= Last;
     
     public bool Contains(Interval<T> t)
     {
         return t.Start >= Start && t.Last <= Last;
     }
-
-    /// <summary>
-    /// Get the intersection of this interval and another.
-    ///
-    /// If the intervals do not overlap, the result will have Length = 0.
-    /// </summary>
-    /// <param name="other">Other interval.</param>
-    /// <returns>Interval intersection.</returns>
+    
     public Interval<T> Intersect(Interval<T> other)
     {
         if (other.Start < Start)
@@ -235,7 +199,7 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
 
     public override string ToString() => Length > T.Zero ? $"[{Start}, {Last}]" : $"[{Start}]";
 
-    public Enumerator GetEnumerator() => new(Start, End);
+    public Enumerator GetEnumerator() => new(this);
     
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -250,10 +214,10 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
 
         public T Current { get; private set; }
 
-        public Enumerator(T current, T end)
+        public Enumerator(Interval<T> interval)
         {
-            Current = current - T.One;
-            _end = end;
+            Current = interval.Start - T.One;
+            _end = interval.End;
         }
 
         public bool MoveNext() => ++Current < _end;

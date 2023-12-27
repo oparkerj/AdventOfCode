@@ -8,10 +8,10 @@ namespace AdventToolkit.New.Data;
 /// Rect implemented as a record.
 /// Uses intervals to represent horizontal and vertical ranges.
 /// </summary>
-/// <param name="Horizontal"></param>
-/// <param name="Vertical"></param>
+/// <param name="X"></param>
+/// <param name="Y"></param>
 /// <typeparam name="T"></typeparam>
-public record Rect<T>(Interval<T> Horizontal, Interval<T> Vertical) : IRect<Rect<T>, T>
+public record Rect<T>(Interval<T> X, Interval<T> Y) : IRect<Rect<T>, T>
     where T : INumber<T>
 {
     public Rect(Pos<T> a, Pos<T> b) : this(Interval<T>.Span(a.X, b.X), Interval<T>.Span(a.Y, b.Y)) { }
@@ -24,22 +24,24 @@ public record Rect<T>(Interval<T> Horizontal, Interval<T> Vertical) : IRect<Rect
     public static Rect<T> Span(Pos<T> a, Pos<T> b) => new(a, b);
 
     public static Rect<T> Empty => new(Interval<T>.Empty, Interval<T>.Empty);
+    
+    public static implicit operator Rect<T>(Pos<T> num) => new(num.X, num.Y);
 
-    public T Width => Horizontal.Length;
+    public T Width => X.Length;
 
-    public T Height => Vertical.Length;
+    public T Height => Y.Length;
 
-    public T MinX => Horizontal.Start;
+    public T MinX => X.Start;
 
-    public T MinY => Vertical.Start;
+    public T MinY => Y.Start;
 
-    public T MaxX => Horizontal.Last;
+    public T MaxX => X.Last;
 
-    public T MaxY => Vertical.Last;
+    public T MaxY => Y.Last;
 
-    public T EndX => Horizontal.End;
+    public T EndX => X.End;
 
-    public T EndY => Vertical.End;
+    public T EndY => Y.End;
 
     public Pos<T> Min => new(MinX, MinY);
 
@@ -49,40 +51,30 @@ public record Rect<T>(Interval<T> Horizontal, Interval<T> Vertical) : IRect<Rect
 
     public Pos<T> Size => new(Width, Height);
 
-    public bool Contains(Pos<T> p) => Horizontal.Contains(p.X) && Vertical.Contains(p.Y);
+    public bool Contains(Pos<T> p) => X.Contains(p.X) && Y.Contains(p.Y);
     
-    public bool Contains(Rect<T> t) => Horizontal.Contains(t.Horizontal) && Vertical.Contains(t.Vertical);
+    public bool Contains(Rect<T> t) => X.Contains(t.X) && Y.Contains(t.Y);
 
-    public Rect<T> Intersect(Rect<T> other) => new(Horizontal.Intersect(other.Horizontal), Vertical.Intersect(other.Vertical));
+    public Rect<T> Intersect(Rect<T> other) => new(X.Intersect(other.X), Y.Intersect(other.Y));
 
-    public Enumerator GetEnumerator() => new(Horizontal, Vertical);
+    public Enumerator GetEnumerator() => new(X, Y);
     
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     
     IEnumerator<Pos<T>> IEnumerable<Pos<T>>.GetEnumerator() => GetEnumerator();
 
-    public struct Enumerator : IEnumerator<Pos<T>>
+    public struct Enumerator(Interval<T> x, Interval<T> y) : IEnumerator<Pos<T>>
     {
-        private readonly Interval<T> _x;
-        private readonly Interval<T> _y;
-        private T _currentX;
-        private T _currentY;
-
-        public Enumerator(Interval<T> x, Interval<T> y)
-        {
-            _x = x;
-            _y = y;
-            _currentX = x.Start - T.One;
-            _currentY = y.Start;
-        }
+        private T _currentX = x.Start - T.One;
+        private T _currentY = y.Start;
 
         public Pos<T> Current => new(_currentX, _currentY);
 
         public bool MoveNext()
         {
-            if (++_currentX < _x.End) return true;
-            _currentX = _x.Start;
-            return ++_currentY < _y.End;
+            if (++_currentX < x.End) return true;
+            _currentX = x.Start;
+            return ++_currentY < y.End;
         }
 
         public void Reset() => throw new NotSupportedException();
