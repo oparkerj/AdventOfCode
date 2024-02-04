@@ -68,7 +68,7 @@ public class SegmentParser<T> : ParseBase<string, T>
             {
                 throw new ArgumentException("No sections were given.");
             }
-            return (IParser<string, T>) ParseUtil.Adapt(AnchorSplit.Create(_anchors), typeof(T), Context);
+            return (IParser<string, T>) ParseUtil.Adapt(AnchorSplit.Create([string.Empty, .._anchors]), typeof(T), Context);
         }
         
         // If there is one section, then adapt it to the output type.
@@ -150,16 +150,32 @@ public class SegmentParser<T> : ParseBase<string, T>
         _anchors.Add(s);
         _selected++;
     }
+
+    /// <summary>
+    /// Empty type that prevents the "null" overload of <see cref="SegmentParser{T}.AppendFormatted"/>
+    /// from colliding with other types.
+    /// </summary>
+    public record struct Null;
+
+    /// <summary>
+    /// This overload is for the case when "null" is passed into the string interpolation.
+    /// This will call <see cref="AppendLiteral"/> with an empty string.
+    /// Effectively this will begin a new parse section that operates on the same portion
+    /// of string as the previous section.
+    /// </summary>
+    /// <param name="null"></param>
+    public void AppendFormatted(Null? @null) => AppendLiteral(string.Empty);
     
+    /// <inheritdoc cref="AppendFormatted{TItem}(TItem, string)"/>
     public void AppendFormatted<TItem>(TItem item) => AppendFormatted(item, string.Empty);
 
     /// <summary>
     /// This method is called for each interpolated value in the interpolated string.
     /// This adds the value to the parse builder in the current slot.
     /// </summary>
-    /// <param name="item"></param>
-    /// <param name="format"></param>
-    /// <typeparam name="TItem"></typeparam>
+    /// <param name="item">Builder value.</param>
+    /// <param name="format">Builder value extra data.</param>
+    /// <typeparam name="TItem">Builder value type.</typeparam>
     public void AppendFormatted<TItem>(TItem item, string format)
     {
         GetCurrentSlot().AddStage(item, format, Context);
