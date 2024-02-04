@@ -13,6 +13,10 @@
       <ProjectReference Include="..\AdventToolkit.New\AdventToolkit.New.csproj" />
       <ProjectReference Include="..\AdventToolkit\AdventToolkit.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <Compile Include="..\AdventToolkit.New\Common.cs"/>
+    </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />

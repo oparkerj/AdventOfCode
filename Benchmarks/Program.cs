@@ -1,4 +1,5 @@
 ﻿using AdventToolkit.New;
+using AdventToolkit.New.Parsing;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -13,6 +14,18 @@ public class BenchmarkMain
         // var summary = BenchmarkRunner.Run<BenchmarkMain>();
         // var summary = BenchmarkPuzzle<TestPuzzle>();
         // var summary = ComparePuzzle<Day1, Day1Better>();
+
+        var input = "1,2,3 ; 4,5,6 ; 7,8,9";
+        var result = input.Parse<List<List<int>>>($"{';'}{','}");
+        
+        foreach (var inner in result)
+        {
+            foreach (var s in inner)
+            {
+                Console.WriteLine(s);
+            }
+            Console.WriteLine("---");
+        }
     }
     
     private static Type GenericType(Type t) => t.IsGenericType ? t.GetGenericTypeDefinition() : t;
