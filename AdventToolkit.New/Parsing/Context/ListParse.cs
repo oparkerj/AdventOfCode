@@ -17,7 +17,7 @@ public class ListParse : ITypeDescriptor
 
     public bool TryGetCollectType(Type type, IReadOnlyParseContext context, out Type inner)
     {
-        inner = type.GetGenericArguments()[0];
+        inner = type.GetSingleTypeArgument();
         return true;
     }
 

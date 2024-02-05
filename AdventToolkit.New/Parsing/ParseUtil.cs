@@ -151,6 +151,33 @@ public static class ParseUtil
 
         return descriptor.TrySelect(type, out inner, out selector);
     }
+    
+    /// <summary>
+    /// Try to enumerate the given type.
+    /// </summary>
+    /// <param name="type">Current type.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="inner">Element type.</param>
+    /// <param name="selector">Parser that converts from the input type to an enumerable.</param>
+    /// <returns>True if the type can be enumerated, false otherwise.</returns>
+    public static bool TryGetInnerType(Type type, IReadOnlyParseContext context, out Type inner, out IParser? selector)
+    {
+        if (type.TryGetTypeArguments(typeof(IEnumerable<>), out var enumerableTypes))
+        {
+            inner = enumerableTypes[0];
+            selector = default;
+            return true;
+        }
+
+        if (context.TryLookupType(type, out var descriptor))
+        {
+            return descriptor.TrySelect(type, out inner, out selector);
+        }
+
+        inner = default!;
+        selector = default;
+        return false;
+    }
 
     /// <summary>
     /// Adapt a parser to a specific output type.
@@ -196,14 +223,37 @@ public static class ParseUtil
             return ParseJoin.InnerJoin(parser, convert, level, context);
         }
 
-        // If the source is enumerable then try to collect it.
-        if (context.TryLookupType(target, out var descriptor)
-            && descriptor.TryCollectSelf(target, context, out var targetInner, out var constructor)
-            && output.TryGetTypeArguments(typeof(IEnumerable<>), out var enumerableTypes))
+        // Check if the output is enumerable
+        var outputEnumerable = TryGetInnerType(output, context, out var outputInner, out var selector);
+        
+        // This is a special case of the next check.
+        // If the output is enumerable and the target is IEnumerable<>,
+        // then no collector is needed.
+        // This avoids the need to insert an "identity" parser.
+        if (target.Generic() == typeof(IEnumerable<>) && outputEnumerable)
         {
-            return ParseJoin.InnerJoin(AdaptInner(parser, enumerableTypes[0], targetInner, context, level + 1), constructor, level, context);
+            var joined = parser;
+            if (selector is not null)
+            {
+                joined = ParseJoin.InnerJoin(joined, selector, level, context);
+            }
+            return AdaptInner(joined, outputInner, target.GetSingleTypeArgument(), context, level + 1);
         }
 
-        throw new ArgumentException($"Could not adapt to target type. (Output = {output}, Target = {target})");
+        // If the output is enumerable and the target is collectable
+        // then try to adapt the inner type and collect it.
+        if (context.TryLookupType(target, out var descriptor)
+            && descriptor.TryCollectSelf(target, context, out var targetInner, out var constructor)
+            && outputEnumerable)
+        {
+            var joined = parser;
+            if (selector is not null)
+            {
+                joined = ParseJoin.InnerJoin(joined, selector, level, context);
+            }
+            return ParseJoin.InnerJoin(AdaptInner(joined, outputInner, targetInner, context, level + 1), constructor, level, context);
+        }
+
+        throw new ArgumentException($"Could not adapt to target type. (Output = {output.SimpleName()}, Target = {target.SimpleName()})");
     }
 }

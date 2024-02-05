@@ -176,7 +176,7 @@ public class ParseBuilder
         }
         else if (!context.TryApplyModifier(this, inputType, value, extra))
         {
-            throw new ArgumentException($"Could not add parser or modifier. (Value = {value}, Extra = \"{extra}\")");
+            throw new ArgumentException($"Could not add parser or modifier. (Value = {Types.SimpleValueString(value)}, Extra = \"{extra}\")");
         }
     }
 

@@ -16,7 +16,7 @@ public class BenchmarkMain
         // var summary = ComparePuzzle<Day1, Day1Better>();
 
         var input = "1,2,3 ; 4,5,6 ; 7,8,9";
-        var result = input.Parse<List<List<int>>>($"{';'}{','}");
+        var result = input.Parse<IEnumerable<IEnumerable<int>>>($"{';'}{','}");
         
         foreach (var inner in result)
         {

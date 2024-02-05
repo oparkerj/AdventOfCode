@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 
 namespace AdventToolkit.New.Algorithms;
 
@@ -11,6 +12,67 @@ public static class Types
     /// Primary size of built-in tuples before nesting occurs.
     /// </summary>
     public const int PrimaryTupleSize = 7;
+
+    /// <summary>
+    /// Add a human friendly name of a type to the builder.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="builder"></param>
+    private static void AddSimpleName(Type type, StringBuilder builder)
+    {
+        var name = type.Name;
+        if (type.IsGenericType)
+        {
+            builder.Append(name.AsSpan(0, name.LastIndexOf('`')));
+            builder.Append('<');
+
+            ReadOnlySpan<Type> types = type.GetGenericArguments();
+            AddSimpleName(types[0], builder);
+            foreach (var innerType in types[1..])
+            {
+                builder.Append(", ");
+                AddSimpleName(innerType, builder);
+            }
+            
+            builder.Append('>');
+        }
+        else
+        {
+            builder.Append(name);
+        }
+    }
+
+    /// <summary>
+    /// Get a simple version of the type name.
+    /// This version displays the type name the way you would type it into a code editor.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public static string SimpleName(this Type type)
+    {
+        var builder = new StringBuilder();
+        AddSimpleName(type, builder);
+        return builder.ToString();
+    }
+
+    /// <summary>
+    /// Get the <see cref="SimpleName"/> of a type followed by its string
+    /// representation in parenthesis.
+    /// </summary>
+    /// <param name="t"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static string SimpleValueString<T>(T t)
+    {
+        if (t is null) return "null";
+        
+        var builder = new StringBuilder();
+        AddSimpleName(t.GetType(), builder);
+        builder.Append('(');
+        builder.Append(t);
+        builder.Append(')');
+        return builder.ToString();
+    }
     
     /// <summary>
     /// Get a generic version of a type.
@@ -94,6 +156,18 @@ public static class Types
     public static Type[] GetTypeArgumentsOf(this object value, Type which)
     {
         return value.GetType().GetTypeArguments(which);
+    }
+
+    /// <summary>
+    /// Get the first type argument from a type.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public static Type GetSingleTypeArgument(this Type type)
+    {
+        var types = type.GetGenericArguments();
+        Debug.Assert(types.Length > 0);
+        return types[0];
     }
 
     /// <summary>
