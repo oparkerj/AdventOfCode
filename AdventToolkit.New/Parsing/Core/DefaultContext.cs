@@ -22,5 +22,11 @@ public class DefaultContext : ListContext
 
         var listParse = new ListParse();
         AddType(listParse);
+
+        var tupleParse = new TupleParse();
+        AddType(tupleParse);
+
+        var arrayParse = new ArrayParse();
+        AddType(arrayParse);
     }
 }

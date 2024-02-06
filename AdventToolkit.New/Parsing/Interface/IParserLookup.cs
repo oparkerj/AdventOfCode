@@ -1,5 +1,7 @@
 namespace AdventToolkit.New.Parsing.Interface;
 
+// TODO see if this would work better as a static abstract method
+
 /// <summary>
 /// An object that can lookup a parser to add to the parse pipeline.
 /// </summary>
