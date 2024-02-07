@@ -33,13 +33,14 @@ public interface ITypeDescriptor
     /// <summary>
     /// Get the collector that turns a sequence of elements into an instance of this type.
     /// </summary>
+    /// <param name="type">Current type.</param>
     /// <param name="inner">Element type.</param>
     /// <param name="context">Parse context.</param>
     /// <param name="constructor">Container constructor. This takes an enumerable
-    /// of the element type and produces the container.</param>
+    ///     of the element type and produces the container.</param>
     /// <returns>True if the type from this type descriptor can can be constructed
     /// from a sequence of the element type, false otherwise.</returns>
-    bool TryCollect(Type inner, IReadOnlyParseContext context, out IParser constructor)
+    bool TryCollect(Type type, Type inner, IReadOnlyParseContext context, out IParser constructor)
     {
         constructor = default!;
         return false;

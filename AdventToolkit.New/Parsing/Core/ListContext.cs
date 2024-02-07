@@ -63,12 +63,12 @@ public class ListContext : IParseContext
     {
         foreach (var typeDescriptor in _types)
         {
-            if (typeDescriptor.Match(container) && typeDescriptor.TryCollect(inner, this, out constructor))
+            if (typeDescriptor.Match(container) && typeDescriptor.TryCollect(container, inner, this, out constructor))
             {
                 return true;
             }
         }
-        constructor = default;
+        constructor = default!;
         return false;
     }
 

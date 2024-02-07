@@ -9,7 +9,7 @@ public class ListParse : ITypeDescriptor
 
     public bool PassiveSelect => false;
 
-    public bool TryCollect(Type inner, IReadOnlyParseContext context, out IParser constructor)
+    public bool TryCollect(Type type, Type inner, IReadOnlyParseContext context, out IParser constructor)
     {
         constructor = typeof(ListCollector<>).NewParserGeneric([inner]);
         return true;

@@ -124,7 +124,7 @@ public static class ParseUtil
         
         constructor = default!;
         return descriptor.TryGetCollectType(type, context, out inner)
-               && descriptor.TryCollect(inner, context, out constructor);
+               && descriptor.TryCollect(type, inner, context, out constructor);
     }
     
     /// <summary>
