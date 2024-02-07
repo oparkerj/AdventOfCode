@@ -1,4 +1,5 @@
 ﻿using AdventToolkit.New;
+using AdventToolkit.New.Algorithms;
 using AdventToolkit.New.Parsing;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
@@ -27,31 +28,11 @@ public class BenchmarkMain
             Console.WriteLine("---");
         }
     }
-    
-    private static Type GenericType(Type t) => t.IsGenericType ? t.GetGenericTypeDefinition() : t;
-
-    private static bool GetGenericArguments(Type input, Type target, out Type[] args)
-    {
-        while (true)
-        {
-            if (GenericType(input) == target)
-            {
-                args = input.GetGenericArguments();
-                return true;
-            }
-            if (input.BaseType is not (not null and var baseType))
-            {
-                args = default!;
-                return false;
-            }
-            input = baseType;
-        }
-    }
 
     public static Summary BenchmarkPuzzle<T>()
         where T : new()
     {
-        if (!GetGenericArguments(typeof(T), typeof(Puzzle<,>), out var args))
+        if (!typeof(T).TryGetTypeArguments(typeof(Puzzle<,>), out var args))
         {
             throw new ArgumentException($"Incompatible type {typeof(T).Name}");
         }
@@ -64,11 +45,11 @@ public class BenchmarkMain
         where T1 : new()
         where T2 : new()
     {
-        if (!GetGenericArguments(typeof(T1), typeof(Puzzle<,>), out var args1))
+        if (!typeof(T1).TryGetTypeArguments(typeof(Puzzle<,>), out var args1))
         {
             throw new ArgumentException($"Incompatible type {typeof(T1).Name}");
         }
-        if (!GetGenericArguments(typeof(T2), typeof(Puzzle<,>), out var args2))
+        if (!typeof(T2).TryGetTypeArguments(typeof(Puzzle<,>), out var args2))
         {
             throw new ArgumentException($"Incompatible type {typeof(T2).Name}");
         }
@@ -127,7 +108,7 @@ public class PuzzleCompare<TPuzzle1, TPuzzle2, T1, T2>
     private TPuzzle1 _puzzle1 = default!;
     private TPuzzle2 _puzzle2 = default!;
 
-    [GlobalSetup(Targets = new[] {nameof(LeftPartOne), nameof(RightPartOne)})]
+    [GlobalSetup(Targets = [nameof(LeftPartOne), nameof(RightPartOne)])]
     public void SetupOne()
     {
         _puzzle1 = new TPuzzle1 {Part = 1};
@@ -138,7 +119,7 @@ public class PuzzleCompare<TPuzzle1, TPuzzle2, T1, T2>
         _puzzle2.Input = _puzzle2.GetLines();
     }
     
-    [GlobalSetup(Targets = new[] {nameof(LeftPartTwo), nameof(RightPartTwo)})]
+    [GlobalSetup(Targets = [nameof(LeftPartTwo), nameof(RightPartTwo)])]
     public void SetupTwo()
     {
         _puzzle1 = new TPuzzle1 {Part = 2};

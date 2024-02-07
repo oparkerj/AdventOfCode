@@ -104,9 +104,8 @@ public class SegmentParser<T> : ParseBase<string, T>
             for (var i = 0; i < parsers.Length; i++)
             {
                 var groupParser = _sections[i].Current;
-                var (_, output) = ParseUtil.GetParserTypesOf(groupParser);
                 parsers[i] = groupParser;
-                outputTypes[i] = output;
+                outputTypes[i] = ParseUtil.GetParserTypesOf(groupParser).OutputType;
             }
         }
         
@@ -136,8 +135,11 @@ public class SegmentParser<T> : ParseBase<string, T>
     /// <returns></returns>
     public IEnumerable<T> ParseMany(IEnumerable<string> strings)
     {
-        _built ??= Build();
-        return strings.Select(_built.Parse);
+        var parser = _built ??= Build();
+        foreach (var s in strings)
+        {
+            yield return parser.Parse(s);
+        }
     }
 
     /// <summary>
