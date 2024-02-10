@@ -15,6 +15,15 @@ public interface ITypeDescriptor
     bool Match(Type type);
 
     /// <summary>
+    /// When true, a parse builder will not automatically descend into the elements
+    /// of this type, if it is enumerable.
+    ///
+    /// For example, if the current type is a string, you typically want to stop there
+    /// and operate on the string rather than descending and parsing each character.
+    /// </summary>
+    bool PassiveSelect { get; }
+
+    /// <summary>
     /// Get the element type and selector from a type which can be enumerated.
     /// 
     /// This will not be called for types that implement <see cref="IEnumerable{T}"/>.
@@ -48,6 +57,9 @@ public interface ITypeDescriptor
 
     /// <summary>
     /// Get the element type for a sequence that could be used to construct this type.
+    ///
+    /// This is typically used on a target type to figure out what element type is needed
+    /// to construct the target type.
     /// </summary>
     /// <param name="type">Current type.</param>
     /// <param name="context">Parse context.</param>
@@ -58,13 +70,4 @@ public interface ITypeDescriptor
         inner = default!;
         return true;
     }
-    
-    /// <summary>
-    /// When true, a parse builder will not automatically descend into the elements
-    /// of this type, if it is enumerable.
-    ///
-    /// For example, if the current type is a string, you typically want to stop there
-    /// and operate on the string rather than descending and parsing each character.
-    /// </summary>
-    bool PassiveSelect { get; }
 }

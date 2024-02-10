@@ -405,4 +405,11 @@ public static class Types
         }
         return CreateTuple(items, values);
     }
+
+    public static Type SliceTuple(Type type, Range range)
+    {
+        Debug.Assert(type.IsTupleType());
+
+        return CreateTupleType(type.GetTupleTypes().AsSpan(range));
+    }
 }
