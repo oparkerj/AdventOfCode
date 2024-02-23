@@ -1,5 +1,6 @@
-using AdventToolkit.New.Algorithms;
+using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Interface;
+using AdventToolkit.New.Reflect;
 
 namespace AdventToolkit.New.Parsing.Core;
 
@@ -178,6 +179,17 @@ public class ParseBuilder
         {
             throw new ArgumentException($"Could not add parser or modifier. (Value = {Types.SimpleValueString(value)}, Extra = \"{extra}\")");
         }
+    }
+
+    /// <summary>
+    /// Initialize this builder as an identity parser.
+    /// </summary>
+    public void SetupIdentity()
+    {
+        Current = IdentityAdapter.Create(InputType);
+        CurrentType = InputType;
+        OutputType = InputType;
+        EnumerableLevel = 0;
     }
 
     /// <summary>

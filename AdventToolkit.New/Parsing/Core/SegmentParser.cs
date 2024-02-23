@@ -1,7 +1,8 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using AdventToolkit.New.Algorithms;
 using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Interface;
+using AdventToolkit.New.Reflect;
 
 namespace AdventToolkit.New.Parsing.Core;
 
@@ -22,6 +23,13 @@ public class SegmentParser<T> : ParseBase<string, T>
     private int _selected = -1;
 
     private IParser<string, T>? _built;
+
+    // Current number of empty splits
+    private int _empty;
+    // Whether the parse starts with a literal
+    private bool _firstIsLiteral;
+    // Whether the parse ends with a literal
+    private bool _lastIsLiteral;
     
     public SegmentParser(int literalLength, int formattedCount, IReadOnlyParseContext context)
         : base(context)
@@ -30,6 +38,21 @@ public class SegmentParser<T> : ParseBase<string, T>
     public SegmentParser(int literalLength, int formattedCount)
         : this(literalLength, formattedCount, DefaultContext.Instance)
     { }
+
+    /// <summary>
+    /// Create a parse section.
+    /// </summary>
+    /// <param name="identity">If this section is an identity parse.</param>
+    /// <returns></returns>
+    private ParseBuilder CreateBuilder(bool identity = false)
+    {
+        var builder = new ParseBuilder {InputType = typeof(string)};
+        if (identity)
+        {
+            builder.SetupIdentity();
+        }
+        return builder;
+    }
 
     /// <summary>
     /// Get the parse builder for the selected slot.
@@ -47,10 +70,35 @@ public class SegmentParser<T> : ParseBase<string, T>
         // Create missing builders
         while (_sections.Count <= _selected)
         {
-            _sections.Add(new ParseBuilder {InputType = typeof(string)});
+            // New sections before the current slot will be identity sections
+            _sections.Add(CreateBuilder(_sections.Count < _selected));
         }
 
         return _sections[_selected];
+    }
+
+    /// <summary>
+    /// Apply empty splits that have been added since
+    /// the last literal or section.
+    /// </summary>
+    /// <returns>True if there were any empty splits, false otherwise.</returns>
+    private bool FlushEmpty()
+    {
+        if (_empty == 0) return false;
+        
+        if (_lastIsLiteral)
+        {
+            _empty--;
+        }
+        
+        for (var i = 0; i < _empty; i++)
+        {
+            _anchors.Add(string.Empty);
+        }
+        _selected += _empty;
+
+        _empty = 0;
+        return true;
     }
 
     /// <summary>
@@ -61,14 +109,23 @@ public class SegmentParser<T> : ParseBase<string, T>
     /// <exception cref="ArgumentException"></exception>
     private IParser<string, T> Build()
     {
+        var endEmpty = FlushEmpty();
+
+        // Add missing identity parsers if needed
+        if (_sections.Count > 0)
+        {
+            var expected = endEmpty ? _anchors.Count : _anchors.Count - 1;
+            while (_sections.Count < expected)
+            {
+                _sections.Add(CreateBuilder(true));
+            }
+        }
+        
         // If there are only anchors, then the raw result is a tuple of strings.
         if (_sections.Count == 0)
         {
-            if (_anchors.Count == 0)
-            {
-                throw new ArgumentException("No sections were given.");
-            }
-            return (IParser<string, T>) ParseUtil.Adapt(AnchorSplit.Create([string.Empty, .._anchors]), typeof(T), Context);
+            Debug.Assert(_anchors.Count != 0);
+            return (IParser<string, T>) ParseUtil.Adapt(AnchorSplit.Create(_anchors, _firstIsLiteral, endEmpty), typeof(T), Context);
         }
         
         // If there is one section, then adapt it to the output type.
@@ -113,7 +170,7 @@ public class SegmentParser<T> : ParseBase<string, T>
         Array.Fill(segmentTypes, typeof(string));
         
         // Adapt the result tuple to the output type
-        var tupleParser = ParseJoin.Create(AnchorSplit.Create(_anchors), TupleAdapter.Create(segmentTypes, outputTypes, parsers));
+        var tupleParser = ParseJoin.Create(AnchorSplit.Create(_anchors, _firstIsLiteral, endEmpty), TupleAdapter.Create(segmentTypes, outputTypes, parsers));
         return (IParser<string, T>) ParseUtil.Adapt(tupleParser, typeof(T), Context);
     }
 
@@ -149,8 +206,14 @@ public class SegmentParser<T> : ParseBase<string, T>
     /// <param name="s"></param>
     public void AppendLiteral(string s)
     {
+        FlushEmpty();
+        if (_anchors.Count == 0)
+        {
+            _firstIsLiteral = true;
+        }
         _anchors.Add(s);
         _selected++;
+        _lastIsLiteral = true;
     }
 
     /// <summary>
@@ -166,8 +229,8 @@ public class SegmentParser<T> : ParseBase<string, T>
     /// of string as the previous section.
     /// </summary>
     /// <param name="null"></param>
-    public void AppendFormatted(Null? @null) => AppendLiteral(string.Empty);
-    
+    public void AppendFormatted(Null? @null) => _empty++;
+
     /// <inheritdoc cref="AppendFormatted{TItem}(TItem, string)"/>
     public void AppendFormatted<TItem>(TItem item) => AppendFormatted(item, string.Empty);
 
@@ -180,10 +243,10 @@ public class SegmentParser<T> : ParseBase<string, T>
     /// <typeparam name="TItem">Builder value type.</typeparam>
     public void AppendFormatted<TItem>(TItem item, string format)
     {
+        FlushEmpty();
+        _lastIsLiteral = false;
         GetCurrentSlot().AddStage(item, format, Context);
     }
-
-    // TODO alignment parameter
 
     public override IEnumerable<IParser> GetChildren()
     {

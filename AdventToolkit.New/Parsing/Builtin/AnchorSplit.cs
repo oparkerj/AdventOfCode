@@ -1,5 +1,5 @@
-using AdventToolkit.New.Algorithms;
 using AdventToolkit.New.Parsing.Interface;
+using AdventToolkit.New.Reflect;
 
 namespace AdventToolkit.New.Parsing.Builtin;
 
@@ -12,11 +12,14 @@ public static class AnchorSplit
     /// Create an anchor split from a list of anchors.
     /// </summary>
     /// <param name="anchors"></param>
+    /// <param name="anchorFirst">True if the split starts with an anchor, false if a section is first.</param>
+    /// <param name="includeLast">Whether there is an element after the last split</param>
     /// <returns></returns>
-    public static IParser Create(List<string> anchors)
+    public static IParser Create(List<string> anchors, bool anchorFirst, bool includeLast)
     {
-        var tupleType = Types.CreateTupleType(typeof(string), anchors.Count);
-        return typeof(AnchorSplit<>).NewParserGeneric([tupleType], anchors);
+        var size = includeLast ? anchors.Count : anchors.Count - 1;
+        var tupleType = Types.CreateTupleType(typeof(string), size);
+        return typeof(AnchorSplit<>).NewParserGeneric([tupleType], anchors, anchorFirst);
     }
 }
 
@@ -28,17 +31,20 @@ public class AnchorSplit<T> : IStringParser<T>
 {
     private readonly int _size;
     private readonly Type[] _outputType;
-    private readonly List<string> _splits;
+    private readonly string[] _splits; // TODO convert to array
+    private readonly bool _anchorFirst;
 
     /// <summary>
     /// Create an anchor split using a list of anchors.
-    ///
+    /// 
     /// One split is represented by a sequence of empty strings followed
     /// by a split value.
     /// </summary>
     /// <param name="anchors"></param>
-    public AnchorSplit(List<string> anchors)
+    /// <param name="anchorFirst">Whether the first section appears after the first anchor.</param>
+    public AnchorSplit(List<string> anchors, bool anchorFirst)
     {
+        _anchorFirst = anchorFirst;
         _size = typeof(T).GetTupleSize();
         _outputType = new Type[_size];
         Array.Fill(_outputType, typeof(string));
@@ -46,28 +52,27 @@ public class AnchorSplit<T> : IStringParser<T>
         // If every string is empty, then every section will receive the entire input string
         if (anchors.All(s => s == string.Empty))
         {
-            _splits = new List<string>();
+            _splits = Array.Empty<string>();
             return;
         }
         
         // Reverse every split section. Every sequence of empty strings followed
         // by a split value will be reversed. This is so splits can be processed
         // in order during parsing.
-        _splits = new List<string>(anchors.Count);
+        // If the split starts with a section, drop the first anchor (which should be empty anyway)
+        var i = anchorFirst ? 0 : 1;
+        var last = i;
         var current = 0;
-        for (var i = 0; i < anchors.Count; i++)
+        _splits = new string[anchors.Count - i];
+        for (; i < anchors.Count; i++)
         {
             if (anchors[i] == string.Empty) continue;
             
-            _splits.Add(anchors[i]);
-            
-            var repeat = Math.Max(0, i - current - 1);
-            for (var j = 0; j < repeat; j++)
-            {
-                _splits.Add(string.Empty);
-            }
-            
-            current = i + 1;
+            _splits[current] = anchors[i];
+            var repeat = i - last;
+            _splits.AsSpan(current + 1, repeat).Fill(string.Empty);
+            current += repeat + 1;
+            last = i + 1;
         }
     }
 
@@ -75,18 +80,31 @@ public class AnchorSplit<T> : IStringParser<T>
     {
         var parts = new object[_size];
         
-        if (_splits.Count == 0)
+        if (_splits.Length == 0)
         {
             Array.Fill(parts, span.ToString());
         }
         else
         {
+            var offset = 0;
+            
+            // Shift the input if needed
+            if (_anchorFirst)
+            {
+                var at = span.IndexOf(_splits[0]);
+                span = span[(at + 1)..];
+                offset++;
+            }
+            
             var last = string.Empty;
             for (var i = 0; i < parts.Length; i++)
             {
-                if (i < _splits.Count)
+                var effective = i + offset;
+                // If there are no more split points, use the remainder of the input
+                if (effective < _splits.Length)
                 {
-                    var split = _splits[i];
+                    var split = _splits[effective];
+                    // If the split is empty, repeat the last section
                     if (split.Length > 0)
                     {
                         var at = span.IndexOf(split);
