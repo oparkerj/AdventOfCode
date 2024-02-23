@@ -26,7 +26,7 @@ public class ListContext : IParseContext
             descriptor = typeDescriptor;
             return true;
         }
-        descriptor = default;
+        descriptor = default!;
         return false;
     }
 
@@ -36,7 +36,7 @@ public class ListContext : IParseContext
         {
             if (parserLookup.TryLookup(inputType, value, extra, this, out parser)) return true;
         }
-        parser = default;
+        parser = default!;
         return false;
     }
 
