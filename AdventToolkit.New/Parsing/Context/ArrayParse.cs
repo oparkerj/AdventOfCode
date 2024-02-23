@@ -20,15 +20,15 @@ public class ArrayParse : ITypeDescriptor
 
     public bool PassiveSelect => false;
 
-    public bool TryCollect(Type type, Type inner, IReadOnlyParseContext context, out IParser constructor)
+    public bool TryCollect(Type type, Type inner, IReadOnlyParseContext context, out IParser collector)
     {
         if (type.GetArrayRank() == 1)
         {
-            constructor = typeof(Collect<>).NewParserGeneric([inner]);
+            collector = typeof(Collect<>).NewParserGeneric([inner]);
             return true;
         }
 
-        constructor = default!;
+        collector = default!;
         return false;
     }
 

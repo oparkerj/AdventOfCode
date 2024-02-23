@@ -11,10 +11,7 @@ public interface IParser
     /// Get all parsers which are children of this parser.
     /// </summary>
     /// <returns></returns>
-    IEnumerable<IParser> GetChildren()
-    {
-        yield break;
-    }
+    IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 }
 
 /// <summary>

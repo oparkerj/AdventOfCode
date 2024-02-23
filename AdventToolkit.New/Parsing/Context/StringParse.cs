@@ -1,5 +1,5 @@
-using AdventToolkit.New.Algorithms;
 using AdventToolkit.New.Parsing.Interface;
+using AdventToolkit.New.Reflect;
 
 namespace AdventToolkit.New.Parsing.Context;
 
@@ -9,15 +9,15 @@ public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapt
 
     public bool PassiveSelect => true;
 
-    public bool TryCollect(Type type, Type inner, IReadOnlyParseContext context, out IParser constructor)
+    public bool TryCollect(Type type, Type inner, IReadOnlyParseContext context, out IParser collector)
     {
         if (inner == typeof(char))
         {
-            constructor = new CharsToString();
+            collector = new CharsToString();
             return true;
         }
 
-        constructor = default!;
+        collector = default!;
         return false;
     }
 

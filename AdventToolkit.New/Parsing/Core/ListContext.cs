@@ -46,7 +46,7 @@ public class ListContext : IParseContext
         {
             if (adapterLookup.TryLookup(from, to, this, out parser)) return true;
         }
-        parser = default;
+        parser = default!;
         return false;
     }
 

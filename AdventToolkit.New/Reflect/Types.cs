@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
+using AdventToolkit.New.Data;
 
-namespace AdventToolkit.New.Algorithms;
+namespace AdventToolkit.New.Reflect;
 
 /// <summary>
 /// Type helpers.
@@ -21,7 +23,21 @@ public static class Types
     private static void AddSimpleName(Type type, StringBuilder builder)
     {
         var name = type.Name;
-        if (type.IsGenericType)
+        if (type.TryGetTupleTypes(out var tupleTypes) && tupleTypes.Length > 1)
+        {
+            builder.Append('(');
+            
+            ReadOnlySpan<Type> types = tupleTypes;
+            AddSimpleName(types[0], builder);
+            foreach (var innerType in types[1..])
+            {
+                builder.Append(", ");
+                AddSimpleName(innerType, builder);
+            }
+            
+            builder.Append(')');
+        }
+        else if (type.IsGenericType)
         {
             builder.Append(name.AsSpan(0, name.LastIndexOf('`')));
             builder.Append('<');
@@ -177,7 +193,7 @@ public static class Types
     /// <param name="type">Type to construct.</param>
     /// <param name="args">Constructor arguments.</param>
     /// <returns>Reference to new object.</returns>
-    public static object New(this Type type, params object[] args)
+    public static object New(this Type type, params object?[] args)
     {
         var result = Activator.CreateInstance(type, args);
         Debug.Assert(result is not null);
@@ -191,7 +207,7 @@ public static class Types
     /// <param name="args"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T New<T>(this Type type, params object[] args)
+    public static T New<T>(this Type type, params object?[] args)
     {
         return (T) type.New(args);
     }
@@ -203,7 +219,7 @@ public static class Types
     /// <param name="generic"></param>
     /// <param name="args"></param>
     /// <returns></returns>
-    public static object NewGeneric(this Type type, Type[] generic, params object[] args)
+    public static object NewGeneric(this Type type, Type[] generic, params object?[] args)
     {
         return type.MakeGenericType(generic).New(args);
     }
@@ -216,7 +232,7 @@ public static class Types
     /// <param name="args"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T NewGeneric<T>(this Type type, Type[] generic, params object[] args)
+    public static T NewGeneric<T>(this Type type, Type[] generic, params object?[] args)
     {
         return (T) type.NewGeneric(generic, args);
     }
@@ -376,7 +392,7 @@ public static class Types
     /// <param name="items">Component types.</param>
     /// <param name="values">Component values.</param>
     /// <returns>Tuple object.</returns>
-    public static object CreateTuple(ReadOnlySpan<Type> items, ReadOnlySpan<object> values)
+    public static object CreateTuple(ReadOnlySpan<Type> items, ReadOnlySpan<object?> values)
     {
         Debug.Assert(items.Length == values.Length);
         Debug.Assert(values.Length > 0);
@@ -388,28 +404,30 @@ public static class Types
         ]);
     }
 
-    /// <summary>
-    /// Same as <see cref="CreateTuple(System.ReadOnlySpan{System.Type},System.ReadOnlySpan{object})"/>
-    /// but uses the object types as the component types.
-    /// </summary>
-    /// <param name="values"></param>
-    /// <returns></returns>
-    public static object CreateTuple(ReadOnlySpan<object> values)
-    {
-        Debug.Assert(values.Length > 0);
-        
-        Span<Type> items = new Type[values.Length];
-        for (var i = 0; i < values.Length; i++)
-        {
-            items[i] = values[i].GetType();
-        }
-        return CreateTuple(items, values);
-    }
-
-    public static Type SliceTuple(Type type, Range range)
+    public static Type SliceTupleType(Type type, int start, int count)
     {
         Debug.Assert(type.IsTupleType());
 
-        return CreateTupleType(type.GetTupleTypes().AsSpan(range));
+        return CreateTupleType(type.GetTupleTypes().AsSpan(start, count));
+    }
+    
+    public static Type[] SliceTuple(Type type, int start, int count)
+    {
+        Debug.Assert(type.IsTupleType());
+
+        return type.GetTupleTypes()[start..(start + count)];
+    }
+
+    public static object SliceTuple<T>(T tuple, Type[] types, int start)
+        where T : ITuple
+    {
+        using Arr<object?> buffer = new(types.Length);
+
+        for (var i = 0; i < buffer.Length; i++)
+        {
+            buffer[i] = tuple[i + start];
+        }
+
+        return CreateTuple(types, buffer);
     }
 }

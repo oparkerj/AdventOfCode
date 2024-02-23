@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using AdventToolkit.New.Algorithms;
 using AdventToolkit.New.Parsing.Interface;
+using AdventToolkit.New.Reflect;
 
 namespace AdventToolkit.New.Parsing.Context;
 
