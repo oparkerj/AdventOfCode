@@ -29,7 +29,7 @@ public static class ParseJoin
     /// <returns>Joined parser.</returns>
     public static IParser Create(IParser first, IParser second)
     {
-        var (inType, _) = ParseUtil.GetParserTypesOf(first);
+        var inType = ParseUtil.GetParserTypesOf(first).InputType;
         var (joinType, outType) = ParseUtil.GetParserTypesOf(second);
 
         return Create(inType, joinType, outType, first, second);
@@ -45,7 +45,7 @@ public static class ParseJoin
     /// <returns>Joined and possibly adapted parser.</returns>
     public static IParser CreateAdapt(IParser first, IParser second, IReadOnlyParseContext context)
     {
-        var (inType, _) = ParseUtil.GetParserTypesOf(first);
+        var inType = ParseUtil.GetParserTypesOf(first).InputType;
         var (secondInput, outType) = ParseUtil.GetParserTypesOf(second);
         var adapted = ParseUtil.Adapt(first, secondInput, context);
         

@@ -109,7 +109,7 @@ public class ParseBuilder
             Current = ParseJoin.InnerJoin(Current, parser, EnumerableLevel, context);
         }
 
-        var (_, output) = ParseUtil.GetParserTypesOf(Current);
+        var output = ParseUtil.GetParserTypesOf(Current).OutputType;
         OutputType = output;
         CurrentType = output;
 
