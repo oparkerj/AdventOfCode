@@ -126,6 +126,14 @@ public static class TupleAdapter
             };
         }
     }
+
+    public static IParser First(Type type)
+    {
+        Debug.Assert(type.IsTupleType());
+
+        var firstType = type.GetGenericArguments()[0];
+        return typeof(TupleFirst<,>).NewParserGeneric([type, firstType]);
+    }
 }
 
 public readonly record struct TupleChunkParse(int Offset, Type[] Types, IParser Parser);
@@ -157,6 +165,16 @@ public class TupleSlice<TIn, TOut>(int offset, Type[] types) : IParser<TIn, TOut
     public TOut Parse(TIn input)
     {
         return (TOut) Types.SliceTuple(input, types, offset);
+    }
+}
+
+public class TupleFirst<TTuple, TOut> : IParser<TTuple, TOut>
+    where TTuple : ITuple
+{
+    public TOut Parse(TTuple input)
+    {
+        if (input is [TOut first, ..]) return first;
+        throw new UnreachableException();
     }
 }
 

@@ -200,7 +200,7 @@ public class ParseBuilder
     /// <returns>Built parser.</returns>
     public IParser Build(IReadOnlyParseContext context, Type outputType)
     {
-        return ParseUtil.Adapt(Current, outputType, context);
+        return ParseAdapt.Adapt(Current, outputType, context);
     }
 
     /// <summary>

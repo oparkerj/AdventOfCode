@@ -125,7 +125,7 @@ public class SegmentParser<T> : ParseBase<string, T>
         if (_sections.Count == 0)
         {
             Debug.Assert(_anchors.Count != 0);
-            return (IParser<string, T>) ParseUtil.Adapt(AnchorSplit.Create(_anchors, _firstIsLiteral, endEmpty), typeof(T), Context);
+            return (IParser<string, T>) ParseAdapt.Adapt(AnchorSplit.Create(_anchors, _firstIsLiteral, endEmpty), typeof(T), Context);
         }
         
         // If there is one section, then adapt it to the output type.
@@ -171,7 +171,7 @@ public class SegmentParser<T> : ParseBase<string, T>
         
         // Adapt the result tuple to the output type
         var tupleParser = ParseJoin.Create(AnchorSplit.Create(_anchors, _firstIsLiteral, endEmpty), TupleAdapter.Create(segmentTypes, outputTypes, parsers));
-        return (IParser<string, T>) ParseUtil.Adapt(tupleParser, typeof(T), Context);
+        return (IParser<string, T>) ParseAdapt.Adapt(tupleParser, typeof(T), Context);
     }
 
     /// <summary>

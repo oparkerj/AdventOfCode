@@ -47,7 +47,7 @@ public static class ParseJoin
     {
         var inType = ParseUtil.GetParserTypesOf(first).InputType;
         var (secondInput, outType) = ParseUtil.GetParserTypesOf(second);
-        var adapted = ParseUtil.Adapt(first, secondInput, context);
+        var adapted = ParseAdapt.Adapt(first, secondInput, context);
         
         return Create(inType, secondInput, outType, adapted, second);
     }

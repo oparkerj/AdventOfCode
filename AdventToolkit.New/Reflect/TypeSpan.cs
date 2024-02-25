@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using AdventToolkit.New.Parsing;
+using AdventToolkit.New.Parsing.Interface;
 
 namespace AdventToolkit.New.Reflect;
 
@@ -24,6 +26,12 @@ public readonly ref struct TypeSpan
     /// and this value is used for the length.
     /// </summary>
     private readonly int _length;
+
+    private TypeSpan(ReadOnlySpan<Type> span, int length)
+    {
+        _span = span;
+        _length = length;
+    }
 
     /// <summary>
     /// Create a type span from an existing span.
@@ -76,6 +84,18 @@ public readonly ref struct TypeSpan
         }
     }
 
+    public TypeSpan Slice(int start, int length)
+    {
+        if (_length < 0) return this;
+        if (_length > 0)
+        {
+            Debug.Assert(start >= 0 && start <= _length);
+            Debug.Assert(length <= _length - start);
+            return new TypeSpan(_span, length);
+        }
+        return new TypeSpan(_span.Slice(start, length));
+    }
+
     /// <summary>
     /// Check if this span starts with the given sequence.
     /// </summary>
@@ -91,5 +111,20 @@ public readonly ref struct TypeSpan
             if (type != _span[0]) return false;
         }
         return true;
+    }
+
+    public bool TryAdaptTuple(Type type, IReadOnlyParseContext context, out IParser? adapter)
+    {
+        Debug.Assert(type.IsTupleType());
+        var size = type.GetTupleSize();
+        
+        if ((_length == 0 && _span.Length < size) || (_length > 0 && _length < size))
+        {
+            adapter = default;
+            return false;
+        }
+        
+        var tuple = _length == 0 ? Types.CreateTupleType(_span[..size]) : Types.CreateTupleType(_span[0], size);
+        return ParseAdapt.TryAdapt(tuple, type, context, out adapter);
     }
 }

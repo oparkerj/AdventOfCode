@@ -403,6 +403,17 @@ public static class Types
             CreateTuple(items[PrimaryTupleSize..], values[PrimaryTupleSize..])
         ]);
     }
+    
+    public static object CreateTuple(Type type, ReadOnlySpan<object?> values)
+    {
+        Debug.Assert(values.Length > 0);
+        
+        if (values.Length <= PrimaryTupleSize) return CreateTupleType(type, values.Length).New([..values]);
+        return CreateTupleType(type, values.Length).New([
+            ..values[..PrimaryTupleSize],
+            CreateTuple(type, values[PrimaryTupleSize..])
+        ]);
+    }
 
     public static Type SliceTupleType(Type type, int start, int count)
     {
