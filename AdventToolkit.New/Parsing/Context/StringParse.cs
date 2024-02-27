@@ -3,6 +3,9 @@ using AdventToolkit.New.Reflect;
 
 namespace AdventToolkit.New.Parsing.Context;
 
+/// <summary>
+/// Parse support for strings.
+/// </summary>
 public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapterLookup<string>
 {
     public bool Match(Type type) => type == typeof(string);
@@ -59,19 +62,31 @@ public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapt
         return false;
     }
 
+    /// <summary>
+    /// Convert sequence of chars to string.
+    /// </summary>
     public class CharsToString : IParser<IEnumerable<char>, string>
     {
         public string Parse(IEnumerable<char> input) => string.Concat(input);
     }
 
+    /// <summary>
+    /// Split a string by a character
+    /// </summary>
     public class CharSplit : IParser<string, string[]>
     {
+        /// <summary>
+        /// Split character.
+        /// </summary>
         public readonly char Split;
 
         private readonly StringSplitOptions _options;
 
         public CharSplit(char split) => Split = split;
 
+        /// <summary>
+        /// Whether to trim the split sections
+        /// </summary>
         public bool Trim
         {
             get => _options.HasFlag(StringSplitOptions.TrimEntries);
@@ -84,6 +99,9 @@ public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapt
             }
         }
 
+        /// <summary>
+        /// Whether empty sections are removed.
+        /// </summary>
         public bool RemoveEmpty
         {
             get => _options.HasFlag(StringSplitOptions.RemoveEmptyEntries);
@@ -99,6 +117,10 @@ public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapt
         public string[] Parse(string input) => input.Split(Split, _options);
     }
 
+    /// <summary>
+    /// Convert a string to a parsable.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ToParsable<T> : IParser<string, T>
         where T : IParsable<T>
     {

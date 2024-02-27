@@ -10,7 +10,11 @@ namespace AdventToolkit.New.Parsing.Builtin;
 /// </summary>
 public static class TupleAdapter
 {
-    // TODO docs
+    /// <summary>
+    /// Unwrap a parser returning a 1-tuple.
+    /// </summary>
+    /// <param name="parser"></param>
+    /// <returns></returns>
     public static IParser UnwrapSingle(IParser parser)
     {
         var (input, output) = ParseUtil.GetParserTypesOf(parser);
@@ -21,11 +25,23 @@ public static class TupleAdapter
         return typeof(TupleUnwrap<,>).NewParserGeneric([input, outputTypes[0]], parser);
     }
 
+    /// <summary>
+    /// Get a parser that unwraps a 1-tuple.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static IParser UnwrapSingle(Type type)
     {
         return typeof(TupleUnwrap<>).NewParserGeneric([type]);
     }
 
+    /// <summary>
+    /// Get a parser that slices a tuple to the given range.
+    /// </summary>
+    /// <param name="tuple"></param>
+    /// <param name="start"></param>
+    /// <param name="length"></param>
+    /// <returns></returns>
     public static IParser Slice(Type tuple, int start, int length)
     {
         var types = Types.SliceTuple(tuple, start, length);
@@ -59,17 +75,31 @@ public static class TupleAdapter
                 6 => typeof(TupleAdapter<,,,,,,,,,,,>).NewParserGeneric([..inputs, ..outputs], [..parsers]),
                 7 => typeof(TupleAdapter<,,,,,,,,,,,,,>).NewParserGeneric([..inputs, ..outputs], [..parsers]),
                 _ => typeof(TupleAdapter<,,,,,,,,,,,,,,,>).NewParserGeneric(
-                    [..inputs[..7], Types.CreateTupleType([..inputs[7..]]), ..outputs[..7], Types.CreateTupleType([..outputs[7..]])],
-                    [..parsers[..7], CreateInnerType(length - 7, inputs[7..], outputs[7..], parsers[7..])])
+                    [..inputs[..Types.PrimaryTupleSize], Types.CreateTupleType([..inputs[Types.PrimaryTupleSize..]]), ..outputs[..Types.PrimaryTupleSize], Types.CreateTupleType([..outputs[Types.PrimaryTupleSize..]])],
+                    [..parsers[..Types.PrimaryTupleSize], CreateInnerType(length - Types.PrimaryTupleSize, inputs[Types.PrimaryTupleSize..], outputs[Types.PrimaryTupleSize..], parsers[Types.PrimaryTupleSize..])])
             };
         }
     }
 
+    /// <summary>
+    /// Get a parser that compresses a tuple into a smaller tuple by constructing element types.
+    /// </summary>
+    /// <param name="source">Input tuple.</param>
+    /// <param name="chunks">Tuple chunks.</param>
+    /// <returns></returns>
     public static IParser Compress(Type source, TupleChunkParse[] chunks)
     {
         return Compress(source, source.GetTupleTypes(), chunks);
     }
 
+    /// <summary>
+    /// Get a parser that compresses a tuple into a smaller tuple by constructing element types.
+    /// </summary>
+    /// <param name="source">Input tuple.</param>
+    /// <param name="sourceTypes">Input tuple types.</param>
+    /// <param name="chunks">Tuple chunks.</param>
+    /// <returns></returns>
+    /// <exception cref="UnreachableException"></exception>
     public static IParser Compress(Type source, Type[] sourceTypes, TupleChunkParse[] chunks)
     {
         return CreateCompress(chunks.Length, 0, sourceTypes, chunks);
@@ -127,6 +157,11 @@ public static class TupleAdapter
         }
     }
 
+    /// <summary>
+    /// Get a parser that returns the first element of a tuple.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static IParser First(Type type)
     {
         Debug.Assert(type.IsTupleType());
@@ -136,6 +171,12 @@ public static class TupleAdapter
     }
 }
 
+/// <summary>
+/// Represents a slice of a tuple that will be parsed.
+/// </summary>
+/// <param name="Offset">Offset of the chunk in the source tuple.</param>
+/// <param name="Types">Types of the chunk in the source tuple.</param>
+/// <param name="Parser">Parser which takes a tuple of <see cref="Types"/> and constructs the resulting type.</param>
 public readonly record struct TupleChunkParse(int Offset, Type[] Types, IParser Parser);
 
 /// <summary>
@@ -154,11 +195,22 @@ public class TupleUnwrap<TIn, TOut>(IParser<TIn, ValueTuple<TOut>> parser) : IPa
     }
 }
 
+/// <summary>
+/// Unwrap a 1-tuple.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class TupleUnwrap<T> : IParser<ValueTuple<T>, T>
 {
     public T Parse(ValueTuple<T> input) => input.Item1;
 }
 
+/// <summary>
+/// Get a slice of a tuple.
+/// </summary>
+/// <param name="offset">Slice start index.</param>
+/// <param name="types">Slice types.</param>
+/// <typeparam name="TIn"></typeparam>
+/// <typeparam name="TOut"></typeparam>
 public class TupleSlice<TIn, TOut>(int offset, Type[] types) : IParser<TIn, TOut>
     where TIn : ITuple
 {
@@ -168,6 +220,11 @@ public class TupleSlice<TIn, TOut>(int offset, Type[] types) : IParser<TIn, TOut
     }
 }
 
+/// <summary>
+/// Get the first element of a tuple.
+/// </summary>
+/// <typeparam name="TTuple"></typeparam>
+/// <typeparam name="TOut"></typeparam>
 public class TupleFirst<TTuple, TOut> : IParser<TTuple, TOut>
     where TTuple : ITuple
 {
@@ -531,6 +588,15 @@ public class TupleAdapter<TI1, TI2, TI3, TI4, TI5, TI6, TI7, TInRest, TO1, TO2, 
     }
 }
 
+/// <summary>
+/// Compress a tuple into 1-tuple.
+/// </summary>
+/// <param name="offset1"></param>
+/// <param name="parser1"></param>
+/// <param name="types1"></param>
+/// <typeparam name="TIn"></typeparam>
+/// <typeparam name="TChunk1"></typeparam>
+/// <typeparam name="T1"></typeparam>
 public class TupleCompress<
     TIn, TChunk1, T1
 >(

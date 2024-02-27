@@ -10,7 +10,6 @@ namespace AdventToolkit.New.Parsing;
 /// in the parsing library.
 ///
 /// The algorithm will try to convert one type to another in the following order:
-///
 /// - Direct assignment (no conversion)
 /// - Using adapter from context
 /// ~ Tuple to tuple conversion:
@@ -28,6 +27,9 @@ namespace AdventToolkit.New.Parsing;
 ///   ~ Adapt enumerable to tuple
 ///     - Adapt element to tuple component
 ///     - Construct tuple component
+///
+/// Plans/Possibilities:
+/// - Ability to have one collectable in the Enumerable to tuple conversion
 /// </summary>
 public static class ParseAdapt
 {
@@ -48,17 +50,42 @@ public static class ParseAdapt
         throw new ArgumentException($"Could not adapt to target type. (Output = {output.SimpleName()}, Target = {target.SimpleName()})");
     }
 
+    /// <summary>
+    /// Try to adapt a parser to a specific output type.
+    /// </summary>
+    /// <param name="parser">Current parser.</param>
+    /// <param name="target">Target type.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="convert">Adapter.</param>
+    /// <returns>True if the parser was adapted, false otherwise.</returns>
     public static bool TryAdapt(IParser parser, Type target, IReadOnlyParseContext context, out IParser convert)
     {
         var outputType = ParseUtil.GetParserTypesOf(parser).OutputType;
         return TryAdaptInner(parser, outputType, target, context, 0, out convert);
     }
 
+    /// <summary>
+    /// Get a parser that converts from one type to another type.
+    ///
+    /// If the resulting parser is null, then no conversion is needed to adapt.
+    /// </summary>
+    /// <param name="from">Input type.</param>
+    /// <param name="target">Target type.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="convert">Adapter.</param>
+    /// <returns>True if the type was adapted, false otherwise.</returns>
     public static bool TryAdapt(Type from, Type target, IReadOnlyParseContext context, out IParser? convert)
     {
         return TryAdaptInner(null, from, target, context, 0, out convert);
     }
     
+    /// <summary>
+    /// Make sure a type constructor is ready to accept a tuple as an argument.
+    ///
+    /// If the parser does not accept a tuple, it is adapted to accept a 1-tuple.
+    /// </summary>
+    /// <param name="constructor"></param>
+    /// <returns></returns>
     public static IParser ProcessConstructor(IParser constructor)
     {
         var input = ParseUtil.GetParserTypesOf(constructor).InputType;
@@ -88,8 +115,6 @@ public static class ParseAdapt
     /// 
     /// If there is an adapter from the output type to the target type, then
     /// the adapter is joined to the parser.
-    ///
-    /// TODO Description
     /// </summary>
     /// <param name="parser">Current parser.</param>
     /// <param name="output">Current output type.</param>
@@ -412,8 +437,8 @@ public static class ParseAdapt
             {
                 result = MaybeJoin(result, selector, context, level);
             }
-            constructAdapt = ProcessConstructor(constructAdapt);
-            result = MaybeJoin(result, EnumerableAdapter.Single(outputInner, constructAdapt), context, level);
+            constructAdapt = EnumerableAdapter.ConstructSingle(outputInner, ProcessConstructor(constructAdapt));
+            result = MaybeJoin(result, constructAdapt, context, level);
             return true;
         }
         
@@ -433,6 +458,14 @@ public static class ParseAdapt
         return false;
     }
 
+    /// <summary>
+    /// Check if an enumerable can be converted to a tuple.
+    /// </summary>
+    /// <param name="target">Target type.</param>
+    /// <param name="outputInner">Output inner type.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="result">Adapted parser.</param>
+    /// <returns></returns>
     private static bool TryAdaptEnumerableTuple(Type target, Type outputInner, IReadOnlyParseContext context, out IParser result)
     {
         if (!target.TryGetTupleTypes(out var tupleTypes))
@@ -447,6 +480,7 @@ public static class ParseAdapt
         {
             var elementType = tupleTypes[i];
 
+            // Try to adapt a single value to the element type.
             if (TryAdapt(outputInner, elementType, context, out var elementAdapt))
             {
                 var adapt = TupleAdapter.UnwrapSingle(outputInner);
@@ -458,6 +492,7 @@ public static class ParseAdapt
                 continue;
             }
                 
+            // Take many values and try using construction.
             if (context.TryLookupType(elementType, out var elementDescriptor)
                 && elementDescriptor.TryConstruct(elementType, context, new TypeSpan(in outputInner), out var elementConstructor))
             {
@@ -469,7 +504,7 @@ public static class ParseAdapt
             return false;
         }
 
-        result = EnumerableAdapter.Create(outputInner, sections);
+        result = EnumerableAdapter.ToTuple(outputInner, sections);
         return true;
     }
 }

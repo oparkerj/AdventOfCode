@@ -57,6 +57,7 @@ public class ParseBuilder
     {
         if (context.TryLookupType(CurrentType, out var descriptor))
         {
+            // Will not enter a type if it is passive select
             if (!usePassive || !descriptor.PassiveSelect)
             {
                 if (descriptor.TryGetInnerType(CurrentType, out var inner, out var enumerator))

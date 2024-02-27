@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 
@@ -18,6 +19,7 @@ public static class AnchorSplit
     public static IParser Create(List<string> anchors, bool anchorFirst, bool includeLast)
     {
         var size = includeLast ? anchors.Count : anchors.Count - 1;
+        Debug.Assert(size >= 1);
         var tupleType = Types.CreateTupleType(typeof(string), size);
         return typeof(AnchorSplit<>).NewParserGeneric([tupleType], anchors, anchorFirst);
     }
@@ -31,7 +33,7 @@ public class AnchorSplit<T> : IStringParser<T>
 {
     private readonly int _size;
     private readonly Type[] _outputType;
-    private readonly string[] _splits; // TODO convert to array
+    private readonly string[] _splits;
     private readonly bool _anchorFirst;
 
     /// <summary>
@@ -44,8 +46,10 @@ public class AnchorSplit<T> : IStringParser<T>
     /// <param name="anchorFirst">Whether the first section appears after the first anchor.</param>
     public AnchorSplit(List<string> anchors, bool anchorFirst)
     {
-        _anchorFirst = anchorFirst;
+        Debug.Assert(typeof(T).IsTupleType());
+        
         _size = typeof(T).GetTupleSize();
+        _anchorFirst = anchorFirst;
         _outputType = new Type[_size];
         Array.Fill(_outputType, typeof(string));
 
@@ -68,7 +72,9 @@ public class AnchorSplit<T> : IStringParser<T>
         {
             if (anchors[i] == string.Empty) continue;
             
+            // Add the anchor
             _splits[current] = anchors[i];
+            // Add the empty sections
             var repeat = i - last;
             _splits.AsSpan(current + 1, repeat).Fill(string.Empty);
             current += repeat + 1;

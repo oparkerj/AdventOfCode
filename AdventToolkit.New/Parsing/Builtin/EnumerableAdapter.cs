@@ -5,8 +5,19 @@ using AdventToolkit.New.Reflect;
 
 namespace AdventToolkit.New.Parsing.Builtin;
 
+/// <summary>
+/// Constructor methods for enumerable adapters.
+/// </summary>
 public static class EnumerableAdapter
 {
+    /// <summary>
+    /// Take elements from en enumerator and package them into a tuple.
+    /// </summary>
+    /// <param name="source">Input sequence.</param>
+    /// <param name="count">Item count.</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns>Tuple of items.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public static object Take<T>(IEnumerator<T> source, int count)
     {
         using var arr = Arr<object?>.Get(count);
@@ -20,23 +31,46 @@ public static class EnumerableAdapter
         return Types.CreateTuple(typeof(T), arr);
     }
 
+    /// <summary>
+    /// Get a parser that returns the first element of an enumerable.
+    /// </summary>
+    /// <param name="type">Element type.</param>
+    /// <returns></returns>
     public static IParser First(Type type)
     {
         return typeof(EnumerableFirst<>).NewParserGeneric([type]);
     }
     
-    public static IParser Single(Type elements, IParser constructor)
+    /// <summary>
+    /// Get a parser that constructs an object from an enumerable.
+    /// The parser input should be a tuple where all elements are the inner
+    /// type of the enumerable.
+    /// </summary>
+    /// <param name="elements">Enumerable element type.</param>
+    /// <param name="constructor">Object constructor</param>
+    /// <returns></returns>
+    public static IParser ConstructSingle(Type elements, IParser constructor)
     {
         var (input, output) = ParseUtil.GetParserTypesOf(constructor);
         var size = input.GetTupleSize();
         return typeof(EnumerableToValue<,,>).NewParserGeneric([elements, input, output], constructor, size);
     }
 
-    public static IParser Create(Type elements, ReadOnlySpan<IParser> parsers)
+    /// <summary>
+    /// Get a parser that converts an enumerable to a tuple.
+    /// Elements are taken from the enumerable to construct each element
+    /// of the tuple.
+    /// </summary>
+    /// <param name="elements"></param>
+    /// <param name="parsers"></param>
+    /// <returns></returns>
+    /// <exception cref="UnreachableException"></exception>
+    public static IParser ToTuple(Type elements, ReadOnlySpan<IParser> parsers)
     {
         const int genericSize = 2;
         const int argSize = 2;
 
+        // Set up generic types and constructor args
         var count = Math.Min(parsers.Length, Types.PrimaryTupleSize);
         var generic = new Type[parsers.Length * genericSize];
         var args = new object?[parsers.Length * argSize];
@@ -52,7 +86,7 @@ public static class EnumerableAdapter
 
         if (parsers.Length > Types.PrimaryTupleSize)
         {
-            var rest = Create(elements, parsers[Types.PrimaryTupleSize..]);
+            var rest = ToTuple(elements, parsers[Types.PrimaryTupleSize..]);
             var output = ParseUtil.GetParserTypesOf(rest).OutputType;
             return typeof(EnumerableToTuple<,,,,,,,,,,,,,,,>).NewParserGeneric([elements, ..generic, output], [..args, rest]);
         }
@@ -71,16 +105,33 @@ public static class EnumerableAdapter
     }
 }
 
+/// <summary>
+/// Get the first element of an enumerable.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class EnumerableFirst<T> : IParser<IEnumerable<T>, T>
 {
     public T Parse(IEnumerable<T> input) => input.First();
 }
 
+/// <summary>
+/// Extension of an enumerable parser that also works on an enumerator.
+/// </summary>
+/// <typeparam name="TIn"></typeparam>
+/// <typeparam name="TOut"></typeparam>
 public interface IEnumerableToTuple<in TIn, out TOut> : IParser<IEnumerable<TIn>, TOut>
 {
     TOut Parse(IEnumerator<TIn> source);
 }
 
+/// <summary>
+/// Convert an object to a single value via construction.
+/// </summary>
+/// <param name="constructor"></param>
+/// <param name="count"></param>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="TTuple"></typeparam>
+/// <typeparam name="TOut"></typeparam>
 public class EnumerableToValue<T, TTuple, TOut>(IParser<TTuple, TOut> constructor, int count) : IParser<IEnumerable<T>, TOut>
 {
     public TOut Parse(IEnumerable<T> input)
@@ -88,8 +139,21 @@ public class EnumerableToValue<T, TTuple, TOut>(IParser<TTuple, TOut> constructo
         using var source = input.GetEnumerator();
         return constructor.Parse((TTuple) EnumerableAdapter.Take(source, count));
     }
+
+    public IEnumerable<IParser> GetChildren()
+    {
+        yield return constructor;
+    }
 }
 
+/// <summary>
+/// Convert an enumerable to a tuple.
+/// </summary>
+/// <param name="parser1"></param>
+/// <param name="count1"></param>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="T1In"></typeparam>
+/// <typeparam name="T1Out"></typeparam>
 public class EnumerableToTuple<T,
     T1In, T1Out
 >(
@@ -105,6 +169,11 @@ public class EnumerableToTuple<T,
     public ValueTuple<T1Out> Parse(IEnumerator<T> source)
     {
         return new ValueTuple<T1Out>(parser1.Parse((T1In) EnumerableAdapter.Take(source, count1)));
+    }
+
+    public IEnumerable<IParser> GetChildren()
+    {
+        yield return parser1;
     }
 }
 
@@ -128,6 +197,12 @@ public class EnumerableToTuple<T,
             parser1.Parse((T1In) EnumerableAdapter.Take(source, count1)),
             parser2.Parse((T2In) EnumerableAdapter.Take(source, count2))
             );
+    }
+
+    public IEnumerable<IParser> GetChildren()
+    {
+        yield return parser1;
+        yield return parser2;
     }
 }
 
@@ -154,6 +229,13 @@ public class EnumerableToTuple<T,
             parser2.Parse((T2In) EnumerableAdapter.Take(source, count2)),
             parser3.Parse((T3In) EnumerableAdapter.Take(source, count3))
             );
+    }
+    
+    public IEnumerable<IParser> GetChildren()
+    {
+        yield return parser1;
+        yield return parser2;
+        yield return parser3;
     }
 }
 
@@ -183,6 +265,14 @@ public class EnumerableToTuple<T,
             parser3.Parse((T3In) EnumerableAdapter.Take(source, count3)),
             parser4.Parse((T4In) EnumerableAdapter.Take(source, count4))
         );
+    }
+    
+    public IEnumerable<IParser> GetChildren()
+    {
+        yield return parser1;
+        yield return parser2;
+        yield return parser3;
+        yield return parser4;
     }
 }
 
@@ -215,6 +305,15 @@ public class EnumerableToTuple<T,
             parser4.Parse((T4In) EnumerableAdapter.Take(source, count4)),
             parser5.Parse((T5In) EnumerableAdapter.Take(source, count5))
         );
+    }
+    
+    public IEnumerable<IParser> GetChildren()
+    {
+        yield return parser1;
+        yield return parser2;
+        yield return parser3;
+        yield return parser4;
+        yield return parser5;
     }
 }
 
@@ -250,6 +349,16 @@ public class EnumerableToTuple<T,
             parser5.Parse((T5In) EnumerableAdapter.Take(source, count5)),
             parser6.Parse((T6In) EnumerableAdapter.Take(source, count6))
         );
+    }
+    
+    public IEnumerable<IParser> GetChildren()
+    {
+        yield return parser1;
+        yield return parser2;
+        yield return parser3;
+        yield return parser4;
+        yield return parser5;
+        yield return parser6;
     }
 }
 
@@ -288,6 +397,17 @@ public class EnumerableToTuple<T,
             parser6.Parse((T6In) EnumerableAdapter.Take(source, count6)),
             parser7.Parse((T7In) EnumerableAdapter.Take(source, count7))
         );
+    }
+    
+    public IEnumerable<IParser> GetChildren()
+    {
+        yield return parser1;
+        yield return parser2;
+        yield return parser3;
+        yield return parser4;
+        yield return parser5;
+        yield return parser6;
+        yield return parser7;
     }
 }
 
@@ -330,5 +450,17 @@ public class EnumerableToTuple<T,
             parser7.Parse((T7In) EnumerableAdapter.Take(source, count7)),
             parserRest.Parse(source)
         );
+    }
+    
+    public IEnumerable<IParser> GetChildren()
+    {
+        yield return parser1;
+        yield return parser2;
+        yield return parser3;
+        yield return parser4;
+        yield return parser5;
+        yield return parser6;
+        yield return parser7;
+        yield return parserRest;
     }
 }

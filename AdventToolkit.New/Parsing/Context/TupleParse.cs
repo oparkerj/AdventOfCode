@@ -4,6 +4,11 @@ using AdventToolkit.New.Reflect;
 
 namespace AdventToolkit.New.Parsing.Context;
 
+/// <summary>
+/// Parse support for tuples.
+///
+/// This allows a tuple to be enumerated if every element is the same type.
+/// </summary>
 public class TupleParse : ITypeDescriptor
 {
     private static IndexOutOfRangeException NoElement => new("Reached end of enumerator before end of tuple.");
@@ -26,12 +31,22 @@ public class TupleParse : ITypeDescriptor
         return false;
     }
 
+    /// <summary>
+    /// Get an enumerator for a tuple.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     private IParser GetEnumerator(Type type)
     {
         Debug.Assert(type.IsTupleType());
         return GetEnumerator(type.GetGenericArguments());
     }
 
+    /// <summary>
+    /// Get an enumerator for the given tuple types.
+    /// </summary>
+    /// <param name="types"></param>
+    /// <returns></returns>
     private IParser GetEnumerator(ReadOnlySpan<Type> types)
     {
         var first = types[0];

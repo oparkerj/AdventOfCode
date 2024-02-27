@@ -69,10 +69,22 @@ public static class ParseJoin
     }
 }
 
+/// <summary>
+/// Join two parsers.
+/// </summary>
+/// <typeparam name="TIn"></typeparam>
+/// <typeparam name="TJoin"></typeparam>
+/// <typeparam name="TOut"></typeparam>
 public class ParseJoin<TIn, TJoin, TOut> : IParser<TIn, TOut>
 {
+    /// <summary>
+    /// First parser.
+    /// </summary>
     public IParser<TIn, TJoin> First { get; }
     
+    /// <summary>
+    /// Second parser.
+    /// </summary>
     public IParser<TJoin, TOut> Second { get; }
 
     public ParseJoin(IParser<TIn, TJoin> first, IParser<TJoin, TOut> second)
