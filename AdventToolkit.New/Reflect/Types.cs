@@ -107,6 +107,8 @@ public static class Types
     /// <returns>True if the search type was found on the given type.</returns>
     public static bool TryGetTypeArguments(this Type type, Type which, out Type[] types)
     {
+        Debug.Assert(which.IsGenericTypeDefinition);
+        
         // Search the interfaces
         foreach (var @interface in type.GetInterfaces())
         {

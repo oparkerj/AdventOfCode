@@ -51,6 +51,23 @@ public static class ParseAdapt
     }
 
     /// <summary>
+    /// Adapt from one type to another.
+    /// </summary>
+    /// <param name="from">Input type.</param>
+    /// <param name="target">Target type.</param>
+    /// <param name="context">Parse context.</param>
+    /// <returns>Type adapter, or null if no conversion is needed between types.</returns>
+    /// <exception cref="ArgumentException"></exception>
+    public static IParser? Adapt(Type from, Type target, IReadOnlyParseContext context)
+    {
+        if (TryAdaptInner(null, from, target, context, 0, out var result))
+        {
+            return result;
+        }
+        throw new ArgumentException($"Could not adapt to target type. (Output = {from.SimpleName()}, Target = {target.SimpleName()})");
+    }
+
+    /// <summary>
     /// Try to adapt a parser to a specific output type.
     /// </summary>
     /// <param name="parser">Current parser.</param>

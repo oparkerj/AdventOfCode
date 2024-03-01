@@ -31,5 +31,8 @@ public class DefaultContext : ListContext
 
         var arrayParse = new ArrayParse();
         AddType(arrayParse);
+
+        var typeParse = new TypeParse();
+        AddParserLookup(typeParse);
     }
 }
