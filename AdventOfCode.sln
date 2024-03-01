@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode2023", "AdventO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventToolkit.New", "AdventToolkit.New\AdventToolkit.New.csproj", "{7477F1C4-31AA-4F17-8A5F-05265761C083}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{3B05A211-F855-482C-9240-BF9643AF9D17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,15 +76,19 @@ Global
 		{2BD4EFC7-8D03-4AB6-9CC7-AF5903CBD1EE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{13CFD815-930D-4BE7-9CA9-CE7412BB9B46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13CFD815-930D-4BE7-9CA9-CE7412BB9B46}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13CFD815-930D-4BE7-9CA9-CE7412BB9B46}.Debug|Any CPU.ActiveCfg = Release|Any CPU
-		{13CFD815-930D-4BE7-9CA9-CE7412BB9B46}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{13CFD815-930D-4BE7-9CA9-CE7412BB9B46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13CFD815-930D-4BE7-9CA9-CE7412BB9B46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7477F1C4-31AA-4F17-8A5F-05265761C083}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7477F1C4-31AA-4F17-8A5F-05265761C083}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7477F1C4-31AA-4F17-8A5F-05265761C083}.Debug|Any CPU.ActiveCfg = Release|Any CPU
-		{7477F1C4-31AA-4F17-8A5F-05265761C083}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{7477F1C4-31AA-4F17-8A5F-05265761C083}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7477F1C4-31AA-4F17-8A5F-05265761C083}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0262612F-127E-4241-A29C-DEB4C8568C19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0262612F-127E-4241-A29C-DEB4C8568C19}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0262612F-127E-4241-A29C-DEB4C8568C19}.Debug|Any CPU.ActiveCfg = Release|Any CPU
 		{0262612F-127E-4241-A29C-DEB4C8568C19}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{3B05A211-F855-482C-9240-BF9643AF9D17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B05A211-F855-482C-9240-BF9643AF9D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B05A211-F855-482C-9240-BF9643AF9D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B05A211-F855-482C-9240-BF9643AF9D17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
