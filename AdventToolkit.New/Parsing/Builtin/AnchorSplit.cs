@@ -80,6 +80,12 @@ public class AnchorSplit<T> : IStringParser<T>
             current += repeat + 1;
             last = i + 1;
         }
+        
+        // Fill the remainder with empty splits
+        if (last < _splits.Length)
+        {
+            _splits.AsSpan(last).Fill(string.Empty);
+        }
     }
 
     public T Parse(ReadOnlySpan<char> span)
@@ -102,7 +108,7 @@ public class AnchorSplit<T> : IStringParser<T>
                 offset++;
             }
             
-            var last = string.Empty;
+            var last = span.ToString();
             for (var i = 0; i < parts.Length; i++)
             {
                 var effective = i + offset;
