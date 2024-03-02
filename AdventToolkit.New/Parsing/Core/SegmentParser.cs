@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Interface;
-using AdventToolkit.New.Reflect;
 
 namespace AdventToolkit.New.Parsing.Core;
 
@@ -151,37 +150,18 @@ public class SegmentParser<T> : ParseBase<string, T>
             var unwrap = TupleAdapter.UnwrapSingle(split);
             return (IParser<string, T>) ParseJoin.Create(unwrap, single);
         }
-        
-        var parsers = new IParser[_sections.Count];
-        
+
         // If the output type is a tuple, each section will be adapted to the
         // corresponding output type. If not, the raw output type is a tuple of
         // whatever each section produces, and the resulting tuple is adapted
         // to the output type.
-        if (typeof(T).TryGetTupleTypes(out var outputTypes))
+        var parsers = new IParser[_sections.Count];
+        var outputTypes = new Type[_sections.Count];
+        for (var i = 0; i < parsers.Length; i++)
         {
-            if (outputTypes.Length != _sections.Count)
-            {
-                throw new ArgumentException("Output tuple does not match number of groups.");
-            }
-            
-            // Output types are known
-            for (var i = 0; i < parsers.Length; i++)
-            {
-                parsers[i] = _sections[i].Build(Context, outputTypes[i]);
-            }
-        }
-        else
-        {
-            outputTypes = new Type[_sections.Count];
-            
-            // Output types are whatever each section produces.
-            for (var i = 0; i < parsers.Length; i++)
-            {
-                var groupParser = _sections[i].Current;
-                parsers[i] = groupParser;
-                outputTypes[i] = ParseUtil.GetParserTypesOf(groupParser).OutputType;
-            }
+            var groupParser = _sections[i].Current;
+            parsers[i] = groupParser;
+            outputTypes[i] = ParseUtil.GetParserTypesOf(groupParser).OutputType;
         }
         
         var segmentTypes = new Type[_sections.Count];
