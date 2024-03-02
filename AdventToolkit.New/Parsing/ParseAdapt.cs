@@ -18,6 +18,7 @@ namespace AdventToolkit.New.Parsing;
 ///   - Trim input and adapt element-wise
 /// - Adapt tuple to object via construction
 /// - Unwrap 1-tuple and adapt to target
+/// - Adapt tuple to object by adapting first element
 /// - Adapt object to tuple via unpacking
 /// ~ Enumerable conversion:
 ///   - If target is same as element type, just call .First()
@@ -247,6 +248,19 @@ public static class ParseAdapt
             if (conversion is not null)
             {
                 tupleAdapt = ParseJoin.Create(tupleAdapt, conversion);
+            }
+            return true;
+        }
+        
+        // Try to convert tuple to object by taking first item
+        if (fromTuple
+            && !toTuple
+            && TryAdapt(fromTypes[0], target, context, out var firstAdapt))
+        {
+            tupleAdapt = TupleAdapter.First(from);
+            if (firstAdapt is not null)
+            {
+                tupleAdapt = ParseJoin.Create(tupleAdapt, firstAdapt);
             }
             return true;
         }
