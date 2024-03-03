@@ -1,6 +1,8 @@
 ﻿using AdventToolkit.New;
-using AdventToolkit.New.Algorithms;
 using AdventToolkit.New.Parsing;
+using AdventToolkit.New.Parsing.Core;
+using AdventToolkit.New.Parsing.Interface;
+using AdventToolkit.New.Reflect;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -10,23 +12,45 @@ namespace Benchmarks;
 [MemoryDiagnoser]
 public class BenchmarkMain
 {
+    public record IntPair(int A, int B);
+
+    // Test descriptor that allows IntPair to be constructed
+    public class IntsDescriptor : ITypeDescriptor
+    {
+        public bool Match(Type type) => type == typeof(IntPair);
+
+        public bool PassiveSelect => false;
+
+        public bool TryConstruct(Type type, IReadOnlyParseContext context, TypeSpan types, out IParser constructor)
+        {
+            if (types.TryAdaptTuple(typeof((int, int)), context, out var convert))
+            {
+                constructor = ParseAdapt.MaybeJoin(convert, new FromInts(), context);
+                return true;
+            }
+
+            constructor = default!;
+            return false;
+        }
+
+        public class FromInts : IParser<(int, int), IntPair>
+        {
+            public IntPair Parse((int, int) input) => new(input.Item1, input.Item2);
+        }
+    }
+    
     public static void Main(string[] args)
     {
         // var summary = BenchmarkRunner.Run<BenchmarkMain>();
         // var summary = BenchmarkPuzzle<TestPuzzle>();
         // var summary = ComparePuzzle<Day1, Day1Better>();
 
-        var input = "1,2,3 ; 4,5,6 ; 7,8,9";
-        var result = input.Parse<IEnumerable<IEnumerable<int>>>($"{';'}{','}");
+        DefaultContext.Instance.AddType(new IntsDescriptor());
         
-        foreach (var inner in result)
-        {
-            foreach (var s in inner)
-            {
-                Console.WriteLine(s);
-            }
-            Console.WriteLine("---");
-        }
+        var input = "1,2,3,4,5,6,7,8";
+        var result = input.Parse<(string, ((IntPair, string), int))>($"{','}");
+        // (1, ((IntPair { A = 2, B = 3 }, 4), 5))
+        Console.WriteLine(result);
     }
 
     public static Summary BenchmarkPuzzle<T>()

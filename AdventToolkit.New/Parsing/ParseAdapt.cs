@@ -16,16 +16,17 @@ namespace AdventToolkit.New.Parsing;
 ///   - If going larger to smaller, try constructing each target element
 ///   - Trim input to same size as output
 ///   - Trim input and adapt element-wise
-/// - Adapt tuple to object via construction
+/// - Adapt tuple to target via construction
 /// - Unwrap 1-tuple and adapt to target
-/// - Adapt tuple to object by adapting first element
-/// - Adapt object to tuple via unpacking
+/// - Adapt tuple to target by adapting first element
+/// - Adapt input to tuple via unpacking
 /// ~ Enumerable conversion:
 ///   - If target is same as element type, just call .First()
 ///   - If target is IEnumerable, adapt element type
 ///   - Try to collect the target type
 ///   - Create target via construction
 ///   ~ Adapt enumerable to tuple
+///     - Try to recurse into inner tuple
 ///     - Adapt element to tuple component
 ///     - Construct tuple component
 ///
@@ -505,21 +506,45 @@ public static class ParseAdapt
             return false;
         }
 
-        var sections = new IParser[tupleTypes.Length];
+        if (!TryGetTupleConstructions(tupleTypes, outputInner, context, out var sections))
+        {
+            result = default!;
+            return false;
+        }
+
+        result = EnumerableAdapter.ToTuple(outputInner, sections);
+        return true;
+    }
+
+    /// <summary>
+    /// Try to get the constructors for each element of the tuple.
+    /// Each section will be a parser that accepts an IEnumerator and
+    /// returns the tuple element.
+    /// </summary>
+    /// <param name="tupleTypes">Tuple element types.</param>
+    /// <param name="outputInner">Element type of original sequence.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="sections">Element constructors.</param>
+    /// <returns></returns>
+    private static bool TryGetTupleConstructions(Type[] tupleTypes, Type outputInner, IReadOnlyParseContext context, out IParser[] sections)
+    {
+        sections = new IParser[tupleTypes.Length];
 
         for (var i = 0; i < tupleTypes.Length; i++)
         {
             var elementType = tupleTypes[i];
 
+            if (elementType.TryGetTupleTypes(out var innerTypes)
+                && TryGetTupleConstructions(innerTypes, outputInner, context, out var innerTupleSections))
+            {
+                sections[i] = EnumerableAdapter.ToTuple(outputInner, innerTupleSections);
+                continue;
+            }
+
             // Try to adapt a single value to the element type.
             if (TryAdapt(outputInner, elementType, context, out var elementAdapt))
             {
-                var adapt = TupleAdapter.UnwrapSingle(outputInner);
-                if (elementAdapt is not null)
-                {
-                    adapt = ParseJoin.Create(adapt, elementAdapt);
-                }
-                sections[i] = adapt;
+                sections[i] = EnumerableAdapter.PartialSingle(outputInner, elementAdapt);
                 continue;
             }
                 
@@ -527,15 +552,14 @@ public static class ParseAdapt
             if (context.TryLookupType(elementType, out var elementDescriptor)
                 && elementDescriptor.TryConstruct(elementType, context, new TypeSpan(in outputInner), out var elementConstructor))
             {
-                sections[i] = ProcessConstructor(elementConstructor);
+                sections[i] = EnumerableAdapter.PartialTake(outputInner, ProcessConstructor(elementConstructor));
                 continue;
             }
 
-            result = default!;
+            sections = default!;
             return false;
         }
 
-        result = EnumerableAdapter.ToTuple(outputInner, sections);
         return true;
     }
 }

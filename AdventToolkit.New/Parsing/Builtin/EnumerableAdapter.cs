@@ -32,6 +32,35 @@ public static class EnumerableAdapter
     }
 
     /// <summary>
+    /// Get a parser that takes one element of an enumerator and passes it to the given
+    /// parser. If the parser is null, the element type is directly returned.
+    /// </summary>
+    /// <param name="elements">Sequence type.</param>
+    /// <param name="parser">Maybe-null parser.</param>
+    /// <returns></returns>
+    public static IParser PartialSingle(Type elements, IParser? parser)
+    {
+        if (parser is null) return typeof(EnumerableConstructIdentity<>).NewParserGeneric([elements]);
+        var (input, output) = ParseUtil.GetParserTypesOf(parser);
+        return typeof(EnumerableConstructSingle<,>).NewParserGeneric([input, output], parser);
+    }
+
+    /// <summary>
+    /// Get a parser that takes a fixed number of elements from the enumerator
+    /// and passes it to the constructor parser.
+    /// </summary>
+    /// <param name="elements">Sequence type.</param>
+    /// <param name="constructor">Element constructor.</param>
+    /// <returns></returns>
+    public static IParser PartialTake(Type elements, IParser constructor)
+    {
+        var (input, output) = ParseUtil.GetParserTypesOf(constructor);
+        Debug.Assert(input.IsTupleType());
+        var size = input.GetTupleSize();
+        return typeof(EnumerableConstructTuple<,,>).NewParserGeneric([elements, input, output], constructor, size);
+    }
+
+    /// <summary>
     /// Get a parser that returns the first element of an enumerable.
     /// </summary>
     /// <param name="type">Element type.</param>
@@ -62,44 +91,37 @@ public static class EnumerableAdapter
     /// of the tuple.
     /// </summary>
     /// <param name="elements"></param>
-    /// <param name="parsers"></param>
+    /// <param name="parsers">Parsers which accept an <see cref="IEnumerator{T}"/> and
+    /// create each element of the tuple.</param>
     /// <returns></returns>
     /// <exception cref="UnreachableException"></exception>
     public static IParser ToTuple(Type elements, ReadOnlySpan<IParser> parsers)
     {
-        const int genericSize = 2;
-        const int argSize = 2;
-
         // Set up generic types and constructor args
         var count = Math.Min(parsers.Length, Types.PrimaryTupleSize);
-        var generic = new Type[parsers.Length * genericSize];
-        var args = new object?[parsers.Length * argSize];
+        var generic = new Type[parsers.Length];
         for (var i = 0; i < count; i++)
         {
-            var (input, output) = ParseUtil.GetParserTypesOf(parsers[i]);
-            generic[i * genericSize] = input;
-            generic[i * genericSize + 1] = output;
-
-            args[i * argSize] = parsers[i];
-            args[i * argSize + 1] = input.GetTupleSize();
+            var output = ParseUtil.GetParserTypesOf(parsers[i]).OutputType;
+            generic[i] = output;
         }
 
         if (parsers.Length > Types.PrimaryTupleSize)
         {
             var rest = ToTuple(elements, parsers[Types.PrimaryTupleSize..]);
             var output = ParseUtil.GetParserTypesOf(rest).OutputType;
-            return typeof(EnumerableToTuple<,,,,,,,,,,,,,,,>).NewParserGeneric([elements, ..generic, output], [..args, rest]);
+            return typeof(EnumerableToTuple<,,,,,,,,>).NewParserGeneric([elements, ..generic, output], [..parsers, rest]);
         }
 
         return count switch
         {
-            1 => typeof(EnumerableToTuple<,,>).NewParserGeneric([elements, ..generic], args),
-            2 => typeof(EnumerableToTuple<,,,,>).NewParserGeneric([elements, ..generic], args),
-            3 => typeof(EnumerableToTuple<,,,,,,>).NewParserGeneric([elements, ..generic], args),
-            4 => typeof(EnumerableToTuple<,,,,,,,,>).NewParserGeneric([elements, ..generic], args),
-            5 => typeof(EnumerableToTuple<,,,,,,,,,,>).NewParserGeneric([elements, ..generic], args),
-            6 => typeof(EnumerableToTuple<,,,,,,,,,,,,>).NewParserGeneric([elements, ..generic], args),
-            7 => typeof(EnumerableToTuple<,,,,,,,,,,,,,,>).NewParserGeneric([elements, ..generic], args),
+            1 => typeof(EnumerableToTuple<,>).NewParserGeneric([elements, ..generic], [..parsers]),
+            2 => typeof(EnumerableToTuple<,,>).NewParserGeneric([elements, ..generic], [..parsers]),
+            3 => typeof(EnumerableToTuple<,,,>).NewParserGeneric([elements, ..generic], [..parsers]),
+            4 => typeof(EnumerableToTuple<,,,,>).NewParserGeneric([elements, ..generic], [..parsers]),
+            5 => typeof(EnumerableToTuple<,,,,,>).NewParserGeneric([elements, ..generic], [..parsers]),
+            6 => typeof(EnumerableToTuple<,,,,,,>).NewParserGeneric([elements, ..generic], [..parsers]),
+            7 => typeof(EnumerableToTuple<,,,,,,,>).NewParserGeneric([elements, ..generic], [..parsers]),
             _ => throw new UnreachableException()
         };
     }
@@ -112,16 +134,6 @@ public static class EnumerableAdapter
 public class EnumerableFirst<T> : IParser<IEnumerable<T>, T>
 {
     public T Parse(IEnumerable<T> input) => input.First();
-}
-
-/// <summary>
-/// Extension of an enumerable parser that also works on an enumerator.
-/// </summary>
-/// <typeparam name="TIn"></typeparam>
-/// <typeparam name="TOut"></typeparam>
-public interface IEnumerableToTuple<in TIn, out TOut> : IParser<IEnumerable<TIn>, TOut>
-{
-    TOut Parse(IEnumerator<TIn> source);
 }
 
 /// <summary>
@@ -147,17 +159,66 @@ public class EnumerableToValue<T, TTuple, TOut>(IParser<TTuple, TOut> constructo
 }
 
 /// <summary>
+/// Take one element from an enumerator and return it.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class EnumerableConstructIdentity<T> : IParser<IEnumerator<T>, T>
+{
+    public T Parse(IEnumerator<T> input)
+    {
+        if (!input.MoveNext()) throw new ArgumentOutOfRangeException(nameof(input));
+        return input.Current;
+    }
+}
+
+/// <summary>
+/// Take one element from an enumerator and pass it to a constructor parser.
+/// </summary>
+/// <param name="constructor"></param>
+/// <typeparam name="TIn"></typeparam>
+/// <typeparam name="TOut"></typeparam>
+public class EnumerableConstructSingle<TIn, TOut>(IParser<TIn, TOut> constructor) : IParser<IEnumerator<TIn>, TOut>
+{
+    public TOut Parse(IEnumerator<TIn> input)
+    {
+        if (!input.MoveNext()) throw new ArgumentOutOfRangeException(nameof(input));
+        return constructor.Parse(input.Current);
+    }
+}
+
+/// <summary>
+/// Take a fixed number of elements from an enumerator and pass it to a
+/// constructor parser as a tuple.
+/// </summary>
+/// <param name="constructor"></param>
+/// <param name="size"></param>
+/// <typeparam name="TIn"></typeparam>
+/// <typeparam name="TTuple"></typeparam>
+/// <typeparam name="TOut"></typeparam>
+public class EnumerableConstructTuple<TIn, TTuple, TOut>(IParser<TTuple, TOut> constructor, int size) : IParser<IEnumerator<TIn>, TOut>
+{
+    public TOut Parse(IEnumerator<TIn> input)
+    {
+        return constructor.Parse((TTuple) EnumerableAdapter.Take(input, size));
+    }
+}
+
+/// <summary>
+/// Extension of an enumerable parser that also works on an enumerator.
+/// </summary>
+/// <typeparam name="TIn"></typeparam>
+/// <typeparam name="TOut"></typeparam>
+public interface IEnumerableToTuple<in TIn, out TOut> : IParser<IEnumerable<TIn>, TOut>, IParser<IEnumerator<TIn>, TOut>;
+
+/// <summary>
 /// Convert an enumerable to a tuple.
 /// </summary>
 /// <param name="parser1"></param>
 /// <param name="count1"></param>
 /// <typeparam name="T"></typeparam>
-/// <typeparam name="T1In"></typeparam>
 /// <typeparam name="T1Out"></typeparam>
-public class EnumerableToTuple<T,
-    T1In, T1Out
->(
-    IParser<T1In, T1Out> parser1, int count1
+public class EnumerableToTuple<T, T1Out>(
+    IParser<IEnumerator<T>, T1Out> parser1
 ) : IEnumerableToTuple<T, ValueTuple<T1Out>>
 {
     public ValueTuple<T1Out> Parse(IEnumerable<T> input)
@@ -168,7 +229,7 @@ public class EnumerableToTuple<T,
     
     public ValueTuple<T1Out> Parse(IEnumerator<T> source)
     {
-        return new ValueTuple<T1Out>(parser1.Parse((T1In) EnumerableAdapter.Take(source, count1)));
+        return new ValueTuple<T1Out>(parser1.Parse(source));
     }
 
     public IEnumerable<IParser> GetChildren()
@@ -177,12 +238,9 @@ public class EnumerableToTuple<T,
     }
 }
 
-public class EnumerableToTuple<T,
-    T1In, T1Out,
-    T2In, T2Out
->(
-    IParser<T1In, T1Out> parser1, int count1,
-    IParser<T2In, T2Out> parser2, int count2
+public class EnumerableToTuple<T, T1Out, T2Out>(
+    IParser<IEnumerator<T>, T1Out> parser1,
+    IParser<IEnumerator<T>, T2Out> parser2
 ) : IEnumerableToTuple<T, (T1Out, T2Out)>
 {
     public (T1Out, T2Out) Parse(IEnumerable<T> input)
@@ -194,8 +252,8 @@ public class EnumerableToTuple<T,
     public (T1Out, T2Out) Parse(IEnumerator<T> source)
     {
         return (
-            parser1.Parse((T1In) EnumerableAdapter.Take(source, count1)),
-            parser2.Parse((T2In) EnumerableAdapter.Take(source, count2))
+            parser1.Parse(source),
+            parser2.Parse(source)
             );
     }
 
@@ -206,14 +264,10 @@ public class EnumerableToTuple<T,
     }
 }
 
-public class EnumerableToTuple<T,
-    T1In, T1Out,
-    T2In, T2Out,
-    T3In, T3Out
->(
-    IParser<T1In, T1Out> parser1, int count1,
-    IParser<T2In, T2Out> parser2, int count2,
-    IParser<T3In, T3Out> parser3, int count3
+public class EnumerableToTuple<T, T1Out, T2Out, T3Out>(
+    IParser<IEnumerator<T>, T1Out> parser1,
+    IParser<IEnumerator<T>, T2Out> parser2,
+    IParser<IEnumerator<T>, T3Out> parser3
 ) : IEnumerableToTuple<T, (T1Out, T2Out, T3Out)>
 {
     public (T1Out, T2Out, T3Out) Parse(IEnumerable<T> input)
@@ -225,9 +279,9 @@ public class EnumerableToTuple<T,
     public (T1Out, T2Out, T3Out) Parse(IEnumerator<T> source)
     {
         return (
-            parser1.Parse((T1In) EnumerableAdapter.Take(source, count1)),
-            parser2.Parse((T2In) EnumerableAdapter.Take(source, count2)),
-            parser3.Parse((T3In) EnumerableAdapter.Take(source, count3))
+            parser1.Parse(source),
+            parser2.Parse(source),
+            parser3.Parse(source)
             );
     }
     
@@ -239,16 +293,11 @@ public class EnumerableToTuple<T,
     }
 }
 
-public class EnumerableToTuple<T,
-    T1In, T1Out,
-    T2In, T2Out,
-    T3In, T3Out,
-    T4In, T4Out
->(
-    IParser<T1In, T1Out> parser1, int count1,
-    IParser<T2In, T2Out> parser2, int count2,
-    IParser<T3In, T3Out> parser3, int count3,
-    IParser<T4In, T4Out> parser4, int count4
+public class EnumerableToTuple<T, T1Out, T2Out, T3Out, T4Out>(
+    IParser<IEnumerator<T>, T1Out> parser1,
+    IParser<IEnumerator<T>, T2Out> parser2,
+    IParser<IEnumerator<T>, T3Out> parser3,
+    IParser<IEnumerator<T>, T4Out> parser4
 ) : IEnumerableToTuple<T, (T1Out, T2Out, T3Out, T4Out)>
 {
     public (T1Out, T2Out, T3Out, T4Out) Parse(IEnumerable<T> input)
@@ -260,10 +309,10 @@ public class EnumerableToTuple<T,
     public (T1Out, T2Out, T3Out, T4Out) Parse(IEnumerator<T> source)
     {
         return (
-            parser1.Parse((T1In) EnumerableAdapter.Take(source, count1)),
-            parser2.Parse((T2In) EnumerableAdapter.Take(source, count2)),
-            parser3.Parse((T3In) EnumerableAdapter.Take(source, count3)),
-            parser4.Parse((T4In) EnumerableAdapter.Take(source, count4))
+            parser1.Parse(source),
+            parser2.Parse(source),
+            parser3.Parse(source),
+            parser4.Parse(source)
         );
     }
     
@@ -276,18 +325,12 @@ public class EnumerableToTuple<T,
     }
 }
 
-public class EnumerableToTuple<T,
-    T1In, T1Out,
-    T2In, T2Out,
-    T3In, T3Out,
-    T4In, T4Out,
-    T5In, T5Out
->(
-    IParser<T1In, T1Out> parser1, int count1,
-    IParser<T2In, T2Out> parser2, int count2,
-    IParser<T3In, T3Out> parser3, int count3,
-    IParser<T4In, T4Out> parser4, int count4,
-    IParser<T5In, T5Out> parser5, int count5
+public class EnumerableToTuple<T, T1Out, T2Out, T3Out, T4Out, T5Out>(
+    IParser<IEnumerator<T>, T1Out> parser1,
+    IParser<IEnumerator<T>, T2Out> parser2,
+    IParser<IEnumerator<T>, T3Out> parser3,
+    IParser<IEnumerator<T>, T4Out> parser4,
+    IParser<IEnumerator<T>, T5Out> parser5
 ) : IEnumerableToTuple<T, (T1Out, T2Out, T3Out, T4Out, T5Out)>
 {
     public (T1Out, T2Out, T3Out, T4Out, T5Out) Parse(IEnumerable<T> input)
@@ -299,11 +342,11 @@ public class EnumerableToTuple<T,
     public (T1Out, T2Out, T3Out, T4Out, T5Out) Parse(IEnumerator<T> source)
     {
         return (
-            parser1.Parse((T1In) EnumerableAdapter.Take(source, count1)),
-            parser2.Parse((T2In) EnumerableAdapter.Take(source, count2)),
-            parser3.Parse((T3In) EnumerableAdapter.Take(source, count3)),
-            parser4.Parse((T4In) EnumerableAdapter.Take(source, count4)),
-            parser5.Parse((T5In) EnumerableAdapter.Take(source, count5))
+            parser1.Parse(source),
+            parser2.Parse(source),
+            parser3.Parse(source),
+            parser4.Parse(source),
+            parser5.Parse(source)
         );
     }
     
@@ -317,20 +360,13 @@ public class EnumerableToTuple<T,
     }
 }
 
-public class EnumerableToTuple<T,
-    T1In, T1Out,
-    T2In, T2Out,
-    T3In, T3Out,
-    T4In, T4Out,
-    T5In, T5Out,
-    T6In, T6Out
->(
-    IParser<T1In, T1Out> parser1, int count1,
-    IParser<T2In, T2Out> parser2, int count2,
-    IParser<T3In, T3Out> parser3, int count3,
-    IParser<T4In, T4Out> parser4, int count4,
-    IParser<T5In, T5Out> parser5, int count5,
-    IParser<T6In, T6Out> parser6, int count6
+public class EnumerableToTuple<T, T1Out, T2Out, T3Out, T4Out, T5Out, T6Out>(
+    IParser<IEnumerator<T>, T1Out> parser1,
+    IParser<IEnumerator<T>, T2Out> parser2,
+    IParser<IEnumerator<T>, T3Out> parser3,
+    IParser<IEnumerator<T>, T4Out> parser4,
+    IParser<IEnumerator<T>, T5Out> parser5,
+    IParser<IEnumerator<T>, T6Out> parser6
 ) : IEnumerableToTuple<T, (T1Out, T2Out, T3Out, T4Out, T5Out, T6Out)>
 {
     public (T1Out, T2Out, T3Out, T4Out, T5Out, T6Out) Parse(IEnumerable<T> input)
@@ -342,12 +378,12 @@ public class EnumerableToTuple<T,
     public (T1Out, T2Out, T3Out, T4Out, T5Out, T6Out) Parse(IEnumerator<T> source)
     {
         return (
-            parser1.Parse((T1In) EnumerableAdapter.Take(source, count1)),
-            parser2.Parse((T2In) EnumerableAdapter.Take(source, count2)),
-            parser3.Parse((T3In) EnumerableAdapter.Take(source, count3)),
-            parser4.Parse((T4In) EnumerableAdapter.Take(source, count4)),
-            parser5.Parse((T5In) EnumerableAdapter.Take(source, count5)),
-            parser6.Parse((T6In) EnumerableAdapter.Take(source, count6))
+            parser1.Parse(source),
+            parser2.Parse(source),
+            parser3.Parse(source),
+            parser4.Parse(source),
+            parser5.Parse(source),
+            parser6.Parse(source)
         );
     }
     
@@ -362,22 +398,14 @@ public class EnumerableToTuple<T,
     }
 }
 
-public class EnumerableToTuple<T,
-    T1In, T1Out,
-    T2In, T2Out,
-    T3In, T3Out,
-    T4In, T4Out,
-    T5In, T5Out,
-    T6In, T6Out,
-    T7In, T7Out
->(
-    IParser<T1In, T1Out> parser1, int count1,
-    IParser<T2In, T2Out> parser2, int count2,
-    IParser<T3In, T3Out> parser3, int count3,
-    IParser<T4In, T4Out> parser4, int count4,
-    IParser<T5In, T5Out> parser5, int count5,
-    IParser<T6In, T6Out> parser6, int count6,
-    IParser<T7In, T7Out> parser7, int count7
+public class EnumerableToTuple<T, T1Out, T2Out, T3Out, T4Out, T5Out, T6Out, T7Out>(
+    IParser<IEnumerator<T>, T1Out> parser1,
+    IParser<IEnumerator<T>, T2Out> parser2,
+    IParser<IEnumerator<T>, T3Out> parser3,
+    IParser<IEnumerator<T>, T4Out> parser4,
+    IParser<IEnumerator<T>, T5Out> parser5,
+    IParser<IEnumerator<T>, T6Out> parser6,
+    IParser<IEnumerator<T>, T7Out> parser7
 ) : IEnumerableToTuple<T, (T1Out, T2Out, T3Out, T4Out, T5Out, T6Out, T7Out)>
 {
     public (T1Out, T2Out, T3Out, T4Out, T5Out, T6Out, T7Out) Parse(IEnumerable<T> input)
@@ -389,13 +417,13 @@ public class EnumerableToTuple<T,
     public (T1Out, T2Out, T3Out, T4Out, T5Out, T6Out, T7Out) Parse(IEnumerator<T> source)
     {
         return (
-            parser1.Parse((T1In) EnumerableAdapter.Take(source, count1)),
-            parser2.Parse((T2In) EnumerableAdapter.Take(source, count2)),
-            parser3.Parse((T3In) EnumerableAdapter.Take(source, count3)),
-            parser4.Parse((T4In) EnumerableAdapter.Take(source, count4)),
-            parser5.Parse((T5In) EnumerableAdapter.Take(source, count5)),
-            parser6.Parse((T6In) EnumerableAdapter.Take(source, count6)),
-            parser7.Parse((T7In) EnumerableAdapter.Take(source, count7))
+            parser1.Parse(source),
+            parser2.Parse(source),
+            parser3.Parse(source),
+            parser4.Parse(source),
+            parser5.Parse(source),
+            parser6.Parse(source),
+            parser7.Parse(source)
         );
     }
     
@@ -411,23 +439,14 @@ public class EnumerableToTuple<T,
     }
 }
 
-public class EnumerableToTuple<T,
-    T1In, T1Out,
-    T2In, T2Out,
-    T3In, T3Out,
-    T4In, T4Out,
-    T5In, T5Out,
-    T6In, T6Out,
-    T7In, T7Out,
-    TRest
->(
-    IParser<T1In, T1Out> parser1, int count1,
-    IParser<T2In, T2Out> parser2, int count2,
-    IParser<T3In, T3Out> parser3, int count3,
-    IParser<T4In, T4Out> parser4, int count4,
-    IParser<T5In, T5Out> parser5, int count5,
-    IParser<T6In, T6Out> parser6, int count6,
-    IParser<T7In, T7Out> parser7, int count7,
+public class EnumerableToTuple<T, T1Out, T2Out, T3Out, T4Out, T5Out, T6Out, T7Out, TRest>(
+    IParser<IEnumerator<T>, T1Out> parser1,
+    IParser<IEnumerator<T>, T2Out> parser2,
+    IParser<IEnumerator<T>, T3Out> parser3,
+    IParser<IEnumerator<T>, T4Out> parser4,
+    IParser<IEnumerator<T>, T5Out> parser5,
+    IParser<IEnumerator<T>, T6Out> parser6,
+    IParser<IEnumerator<T>, T7Out> parser7,
     IEnumerableToTuple<T, TRest> parserRest
 ) : IEnumerableToTuple<T, ValueTuple<T1Out, T2Out, T3Out, T4Out, T5Out, T6Out, T7Out, TRest>>
     where TRest : struct
@@ -441,13 +460,13 @@ public class EnumerableToTuple<T,
     public ValueTuple<T1Out, T2Out, T3Out, T4Out, T5Out, T6Out, T7Out, TRest> Parse(IEnumerator<T> source)
     {
         return new ValueTuple<T1Out, T2Out, T3Out, T4Out, T5Out, T6Out, T7Out, TRest>(
-            parser1.Parse((T1In) EnumerableAdapter.Take(source, count1)),
-            parser2.Parse((T2In) EnumerableAdapter.Take(source, count2)),
-            parser3.Parse((T3In) EnumerableAdapter.Take(source, count3)),
-            parser4.Parse((T4In) EnumerableAdapter.Take(source, count4)),
-            parser5.Parse((T5In) EnumerableAdapter.Take(source, count5)),
-            parser6.Parse((T6In) EnumerableAdapter.Take(source, count6)),
-            parser7.Parse((T7In) EnumerableAdapter.Take(source, count7)),
+            parser1.Parse(source),
+            parser2.Parse(source),
+            parser3.Parse(source),
+            parser4.Parse(source),
+            parser5.Parse(source),
+            parser6.Parse(source),
+            parser7.Parse(source),
             parserRest.Parse(source)
         );
     }
