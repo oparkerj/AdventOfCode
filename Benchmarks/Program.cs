@@ -25,7 +25,7 @@ public class BenchmarkMain
         {
             if (types.TryAdaptTuple(typeof((int, int)), context, out var convert))
             {
-                constructor = ParseAdapt.MaybeJoin(convert, new FromInts(), context);
+                constructor = ParseAdapt.MaybeJoin(convert, new FromInts());
                 return true;
             }
 

@@ -112,18 +112,39 @@ public static class ParseAdapt
     }
 
     /// <summary>
-    /// Inner-join a possibly-null parser to a second parser.
+    /// Join two possibly-null parsers.
+    /// If the first parser is null, then the second parser is returned.
+    /// If the second parser is null, then the first parser is returned.
+    /// </summary>
+    /// <param name="first">First parser, possibly null.</param>
+    /// <param name="second">Second parser.</param>
+    /// <param name="level">Inner join level.</param>
+    /// <returns>Joined parser.</returns>
+    [return: NotNullIfNotNull(nameof(first))]
+    [return: NotNullIfNotNull(nameof(second))]
+    public static IParser? MaybeJoin(IParser? first, IParser? second)
+    {
+        if (first is null) return second;
+        return second is null ? first : ParseJoin.Create(first, second);
+    }
+    
+    /// <summary>
+    /// Inner-join two possibly-null parsers.
     /// If the first parser is null, then the second parser is returned at the given
     /// enumerable level.
+    /// If the second parser is null, then the first parser is returned.
     /// </summary>
     /// <param name="first">First parser, possibly null.</param>
     /// <param name="second">Second parser.</param>
     /// <param name="context">Parse context.</param>
     /// <param name="level">Inner join level.</param>
     /// <returns>Joined parser.</returns>
-    public static IParser MaybeJoin(IParser? first, IParser second, IReadOnlyParseContext context, int level = 0)
+    [return: NotNullIfNotNull(nameof(first))]
+    [return: NotNullIfNotNull(nameof(second))]
+    public static IParser? MaybeInnerJoin(IParser? first, IParser? second, IReadOnlyParseContext context, int level)
     {
-        return first is null ? second.AddLevels(level) : ParseJoin.InnerJoin(first, second, level, context);
+        if (first is null) return second?.AddLevels(level);
+        return second is null ? first : ParseJoin.InnerJoin(first, second, level, context);
     }
 
     /// <summary>
@@ -156,14 +177,14 @@ public static class ParseAdapt
         // Try using an adapter.
         if (context.TryLookupAdapter(output, target, out var convert))
         {
-            result = MaybeJoin(parser, convert, context, level);
+            result = MaybeInnerJoin(parser, convert, context, level);
             return true;
         }
 
         // Try tuple conversions
         if (TryAdaptTuple(output, target, context, out var tupleAdapt))
         {
-            result = MaybeJoin(parser, tupleAdapt, context, level);
+            result = MaybeInnerJoin(parser, tupleAdapt, context, level);
             return true;
         }
         
@@ -233,8 +254,8 @@ public static class ParseAdapt
             {
                 // If the constructor is not a tuple, then take the first element from the tuple.
                 // This special handling is used instead of ProcessConstructor
-                var unwrap = TupleAdapter.First(from);
-                tupleAdapt = ParseJoin.Create(unwrap, tupleAdapt);
+                var first = TupleAdapter.First(from);
+                tupleAdapt = ParseJoin.Create(first, tupleAdapt);
             }
             
             return true;
@@ -245,11 +266,7 @@ public static class ParseAdapt
             && fromTypes.Length == 1
             && TryAdaptInner(null, fromTypes[0], target, context, 0, out var conversion))
         {
-            tupleAdapt = TupleAdapter.UnwrapSingle(fromTypes[0]);
-            if (conversion is not null)
-            {
-                tupleAdapt = ParseJoin.Create(tupleAdapt, conversion);
-            }
+            tupleAdapt = MaybeJoin(TupleAdapter.UnwrapSingle(fromTypes[0]), conversion);
             return true;
         }
         
@@ -258,11 +275,7 @@ public static class ParseAdapt
             && !toTuple
             && TryAdapt(fromTypes[0], target, context, out var firstAdapt))
         {
-            tupleAdapt = TupleAdapter.First(from);
-            if (firstAdapt is not null)
-            {
-                tupleAdapt = ParseJoin.Create(tupleAdapt, firstAdapt);
-            }
+            tupleAdapt = MaybeJoin(TupleAdapter.First(from), firstAdapt);
             return true;
         }
         
@@ -319,7 +332,7 @@ public static class ParseAdapt
             }
 
             var inputTypes = input.GetTupleTypes();
-            chunks[i] = new TupleChunkParse(offset, inputTypes, MaybeJoin(constructorAdapter, constructor, context));
+            chunks[i] = new TupleChunkParse(offset, inputTypes, MaybeJoin(constructorAdapter, constructor));
 
             offset += inputTypes.Length;
             current = current[inputTypes.Length..];
@@ -413,12 +426,7 @@ public static class ParseAdapt
         // If the target is the same as the element type, just call .First()
         if (outputInner.IsAssignableTo(target))
         {
-            result = parser;
-            if (selector is not null)
-            {
-                result = MaybeJoin(result, selector, context, level);
-            }
-            result = MaybeJoin(result, EnumerableAdapter.First(outputInner), context, level);
+            result = MaybeInnerJoin(parser, MaybeJoin(selector, EnumerableAdapter.First(outputInner)), context, level);
             return true;
         }
         
@@ -427,18 +435,12 @@ public static class ParseAdapt
         // This avoids the need to insert an "identity" parser.
         if (target.Generic() == typeof(IEnumerable<>))
         {
-            result = parser;
-            if (selector is not null)
-            {
-                result = MaybeJoin(result, selector, context, level);
-            }
+            result = MaybeInnerJoin(parser, selector, context, level);
 
             var enumerableInner = target.GetSingleTypeArgument();
             if (!TryAdapt(outputInner, enumerableInner, context, out var innerAdapt)) return false;
-            if (innerAdapt is not null)
-            {
-                result = MaybeJoin(result, innerAdapt.AddLevels(1), context, level);
-            }
+            
+            result = MaybeInnerJoin(result, innerAdapt, context, level + 1);
             return true;
         }
 
@@ -448,14 +450,10 @@ public static class ParseAdapt
         if (targetDescriptor
             && descriptor.TryCollectSelf(target, context, out var targetInner, out var constructor))
         {
-            var joined = parser;
-            if (selector is not null)
-            {
-                joined = MaybeJoin(joined, selector, context, level);
-            }
+            var joined = MaybeInnerJoin(parser, selector, context, level);
             if (TryAdaptInner(joined, outputInner, targetInner, context, level + 1, out var enumerableAdapt))
             {
-                result = MaybeJoin(enumerableAdapt, constructor, context, level);
+                result = MaybeInnerJoin(enumerableAdapt, constructor, context, level);
                 return true;
             }
         }
@@ -464,25 +462,15 @@ public static class ParseAdapt
         if (targetDescriptor
             && descriptor.TryConstruct(target, context, new TypeSpan(in outputInner), out var constructAdapt))
         {
-            result = parser;
-            if (selector is not null)
-            {
-                result = MaybeJoin(result, selector, context, level);
-            }
-            constructAdapt = EnumerableAdapter.ConstructSingle(outputInner, ProcessConstructor(constructAdapt));
-            result = MaybeJoin(result, constructAdapt, context, level);
+            var toSingle = MaybeJoin(selector, EnumerableAdapter.ConstructSingle(outputInner, ProcessConstructor(constructAdapt)));
+            result = MaybeInnerJoin(parser, toSingle, context, level);
             return true;
         }
         
         // Enumerable to tuple
         if (TryAdaptEnumerableTuple(target, outputInner, context, out var enumerableToTuple))
         {
-            result = parser;
-            if (selector is not null)
-            {
-                result = MaybeJoin(result, selector, context, level);
-            }
-            result = MaybeJoin(result, enumerableToTuple, context, level);
+            result = MaybeInnerJoin(parser, MaybeJoin(selector, enumerableToTuple), context, level);
             return true;
         }
 
@@ -534,6 +522,7 @@ public static class ParseAdapt
         {
             var elementType = tupleTypes[i];
 
+            // Parse a nested tuple
             if (elementType.TryGetTupleTypes(out var innerTypes)
                 && TryGetTupleConstructions(innerTypes, outputInner, context, out var innerTupleSections))
             {
