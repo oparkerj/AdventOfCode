@@ -406,6 +406,12 @@ public static class Types
         ]);
     }
     
+    /// <summary>
+    /// Create a tuple where each element is the same type.
+    /// </summary>
+    /// <param name="type">Tuple element type.</param>
+    /// <param name="values">Tuple element values.</param>
+    /// <returns></returns>
     public static object CreateTuple(Type type, ReadOnlySpan<object?> values)
     {
         Debug.Assert(values.Length > 0);
@@ -417,6 +423,13 @@ public static class Types
         ]);
     }
 
+    /// <summary>
+    /// Get a tuple type representing a smaller portion of a tuple.
+    /// </summary>
+    /// <param name="type">Original tuple.</param>
+    /// <param name="start">Start element offset.</param>
+    /// <param name="count">Number of elements to take.</param>
+    /// <returns></returns>
     public static Type SliceTupleType(Type type, int start, int count)
     {
         Debug.Assert(type.IsTupleType());
@@ -424,13 +437,28 @@ public static class Types
         return CreateTupleType(type.GetTupleTypes().AsSpan(start, count));
     }
     
+    /// <summary>
+    /// Get a sliced portion of a tuple's element types.
+    /// </summary>
+    /// <param name="type">Original tuple.</param>
+    /// <param name="start">Start element offset.</param>
+    /// <param name="count">Number of elements to take.</param>
+    /// <returns></returns>
     public static Type[] SliceTuple(Type type, int start, int count)
     {
         Debug.Assert(type.IsTupleType());
-
+        
         return type.GetTupleTypes()[start..(start + count)];
     }
 
+    /// <summary>
+    /// Slice a tuple instance.
+    /// </summary>
+    /// <param name="tuple">Original tuple.</param>
+    /// <param name="types">Types of the resulting tuple.</param>
+    /// <param name="start">Offset of first element.</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static object SliceTuple<T>(T tuple, Type[] types, int start)
         where T : ITuple
     {

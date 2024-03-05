@@ -494,39 +494,16 @@ public static class ParseAdapt
             return false;
         }
 
-        if (!TryGetTupleConstructions(tupleTypes, outputInner, context, out var sections))
-        {
-            result = default!;
-            return false;
-        }
-
-        result = EnumerableAdapter.ToTuple(outputInner, sections);
-        return true;
-    }
-
-    /// <summary>
-    /// Try to get the constructors for each element of the tuple.
-    /// Each section will be a parser that accepts an IEnumerator and
-    /// returns the tuple element.
-    /// </summary>
-    /// <param name="tupleTypes">Tuple element types.</param>
-    /// <param name="outputInner">Element type of original sequence.</param>
-    /// <param name="context">Parse context.</param>
-    /// <param name="sections">Element constructors.</param>
-    /// <returns></returns>
-    private static bool TryGetTupleConstructions(Type[] tupleTypes, Type outputInner, IReadOnlyParseContext context, out IParser[] sections)
-    {
-        sections = new IParser[tupleTypes.Length];
+        var sections = new IParser[tupleTypes.Length];
 
         for (var i = 0; i < tupleTypes.Length; i++)
         {
             var elementType = tupleTypes[i];
 
-            // Parse a nested tuple
-            if (elementType.TryGetTupleTypes(out var innerTypes)
-                && TryGetTupleConstructions(innerTypes, outputInner, context, out var innerTupleSections))
+            // Try to parse a nested tuple
+            if (TryAdaptEnumerableTuple(elementType, outputInner, context, out var innerTuple))
             {
-                sections[i] = EnumerableAdapter.ToTuple(outputInner, innerTupleSections);
+                sections[i] = innerTuple;
                 continue;
             }
 
@@ -545,10 +522,11 @@ public static class ParseAdapt
                 continue;
             }
 
-            sections = default!;
+            result = default!;
             return false;
         }
 
+        result = EnumerableAdapter.ToTuple(outputInner, sections);
         return true;
     }
 }

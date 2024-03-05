@@ -84,6 +84,13 @@ public readonly ref struct TypeSpan
         }
     }
 
+    /// <summary>
+    /// Slice the type span.
+    /// If the span has unknown length, this has no effect.
+    /// </summary>
+    /// <param name="start">Slice start.</param>
+    /// <param name="length">Slice count.</param>
+    /// <returns></returns>
     public TypeSpan Slice(int start, int length)
     {
         if (_length < 0) return this;
@@ -113,6 +120,15 @@ public readonly ref struct TypeSpan
         return true;
     }
 
+    /// <summary>
+    /// Create an adapter that will convert the types in this span as a tuple to the requested
+    /// tuple type.
+    /// If no conversion is needed to convert the tuple, null is returned.
+    /// </summary>
+    /// <param name="type">Target tuple type.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="adapter">Possible adapter.</param>
+    /// <returns></returns>
     public bool TryAdaptTuple(Type type, IReadOnlyParseContext context, out IParser? adapter)
     {
         Debug.Assert(type.IsTupleType());
