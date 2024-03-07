@@ -424,6 +424,24 @@ public static class Types
     }
 
     /// <summary>
+    /// Create a tuple given an existing tuple type.
+    /// </summary>
+    /// <param name="tuple">Tuple type.</param>
+    /// <param name="values">Tuple elements.</param>
+    /// <returns></returns>
+    public static object CreateTupleFrom(Type tuple, ReadOnlySpan<object?> values)
+    {
+        Debug.Assert(tuple.IsTupleType());
+        Debug.Assert(tuple.GetTupleSize() == values.Length);
+
+        if (values.Length <= PrimaryTupleSize) return tuple.New([..values]);
+        return tuple.New([
+            ..values[..PrimaryTupleSize],
+            CreateTupleFrom(tuple.GetGenericArguments()[PrimaryTupleSize], values[PrimaryTupleSize..])
+        ]);
+    }
+
+    /// <summary>
     /// Get a tuple type representing a smaller portion of a tuple.
     /// </summary>
     /// <param name="type">Original tuple.</param>

@@ -23,7 +23,10 @@ namespace AdventToolkit.New.Parsing;
 /// ~ Enumerable conversion:
 ///   - If target is same as element type, just call .First()
 ///   - If target is IEnumerable, adapt element type
-///   - Try to collect the target type
+///   ~ Try to collect the target type
+///     - Adapt sequence type to container type
+///     - Adapt enumerable to container of tuple
+///     - Try to construct the inner type
 ///   - Create target via construction
 ///   ~ Adapt enumerable to tuple
 ///     - Try to recurse into inner tuple
@@ -451,9 +454,26 @@ public static class ParseAdapt
             && descriptor.TryCollectSelf(target, context, out var targetInner, out var constructor))
         {
             var joined = MaybeInnerJoin(parser, selector, context, level);
+            
+            // Try to adapt output inner type to target inner type
             if (TryAdaptInner(joined, outputInner, targetInner, context, level + 1, out var enumerableAdapt))
             {
                 result = MaybeInnerJoin(enumerableAdapt, constructor, context, level);
+                return true;
+            }
+            
+            // Try adapt enumerable to container of tuple
+            if (TryAdaptEnumerableTuple(targetInner, outputInner, context, out var innerConstructor))
+            {
+                result = MaybeInnerJoin(joined, EnumerableAdapter.ConstructInnerTuple(outputInner, constructor, innerConstructor), context, level);
+                return true;
+            }
+            
+            // Try to construct the inner type
+            if (context.TryLookupType(targetInner, out var innerDescriptor)
+                && innerDescriptor.TryConstruct(targetInner, context, new TypeSpan(in outputInner), out innerConstructor))
+            {
+                result = MaybeInnerJoin(joined, EnumerableAdapter.ConstructInner(outputInner, constructor, innerConstructor), context, level);
                 return true;
             }
         }

@@ -47,10 +47,15 @@ public class BenchmarkMain
 
         DefaultContext.Instance.AddType(new IntsDescriptor());
         
-        var input = "1,2,3,4,5,6,7,8";
-        var result = input.Parse<(string, ((IntPair, string), int))>($"{','}");
+        var input = "1,2,3,4,5,6,7,8,9";
+        var result = input.Parse<(int, int, int)[]>($"{','}");
+        foreach (var pair in result)
+        {
+            Console.WriteLine(pair);
+        }
+        
+        // var result = input.Parse<(string, ((IntPair, string), int))>($"{','}");
         // (1, ((IntPair { A = 2, B = 3 }, 4), 5))
-        Console.WriteLine(result);
     }
 
     public static Summary BenchmarkPuzzle<T>()
