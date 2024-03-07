@@ -3,6 +3,10 @@ using static Testing.TestExtensions;
 
 namespace Testing;
 
+/// <summary>
+/// These tests are used to make sure the parser works and is consistent
+/// between various situations.
+/// </summary>
 public class ParserTest
 {
     public const string IntCsv = "1,2,3,4,5,6";
@@ -22,6 +26,8 @@ public class ParserTest
     public static Type Str => typeof(string);
 
     public static Type Int => typeof(int);
+
+    #region Anchor Splitting
     
     [Theory]
     [MemberData(nameof(All))]
@@ -303,6 +309,34 @@ public class ParserTest
         Assert.Equal(leftExpected, left);
         Assert.Equal(rightExpected, right);
     }
+    
+    #endregion
+    
+    #region Trimming
+
+    [Theory]
+    [MemberData(nameof(Csv))]
+    public void SectionOutputLessElements_Trim(string input)
+    {
+        var parts = input.Split(',');
+        var firstExpected = parts[0];
+        var secondExpected = parts[1];
+        
+        var (first, second) = input.Parse<(string, string)>($"{Str},{Str},{Str}");
+
+        Assert.Equal(firstExpected, first);
+        Assert.Equal(secondExpected, second);
+    }
+
+    [Fact]
+    public void SectionOutputMoreElements_Error()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => IntCsv.Parse<(string, string, string)>($"{Str},{Str}"));
+    }
+    
+    #endregion
+
+    #region Conversions
 
     [Theory]
     [MemberData(nameof(Ints))]
@@ -337,4 +371,6 @@ public class ParserTest
         Assert.Equal(firstExpected, first);
         Assert.Equal(secondExpected, second);
     }
+    
+    #endregion
 }
