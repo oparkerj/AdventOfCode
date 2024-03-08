@@ -23,7 +23,12 @@ public static class Types
     private static void AddSimpleName(Type type, StringBuilder builder)
     {
         var name = type.Name;
-        if (type.TryGetTupleTypes(out var tupleTypes) && tupleTypes.Length > 1)
+        if (type.IsArray)
+        {
+            AddSimpleName(type.GetElementType()!, builder);
+            builder.Append("[]");
+        }
+        else if (type.TryGetTupleTypes(out var tupleTypes) && tupleTypes.Length > 1)
         {
             builder.Append('(');
             
