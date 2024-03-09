@@ -48,6 +48,7 @@ public static class ParseAdapt
     public static IParser Adapt(IParser parser, Type target, IReadOnlyParseContext context)
     {
         var output = ParseUtil.GetParserTypesOf(parser).OutputType;
+        Parse.Verbose($"Adapting parser {parser.GetType()} ({output}) to {target}");
         if (TryAdaptInner(parser, output, target, context, 0, out var result))
         {
             return result;
@@ -65,11 +66,12 @@ public static class ParseAdapt
     /// <exception cref="ArgumentException"></exception>
     public static IParser? Adapt(Type from, Type target, IReadOnlyParseContext context)
     {
+        Parse.Verbose($"Adapting {from} to {target}");
         if (TryAdaptInner(null, from, target, context, 0, out var result))
         {
             return result;
         }
-        throw new ArgumentException($"Could not adapt to target type. (Output = {from.SimpleName()}, Target = {target.SimpleName()})");
+        throw new ArgumentException($"Could not adapt to target type. (Type = {from.SimpleName()}, Target = {target.SimpleName()})");
     }
 
     /// <summary>
@@ -83,6 +85,7 @@ public static class ParseAdapt
     public static bool TryAdapt(IParser parser, Type target, IReadOnlyParseContext context, out IParser convert)
     {
         var outputType = ParseUtil.GetParserTypesOf(parser).OutputType;
+        Parse.Verbose($"Try adapt parser {parser.GetType()} ({outputType}) to {target}");
         return TryAdaptInner(parser, outputType, target, context, 0, out convert);
     }
 
@@ -98,6 +101,7 @@ public static class ParseAdapt
     /// <returns>True if the type was adapted, false otherwise.</returns>
     public static bool TryAdapt(Type from, Type target, IReadOnlyParseContext context, out IParser? convert)
     {
+        Parse.Verbose($"Try adapt {from} to {target}");
         return TryAdaptInner(null, from, target, context, 0, out convert);
     }
     
@@ -111,6 +115,7 @@ public static class ParseAdapt
     public static IParser ProcessConstructor(IParser constructor)
     {
         var input = ParseUtil.GetParserTypesOf(constructor).InputType;
+        Parse.VerboseIf(!input.IsTupleType(), $"Wrapping input type ({input}) to accept 1-tuple.");
         return input.IsTupleType() ? constructor : ParseJoin.Create(TupleAdapter.UnwrapSingle(input), constructor);
     }
 
@@ -173,6 +178,7 @@ public static class ParseAdapt
         // Check if directly assignable
         if (output.IsAssignableTo(target))
         {
+            Parse.Verbose($"{output} is directly assignable to {target}");
             result = parser;
             return true;
         }
@@ -180,6 +186,7 @@ public static class ParseAdapt
         // Try using an adapter.
         if (context.TryLookupAdapter(output, target, out var convert))
         {
+            Parse.Verbose($"Adapted {output} to {target} using {convert.GetType()}");
             result = MaybeInnerJoin(parser, convert, context, level);
             return true;
         }
@@ -227,12 +234,14 @@ public static class ParseAdapt
             // Try to go from larger to smaller tuple using construction
             if (fromTypes.Length > toTypes.Length && TryAdaptTupleConstruct(from, fromTypes, toTypes, context, out tupleAdapt))
             {
+                Parse.Verbose($"Adapted {from} to {target} by compressing -> {tupleAdapt.GetType()}");
                 return true;
             }
 
             // Try dropping extra elements and adapting each type
             if (TryAdaptTupleCut(from, fromTypes, target, context, out var tupleCutAdapt) && tupleCutAdapt is not null)
             {
+                Parse.Verbose($"Adapted {from} to {target} by cut -> {tupleCutAdapt.GetType()}");
                 tupleAdapt = tupleCutAdapt;
                 return true;
             }
@@ -243,6 +252,7 @@ public static class ParseAdapt
             && context.TryLookupType(target, out var targetDescriptor)
             && targetDescriptor.TryConstruct(target, context, fromTypes, out tupleAdapt))
         {
+            Parse.Verbose($"Converting {from} to {target} via construction: {tupleAdapt.GetType()}");
             // Slice the input if the constructor took less elements
             var input = ParseUtil.GetParserTypesOf(tupleAdapt).InputType;
             if (input.IsTupleType())
@@ -250,11 +260,13 @@ public static class ParseAdapt
                 var size = input.GetTupleSize();
                 if (size < fromTypes.Length)
                 {
+                    Parse.Verbose($"Slicing {from} to size {size}");
                     tupleAdapt = ParseJoin.Create(TupleAdapter.Slice(from, 0, size), tupleAdapt);
                 }
             }
             else
             {
+                Parse.Verbose($"by taking first element of {from}");
                 // If the constructor is not a tuple, then take the first element from the tuple.
                 // This special handling is used instead of ProcessConstructor
                 var first = TupleAdapter.First(from);
@@ -269,6 +281,7 @@ public static class ParseAdapt
             && fromTypes.Length == 1
             && TryAdaptInner(null, fromTypes[0], target, context, 0, out var conversion))
         {
+            Parse.Verbose($"Unwrapping 1-tuple {from} -> {conversion?.GetType()}");
             tupleAdapt = MaybeJoin(TupleAdapter.UnwrapSingle(fromTypes[0]), conversion);
             return true;
         }
@@ -278,6 +291,7 @@ public static class ParseAdapt
             && !toTuple
             && TryAdapt(fromTypes[0], target, context, out var firstAdapt))
         {
+            Parse.Verbose($"Taking first item of {from} -> {firstAdapt?.GetType()}");
             tupleAdapt = MaybeJoin(TupleAdapter.First(from), firstAdapt);
             return true;
         }
@@ -287,6 +301,7 @@ public static class ParseAdapt
             && context.TryLookupType(from, out var fromDescriptor)
             && fromDescriptor.TryUnpack(from, context, toTypes.Length, out tupleAdapt))
         {
+            Parse.Verbose($"Unpacking {from} -> {tupleAdapt.GetType()}");
             return true;
         }
 
@@ -308,6 +323,8 @@ public static class ParseAdapt
     {
         var chunks = new TupleChunkParse[toTypes.Length];
         ReadOnlySpan<Type> current = fromTypes;
+        
+        Parse.Verbose($"Try adapt tuple {from} to types {Types.CreateTupleType(toTypes)}");
 
         var offset = 0;
         for (var i = 0; i < toTypes.Length; i++)
@@ -315,11 +332,13 @@ public static class ParseAdapt
             var type = toTypes[i];
             if (!context.TryLookupType(type, out var targetInner))
             {
+                Parse.Verbose($"Failed at element {i}: No type descriptor");
                 result = default!;
                 return false;
             }
             if (!targetInner.TryConstruct(type, context, current, out var constructor))
             {
+                Parse.Verbose($"Failed at element {i}: {type} could not be constructed");
                 result = default!;
                 return false;
             }
@@ -330,6 +349,7 @@ public static class ParseAdapt
             var input = ParseUtil.GetParserTypesOf(constructor).InputType;
             if (!TryAdaptTupleCut(from, current, input, context, out var constructorAdapter))
             {
+                Parse.Verbose($"Adapted element {i} -> {constructorAdapter?.GetType()}");
                 result = default!;
                 return false;
             }
@@ -368,12 +388,15 @@ public static class ParseAdapt
         
         var fromTypes = fromTypesFull[..targetTypes.Length];
         var fromTuple = Types.CreateTupleType(fromTypes);
+        
+        Parse.Verbose($"Try adapt tuple {from} to tuple {target}");
     
         if (fromTuple == target)
         {
             // Slice if larger
             if (fromTypesFull.Length > targetTypes.Length)
             {
+                Parse.Verbose($"Direct slice tuple {from} to {fromTuple}");
                 result = TupleAdapter.Slice(from, 0, targetTypes.Length);
                 return true;
             }
@@ -389,16 +412,19 @@ public static class ParseAdapt
         {
             if (!TryAdaptInner(null, fromTypes[i], targetTypes[i], context, 0, out var elementParser))
             {
+                Parse.Verbose($"Failed at element {i}: Could not adapt {fromTypes[i]} to {targetTypes[i]}");
                 result = default;
                 return false;
             }
 
+            Parse.Verbose($"Adapted element {i} -> {elementParser?.GetType()}");
             parsers[i] = elementParser ?? IdentityAdapter.Create(targetTypes[i]);
         }
 
         result = TupleAdapter.Create(fromTypes, targetTypes, parsers);
         if (fromTypesFull.Length > targetTypes.Length)
         {
+            Parse.Verbose($"Slicing tuple {from} to {fromTuple}");
             result = ParseJoin.Create(TupleAdapter.Slice(from, 0, targetTypes.Length), result);
         }
         return true;
@@ -425,10 +451,13 @@ public static class ParseAdapt
             result = default;
             return false;
         }
+        
+        Parse.Verbose($"Try using {output} as IEnumerable<{outputInner}>");
 
         // If the target is the same as the element type, just call .First()
         if (outputInner.IsAssignableTo(target))
         {
+            Parse.Verbose($"Adapting enumerable {parser?.GetType()} by calling .First() -> {selector?.GetType()}");
             result = MaybeInnerJoin(parser, MaybeJoin(selector, EnumerableAdapter.First(outputInner)), context, level);
             return true;
         }
@@ -441,8 +470,13 @@ public static class ParseAdapt
             result = MaybeInnerJoin(parser, selector, context, level);
 
             var enumerableInner = target.GetSingleTypeArgument();
-            if (!TryAdapt(outputInner, enumerableInner, context, out var innerAdapt)) return false;
+            if (!TryAdapt(outputInner, enumerableInner, context, out var innerAdapt))
+            {
+                Parse.Verbose($"Failed to use {output} as IEnumerable<{outputInner}>: Could not adapt {outputInner} to {enumerableInner}");
+                return false;
+            }
             
+            Parse.Verbose($"Adapting enumerable {parser?.GetType()} to IEnumerable<{target}> -> {innerAdapt?.GetType()}");
             result = MaybeInnerJoin(result, innerAdapt, context, level + 1);
             return true;
         }
@@ -458,6 +492,7 @@ public static class ParseAdapt
             // Try to adapt output inner type to target inner type
             if (TryAdaptInner(joined, outputInner, targetInner, context, level + 1, out var enumerableAdapt))
             {
+                Parse.Verbose($"Adapted enumerable {parser?.GetType()} to {target} -> {enumerableAdapt?.GetType()}");
                 result = MaybeInnerJoin(enumerableAdapt, constructor, context, level);
                 return true;
             }
@@ -465,6 +500,7 @@ public static class ParseAdapt
             // Try adapt enumerable to container of tuple
             if (TryAdaptEnumerableTuple(targetInner, outputInner, context, out var innerConstructor))
             {
+                Parse.Verbose($"Adapted enumerable {parser?.GetType()} to {target} of tuple {targetInner} -> {innerConstructor.GetType()}");
                 result = MaybeInnerJoin(joined, EnumerableAdapter.ConstructInnerTuple(outputInner, constructor, innerConstructor), context, level);
                 return true;
             }
@@ -473,6 +509,7 @@ public static class ParseAdapt
             if (context.TryLookupType(targetInner, out var innerDescriptor)
                 && innerDescriptor.TryConstruct(targetInner, context, new TypeSpan(in outputInner), out innerConstructor))
             {
+                Parse.Verbose($"Adapted enumerable {parser?.GetType()} to {target} by constructing {targetInner} -> {innerConstructor.GetType()}");
                 result = MaybeInnerJoin(joined, EnumerableAdapter.ConstructInner(outputInner, constructor, innerConstructor), context, level);
                 return true;
             }
@@ -482,6 +519,7 @@ public static class ParseAdapt
         if (targetDescriptor
             && descriptor.TryConstruct(target, context, new TypeSpan(in outputInner), out var constructAdapt))
         {
+            Parse.Verbose($"Adapted enumerable {parser?.GetType()} to {target} via construction -> {constructAdapt.GetType()}");
             var toSingle = MaybeJoin(selector, EnumerableAdapter.ConstructSingle(outputInner, ProcessConstructor(constructAdapt)));
             result = MaybeInnerJoin(parser, toSingle, context, level);
             return true;
@@ -490,10 +528,12 @@ public static class ParseAdapt
         // Enumerable to tuple
         if (TryAdaptEnumerableTuple(target, outputInner, context, out var enumerableToTuple))
         {
+            Parse.Verbose($"Adapted enumerable {parser?.GetType()} to tuple {target} -> {enumerableToTuple.GetType()}");
             result = MaybeInnerJoin(parser, MaybeJoin(selector, enumerableToTuple), context, level);
             return true;
         }
 
+        Parse.Verbose($"Failed to use {output} as IEnumerable<{outputInner}>");
         result = default;
         return false;
     }
@@ -513,6 +553,8 @@ public static class ParseAdapt
             result = default!;
             return false;
         }
+        
+        Parse.Verbose($"Try adapt IEnumerable<{outputInner}> to {target}");
 
         var sections = new IParser[tupleTypes.Length];
 
@@ -523,6 +565,7 @@ public static class ParseAdapt
             // Try to parse a nested tuple
             if (TryAdaptEnumerableTuple(elementType, outputInner, context, out var innerTuple))
             {
+                Parse.Verbose($"Adapted nested tuple at index {i} -> {innerTuple.GetType()}");
                 sections[i] = innerTuple;
                 continue;
             }
@@ -530,6 +573,7 @@ public static class ParseAdapt
             // Try to adapt a single value to the element type.
             if (TryAdapt(outputInner, elementType, context, out var elementAdapt))
             {
+                Parse.Verbose($"Adapted element {i} -> {elementAdapt?.GetType()}");
                 sections[i] = EnumerableAdapter.PartialSingle(outputInner, elementAdapt);
                 continue;
             }
@@ -538,10 +582,12 @@ public static class ParseAdapt
             if (context.TryLookupType(elementType, out var elementDescriptor)
                 && elementDescriptor.TryConstruct(elementType, context, new TypeSpan(in outputInner), out var elementConstructor))
             {
+                Parse.Verbose($"Adapted element {i} via construction -> {elementConstructor.GetType()}");
                 sections[i] = EnumerableAdapter.PartialTake(outputInner, ProcessConstructor(elementConstructor));
                 continue;
             }
 
+            Parse.Verbose($"Failed at element {i}: Could not create {elementType}");
             result = default!;
             return false;
         }
