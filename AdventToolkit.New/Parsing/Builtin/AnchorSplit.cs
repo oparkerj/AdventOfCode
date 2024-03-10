@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using AdventToolkit.New.Data;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 
@@ -21,7 +22,7 @@ public static class AnchorSplit
         var size = includeLast ? anchors.Count : anchors.Count - 1;
         Debug.Assert(size >= 1);
         var tupleType = Types.CreateTupleType(typeof(string), size);
-        return typeof(AnchorSplit<>).NewParserGeneric([tupleType], anchors, anchorFirst);
+        return typeof(AnchorSplit<>).NewParserGeneric([tupleType], size, anchors, anchorFirst);
     }
 }
 
@@ -32,7 +33,6 @@ public static class AnchorSplit
 public class AnchorSplit<T> : IStringParser<T>
 {
     private readonly int _size;
-    private readonly Type[] _outputType;
     private readonly string[] _splits;
     private readonly bool _anchorFirst;
 
@@ -42,16 +42,15 @@ public class AnchorSplit<T> : IStringParser<T>
     /// One split is represented by a sequence of empty strings followed
     /// by a split value.
     /// </summary>
+    /// <param name="size"></param>
     /// <param name="anchors"></param>
     /// <param name="anchorFirst">Whether the first section appears after the first anchor.</param>
-    public AnchorSplit(List<string> anchors, bool anchorFirst)
+    public AnchorSplit(int size, List<string> anchors, bool anchorFirst)
     {
         Debug.Assert(typeof(T).IsTupleType());
         
-        _size = typeof(T).GetTupleSize();
+        _size = size;
         _anchorFirst = anchorFirst;
-        _outputType = new Type[_size];
-        Array.Fill(_outputType, typeof(string));
 
         // If every string is empty, then every section will receive the entire input string
         if (anchors.All(s => s == string.Empty))
@@ -90,11 +89,11 @@ public class AnchorSplit<T> : IStringParser<T>
 
     public T Parse(ReadOnlySpan<char> span)
     {
-        var parts = new object[_size];
+        using Arr<object?> parts = new(_size);
         
         if (_splits.Length == 0)
         {
-            Array.Fill(parts, span.ToString());
+            parts.Span.Fill(span.ToString());
         }
         else
         {
@@ -132,7 +131,7 @@ public class AnchorSplit<T> : IStringParser<T>
                 parts[i] = last;
             }
         }
-        
-        return (T) Types.CreateTuple(_outputType, parts);
+
+        return (T) Types.CreateTuple(typeof(string), parts);
     }
 }

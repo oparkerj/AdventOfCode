@@ -81,4 +81,9 @@ public readonly struct Arr<T> : IDisposable
         get => Data[i];
         set => Data[i] = value;
     }
+
+    /// <summary>
+    /// Get this array as a span.
+    /// </summary>
+    public Span<T> Span => this;
 }
