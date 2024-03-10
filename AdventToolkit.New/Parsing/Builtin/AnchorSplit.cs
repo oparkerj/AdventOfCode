@@ -93,6 +93,7 @@ public class AnchorSplit<T> : IStringParser<T>
         
         if (_splits.Length == 0)
         {
+            // There are no splits, every section is the input string
             parts.Span.Fill(span.ToString());
         }
         else
@@ -111,7 +112,6 @@ public class AnchorSplit<T> : IStringParser<T>
             for (var i = 0; i < parts.Length; i++)
             {
                 var effective = i + offset;
-                // If there are no more split points, use the remainder of the input
                 if (effective < _splits.Length)
                 {
                     var split = _splits[effective];
@@ -125,6 +125,7 @@ public class AnchorSplit<T> : IStringParser<T>
                 }
                 else
                 {
+                    // If there are no more split points, use the remainder of the input
                     last = span.ToString();
                 }
                 
