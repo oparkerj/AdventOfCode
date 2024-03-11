@@ -7,12 +7,13 @@ namespace AdventToolkit.New.Parsing.Core;
 /// <summary>
 /// Provides the ability to build parsers that operate on sections
 /// of a string separated by known anchors in the string.
-///
+/// 
 /// This class is designed to be constructed using an interpolated string.
 /// </summary>
 /// <typeparam name="T">The result parse type.</typeparam>
+/// <typeparam name="TParse">The type to use when adapting.</typeparam>
 [InterpolatedStringHandler]
-public class SegmentParser<T> : ParseBase<string, T>
+public class SegmentParser<T, TParse> : ParseBase<string, T>
 {
     private List<string> _anchors = [];
 
@@ -127,7 +128,7 @@ public class SegmentParser<T> : ParseBase<string, T>
             if (_anchors.Count == 0)
             {
                 // This means the parse format was empty, so just adapt string to the output type
-                return (IParser<string, T>) (ParseAdapt.Adapt(typeof(string), typeof(T), Context) ?? IdentityAdapter.Create(typeof(T)));
+                return (IParser<string, T>) (ParseAdapt.Adapt(typeof(string), typeof(TParse), Context) ?? IdentityAdapter.Create(typeof(T)));
             }
             if (!endSection && _anchors.Count == 1 && _anchors[0] != string.Empty)
             {
@@ -135,13 +136,13 @@ public class SegmentParser<T> : ParseBase<string, T>
                 throw new ArgumentException("Invalid parse format. No sections given.");
             }
             // Here means the format consists of only literals and null splits
-            return (IParser<string, T>) ParseAdapt.Adapt(AnchorSplit.Create(_anchors, _firstIsLiteral, endSection), typeof(T), Context);
+            return (IParser<string, T>) ParseAdapt.Adapt(AnchorSplit.Create(_anchors, _firstIsLiteral, endSection), typeof(TParse), Context);
         }
         
         // If there is one section, then adapt it to the output type.
         if (_sections.Count == 1)
         {
-            var single = _sections[0].Build<T>(Context);
+            var single = _sections[0].Build<T, TParse>(Context);
             
             // If there are no literals, then the input does not need to be split
             if (!_firstIsLiteral && !_lastIsLiteral) return single;
@@ -169,7 +170,7 @@ public class SegmentParser<T> : ParseBase<string, T>
         
         // Adapt the result tuple to the output type
         var tupleParser = ParseJoin.Create(AnchorSplit.Create(_anchors, _firstIsLiteral, endSection), TupleAdapter.Create(segmentTypes, outputTypes, parsers));
-        return (IParser<string, T>) ParseAdapt.Adapt(tupleParser, typeof(T), Context);
+        return (IParser<string, T>) ParseAdapt.Adapt(tupleParser, typeof(TParse), Context);
     }
 
     /// <summary>

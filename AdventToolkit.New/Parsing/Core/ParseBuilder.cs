@@ -210,6 +210,19 @@ public class ParseBuilder
     /// <seealso cref="Build"/>
     /// <param name="context">Parse context.</param>
     /// <typeparam name="T">Output value.</typeparam>
+    /// <typeparam name="TParse">Output adapt type.</typeparam>
+    /// <returns>Build parser.</returns>
+    public IParser<string, T> Build<T, TParse>(IReadOnlyParseContext context)
+    {
+        return (IParser<string, T>) Build(context, typeof(TParse));
+    }
+
+    /// <summary>
+    /// Build the parser for a specific type and get a strongly typed result.
+    /// </summary>
+    /// <seealso cref="Build"/>
+    /// <param name="context">Parse context.</param>
+    /// <typeparam name="T">Output value.</typeparam>
     /// <returns>Build parser.</returns>
     public IParser<string, T> Build<T>(IReadOnlyParseContext context)
     {
