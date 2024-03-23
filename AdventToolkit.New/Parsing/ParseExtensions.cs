@@ -15,10 +15,14 @@ public static class ParseExtensions
     /// <param name="s">Input string.</param>
     /// <param name="parser">Segment parser.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
-    /// <typeparam name="TParse">Parser adapt type.</typeparam>
+    /// <typeparam name="TResolve">Parser adapt type.</typeparam>
     /// <returns></returns>
-    public static T Parse<T, TParse>(this string s, SegmentParser<T, TParse> parser) => parser.Parse(s);
-    
+    public static T Parse<T, TResolve>(this string s, SegmentParser<T> parser)
+    {
+        parser.Context.SetupDisambiguation(typeof(TResolve));
+        return parser.Parse(s);
+    }
+
     /// <summary>
     /// Parse a string using a segment parser.
     /// </summary>
@@ -26,7 +30,7 @@ public static class ParseExtensions
     /// <param name="parser">Segment parser.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
     /// <returns></returns>
-    public static T Parse<T>(this string s, SegmentParser<T, T> parser) => parser.Parse(s);
+    public static T Parse<T>(this string s, SegmentParser<T> parser) => parser.Parse(s);
 
     /// <summary>
     /// Parse a string using a segment parser and a custom context.
@@ -35,10 +39,11 @@ public static class ParseExtensions
     /// <param name="context">Parse context.</param>
     /// <param name="parser">Segment parser.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
-    /// <typeparam name="TParse">Parser adapt type.</typeparam>
+    /// <typeparam name="TResolve">Parser adapt type.</typeparam>
     /// <returns></returns>
-    public static T Parse<T, TParse>(this string s, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, TParse> parser)
+    public static T Parse<T, TResolve>(this string s, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T> parser)
     {
+        parser.Context.SetupDisambiguation(typeof(TResolve));
         return parser.Parse(s);
     }
     
@@ -50,7 +55,7 @@ public static class ParseExtensions
     /// <param name="parser">Segment parser.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
     /// <returns></returns>
-    public static T Parse<T>(this string s, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, T> parser)
+    public static T Parse<T>(this string s, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T> parser)
     {
         return parser.Parse(s);
     }
@@ -61,10 +66,11 @@ public static class ParseExtensions
     /// <param name="strings">Input strings.</param>
     /// <param name="parser">Segment parser.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
-    /// <typeparam name="TParse">Parser adapt type.</typeparam>
+    /// <typeparam name="TResolve">Parser adapt type.</typeparam>
     /// <returns></returns>
-    public static IEnumerable<T> Parse<T, TParse>(this IEnumerable<string> strings, SegmentParser<T, TParse> parser)
+    public static IEnumerable<T> Parse<T, TResolve>(this IEnumerable<string> strings, SegmentParser<T> parser)
     {
+        parser.Context.SetupDisambiguation(typeof(TResolve));
         return parser.ParseMany(strings);
     }
 
@@ -75,7 +81,7 @@ public static class ParseExtensions
     /// <param name="parser">Segment parser.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
     /// <returns></returns>
-    public static IEnumerable<T> Parse<T>(this IEnumerable<string> strings, SegmentParser<T, T> parser)
+    public static IEnumerable<T> Parse<T>(this IEnumerable<string> strings, SegmentParser<T> parser)
     {
         return parser.ParseMany(strings);
     }
@@ -87,10 +93,11 @@ public static class ParseExtensions
     /// <param name="context">Parse context.</param>
     /// <param name="parser">Segment parser.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
-    /// <typeparam name="TParse">Parser output type.</typeparam>
+    /// <typeparam name="TResolve">Parser output type.</typeparam>
     /// <returns></returns>
-    public static IEnumerable<T> Parse<T, TParse>(this IEnumerable<string> strings, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, TParse> parser)
+    public static IEnumerable<T> Parse<T, TResolve>(this IEnumerable<string> strings, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T> parser)
     {
+        parser.Context.SetupDisambiguation(typeof(TResolve));
         return parser.ParseMany(strings);
     }
     
@@ -102,7 +109,7 @@ public static class ParseExtensions
     /// <param name="parser">Segment parser.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
     /// <returns></returns>
-    public static IEnumerable<T> Parse<T>(this IEnumerable<string> strings, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, T> parser)
+    public static IEnumerable<T> Parse<T>(this IEnumerable<string> strings, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T> parser)
     {
         return parser.ParseMany(strings);
     }

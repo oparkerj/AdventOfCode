@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using AdventToolkit.New.Parsing.Builtin;
+using AdventToolkit.New.Parsing.Disambiguation;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 
@@ -348,11 +349,12 @@ public static class ParseAdapt
             var input = ParseUtil.GetParserTypesOf(constructor).InputType;
             if (!TryAdaptTupleCut(from, current, input, context, out var constructorAdapter))
             {
-                Parse.Verbose($"Adapted element {i} -> {constructorAdapter?.GetType()}");
                 result = default!;
                 return false;
             }
 
+            Parse.Verbose($"Adapted element {i} -> {constructorAdapter?.GetType()}");
+            context.ApplyDisambiguation(null);
             var inputTypes = input.GetTupleTypes();
             chunks[i] = new TupleChunkParse(offset, inputTypes, MaybeJoin(constructorAdapter, constructor));
 
@@ -417,6 +419,7 @@ public static class ParseAdapt
             }
 
             Parse.Verbose($"Adapted element {i} -> {elementParser?.GetType()}");
+            context.ApplyDisambiguation(null);
             parsers[i] = elementParser ?? IdentityAdapter.Create(targetTypes[i]);
         }
 
@@ -486,10 +489,14 @@ public static class ParseAdapt
         if (targetDescriptor
             && descriptor.TryCollectSelf(target, context, out var targetInner, out var constructor))
         {
+            var disambiguationAvailable = context.ApplyDisambiguation(typeof(Collect<>));
+            var preferConstruct = disambiguationAvailable && context.ApplyDisambiguation(typeof(Construct));
+            Parse.VerboseIf(preferConstruct, "Using disambiguation to prefer construction.");
+            
             var joined = MaybeInnerJoin(parser, selector, context, level);
             
             // Try to adapt output inner type to target inner type
-            if (TryAdaptInner(joined, outputInner, targetInner, context, level + 1, out var enumerableAdapt))
+            if (!preferConstruct && TryAdaptInner(joined, outputInner, targetInner, context, level + 1, out var enumerableAdapt))
             {
                 Parse.Verbose($"Adapted enumerable {parser?.GetType()} to {target} -> {enumerableAdapt?.GetType()}");
                 result = MaybeInnerJoin(enumerableAdapt, constructor, context, level);

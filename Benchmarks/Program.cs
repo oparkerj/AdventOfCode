@@ -1,6 +1,8 @@
 ﻿using AdventToolkit.New;
+using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing;
 using AdventToolkit.New.Parsing.Core;
+using AdventToolkit.New.Parsing.Disambiguation;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 using BenchmarkDotNet.Attributes;
@@ -21,7 +23,7 @@ public class BenchmarkMain
 
         public bool PassiveSelect => false;
 
-        public bool TryConstruct(Type type, IReadOnlyParseContext context, TypeSpan types, out IParser constructor)
+        public bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
         {
             if (types.TryAdaptTuple(typeof((int, int)), context, out var convert))
             {
@@ -44,18 +46,27 @@ public class BenchmarkMain
         // var summary = BenchmarkRunner.Run<BenchmarkMain>();
         // var summary = BenchmarkPuzzle<TestPuzzle>();
         // var summary = ComparePuzzle<Day1, Day1Better>();
+        
+        Debugging.EnableLogs();
 
         DefaultContext.Instance.AddType(new IntsDescriptor());
         
         var input = "1,2,3,4,5,6,7,8,9";
-        var result = input.Parse<(int, int, int)[]>($"{','}");
-        foreach (var pair in result)
-        {
-            Console.WriteLine(pair);
-        }
+        var result = input.Parse<(char, char)[], Collect<Construct>>($"{','}");
         
+        // TODO allow this
+        // var input = "abcdefghi";
+        // var result = input.Parse<(char, string, char)>($"");
+
         // var result = input.Parse<(string, ((IntPair, string), int))>($"{','}");
         // (1, ((IntPair { A = 2, B = 3 }, 4), 5))
+        
+        // Console.WriteLine(result);
+        
+        foreach (var item in result)
+        {
+            Console.WriteLine(item);
+        }
     }
 
     public static Summary BenchmarkPuzzle<T>()

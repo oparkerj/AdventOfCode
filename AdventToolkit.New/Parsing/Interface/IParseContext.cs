@@ -24,6 +24,20 @@ public interface IParseContext
     /// All known adapter lookups.
     /// </summary>
     IEnumerable<IAdapterLookup> AdapterLookups { get; }
+
+    /// <summary>
+    /// Set the internal disambiguation state.
+    /// </summary>
+    /// <param name="type"></param>
+    void SetupDisambiguation(Type type);
+
+    /// <summary>
+    /// Try and consume the given disambiguation type.
+    /// This may modify the internal disambiguation state.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    bool ApplyDisambiguation(Type? type);
     
     /// <summary>
     /// Try to find a matching type descriptor.
