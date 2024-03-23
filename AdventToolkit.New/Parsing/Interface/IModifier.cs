@@ -16,7 +16,7 @@ public interface IModifier
     /// <typeparam name="TPipeline">Pipeline type.</typeparam>
     /// <typeparam name="T">Value type.</typeparam>
     /// <returns>True if the modifier was applied, false otherwise.</returns>
-    bool TryApply<TPipeline, T>(TPipeline pipeline, Type inputType, T value, string extra, IReadOnlyParseContext context);
+    bool TryApply<TPipeline, T>(TPipeline pipeline, Type inputType, T value, string extra, IParseContext context);
 }
 
 /// <summary>
@@ -25,7 +25,7 @@ public interface IModifier
 /// <typeparam name="TPipeline"></typeparam>
 public interface IModifier<in TPipeline> : IModifier
 {
-    bool IModifier.TryApply<TPipe, T>(TPipe pipe, Type inputType, T value, string extra, IReadOnlyParseContext context)
+    bool IModifier.TryApply<TPipe, T>(TPipe pipe, Type inputType, T value, string extra, IParseContext context)
     {
         if (pipe is TPipeline pipeline)
         {
@@ -35,7 +35,7 @@ public interface IModifier<in TPipeline> : IModifier
     }
 
     /// <inheritdoc cref="IModifier.TryApply{TPipe, T}"/>
-    bool TryApply<T>(TPipeline pipeline, Type inputType, T value, string extra, IReadOnlyParseContext context);
+    bool TryApply<T>(TPipeline pipeline, Type inputType, T value, string extra, IParseContext context);
 }
 
 /// <summary>
@@ -45,7 +45,7 @@ public interface IModifier<in TPipeline> : IModifier
 /// <typeparam name="TValue"></typeparam>
 public interface IModifier<in TPipeline, in TValue> : IModifier<TPipeline>
 {
-    bool IModifier<TPipeline>.TryApply<T>(TPipeline pipeline, Type inputType, T value, string extra, IReadOnlyParseContext context)
+    bool IModifier<TPipeline>.TryApply<T>(TPipeline pipeline, Type inputType, T value, string extra, IParseContext context)
     {
         if (value is TValue v)
         {
@@ -55,5 +55,5 @@ public interface IModifier<in TPipeline, in TValue> : IModifier<TPipeline>
     }
 
     /// <inheritdoc cref="IModifier.TryApply{TPipe, T}"/>
-    bool TryApply<T>(TPipeline pipeline, Type inputType, TValue value, string extra, IReadOnlyParseContext context);
+    bool TryApply<T>(TPipeline pipeline, Type inputType, TValue value, string extra, IParseContext context);
 }

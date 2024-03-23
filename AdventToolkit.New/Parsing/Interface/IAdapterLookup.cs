@@ -13,7 +13,7 @@ public interface IAdapterLookup
     /// <param name="context">Parse context.</param>
     /// <param name="parser">Adapter.</param>
     /// <returns>True if a relevant adapter was found, false otherwise.</returns>
-    bool TryLookup(Type from, Type to, IReadOnlyParseContext context, out IParser parser);
+    bool TryLookup(Type from, Type to, IParseContext context, out IParser parser);
 }
 
 /// <summary>
@@ -22,7 +22,7 @@ public interface IAdapterLookup
 /// <typeparam name="TFrom">From type.</typeparam>
 public interface IAdapterLookup<TFrom> : IAdapterLookup
 {
-    bool IAdapterLookup.TryLookup(Type from, Type to, IReadOnlyParseContext context, out IParser parser)
+    bool IAdapterLookup.TryLookup(Type from, Type to, IParseContext context, out IParser parser)
     {
         if (from == typeof(TFrom)) return TryLookup(to, context, out parser);
         
@@ -37,7 +37,7 @@ public interface IAdapterLookup<TFrom> : IAdapterLookup
     /// <param name="context">Parse context.</param>
     /// <param name="parser">Adapter.</param>
     /// <returns>True if a relevant adapter was found, false otherwise.</returns>
-    bool TryLookup(Type to, IReadOnlyParseContext context, out IParser parser);
+    bool TryLookup(Type to, IParseContext context, out IParser parser);
 }
 
 /// <summary>
@@ -47,7 +47,7 @@ public interface IAdapterLookup<TFrom> : IAdapterLookup
 /// <typeparam name="TTo">To Type.</typeparam>
 public interface IAdapterLookup<TFrom, TTo> : IAdapterLookup<TFrom>
 {
-    bool IAdapterLookup<TFrom>.TryLookup(Type to, IReadOnlyParseContext context, out IParser parser)
+    bool IAdapterLookup<TFrom>.TryLookup(Type to, IParseContext context, out IParser parser)
     {
         if (to == typeof(TTo)) return TryLookup(context, out parser);
 
@@ -61,5 +61,5 @@ public interface IAdapterLookup<TFrom, TTo> : IAdapterLookup<TFrom>
     /// <param name="context">Parse context.</param>
     /// <param name="parser">Adapter.</param>
     /// <returns>True if a relevant adapter was found, false otherwise.</returns>
-    bool TryLookup(IReadOnlyParseContext context, out IParser parser);
+    bool TryLookup(IParseContext context, out IParser parser);
 }

@@ -53,7 +53,7 @@ public class ParseBuilder
     /// <param name="usePassive">If false, then the <see cref="ITypeDescriptor.PassiveSelect"/>
     /// value of the type descriptor is ignored.</param>
     /// <returns>True if we nested into the current value, false otherwise.</returns>
-    private bool TryEnterEnumerable(IReadOnlyParseContext context, bool usePassive)
+    private bool TryEnterEnumerable(IParseContext context, bool usePassive)
     {
         if (context.TryLookupType(CurrentType, out var descriptor))
         {
@@ -86,7 +86,7 @@ public class ParseBuilder
     /// Enter as far as we can into the current value.
     /// </summary>
     /// <param name="context">Parse context.</param>
-    private void EnterNested(IReadOnlyParseContext context)
+    private void EnterNested(IParseContext context)
     {
         while (TryEnterEnumerable(context, true)) { }
     }
@@ -98,7 +98,7 @@ public class ParseBuilder
     /// </summary>
     /// <param name="parser">Next part.</param>
     /// <param name="context">Parse context.</param>
-    private void Append(IParser parser, IReadOnlyParseContext context)
+    private void Append(IParser parser, IParseContext context)
     {
         if (!HasValue)
         {
@@ -127,7 +127,7 @@ public class ParseBuilder
     /// </summary>
     /// <param name="context">Parse context.</param>
     /// <returns>True if successfully nested into the current value, false otherwise.</returns>
-    public bool TryEnterEnumerable(IReadOnlyParseContext context) => TryEnterEnumerable(context, false);
+    public bool TryEnterEnumerable(IParseContext context) => TryEnterEnumerable(context, false);
 
     /// <summary>
     /// Try to exit a nested level.
@@ -137,7 +137,7 @@ public class ParseBuilder
     /// The current type will be collected into this container. If null, then the
     /// new type will be <see cref="IEnumerable{T}"/> of the current type.</param>
     /// <returns>True if the current level was exited, false otherwise.</returns>
-    public bool TryExitEnumerable(IReadOnlyParseContext context, Type? container = null)
+    public bool TryExitEnumerable(IParseContext context, Type? container = null)
     {
         if (EnumerableLevel == 0) return false;
         
@@ -168,7 +168,7 @@ public class ParseBuilder
     /// <param name="context">Parser context.</param>
     /// <typeparam name="T">Builder value type.</typeparam>
     /// <exception cref="ArgumentException">The builder value is invalid.</exception>
-    public void AddStage<T>(T value, string extra, IReadOnlyParseContext context)
+    public void AddStage<T>(T value, string extra, IParseContext context)
     {
         var inputType = HasValue ? CurrentType : InputType;
 
@@ -199,7 +199,7 @@ public class ParseBuilder
     /// <param name="context">Parse context.</param>
     /// <param name="outputType">Output type.</param>
     /// <returns>Built parser.</returns>
-    public IParser Build(IReadOnlyParseContext context, Type outputType)
+    public IParser Build(IParseContext context, Type outputType)
     {
         return ParseAdapt.Adapt(Current, outputType, context);
     }
@@ -212,7 +212,7 @@ public class ParseBuilder
     /// <typeparam name="T">Output value.</typeparam>
     /// <typeparam name="TParse">Output adapt type.</typeparam>
     /// <returns>Build parser.</returns>
-    public IParser<string, T> Build<T, TParse>(IReadOnlyParseContext context)
+    public IParser<string, T> Build<T, TParse>(IParseContext context)
     {
         return (IParser<string, T>) Build(context, typeof(TParse));
     }
@@ -224,7 +224,7 @@ public class ParseBuilder
     /// <param name="context">Parse context.</param>
     /// <typeparam name="T">Output value.</typeparam>
     /// <returns>Build parser.</returns>
-    public IParser<string, T> Build<T>(IReadOnlyParseContext context)
+    public IParser<string, T> Build<T>(IParseContext context)
     {
         return (IParser<string, T>) Build(context, typeof(T));
     }

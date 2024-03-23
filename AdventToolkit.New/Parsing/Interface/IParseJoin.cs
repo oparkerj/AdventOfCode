@@ -15,5 +15,5 @@ public interface IParseJoin
     /// <param name="context">Parse context.</param>
     /// <returns>Joined parser.</returns>
     /// TODO See ParseJoin
-    IParser InnerJoin(IParser parser, int targetLevel, IReadOnlyParseContext context);
+    IParser InnerJoin(IParser parser, int targetLevel, IParseContext context);
 }

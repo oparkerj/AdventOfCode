@@ -8,7 +8,7 @@ namespace AdventToolkit.New.Parsing.Context;
 /// </summary>
 public class TypeParse : IParserLookup<Type>
 {
-    public bool TryLookup(Type inputType, Type value, string extra, IReadOnlyParseContext context, out IParser parser)
+    public bool TryLookup(Type inputType, Type value, string extra, IParseContext context, out IParser parser)
     {
         if (ParseAdapt.TryAdapt(inputType, value, context, out var adapt))
         {

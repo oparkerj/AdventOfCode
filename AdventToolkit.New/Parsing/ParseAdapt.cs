@@ -45,7 +45,7 @@ public static class ParseAdapt
     /// <param name="target">Target type.</param>
     /// <param name="context">Parse context.</param>
     /// <returns></returns>
-    public static IParser Adapt(IParser parser, Type target, IReadOnlyParseContext context)
+    public static IParser Adapt(IParser parser, Type target, IParseContext context)
     {
         var output = ParseUtil.GetParserTypesOf(parser).OutputType;
         Parse.Verbose($"Adapting parser {parser.GetType()} ({output}) to {target}");
@@ -64,7 +64,7 @@ public static class ParseAdapt
     /// <param name="context">Parse context.</param>
     /// <returns>Type adapter, or null if no conversion is needed between types.</returns>
     /// <exception cref="ArgumentException"></exception>
-    public static IParser? Adapt(Type from, Type target, IReadOnlyParseContext context)
+    public static IParser? Adapt(Type from, Type target, IParseContext context)
     {
         Parse.Verbose($"Adapting {from} to {target}");
         if (TryAdaptInner(null, from, target, context, 0, out var result))
@@ -82,7 +82,7 @@ public static class ParseAdapt
     /// <param name="context">Parse context.</param>
     /// <param name="convert">Adapter.</param>
     /// <returns>True if the parser was adapted, false otherwise.</returns>
-    public static bool TryAdapt(IParser parser, Type target, IReadOnlyParseContext context, out IParser convert)
+    public static bool TryAdapt(IParser parser, Type target, IParseContext context, out IParser convert)
     {
         var outputType = ParseUtil.GetParserTypesOf(parser).OutputType;
         Parse.Verbose($"Try adapt parser {parser.GetType()} ({outputType}) to {target}");
@@ -99,7 +99,7 @@ public static class ParseAdapt
     /// <param name="context">Parse context.</param>
     /// <param name="convert">Adapter.</param>
     /// <returns>True if the type was adapted, false otherwise.</returns>
-    public static bool TryAdapt(Type from, Type target, IReadOnlyParseContext context, out IParser? convert)
+    public static bool TryAdapt(Type from, Type target, IParseContext context, out IParser? convert)
     {
         Parse.Verbose($"Try adapt {from} to {target}");
         return TryAdaptInner(null, from, target, context, 0, out convert);
@@ -126,7 +126,6 @@ public static class ParseAdapt
     /// </summary>
     /// <param name="first">First parser, possibly null.</param>
     /// <param name="second">Second parser.</param>
-    /// <param name="level">Inner join level.</param>
     /// <returns>Joined parser.</returns>
     [return: NotNullIfNotNull(nameof(first))]
     [return: NotNullIfNotNull(nameof(second))]
@@ -149,7 +148,7 @@ public static class ParseAdapt
     /// <returns>Joined parser.</returns>
     [return: NotNullIfNotNull(nameof(first))]
     [return: NotNullIfNotNull(nameof(second))]
-    public static IParser? MaybeInnerJoin(IParser? first, IParser? second, IReadOnlyParseContext context, int level)
+    public static IParser? MaybeInnerJoin(IParser? first, IParser? second, IParseContext context, int level)
     {
         if (first is null) return second?.AddLevels(level);
         return second is null ? first : ParseJoin.InnerJoin(first, second, level, context);
@@ -173,7 +172,7 @@ public static class ParseAdapt
     /// <returns>Parser adapted to the target type.</returns>
     /// <exception cref="ArgumentException">If no way could be detected to adapt the parser
     /// to the target type.</exception>
-    public static bool TryAdaptInner(IParser? parser, Type output, Type target, IReadOnlyParseContext context, int level, [NotNullIfNotNull(nameof(parser))] out IParser? result)
+    public static bool TryAdaptInner(IParser? parser, Type output, Type target, IParseContext context, int level, [NotNullIfNotNull(nameof(parser))] out IParser? result)
     {
         // Check if directly assignable
         if (output.IsAssignableTo(target))
@@ -217,7 +216,7 @@ public static class ParseAdapt
     /// <param name="context">Parse context.</param>
     /// <param name="tupleAdapt">Adapted tuple parser.</param>
     /// <returns>True if a tuple conversion was performed, false otherwise.</returns>
-    private static bool TryAdaptTuple(Type from, Type target, IReadOnlyParseContext context, out IParser tupleAdapt)
+    private static bool TryAdaptTuple(Type from, Type target, IParseContext context, out IParser tupleAdapt)
     {
         var fromTuple = from.TryGetTupleTypes(out var fromTypes);
         var toTuple = target.TryGetTupleTypes(out var toTypes);
@@ -319,7 +318,7 @@ public static class ParseAdapt
     /// <param name="context">Parse context.</param>
     /// <param name="result">Tuple construction adapter.</param>
     /// <returns>True if the target tuple can be adapted by construction, false otherwise.</returns>
-    private static bool TryAdaptTupleConstruct(Type from, Type[] fromTypes, Type[] toTypes, IReadOnlyParseContext context, out IParser result)
+    private static bool TryAdaptTupleConstruct(Type from, Type[] fromTypes, Type[] toTypes, IParseContext context, out IParser result)
     {
         var chunks = new TupleChunkParse[toTypes.Length];
         ReadOnlySpan<Type> current = fromTypes;
@@ -375,7 +374,7 @@ public static class ParseAdapt
     /// <param name="context">Parse context.</param>
     /// <param name="result">Tuple cut adapter, or null if the source and target is the same type.</param>
     /// <returns>True if there is a cutting conversion from the input to the output, false otherwise.</returns>
-    private static bool TryAdaptTupleCut(Type from, ReadOnlySpan<Type> fromTypesFull, Type target, IReadOnlyParseContext context, out IParser? result)
+    private static bool TryAdaptTupleCut(Type from, ReadOnlySpan<Type> fromTypesFull, Type target, IParseContext context, out IParser? result)
     {
         var targetTypes = target.GetTupleTypes();
 
@@ -443,7 +442,7 @@ public static class ParseAdapt
     /// <param name="level">Nest level.</param>
     /// <param name="result">Adapted parser.</param>
     /// <returns></returns>
-    private static bool TryAdaptInnerEnumerable(IParser? parser, Type output, Type target, IReadOnlyParseContext context, int level, [NotNullIfNotNull(nameof(parser))] out IParser? result)
+    private static bool TryAdaptInnerEnumerable(IParser? parser, Type output, Type target, IParseContext context, int level, [NotNullIfNotNull(nameof(parser))] out IParser? result)
     {
         // Check if the output is enumerable
         if (!ParseUtil.TryGetInnerType(output, context, out var outputInner, out var selector))
@@ -546,7 +545,7 @@ public static class ParseAdapt
     /// <param name="context">Parse context.</param>
     /// <param name="result">Adapted parser.</param>
     /// <returns></returns>
-    private static bool TryAdaptEnumerableTuple(Type target, Type outputInner, IReadOnlyParseContext context, out IParser result)
+    private static bool TryAdaptEnumerableTuple(Type target, Type outputInner, IParseContext context, out IParser result)
     {
         if (!target.TryGetTupleTypes(out var tupleTypes))
         {

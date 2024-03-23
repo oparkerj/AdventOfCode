@@ -30,7 +30,7 @@ public class SegmentParser<T, TParse> : ParseBase<string, T>
     // Whether the parse ends with a literal
     private bool _lastIsLiteral;
     
-    public SegmentParser(int literalLength, int formattedCount, IReadOnlyParseContext context)
+    public SegmentParser(int literalLength, int formattedCount, IParseContext context)
         : base(context)
     { }
     

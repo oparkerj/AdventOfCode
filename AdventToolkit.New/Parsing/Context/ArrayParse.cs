@@ -30,13 +30,13 @@ public class ArrayParse : ITypeDescriptor
 
     public bool PassiveSelect => false;
 
-    public bool TryCollect(Type type, Type inner, IReadOnlyParseContext context, out IParser collector)
+    public bool TryCollect(Type type, Type inner, IParseContext context, out IParser collector)
     {
         collector = typeof(Collect<>).NewParserGeneric([inner]);
         return true;
     }
 
-    public bool TryGetCollectType(Type type, IReadOnlyParseContext context, out Type inner)
+    public bool TryGetCollectType(Type type, IParseContext context, out Type inner)
     {
         inner = type.GetElementType()!;
         return true;

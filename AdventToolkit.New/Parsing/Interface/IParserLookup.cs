@@ -17,7 +17,7 @@ public interface IParserLookup
     /// <param name="parser">Matching parser.</param>
     /// <typeparam name="T">Build value type.</typeparam>
     /// <returns>True if a parser was found, false otherwise.</returns>
-    bool TryLookup<T>(Type inputType, T value, string extra, IReadOnlyParseContext context, out IParser parser);
+    bool TryLookup<T>(Type inputType, T value, string extra, IParseContext context, out IParser parser);
 }
 
 /// <summary>
@@ -26,7 +26,7 @@ public interface IParserLookup
 /// <typeparam name="TValue">Builder value type.</typeparam>
 public interface IParserLookup<in TValue> : IParserLookup
 {
-    bool IParserLookup.TryLookup<T>(Type inputType, T value, string extra, IReadOnlyParseContext context, out IParser parser)
+    bool IParserLookup.TryLookup<T>(Type inputType, T value, string extra, IParseContext context, out IParser parser)
     {
         if (value is TValue typedValue)
         {
@@ -38,7 +38,7 @@ public interface IParserLookup<in TValue> : IParserLookup
     }
 
     /// <inheritdoc cref="IParserLookup.TryLookup{T}"/>
-    bool TryLookup(Type inputType, TValue value, string extra, IReadOnlyParseContext context, out IParser parser);
+    bool TryLookup(Type inputType, TValue value, string extra, IParseContext context, out IParser parser);
 }
 
 /// <summary>
@@ -47,7 +47,7 @@ public interface IParserLookup<in TValue> : IParserLookup
 /// <typeparam name="TInput">Builder value type.</typeparam>
 public interface IParserLookupByInput<in TInput> : IParserLookup
 {
-    bool IParserLookup.TryLookup<T>(Type inputType, T value, string extra, IReadOnlyParseContext context, out IParser parser)
+    bool IParserLookup.TryLookup<T>(Type inputType, T value, string extra, IParseContext context, out IParser parser)
     {
         if (inputType == typeof(TInput))
         {
@@ -59,5 +59,5 @@ public interface IParserLookupByInput<in TInput> : IParserLookup
     }
 
     /// <inheritdoc cref="IParserLookup.TryLookup{T}"/>
-    bool TryLookup<T>(T value, string extra, IReadOnlyParseContext context, out IParser parser);
+    bool TryLookup<T>(T value, string extra, IParseContext context, out IParser parser);
 }

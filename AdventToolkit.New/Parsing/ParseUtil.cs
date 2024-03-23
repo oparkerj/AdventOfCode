@@ -118,7 +118,7 @@ public static class ParseUtil
     /// <param name="constructor">Parser that converts a sequence of the element type
     /// to an instance of the type.</param>
     /// <returns>True if the type can be collected, false otherwise.</returns>
-    public static bool TryCollectSelf(this ITypeDescriptor descriptor, Type type, IReadOnlyParseContext context, out Type inner, out IParser constructor)
+    public static bool TryCollectSelf(this ITypeDescriptor descriptor, Type type, IParseContext context, out Type inner, out IParser constructor)
     {
         Debug.Assert(descriptor.Match(type));
         
@@ -160,7 +160,7 @@ public static class ParseUtil
     /// <param name="inner">Element type.</param>
     /// <param name="selector">Parser that converts from the input type to an enumerable.</param>
     /// <returns>True if the type can be enumerated, false otherwise.</returns>
-    public static bool TryGetInnerType(Type type, IReadOnlyParseContext context, out Type inner, out IParser? selector)
+    public static bool TryGetInnerType(Type type, IParseContext context, out Type inner, out IParser? selector)
     {
         if (type.TryGetTypeArguments(typeof(IEnumerable<>), out var enumerableTypes))
         {

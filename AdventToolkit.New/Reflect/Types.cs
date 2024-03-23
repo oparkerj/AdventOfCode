@@ -188,6 +188,7 @@ public static class Types
     /// <returns></returns>
     public static Type GetSingleTypeArgument(this Type type)
     {
+        Debug.Assert(type.IsGenericType);
         var types = type.GetGenericArguments();
         Debug.Assert(types.Length > 0);
         return types[0];

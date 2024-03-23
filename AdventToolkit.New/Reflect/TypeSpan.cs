@@ -129,7 +129,7 @@ public readonly ref struct TypeSpan
     /// <param name="context">Parse context.</param>
     /// <param name="adapter">Possible adapter.</param>
     /// <returns></returns>
-    public bool TryAdaptTuple(Type type, IReadOnlyParseContext context, out IParser? adapter)
+    public bool TryAdaptTuple(Type type, IParseContext context, out IParser? adapter)
     {
         Debug.Assert(type.IsTupleType());
         var size = type.GetTupleSize();

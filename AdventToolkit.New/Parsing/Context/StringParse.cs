@@ -12,7 +12,7 @@ public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapt
 
     public bool PassiveSelect => true;
 
-    public bool TryCollect(Type type, Type inner, IReadOnlyParseContext context, out IParser collector)
+    public bool TryCollect(Type type, Type inner, IParseContext context, out IParser collector)
     {
         if (inner == typeof(char))
         {
@@ -24,14 +24,14 @@ public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapt
         return false;
     }
 
-    public bool TryGetCollectType(Type type, IReadOnlyParseContext context, out Type inner)
+    public bool TryGetCollectType(Type type, IParseContext context, out Type inner)
     {
         inner = typeof(char);
         return true;
     }
     
     // Builder values
-    public bool TryLookup<T>(T value, string extra, IReadOnlyParseContext context, out IParser parser)
+    public bool TryLookup<T>(T value, string extra, IParseContext context, out IParser parser)
     {
         // char value will split a string
         if (value is char ch)
@@ -49,7 +49,7 @@ public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapt
     }
 
     // Adapter lookup
-    public bool TryLookup(Type to, IReadOnlyParseContext context, out IParser parser)
+    public bool TryLookup(Type to, IParseContext context, out IParser parser)
     {
         // string can be converted to any type implementing IParsable<>
         if (to.TryGetTypeArguments(typeof(IParsable<>), out var parsableTypes))

@@ -37,7 +37,7 @@ public static class ParseExtensions
     /// <typeparam name="T">Parser output type.</typeparam>
     /// <typeparam name="TParse">Parser adapt type.</typeparam>
     /// <returns></returns>
-    public static T Parse<T, TParse>(this string s, IReadOnlyParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, TParse> parser)
+    public static T Parse<T, TParse>(this string s, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, TParse> parser)
     {
         return parser.Parse(s);
     }
@@ -50,7 +50,7 @@ public static class ParseExtensions
     /// <param name="parser">Segment parser.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
     /// <returns></returns>
-    public static T Parse<T>(this string s, IReadOnlyParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, T> parser)
+    public static T Parse<T>(this string s, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, T> parser)
     {
         return parser.Parse(s);
     }
@@ -89,7 +89,7 @@ public static class ParseExtensions
     /// <typeparam name="T">Parser output type.</typeparam>
     /// <typeparam name="TParse">Parser output type.</typeparam>
     /// <returns></returns>
-    public static IEnumerable<T> Parse<T, TParse>(this IEnumerable<string> strings, IReadOnlyParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, TParse> parser)
+    public static IEnumerable<T> Parse<T, TParse>(this IEnumerable<string> strings, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, TParse> parser)
     {
         return parser.ParseMany(strings);
     }
@@ -102,7 +102,7 @@ public static class ParseExtensions
     /// <param name="parser">Segment parser.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
     /// <returns></returns>
-    public static IEnumerable<T> Parse<T>(this IEnumerable<string> strings, IReadOnlyParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, T> parser)
+    public static IEnumerable<T> Parse<T>(this IEnumerable<string> strings, IParseContext context, [InterpolatedStringHandlerArgument("context")] SegmentParser<T, T> parser)
     {
         return parser.ParseMany(strings);
     }

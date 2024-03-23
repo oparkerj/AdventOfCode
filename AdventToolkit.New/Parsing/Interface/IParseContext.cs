@@ -3,7 +3,7 @@ namespace AdventToolkit.New.Parsing.Interface;
 /// <summary>
 /// Provides the ability to look up the types needed for a parse.
 /// </summary>
-public interface IReadOnlyParseContext
+public interface IParseContext
 {
     /// <summary>
     /// All known type descriptors.
@@ -74,13 +74,7 @@ public interface IReadOnlyParseContext
     /// element type and produces the container type.</param>
     /// <returns>True if a container constructor is found, false otherwise.</returns>
     bool TryCollect(Type container, Type inner, out IParser constructor);
-}
-
-/// <summary>
-/// A parse context where context objects can be added.
-/// </summary>
-public interface IParseContext : IReadOnlyParseContext
-{
+    
     /// <summary>
     /// Add a type descriptor to the context.
     /// </summary>

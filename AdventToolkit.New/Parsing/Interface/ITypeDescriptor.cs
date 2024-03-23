@@ -53,7 +53,7 @@ public interface ITypeDescriptor
     ///     of the element type and produces the container.</param>
     /// <returns>True if the type from this type descriptor can can be constructed
     /// from a sequence of the element type, false otherwise.</returns>
-    bool TryCollect(Type type, Type inner, IReadOnlyParseContext context, out IParser collector)
+    bool TryCollect(Type type, Type inner, IParseContext context, out IParser collector)
     {
         collector = default!;
         return false;
@@ -69,19 +69,19 @@ public interface ITypeDescriptor
     /// <param name="context">Parse context.</param>
     /// <param name="inner">Element type.</param>
     /// <returns>True if the type can be constructed from a sequence, false otherwise.</returns>
-    bool TryGetCollectType(Type type, IReadOnlyParseContext context, out Type inner)
+    bool TryGetCollectType(Type type, IParseContext context, out Type inner)
     {
         inner = default!;
         return true;
     }
 
-    bool TryConstruct(Type type, IReadOnlyParseContext context, TypeSpan types, out IParser constructor)
+    bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
     {
         constructor = default!;
         return false;
     }
 
-    bool TryUnpack(Type type, IReadOnlyParseContext context, int amount, out IParser unpack)
+    bool TryUnpack(Type type, IParseContext context, int amount, out IParser unpack)
     {
         unpack = default!;
         return false;

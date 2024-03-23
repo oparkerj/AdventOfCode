@@ -9,13 +9,13 @@ namespace AdventToolkit.New.Parsing.Core;
 /// <param name="context"></param>
 /// <typeparam name="TIn"></typeparam>
 /// <typeparam name="TOut"></typeparam>
-public abstract class ParseBase<TIn, TOut>(IReadOnlyParseContext context)
+public abstract class ParseBase<TIn, TOut>(IParseContext context)
     : IParser<TIn, TOut>
 {
     /// <summary>
     /// Current parse context.
     /// </summary>
-    public IReadOnlyParseContext Context { get; set; } = context;
+    public IParseContext Context { get; set; } = context;
 
     public abstract TOut Parse(TIn input);
 

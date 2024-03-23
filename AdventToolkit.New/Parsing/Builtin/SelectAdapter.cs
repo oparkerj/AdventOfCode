@@ -38,7 +38,7 @@ public class SelectAdapter<TIn, TOut>(IParser<TIn, TOut> parser) :
         }
     }
     
-    public IParser InnerJoin(IParser other, int targetLevel, IReadOnlyParseContext context)
+    public IParser InnerJoin(IParser other, int targetLevel, IParseContext context)
     {
         if (targetLevel > 0)
         {

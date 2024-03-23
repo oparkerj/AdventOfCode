@@ -43,7 +43,7 @@ public static class ParseJoin
     /// <param name="second">Second parser.</param>
     /// <param name="context">Parse context.</param>
     /// <returns>Joined and possibly adapted parser.</returns>
-    public static IParser CreateAdapt(IParser first, IParser second, IReadOnlyParseContext context)
+    public static IParser CreateAdapt(IParser first, IParser second, IParseContext context)
     {
         var inType = ParseUtil.GetParserTypesOf(first).InputType;
         var (secondInput, outType) = ParseUtil.GetParserTypesOf(second);
@@ -62,7 +62,7 @@ public static class ParseJoin
     /// <param name="level">Target nest level.</param>
     /// <param name="context">Parse context.</param>
     /// <returns>Joined parser.</returns>
-    public static IParser InnerJoin(IParser current, IParser join, int level, IReadOnlyParseContext context)
+    public static IParser InnerJoin(IParser current, IParser join, int level, IParseContext context)
     {
         if (current is IParseJoin parseJoin) return parseJoin.InnerJoin(join, level, context);
         return Create(current, join.AddLevels(level));
