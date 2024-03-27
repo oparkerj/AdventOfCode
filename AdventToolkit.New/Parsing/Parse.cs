@@ -43,6 +43,15 @@ public static class Parse
     [Conditional("DEBUG")]
     internal static void VerboseIf(bool condition, SimpleTypeString strTrue, SimpleTypeString strFalse)
     {
-        Verbose(condition ? strTrue : strFalse);
+        if (condition)
+        {
+            Verbose(strTrue);
+            strFalse.ToStringAndDispose();
+        }
+        else
+        {
+            Verbose(strFalse);
+            strTrue.ToStringAndDispose();
+        }
     }
 }

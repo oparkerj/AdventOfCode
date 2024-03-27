@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Disambiguation;
@@ -491,6 +492,7 @@ public static class ParseAdapt
         {
             var disambiguationAvailable = context.ApplyDisambiguation(typeof(Collect<>));
             var preferConstruct = disambiguationAvailable && context.ApplyDisambiguation(typeof(Construct));
+            Debug.Assert(!disambiguationAvailable || preferConstruct);
             Parse.VerboseIf(preferConstruct, "Using disambiguation to prefer construction.");
             
             var joined = MaybeInnerJoin(parser, selector, context, level);
