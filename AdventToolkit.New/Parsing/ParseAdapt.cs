@@ -488,39 +488,11 @@ public static class ParseAdapt
 
         // If the target is collectable then try to adapt the inner type and collect it.
         if (targetDescriptor
-            && descriptor.TryCollectSelf(target, context, out var targetInner, out var constructor))
+            && TryAdaptCollect(target, outputInner, descriptor, context, out var collect))
         {
-            var disambiguationAvailable = context.ApplyDisambiguation(typeof(Collect<>));
-            var preferConstruct = disambiguationAvailable && context.ApplyDisambiguation(typeof(Construct));
-            Debug.Assert(!disambiguationAvailable || preferConstruct);
-            Parse.VerboseIf(preferConstruct, "Using disambiguation to prefer construction.");
-            
             var joined = MaybeInnerJoin(parser, selector, context, level);
-            
-            // Try to adapt output inner type to target inner type
-            if (!preferConstruct && TryAdaptInner(joined, outputInner, targetInner, context, level + 1, out var enumerableAdapt))
-            {
-                Parse.Verbose($"Adapted enumerable {parser?.GetType()} to {target} -> {enumerableAdapt?.GetType()}");
-                result = MaybeInnerJoin(enumerableAdapt, constructor, context, level);
-                return true;
-            }
-            
-            // Try adapt enumerable to container of tuple
-            if (TryAdaptEnumerableTuple(targetInner, outputInner, context, out var innerConstructor))
-            {
-                Parse.Verbose($"Adapted enumerable {parser?.GetType()} to {target} of tuple {targetInner} -> {innerConstructor.GetType()}");
-                result = MaybeInnerJoin(joined, EnumerableAdapter.ConstructInnerTuple(outputInner, constructor, innerConstructor), context, level);
-                return true;
-            }
-            
-            // Try to construct the inner type
-            if (context.TryLookupType(targetInner, out var innerDescriptor)
-                && innerDescriptor.TryConstruct(targetInner, context, new TypeSpan(in outputInner), out innerConstructor))
-            {
-                Parse.Verbose($"Adapted enumerable {parser?.GetType()} to {target} by constructing {targetInner} -> {innerConstructor.GetType()}");
-                result = MaybeInnerJoin(joined, EnumerableAdapter.ConstructInner(outputInner, constructor, innerConstructor), context, level);
-                return true;
-            }
+            result = MaybeInnerJoin(joined, collect, context, level);
+            return true;
         }
 
         // Enumerable to single item
@@ -543,6 +515,59 @@ public static class ParseAdapt
 
         Parse.Verbose($"Failed to use {output} as IEnumerable<{outputInner}>");
         result = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Try to adapt an enumerable to a collectable by adapting the inner types.
+    /// </summary>
+    /// <param name="target">Full target type of the adapt.</param>
+    /// <param name="outputInner">Output element type.</param>
+    /// <param name="targetDescriptor">Type descriptor for the target.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="result">Parser that takes an enumerable of the output inner
+    /// and collects it to the target type.</param>
+    /// <returns>True if the target is collectable and the sequence elements
+    /// were adapted to the collection elements.</returns>
+    private static bool TryAdaptCollect(Type target, Type outputInner, ITypeDescriptor targetDescriptor, IParseContext context, out IParser result)
+    {
+        if (!targetDescriptor.TryCollectSelf(target, context, out var targetInner, out var constructor))
+        {
+            result = default!;
+            return false;
+        }
+        
+        var disambiguationAvailable = context.ApplyDisambiguation(typeof(Collect<>));
+        var preferConstruct = disambiguationAvailable && context.ApplyDisambiguation(typeof(Construct));
+        Debug.Assert(!disambiguationAvailable || preferConstruct);
+        Parse.VerboseIf(preferConstruct, "Using disambiguation to prefer construction.");
+        
+        // Try to adapt output inner type to target inner type
+        if (!preferConstruct && TryAdaptInner(null, outputInner, targetInner, context, 0, out var enumerableAdapt))
+        {
+            Parse.Verbose($"Adapted IEnumerable<{outputInner}> to {target} -> {enumerableAdapt?.GetType()}");
+            result = enumerableAdapt is null ? EnumerableAdapter.Collect(outputInner, constructor) : EnumerableAdapter.Collect(outputInner, enumerableAdapt, constructor);
+            return true;
+        }
+        
+        // Try adapt enumerable to container of tuple
+        if (TryAdaptEnumerableTuple(targetInner, outputInner, context, out var innerConstructor))
+        {
+            Parse.Verbose($"Adapted IEnumerable<{outputInner}> to {target} of tuple {targetInner} -> {innerConstructor.GetType()}");
+            result = EnumerableAdapter.ConstructInnerTuple(outputInner, constructor, innerConstructor);
+            return true;
+        }
+        
+        // Try to construct the inner type
+        if (context.TryLookupType(targetInner, out var innerDescriptor)
+            && innerDescriptor.TryConstruct(targetInner, context, new TypeSpan(in outputInner), out innerConstructor))
+        {
+            Parse.Verbose($"Adapted IEnumerable<{outputInner}> to {target} by constructing {targetInner} -> {innerConstructor.GetType()}");
+            result = EnumerableAdapter.ConstructInner(outputInner, constructor, innerConstructor);
+            return true;
+        }
+
+        result = default!;
         return false;
     }
 
