@@ -2,7 +2,6 @@
 using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing;
 using AdventToolkit.New.Parsing.Core;
-using AdventToolkit.New.Parsing.Disambiguation;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 using BenchmarkDotNet.Attributes;
@@ -51,22 +50,10 @@ public class BenchmarkMain
 
         DefaultContext.Instance.AddType(new IntsDescriptor());
         
-        var input = "1,2,3,4,5,6,7,8,9";
-        var result = input.Parse<(char, char)[], Collect<Construct>>($"{','}");
+        var input = "1,2,3,4,5,6,7,8,9,10,11,12";
+        var result = input.Parse<(int, (IntPair, IntPair[]), int, int)>($"{','}");
         
-        // TODO allow this
-        // var input = "abcdefghi";
-        // var result = input.Parse<(char, string, char)>($"");
-
-        // var result = input.Parse<(string, ((IntPair, string), int))>($"{','}");
-        // (1, ((IntPair { A = 2, B = 3 }, 4), 5))
-        
-        // Console.WriteLine(result);
-        
-        foreach (var item in result)
-        {
-            Console.WriteLine(item);
-        }
+        Console.WriteLine(Debugging.ToString(result));
     }
 
     public static Summary BenchmarkPuzzle<T>()

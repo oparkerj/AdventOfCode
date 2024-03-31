@@ -32,7 +32,8 @@ namespace AdventToolkit.New.Parsing;
 ///   - Create target via construction
 ///   ~ Adapt enumerable to tuple
 ///     - Try to recurse into inner tuple
-///     - Adapt element to tuple component
+///     - Adapt item to tuple component
+///     - Collect tuple component
 ///     - Construct tuple component
 ///
 /// Plans/Possibilities:
@@ -488,7 +489,7 @@ public static class ParseAdapt
 
         // If the target is collectable then try to adapt the inner type and collect it.
         if (targetDescriptor
-            && TryAdaptCollect(target, outputInner, descriptor, context, out var collect))
+            && TryAdaptCollect(target, outputInner, descriptor, context, out _, out var collect))
         {
             var joined = MaybeInnerJoin(parser, selector, context, level);
             result = MaybeInnerJoin(joined, collect, context, level);
@@ -506,7 +507,7 @@ public static class ParseAdapt
         }
         
         // Enumerable to tuple
-        if (TryAdaptEnumerableTuple(target, outputInner, context, out var enumerableToTuple))
+        if (TryAdaptEnumerableTuple(target, outputInner, context, out _, out var enumerableToTuple))
         {
             Parse.Verbose($"Adapted enumerable {parser?.GetType()} to tuple {target} -> {enumerableToTuple.GetType()}");
             result = MaybeInnerJoin(parser, MaybeJoin(selector, enumerableToTuple), context, level);
@@ -525,15 +526,17 @@ public static class ParseAdapt
     /// <param name="outputInner">Output element type.</param>
     /// <param name="targetDescriptor">Type descriptor for the target.</param>
     /// <param name="context">Parse context.</param>
+    /// <param name="itemSize"></param>
     /// <param name="result">Parser that takes an enumerable of the output inner
-    /// and collects it to the target type.</param>
+    ///     and collects it to the target type.</param>
     /// <returns>True if the target is collectable and the sequence elements
     /// were adapted to the collection elements.</returns>
-    private static bool TryAdaptCollect(Type target, Type outputInner, ITypeDescriptor targetDescriptor, IParseContext context, out IParser result)
+    private static bool TryAdaptCollect(Type target, Type outputInner, ITypeDescriptor targetDescriptor, IParseContext context, out int itemSize, out IParser result)
     {
         if (!targetDescriptor.TryCollectSelf(target, context, out var targetInner, out var constructor))
         {
             result = default!;
+            itemSize = default;
             return false;
         }
         
@@ -547,12 +550,18 @@ public static class ParseAdapt
         {
             Parse.Verbose($"Adapted IEnumerable<{outputInner}> to {target} -> {enumerableAdapt?.GetType()}");
             result = enumerableAdapt is null ? EnumerableAdapter.Collect(outputInner, constructor) : EnumerableAdapter.Collect(outputInner, enumerableAdapt, constructor);
+            itemSize = 1;
             return true;
         }
         
         // Try adapt enumerable to container of tuple
-        if (TryAdaptEnumerableTuple(targetInner, outputInner, context, out var innerConstructor))
+        if (TryAdaptEnumerableTuple(targetInner, outputInner, context, out itemSize, out var innerConstructor))
         {
+            if (itemSize < 0)
+            {
+                throw new ArgumentException("Cannot nest collectors.");
+            }
+            
             Parse.Verbose($"Adapted IEnumerable<{outputInner}> to {target} of tuple {targetInner} -> {innerConstructor.GetType()}");
             result = EnumerableAdapter.ConstructInnerTuple(outputInner, constructor, innerConstructor);
             return true;
@@ -563,7 +572,7 @@ public static class ParseAdapt
             && innerDescriptor.TryConstruct(targetInner, context, new TypeSpan(in outputInner), out innerConstructor))
         {
             Parse.Verbose($"Adapted IEnumerable<{outputInner}> to {target} by constructing {targetInner} -> {innerConstructor.GetType()}");
-            result = EnumerableAdapter.ConstructInner(outputInner, constructor, innerConstructor);
+            result = EnumerableAdapter.ConstructInner(outputInner, constructor, innerConstructor, out itemSize);
             return true;
         }
 
@@ -572,23 +581,103 @@ public static class ParseAdapt
     }
 
     /// <summary>
+    /// Stores sizes and collectors when adapting an enumerable to a tuple.
+    /// </summary>
+    private class CollectInfo
+    {
+        /// <summary>
+        /// The maximum number of items an element of a collector may consume.
+        /// </summary>
+        public int? MaxItemSize;
+        
+        /// <summary>
+        /// The number of items previous collectors may not collect.
+        /// This is used if there are any elements that come after the collectors.
+        /// </summary>
+        public int? StopSize;
+        
+        /// <summary>
+        /// All collectors seen so far.
+        /// </summary>
+        public readonly List<IParser> Collectors = [];
+        
+        /// <summary>
+        /// Stores the number of collectors when entering a nested tuple.
+        /// </summary>
+        private readonly Stack<int> _levels = new();
+
+        /// <summary>
+        /// Add a collector with the given item size.
+        /// This sets the max item size and resets the stop size.
+        /// </summary>
+        /// <param name="collector"></param>
+        /// <param name="itemSize"></param>
+        public void AddCollector(IParser collector, int itemSize)
+        {
+            Collectors.Add(collector);
+            MaxItemSize = itemSize - 1;
+            StopSize = 0;
+        }
+
+        /// <summary>
+        /// Add the stop size to each of the collectors.
+        /// The buffer stops ensure that collectors do not consume too many items
+        /// if the tuple has some elements that come after the collector.
+        /// This resets the stop size.
+        /// </summary>
+        public void ApplyStopSize()
+        {
+            if (!(StopSize > 0)) return;
+
+            var length = _levels.TryPeek(out var count) ? count : Collectors.Count;
+            for (var i = 0; i < length; i++)
+            {
+                var collector = Collectors[i];
+                ((IEnumerableParser) collector).BufferStop += StopSize.Value;
+            }
+            StopSize = 0;
+        }
+
+        /// <summary>
+        /// Mark entering a nested tuple.
+        /// </summary>
+        public void Enter() => _levels.Push(Collectors.Count);
+
+        /// <summary>
+        /// Mark leaving a nested tuple.
+        /// </summary>
+        public void Exit() => _levels.Pop();
+    }
+
+    /// <summary>
     /// Check if an enumerable can be converted to a tuple.
     /// </summary>
     /// <param name="target">Target type.</param>
     /// <param name="outputInner">Output inner type.</param>
     /// <param name="context">Parse context.</param>
+    /// <param name="itemSize">Number of items collected in the tuple. If this value is negative, then
+    /// the tuple contains a collector, and the value is the minimum number of items needed to
+    /// create the tuple.</param>
     /// <param name="result">Adapted parser.</param>
+    /// <param name="sizes">Size info for collectables</param>
     /// <returns></returns>
-    private static bool TryAdaptEnumerableTuple(Type target, Type outputInner, IParseContext context, out IParser result)
+    private static bool TryAdaptEnumerableTuple(Type target, Type outputInner, IParseContext context, out int itemSize, out IParser result, CollectInfo? sizes = null)
     {
+        // Enter a level if a nested tuple
+        sizes?.Enter();
+        sizes ??= new CollectInfo();
+        
         if (!target.TryGetTupleTypes(out var tupleTypes))
         {
             result = default!;
+            itemSize = default;
             return false;
         }
         
         Parse.Verbose($"Try adapt IEnumerable<{outputInner}> to {target}");
 
+        var currentItemSize = 0;
+        
         var sections = new IParser[tupleTypes.Length];
 
         for (var i = 0; i < tupleTypes.Length; i++)
@@ -596,10 +685,14 @@ public static class ParseAdapt
             var elementType = tupleTypes[i];
 
             // Try to parse a nested tuple
-            if (TryAdaptEnumerableTuple(elementType, outputInner, context, out var innerTuple))
+            if (TryAdaptEnumerableTuple(elementType, outputInner, context, out var innerItemSize, out var innerTuple, sizes))
             {
                 Parse.Verbose($"Adapted nested tuple at index {i} -> {innerTuple.GetType()}");
                 sections[i] = innerTuple;
+                IncrementSize(Math.Abs(innerItemSize));
+                // Make sure stop sizes only apply to collections before the nested tuple
+                sizes.ApplyStopSize();
+                sizes.Exit();
                 continue;
             }
 
@@ -608,24 +701,56 @@ public static class ParseAdapt
             {
                 Parse.Verbose($"Adapted element {i} -> {elementAdapt?.GetType()}");
                 sections[i] = EnumerableAdapter.PartialSingle(outputInner, elementAdapt);
+                IncrementSize(1);
+                continue;
+            }
+
+            var elementInfo = context.TryLookupType(elementType, out var elementDescriptor);
+
+            // Try to collect the element
+            if (elementInfo &&
+                TryAdaptCollect(elementType, outputInner, elementDescriptor, context, out innerItemSize, out sections[i]))
+            {
+                if (innerItemSize > sizes.MaxItemSize)
+                {
+                    throw new ArgumentException($"Type {elementType.SimpleName()} at index {i} has an item size of {innerItemSize} but the max item size at this index is {sizes.MaxItemSize}.");
+                }
+                Parse.Verbose($"Adapted element {i} -> {sections[i].GetType()}");
+
+                sizes.ApplyStopSize();
+                sizes.AddCollector(sections[i], innerItemSize);
                 continue;
             }
                 
             // Take many values and try using construction.
-            if (context.TryLookupType(elementType, out var elementDescriptor)
+            if (elementInfo
                 && elementDescriptor.TryConstruct(elementType, context, new TypeSpan(in outputInner), out var elementConstructor))
             {
                 Parse.Verbose($"Adapted element {i} via construction -> {elementConstructor.GetType()}");
-                sections[i] = EnumerableAdapter.PartialTake(outputInner, ProcessConstructor(elementConstructor));
+                elementConstructor = ProcessConstructor(elementConstructor);
+                sections[i] = EnumerableAdapter.PartialTake(outputInner, elementConstructor, out var constructorSize);
+                IncrementSize(constructorSize);
                 continue;
             }
 
             Parse.Verbose($"Failed at element {i}: Could not create {elementType}");
             result = default!;
+            itemSize = default;
             return false;
         }
 
+        // Output a negative item size to indicate that the tuple contains a collector
+        itemSize = sizes.MaxItemSize.HasValue ? -currentItemSize : currentItemSize;
+        sizes.ApplyStopSize();
+        
         result = EnumerableAdapter.ToTuple(outputInner, sections);
         return true;
+
+        // Increment the current item size and stop size
+        void IncrementSize(int amount)
+        {
+            currentItemSize += amount;
+            sizes.StopSize += amount;
+        }
     }
 }

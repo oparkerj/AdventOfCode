@@ -53,13 +53,14 @@ public static class EnumerableAdapter
     /// </summary>
     /// <param name="elements">Sequence type.</param>
     /// <param name="constructor">Element constructor.</param>
+    /// <param name="constructorSize">Number of elements in the constructor tuple.</param>
     /// <returns></returns>
-    public static IParser PartialTake(Type elements, IParser constructor)
+    public static IParser PartialTake(Type elements, IParser constructor, out int constructorSize)
     {
         var (input, output) = ParseUtil.GetParserTypesOf(constructor);
         Debug.Assert(input.IsTupleType());
-        var size = input.GetTupleSize();
-        return typeof(EnumerableConstructTuple<,,>).NewParserGeneric([elements, input, output], constructor, size);
+        constructorSize = input.GetTupleSize();
+        return typeof(EnumerableConstructTuple<,,>).NewParserGeneric([elements, input, output], constructor, constructorSize);
     }
 
     /// <summary>
@@ -95,17 +96,18 @@ public static class EnumerableAdapter
     /// <param name="elements">Element type of the input sequence.</param>
     /// <param name="constructor">Container constructor.</param>
     /// <param name="innerConstructor">Element constructor.</param>
+    /// <param name="tupleSize">Size of the inner constructor tuple.</param>
     /// <returns></returns>
-    public static IParser ConstructInner(Type elements, IParser constructor, IParser innerConstructor)
+    public static IParser ConstructInner(Type elements, IParser constructor, IParser innerConstructor, out int tupleSize)
     {
         var output = ParseUtil.GetParserTypesOf(constructor).OutputType;
         var (innerInput, innerOutput) = ParseUtil.GetParserTypesOf(innerConstructor);
         Debug.Assert(innerInput.IsTupleType());
-        var size = innerInput.GetTupleSize();
+        tupleSize = innerInput.GetTupleSize();
 
         return typeof(EnumerableConstructInner<,,,>).NewParserGeneric(
             [elements, innerInput, innerOutput, output],
-            innerConstructor, constructor, size);
+            innerConstructor, constructor, tupleSize);
     }
 
     /// <summary>
@@ -253,7 +255,6 @@ public interface IEnumerableParser<TIn, out TOut> : IEnumerableParser, IParser<I
     TOut IParser<IEnumerable<TIn>, TOut>.Parse(IEnumerable<TIn> input)
     {
         using var e = new BufferedEnumerator<TIn>(input);
-        e.SetBufferStop(BufferStop);
         return Parse(e);
     }
 }
@@ -356,7 +357,12 @@ public class EnumerableConstructInner<TIn, TTuple, TInner, TCollect>(
         }
     }
     
-    public TCollect Parse(BufferedEnumerator<TIn> input) => collector.Parse(Construct(input));
+    public TCollect Parse(BufferedEnumerator<TIn> input)
+    {
+        var stop = input.SetBufferStop(BufferStop);
+        Debug.Assert(stop);
+        return collector.Parse(Construct(input));
+    }
 
     public IEnumerable<IParser> GetChildren()
     {
@@ -388,7 +394,12 @@ public class EnumerableCollect<TIn, TAdapted, TCollect>(
         }
     }
     
-    public TCollect Parse(BufferedEnumerator<TIn> input) => collector.Parse(Adapt(input));
+    public TCollect Parse(BufferedEnumerator<TIn> input)
+    {
+        var stop = input.SetBufferStop(BufferStop);
+        Debug.Assert(stop);
+        return collector.Parse(Adapt(input));
+    }
 
     public IEnumerable<IParser> GetChildren()
     {
@@ -417,7 +428,12 @@ public class EnumerableCollect<TIn, TCollect>(
         }
     }
     
-    public TCollect Parse(BufferedEnumerator<TIn> input) => collector.Parse(Adapt(input));
+    public TCollect Parse(BufferedEnumerator<TIn> input)
+    {
+        var stop = input.SetBufferStop(BufferStop);
+        Debug.Assert(stop);
+        return collector.Parse(Adapt(input));
+    }
 
     public IEnumerable<IParser> GetChildren()
     {
@@ -451,7 +467,12 @@ public class EnumerableConstructInnerTuple<TIn, TTuple, TCollect>(
         }
     }
     
-    public TCollect Parse(BufferedEnumerator<TIn> input) => collector.Parse(Construct(input));
+    public TCollect Parse(BufferedEnumerator<TIn> input)
+    {
+        var stop = input.SetBufferStop(BufferStop);
+        Debug.Assert(stop);
+        return collector.Parse(Construct(input));
+    }
 
     public IEnumerable<IParser> GetChildren()
     {

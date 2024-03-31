@@ -20,7 +20,7 @@ public static class Types
     /// </summary>
     /// <param name="type"></param>
     /// <param name="builder"></param>
-    private static void AddSimpleName(Type type, StringBuilder builder)
+    internal static void AddSimpleName(Type type, StringBuilder builder)
     {
         var name = type.Name;
         if (type.IsArray)
