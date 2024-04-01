@@ -23,7 +23,7 @@ public interface ITypeDescriptor
     /// For example, if the current type is a string, you typically want to stop there
     /// and operate on the string rather than descending and parsing each character.
     /// </summary>
-    bool PassiveSelect { get; }
+    bool PassiveSelect => false;
 
     /// <summary>
     /// Get the element type and selector from a type which can be enumerated.

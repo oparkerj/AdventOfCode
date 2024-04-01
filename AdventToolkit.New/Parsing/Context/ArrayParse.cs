@@ -28,8 +28,6 @@ public class ArrayParse : ITypeDescriptor
     
     public bool Match(Type type) => type.IsArray && type.GetArrayRank() == 1;
 
-    public bool PassiveSelect => false;
-
     public bool TryCollect(Type type, Type inner, IParseContext context, out IParser collector)
     {
         collector = typeof(Collect<>).NewParserGeneric([inner]);

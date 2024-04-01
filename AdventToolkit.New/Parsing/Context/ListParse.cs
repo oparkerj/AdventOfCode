@@ -12,8 +12,6 @@ public class ListParse : ITypeDescriptor
 {
     public bool Match(Type type) => type.Generic() == typeof(List<>);
 
-    public bool PassiveSelect => false;
-
     public bool TryCollect(Type type, Type inner, IParseContext context, out IParser collector)
     {
         collector = typeof(ListCollector<>).NewParserGeneric([inner]);
