@@ -51,6 +51,13 @@ public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapt
     // Adapter lookup
     public bool TryLookup(Type to, IParseContext context, out IParser parser)
     {
+        // Use custom implementation for char instead of IParsable.
+        if (to == typeof(char))
+        {
+            parser = new ToChar();
+            return true;
+        }
+        
         // string can be converted to any type implementing IParsable<>
         if (to.TryGetTypeArguments(typeof(IParsable<>), out var parsableTypes))
         {
@@ -125,5 +132,15 @@ public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapt
         where T : IParsable<T>
     {
         public T Parse(string input) => T.Parse(input, null);
+    }
+
+    /// <summary>
+    /// Special case converting string to char.
+    /// This will just take the first character, while the built in implementation
+    /// will throw if the string is not exactly one character long.
+    /// </summary>
+    public class ToChar : IParser<string, char>
+    {
+        public char Parse(string input) => input[0];
     }
 }
