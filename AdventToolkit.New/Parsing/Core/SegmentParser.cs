@@ -15,9 +15,9 @@ namespace AdventToolkit.New.Parsing.Core;
 [InterpolatedStringHandler]
 public class SegmentParser<T> : ParseBase<string, T>
 {
-    private List<string> _anchors = [];
+    private readonly List<string> _anchors = [];
 
-    private List<ParseBuilder> _sections = [];
+    private readonly List<ParseBuilder> _sections = [];
 
     private int _selected = -1;
 
@@ -142,7 +142,7 @@ public class SegmentParser<T> : ParseBase<string, T>
         // If there is one section, then adapt it to the output type.
         if (_sections.Count == 1)
         {
-            var single = _sections[0].Build<T>(Context);
+            var single = _sections[0].Build<string, T>(Context);
             
             // If there are no literals, then the input does not need to be split
             if (!_firstIsLiteral && !_lastIsLiteral) return single;

@@ -209,10 +209,11 @@ public class ParseBuilder
     /// </summary>
     /// <seealso cref="Build"/>
     /// <param name="context">Parse context.</param>
-    /// <typeparam name="T">Output value.</typeparam>
+    /// <typeparam name="TIn">Input type.</typeparam>
+    /// <typeparam name="TOut">Output type.</typeparam>
     /// <returns>Build parser.</returns>
-    public IParser<string, T> Build<T>(IParseContext context)
+    public IParser<TIn, TOut> Build<TIn, TOut>(IParseContext context)
     {
-        return (IParser<string, T>) Build(context, typeof(T));
+        return (IParser<TIn, TOut>) Build(context, typeof(TOut));
     }
 }

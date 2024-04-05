@@ -23,6 +23,9 @@ public class DefaultContext : ListContext
         AddAdapter(stringParse);
         AddType(stringParse);
 
+        var toString = new StringAdapter();
+        AddAdapter(toString);
+
         var listParse = new ListParse();
         AddType(listParse);
 

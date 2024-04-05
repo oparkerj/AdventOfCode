@@ -48,6 +48,19 @@ public readonly struct Arr<T> : IDisposable
     }
 
     /// <summary>
+    /// Create an array and fill it with a given value.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="count"></param>
+    /// <returns></returns>
+    public static Arr<T> Of(T value, int count)
+    {
+        var arr = Get(count);
+        arr.Span.Fill(value);
+        return arr;
+    }
+
+    /// <summary>
     /// Returns the underlying array to the shared array pool.
     /// </summary>
     public void Dispose() => ArrayPool<T>.Shared.Return(Data);

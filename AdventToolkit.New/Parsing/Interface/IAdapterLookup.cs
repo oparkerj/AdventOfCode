@@ -63,3 +63,27 @@ public interface IAdapterLookup<TFrom, TTo> : IAdapterLookup<TFrom>
     /// <returns>True if a relevant adapter was found, false otherwise.</returns>
     bool TryLookup(IParseContext context, out IParser parser);
 }
+
+/// <summary>
+/// Adapter lookup that applies to a given target type.
+/// </summary>
+/// <typeparam name="TTo">To type.</typeparam>
+public interface IAdapterLookupByTarget<TTo> : IAdapterLookup
+{
+    bool IAdapterLookup.TryLookup(Type from, Type to, IParseContext context, out IParser parser)
+    {
+        if (to == typeof(TTo)) return TryLookup(from, context, out parser);
+
+        parser = default!;
+        return false;
+    }
+
+    /// <summary>
+    /// Try to find an adapter to perform the conversion.
+    /// </summary>
+    /// <param name="from">From type.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="parser">Adapter.</param>
+    /// <returns>True if a relevant adapter was found, false otherwise.</returns>
+    bool TryLookup(Type from, IParseContext context, out IParser parser);
+}

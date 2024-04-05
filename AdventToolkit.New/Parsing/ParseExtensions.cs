@@ -83,20 +83,20 @@ public static class ParseExtensions
     /// Parse a sequence of strings without a format specifier.
     /// This effectively only performs the adapt step.
     /// </summary>
-    /// <param name="s">Input string.</param>
+    /// <param name="strings">Input string.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
     /// <returns></returns>
-    public static IEnumerable<T> Parse<T>(this IEnumerable<string> s) => s.Parse<T>($"");
+    public static IEnumerable<T> Parse<T>(this IEnumerable<string> strings) => strings.Parse<T>($"");
 
     /// <summary>
     /// Parse a sequence of strings without a format specifier.
     /// This effectively only performs the adapt step.
     /// </summary>
-    /// <param name="s">Input string.</param>
+    /// <param name="strings">Input string.</param>
     /// <typeparam name="T">Parser output type.</typeparam>
     /// <typeparam name="TResolve">Ambiguous resolver.</typeparam>
     /// <returns></returns>
-    public static IEnumerable<T> Parse<T, TResolve>(this IEnumerable<string> s) => s.Parse<T, TResolve>($"");
+    public static IEnumerable<T> Parse<T, TResolve>(this IEnumerable<string> strings) => strings.Parse<T, TResolve>($"");
 
     /// <summary>
     /// Parse a sequence of strings using a segment parser.
