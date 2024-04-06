@@ -27,7 +27,7 @@ public abstract class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IEnumerable<
 
     public TVal this[TPos pos]
     {
-        get => Points[pos];
+        get => Points.GetValueOrDefault(pos, Default);
         set => Points[pos] = value;
     }
 
