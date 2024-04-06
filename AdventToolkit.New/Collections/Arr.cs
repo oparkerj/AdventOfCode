@@ -1,6 +1,6 @@
 using System.Buffers;
 
-namespace AdventToolkit.New.Data;
+namespace AdventToolkit.New.Collections;
 
 /// <summary>
 /// Represents a shared array.

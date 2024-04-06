@@ -1,4 +1,4 @@
-namespace AdventToolkit.New.Interface;
+namespace AdventToolkit.New.Space.Interface;
 
 /// <summary>
 /// A set of values of the given position type.

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Numerics;
 
-namespace AdventToolkit.New.Data;
+namespace AdventToolkit.New.Calc;
 
 /// <summary>
 /// Represents multiple discontinuous intervals.

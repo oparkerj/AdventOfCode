@@ -1,6 +1,6 @@
 using AdventToolkit;
 using AdventToolkit.Extensions;
-using AdventToolkit.New.Data;
+using AdventToolkit.New.Calc;
 using AdventToolkit.New.Extensions;
 
 namespace AdventOfCode2023.Puzzles;

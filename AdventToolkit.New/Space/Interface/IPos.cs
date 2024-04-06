@@ -1,6 +1,7 @@
 using System.Numerics;
+using AdventToolkit.New.Interface;
 
-namespace AdventToolkit.New.Interface;
+namespace AdventToolkit.New.Space.Interface;
 
 /// <summary>
 /// Represents an N-dimensional position type.

@@ -1,7 +1,7 @@
 using System.Collections;
-using AdventToolkit.New.Algorithms;
+using AdventToolkit.New.Calc;
 
-namespace AdventToolkit.New.Data;
+namespace AdventToolkit.New.Collections;
 
 /// <summary>
 /// An array wrapper where elements are added in a circular manner.

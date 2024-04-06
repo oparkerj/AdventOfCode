@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using AdventToolkit.New.Data;
+using AdventToolkit.New.Collections;
 using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Disambiguation;
 using AdventToolkit.New.Parsing.Interface;

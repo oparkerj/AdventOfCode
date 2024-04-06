@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace AdventToolkit.New.Data.Space;
+namespace AdventToolkit.New.Space.Set;
 
 /// <summary>
 /// A sparse space where the position type is a number.

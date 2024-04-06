@@ -1,7 +1,6 @@
 using System.Numerics;
-using AdventToolkit.New.Data;
 
-namespace AdventToolkit.New.Interface;
+namespace AdventToolkit.New.Space.Interface;
 
 /// <summary>
 /// Represents a 2-dimensional area.

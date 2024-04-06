@@ -3,11 +3,11 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using AdventToolkit.New.Extensions;
-using AdventToolkit.New.Interface;
+using AdventToolkit.New.Space.Interface;
 
-namespace AdventToolkit.New.Data;
+namespace AdventToolkit.New.Calc;
 
-// TODO: .NET 8, make generic and create alias
+// TODO: .NET 10?, make generic and create alias
 /// <summary>
 /// Represents a range of integers.
 /// </summary>

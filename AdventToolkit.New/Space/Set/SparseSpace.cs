@@ -1,7 +1,7 @@
 using System.Collections;
-using AdventToolkit.New.Interface;
+using AdventToolkit.New.Space.Interface;
 
-namespace AdventToolkit.New.Data.Space;
+namespace AdventToolkit.New.Space.Set;
 
 public abstract class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IEnumerable<KeyValuePair<TPos, TVal>>
     where TPos : notnull
@@ -19,7 +19,7 @@ public abstract class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IEnumerable<
 
     public bool Remove(TPos pos) => Points.Remove(pos);
 
-    public TVal Get(TPos pos) => Points.TryGetValue(pos, out var value) ? value : Default;
+    public TVal Get(TPos pos) => Points.GetValueOrDefault(pos, Default);
 
     public TVal GetStrict(TPos pos) => Points[pos];
 

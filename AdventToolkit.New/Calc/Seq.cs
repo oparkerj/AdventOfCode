@@ -1,8 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
-using AdventToolkit.New.Data;
 
-namespace AdventToolkit.New.Algorithms;
+namespace AdventToolkit.New.Calc;
 
 public static class Seq
 {

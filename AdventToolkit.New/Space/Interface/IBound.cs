@@ -1,4 +1,4 @@
-namespace AdventToolkit.New.Interface;
+namespace AdventToolkit.New.Space.Interface;
 
 /// <summary>
 /// Represents a set of values defined by a minimum and maximum value.

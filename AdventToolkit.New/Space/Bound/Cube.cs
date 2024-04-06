@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Numerics;
-using AdventToolkit.New.Interface;
+using AdventToolkit.New.Calc;
+using AdventToolkit.New.Space.Interface;
 
-namespace AdventToolkit.New.Data;
+namespace AdventToolkit.New.Space.Bound;
 
 /// <summary>
 /// Cube implemented as a record.

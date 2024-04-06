@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Numerics;
-using AdventToolkit.New.Algorithms;
-using AdventToolkit.New.Interface;
+using AdventToolkit.New.Calc;
+using AdventToolkit.New.Space.Interface;
 
-namespace AdventToolkit.New.Data;
+namespace AdventToolkit.New.Space;
 
 /// <summary>
 /// A 2-dimensional position.

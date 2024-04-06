@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using AdventToolkit.New.Data;
+using AdventToolkit.New.Collections;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 

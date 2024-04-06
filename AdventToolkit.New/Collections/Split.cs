@@ -1,4 +1,4 @@
-namespace AdventToolkit.New.Data;
+namespace AdventToolkit.New.Collections;
 
 /// <summary>
 /// Represents a span that has been split into two parts.

@@ -1,5 +1,5 @@
 using System.Numerics;
-using AdventToolkit.New.Data;
+using AdventToolkit.New.Calc;
 
 namespace AdventToolkit.New.Extensions;
 

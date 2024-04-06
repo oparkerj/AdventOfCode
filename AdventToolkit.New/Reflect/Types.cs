@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
-using AdventToolkit.New.Data;
+using AdventToolkit.New.Collections;
 
 namespace AdventToolkit.New.Reflect;
 
