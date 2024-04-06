@@ -194,7 +194,7 @@ public class PackedLine<TNum, T> : ISpace<TNum, T>
 
     public T GetStrict(TNum pos) => Data[int.CreateTruncating(pos - TypeStart)];
 
-    public T GetString(int pos) => Data[pos - Start];
+    public T GetStrict(int pos) => Data[pos - Start];
 
     public T this[TNum pos]
     {

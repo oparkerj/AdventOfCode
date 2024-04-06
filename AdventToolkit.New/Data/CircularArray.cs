@@ -1,6 +1,5 @@
 using System.Collections;
 using AdventToolkit.New.Algorithms;
-using AdventToolkit.New.Extensions;
 
 namespace AdventToolkit.New.Data;
 
@@ -67,8 +66,7 @@ public class CircularArray<T> : IEnumerable<T>
     /// <summary>
     /// Rotate the internal array to the given offset.
     /// The index given by offset will become the first element
-    /// in the array. If no offset is given, the <see cref="Offset"/>
-    /// property is used.
+    /// in the array.
     /// </summary>
     /// <param name="offset">Rotate offset.</param>
     public void Align(int offset)
@@ -110,15 +108,20 @@ public class CircularArray<T> : IEnumerable<T>
     }
     
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
+    
     public IEnumerator<T> GetEnumerator()
     {
-        return Pointer == 0 ? Data.Enumerate() : Enumerate(Pointer);
-
-        IEnumerator<T> Enumerate(int start)
+        if (Pointer == 0)
+        {
+            foreach (var t in Data)
+            {
+                yield return t;
+            }
+        }
+        else
         {
             if (Data.Length == 0) yield break;
-            var i = start;
+            var i = Pointer;
             do
             {
                 yield return Data[i];
@@ -126,7 +129,7 @@ public class CircularArray<T> : IEnumerable<T>
                 {
                     i = 0;
                 }
-            } while (i != start);
+            } while (i != Pointer);
         }
     }
 }

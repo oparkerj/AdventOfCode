@@ -99,4 +99,10 @@ public readonly struct Arr<T> : IDisposable
     /// Get this array as a span.
     /// </summary>
     public Span<T> Span => this;
+
+    /// <summary>
+    /// Enumerate the array.
+    /// </summary>
+    /// <returns></returns>
+    public Span<T>.Enumerator GetEnumerator() => Span.GetEnumerator();
 }

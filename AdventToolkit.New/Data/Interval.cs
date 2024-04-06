@@ -187,7 +187,7 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     {
         if (Length == T.Zero) return;
         Debug.Assert(Length > T.Zero, "Invalid length");
-        Debug.Assert(span.Length >= int.CreateChecked(Length), "");
+        Debug.Assert(span.Length >= int.CreateChecked(Length));
 
         var i = 0;
         var t = Start;
@@ -208,17 +208,12 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     /// <summary>
     /// Enumerate each value in the interval.
     /// </summary>
-    public struct Enumerator : IEnumerator<T>
+    public struct Enumerator(Interval<T> interval)
+        : IEnumerator<T>
     {
-        private readonly T _end;
+        private readonly T _end = interval.End;
 
-        public T Current { get; private set; }
-
-        public Enumerator(Interval<T> interval)
-        {
-            Current = interval.Start - T.One;
-            _end = interval.End;
-        }
+        public T Current { get; private set; } = interval.Start - T.One;
 
         public bool MoveNext() => ++Current < _end;
 

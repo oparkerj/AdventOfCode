@@ -12,7 +12,7 @@ namespace AdventToolkit.New.Data;
 public class MultiInterval<T> : IEnumerable<Interval<T>>
     where T : INumber<T>
 {
-    private readonly List<Interval<T>> _intervals = new();
+    private readonly List<Interval<T>> _intervals = [];
 
     /// <summary>
     /// Number of intervals.
@@ -116,7 +116,7 @@ public class MultiInterval<T> : IEnumerable<Interval<T>>
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    private Interval<T> Merge(Interval<T> a, Interval<T> b)
+    private static Interval<T> Merge(Interval<T> a, Interval<T> b)
     {
         return Interval<T>.Span(T.Min(a.Start, b.Start), T.Max(a.Last, b.Last));
     }

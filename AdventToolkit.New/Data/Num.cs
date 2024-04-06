@@ -7,6 +7,8 @@ namespace AdventToolkit.New.Data;
 
 /// <summary>
 /// Wrapper type for a number.
+///
+/// Currently this just adds implicit conversions to/from bool.
 /// </summary>
 /// <param name="Value"></param>
 /// <typeparam name="T"></typeparam>

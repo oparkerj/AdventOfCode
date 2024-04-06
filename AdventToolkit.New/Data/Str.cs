@@ -46,7 +46,14 @@ public readonly record struct Str(string Value, Interval<int> Interval) : IEnume
     /// Get the character at the given index in the view.
     /// </summary>
     /// <param name="i">View index.</param>
-    public char this[int i] => Value[Interval.Start + i];
+    public char this[int i]
+    {
+        get
+        {
+            Debug.Assert(i >= 0 && i < Interval.Length);
+            return Value[Interval.Start + i];
+        }
+    }
 
     /// <summary>
     /// Get the length of the view.
