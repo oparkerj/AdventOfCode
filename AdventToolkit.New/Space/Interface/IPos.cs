@@ -19,7 +19,8 @@ public interface IPos<T, TNum> :
     IAdditiveIdentity<T, T>,
     IDecrementOperators<T>,
     IIncrementOperators<T>,
-    ISpanParsable<T>
+    ISpanParsable<T>,
+    IDimension<T>
     where T : IPos<T, TNum>
     where TNum : notnull
 {

@@ -135,6 +135,8 @@ public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
 
     public Pos3<T> Normalize() => new(X.Sign(), Y.Sign(), Z.Sign());
     
+    public static IEnumerable<Pos3<T>> GetNeighbors(Pos3<T> pos) => pos.Adjacent();
+
     public IEnumerable<Pos3<T>> Adjacent()
     {
         yield return this with {Z = Z + T.One};

@@ -113,6 +113,8 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
 
     public Pos<T> Normalize() => new(X.Sign(), Y.Sign());
     
+    public static IEnumerable<Pos<T>> GetNeighbors(Pos<T> pos) => pos.Adjacent();
+
     public IEnumerable<Pos<T>> Adjacent()
     {
         yield return this with {Y = Y + T.One};
