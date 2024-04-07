@@ -1,4 +1,6 @@
 using System.Numerics;
+using AdventToolkit.New.Space.Dimension;
+using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space.Set;
 
@@ -7,15 +9,14 @@ namespace AdventToolkit.New.Space.Set;
 /// </summary>
 /// <typeparam name="TNum"></typeparam>
 /// <typeparam name="T"></typeparam>
-public class Line<TNum, T> : SparseSpace<TNum, T>
+/// <typeparam name="TDim"></typeparam>
+public class Line<TNum, T, TDim> : SparseSpace<TNum, T>, IAlignedSpace<TNum, T, TDim>
     where TNum : INumber<TNum>
-{
-    public override IEnumerable<TNum> GetNeighbors(TNum pos)
-    {
-        yield return pos + TNum.One;
-        yield return pos - TNum.One;
-    }
-}
+    where TDim : IDimension<TNum>;
+
+/// <inheritdoc cref="Line{TNum, T, TDim}"/>
+public class Line<TNum, T> : Line<TNum, T, LineDim<TNum>>
+    where TNum : INumber<TNum>;
 
 /// <inheritdoc cref="Line{TNum,T}"/>
-public class Line<T> : Line<int, T> { }
+public class Line<T> : Line<int, T>;

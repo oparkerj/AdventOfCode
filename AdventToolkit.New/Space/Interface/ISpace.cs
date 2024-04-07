@@ -1,26 +1,9 @@
 namespace AdventToolkit.New.Space.Interface;
 
 /// <summary>
-/// A set of values of the given position type.
-/// In this space, the adjacent values for any position is well defined.
+/// A collection of values.
 /// </summary>
-/// <typeparam name="TPos"></typeparam>
-public interface ISpace<TPos>
-{
-    /// <summary>
-    /// Get positions which are adjacent to another position.
-    /// </summary>
-    /// <param name="pos"></param>
-    /// <returns></returns>
-    IEnumerable<TPos> GetNeighbors(TPos pos);
-}
-
-/// <summary>
-/// A space where positions can be mapped to values.
-/// </summary>
-/// <typeparam name="TPos"></typeparam>
-/// <typeparam name="TVal"></typeparam>
-public interface ISpace<TPos, TVal> : ISpace<TPos>
+public interface ISpace
 {
     /// <summary>
     /// Number of mapped positions.
@@ -28,23 +11,75 @@ public interface ISpace<TPos, TVal> : ISpace<TPos>
     int Count { get; }
     
     /// <summary>
-    /// Default value.
+    /// Remove all mappings.
     /// </summary>
-    public TVal Default { get; set; }
-    
+    void Clear();
+}
+
+/// <summary>
+/// A collection of values associated with the given position type.
+/// </summary>
+/// <typeparam name="TPos"></typeparam>
+public interface ISpaceKeys<TPos> : ISpace
+{
     /// <summary>
-    /// Add a position mapping.
+    /// Check if a position has a mapping.
     /// </summary>
     /// <param name="pos"></param>
-    /// <param name="val"></param>
-    void Add(TPos pos, TVal val);
-
+    /// <returns></returns>
+    bool Contains(TPos pos);
+    
     /// <summary>
     /// Remove a position mapping.
     /// </summary>
     /// <param name="pos"></param>
     /// <returns></returns>
     bool Remove(TPos pos);
+    
+    /// <summary>
+    /// Enumerate all mapped positions.
+    /// </summary>
+    IEnumerable<TPos> Positions { get; }
+}
+
+/// <summary>
+/// A collection of values.
+/// </summary>
+/// <typeparam name="TVal"></typeparam>
+public interface ISpaceValues<TVal> : ISpace
+{
+    /// <summary>
+    /// Default value.
+    /// </summary>
+    public TVal Default { get; set; }
+    
+    /// <summary>
+    /// Check if the given value is mapped from any position.
+    /// </summary>
+    /// <param name="val"></param>
+    /// <returns></returns>
+    bool ContainsValue(TVal val);
+    
+    /// <summary>
+    /// Enumerate all mapped values.
+    /// </summary>
+    IEnumerable<TVal> Values { get; }
+}
+
+/// <summary>
+/// A space where positions can be mapped to values.
+/// </summary>
+/// <typeparam name="TPos"></typeparam>
+/// <typeparam name="TVal"></typeparam>
+/// <typeparam name="TDim"></typeparam>
+public interface ISpace<TPos, TVal> : ISpaceKeys<TPos>, ISpaceValues<TVal>
+{
+    /// <summary>
+    /// Add a position mapping.
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="val"></param>
+    void Add(TPos pos, TVal val);
 
     /// <summary>
     /// Try to get a position mapping.
@@ -77,36 +112,7 @@ public interface ISpace<TPos, TVal> : ISpace<TPos>
     /// <param name="pos"></param>
     // TODO decide whether this indexer should have "strict" semantics
     TVal this[TPos pos] { get; set; }
-
-    /// <summary>
-    /// Check if a position has a mapping.
-    /// </summary>
-    /// <param name="pos"></param>
-    /// <returns></returns>
-    bool Contains(TPos pos);
-
-    /// <summary>
-    /// Check if the given value is mapped from any position.
-    /// </summary>
-    /// <param name="val"></param>
-    /// <returns></returns>
-    bool ContainsValue(TVal val);
-
-    /// <summary>
-    /// Remove all mappings.
-    /// </summary>
-    void Clear();
     
-    /// <summary>
-    /// Enumerate all mapped positions.
-    /// </summary>
-    IEnumerable<TPos> Positions { get; }
-    
-    /// <summary>
-    /// Enumerate all mapped values.
-    /// </summary>
-    IEnumerable<TVal> Values { get; }
-
     /// <summary>
     /// Add a mapping only if the position is not mapped yet.
     /// </summary>

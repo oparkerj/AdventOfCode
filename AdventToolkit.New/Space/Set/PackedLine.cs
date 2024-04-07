@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
 using AdventToolkit.New.Calc;
+using AdventToolkit.New.Space.Dimension;
 using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space.Set;
@@ -12,8 +13,10 @@ namespace AdventToolkit.New.Space.Set;
 /// </summary>
 /// <typeparam name="TNum"></typeparam>
 /// <typeparam name="T"></typeparam>
-public class PackedLine<TNum, T> : ISpace<TNum, T>
+/// <typeparam name="TDim"></typeparam>
+public class PackedLine<TNum, T, TDim> : IAlignedSpace<TNum, T, TDim>
     where TNum : INumber<TNum>
+    where TDim : IDimension<TNum>
 {
     /// <summary>
     /// Underlying position data.
@@ -137,18 +140,14 @@ public class PackedLine<TNum, T> : ISpace<TNum, T>
 
     public T Default { get; set; } = default!;
 
-    public IEnumerable<TNum> GetNeighbors(TNum pos)
+    public virtual IEnumerable<TNum> GetNeighbors(TNum pos)
     {
-        if (pos < TypeInterval.Last)
+        foreach (var neighbor in TDim.GetNeighbors(pos))
         {
-            yield return pos + TNum.One;
-        }
-        if (pos > TypeStart)
-        {
-            yield return pos - TNum.One;
+            if (TypeInterval.Contains(neighbor)) yield return neighbor;
         }
     }
-    
+
     public void Add(TNum pos, T val) => this[pos] = val;
 
     public void Add(int pos, T val) => this[pos] = val;
@@ -246,4 +245,14 @@ public class PackedLine<TNum, T> : ISpace<TNum, T>
     public IEnumerable<TNum> Positions => TypeInterval;
 
     public IEnumerable<T> Values => Data;
+}
+
+/// <inheritdoc cref="PackedLine{TNum,T,TDim}"/>
+public class PackedLine<TNum, T> : PackedLine<TNum, T, LineDim<TNum>>
+    where TNum : INumber<TNum>
+{
+    public PackedLine(TNum start, TNum length) : base(start, length) { }
+    public PackedLine(int start, int length) : base(start, length) { }
+    public PackedLine(Interval<int> interval) : base(interval) { }
+    public PackedLine(Interval<TNum> interval) : base(interval) { }
 }

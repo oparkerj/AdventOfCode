@@ -3,7 +3,12 @@ using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space.Set;
 
-public abstract class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IEnumerable<KeyValuePair<TPos, TVal>>
+/// <summary>
+/// Base class for a space where mappings are stored sparsely.
+/// </summary>
+/// <typeparam name="TPos"></typeparam>
+/// <typeparam name="TVal"></typeparam>
+public class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IEnumerable<KeyValuePair<TPos, TVal>>
     where TPos : notnull
 {
     /// <summary>
@@ -36,8 +41,6 @@ public abstract class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IEnumerable<
     public bool ContainsValue(TVal val) => Points.ContainsValue(val);
 
     public void Clear() => Points.Clear();
-
-    public abstract IEnumerable<TPos> GetNeighbors(TPos pos);
 
     public IEnumerable<TPos> Positions => Points.Keys;
 
