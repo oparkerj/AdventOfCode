@@ -11,15 +11,25 @@ public class CircularArray<T> : IEnumerable<T>
 {
     public readonly T[] Data;
 
+    private int _internalPointer;
     private int _pointer;
+
+    /// <summary>
+    /// Pointer index into the internal array.
+    /// </summary>
+    public int InternalPointer
+    {
+        get => _internalPointer;
+        set => _internalPointer = _pointer = value.Mod(Data.Length);
+    }
     
     /// <summary>
     /// Index in the array where the next element will be added.
     /// </summary>
     public int Pointer
     {
-        get => _pointer;
-        set => _pointer = value.Mod(Data.Length);
+        get => _internalPointer;
+        set => _internalPointer = (_pointer = value).Mod(Data.Length);
     }
     
     /// <summary>
@@ -56,10 +66,11 @@ public class CircularArray<T> : IEnumerable<T>
     /// <param name="item"></param>
     public void Add(T item)
     {
-        Data[_pointer] = item;
-        if (++_pointer >= Data.Length)
+        Data[_internalPointer] = item;
+        _pointer++;
+        if (++_internalPointer >= Data.Length)
         {
-            _pointer = 0;
+            _internalPointer = 0;
         }
     }
     
@@ -85,6 +96,7 @@ public class CircularArray<T> : IEnumerable<T>
             first.CopyTo(Data.AsSpan());
             buffer.CopyTo(Data.AsSpan(first.Length));
         }
+        _internalPointer = _pointer = 0;
     }
 
     /// <summary>
@@ -93,8 +105,8 @@ public class CircularArray<T> : IEnumerable<T>
     /// <param name="i">Rotated index.</param>
     public T this[int i]
     {
-        get => Data[(i + Pointer).Mod(Data.Length)];
-        set => Data[(i + Pointer).Mod(Data.Length)] = value;
+        get => Data[(i + _internalPointer).Mod(Data.Length)];
+        set => Data[(i + _internalPointer).Mod(Data.Length)] = value;
     }
 
     /// <summary>
@@ -104,14 +116,14 @@ public class CircularArray<T> : IEnumerable<T>
     public void Clear()
     {
         Array.Clear(Data);
-        _pointer = 0;
+        _internalPointer = _pointer = 0;
     }
     
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     
     public IEnumerator<T> GetEnumerator()
     {
-        if (Pointer == 0)
+        if (_internalPointer == 0)
         {
             foreach (var t in Data)
             {
@@ -121,7 +133,7 @@ public class CircularArray<T> : IEnumerable<T>
         else
         {
             if (Data.Length == 0) yield break;
-            var i = Pointer;
+            var i = _internalPointer;
             do
             {
                 yield return Data[i];
@@ -129,7 +141,7 @@ public class CircularArray<T> : IEnumerable<T>
                 {
                     i = 0;
                 }
-            } while (i != Pointer);
+            } while (i != _internalPointer);
         }
     }
 }
