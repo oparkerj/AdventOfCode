@@ -19,6 +19,18 @@ public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
 
     public static Pos3<T> AdditiveIdentity => Zero;
 
+    public static Pos3<T> Up => new(T.Zero, T.One, T.Zero);
+    
+    public static Pos3<T> Down => new(T.Zero, -T.One, T.Zero);
+
+    public static Pos3<T> Right => new(T.One, T.Zero, T.Zero);
+
+    public static Pos3<T> Left => new(-T.One, T.Zero, T.Zero);
+
+    public static Pos3<T> Forward => new(T.Zero, T.Zero, T.One);
+    
+    public static Pos3<T> Back => new(T.Zero, T.Zero, -T.One);
+
     public static Pos3<T> operator +(Pos3<T> left, Pos3<T> right) => new(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
 
     public static Pos3<T> operator -(Pos3<T> left, Pos3<T> right) => new(left.X - right.X, left.Y - right.Y, left.Z - right.Z);

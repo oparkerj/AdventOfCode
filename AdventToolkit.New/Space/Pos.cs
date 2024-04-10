@@ -17,6 +17,14 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
     public static Pos<T> Zero => default;
 
     public static Pos<T> AdditiveIdentity => default;
+    
+    public static Pos<T> Up => new(T.Zero, T.One);
+    
+    public static Pos<T> Down => new(T.Zero, -T.One);
+    
+    public static Pos<T> Right => new(T.One, T.Zero);
+    
+    public static Pos<T> Left => new(-T.One, T.Zero);
 
     public static Pos<T> operator +(Pos<T> left, Pos<T> right) => new(left.X + right.X, left.Y + right.Y);
 
