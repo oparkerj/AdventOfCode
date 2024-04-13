@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space.Set;
@@ -8,7 +9,7 @@ namespace AdventToolkit.New.Space.Set;
 /// </summary>
 /// <typeparam name="TPos"></typeparam>
 /// <typeparam name="TVal"></typeparam>
-public class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IEnumerable<KeyValuePair<TPos, TVal>>
+public class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IDictionary<TPos, TVal>
     where TPos : notnull
 {
     /// <summary>
@@ -49,4 +50,28 @@ public class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IEnumerable<KeyValueP
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<KeyValuePair<TPos, TVal>> GetEnumerator() => Points.GetEnumerator();
+
+    #region Dictionary Methods
+
+    private ICollection<KeyValuePair<TPos, TVal>> Collection => Points;
+    
+    public void Add(KeyValuePair<TPos, TVal> item) => this[item.Key] = item.Value;
+
+    public bool Contains(KeyValuePair<TPos, TVal> item) => Collection.Contains(item);
+
+    public void CopyTo(KeyValuePair<TPos, TVal>[] array, int arrayIndex) => Collection.CopyTo(array, arrayIndex);
+
+    public bool Remove(KeyValuePair<TPos, TVal> item) => Collection.Remove(item);
+
+    public bool IsReadOnly => false;
+    
+    public bool ContainsKey(TPos key) => Contains(key);
+    
+    public bool TryGetValue(TPos key, [MaybeNullWhen(false)] out TVal value) => Points.TryGetValue(key, out value);
+
+    public ICollection<TPos> Keys => Points.Keys;
+
+    ICollection<TVal> IDictionary<TPos, TVal>.Values => Points.Values;
+
+    #endregion
 }
