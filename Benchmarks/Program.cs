@@ -2,6 +2,7 @@
 using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing;
 using AdventToolkit.New.Parsing.Core;
+using AdventToolkit.New.Parsing.Disambiguation;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 using BenchmarkDotNet.Attributes;
@@ -19,8 +20,6 @@ public class BenchmarkMain
     public class IntsDescriptor : ITypeDescriptor
     {
         public bool Match(Type type) => type == typeof(IntPair);
-
-        public bool PassiveSelect => false;
 
         public bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
         {
@@ -45,15 +44,16 @@ public class BenchmarkMain
         // var summary = BenchmarkRunner.Run<BenchmarkMain>();
         // var summary = BenchmarkPuzzle<TestPuzzle>();
         // var summary = ComparePuzzle<Day1, Day1Better>();
-        
-        Debugging.EnableLogs();
 
+        Debugging.EnableLogs();
+        
+        DefaultContext.AddCommonTypes();
         DefaultContext.Instance.AddType(new IntsDescriptor());
         
         var input = "1,2,3,4,5,6,7,8,9,10,11,12";
-        var result = input.Parse<(int, (IntPair, IntPair[]), int, int)>($"{','}");
+        var result = input.Parse<(int, (char, char)[]), (Null, StrSpread)>($"{','}");
         
-        Console.WriteLine(Debugging.ToString(result));
+        Console.WriteLine(result.DebugString());
     }
 
     public static Summary BenchmarkPuzzle<T>()

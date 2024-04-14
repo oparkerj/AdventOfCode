@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using AdventToolkit.New.Parsing.Disambiguation;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
@@ -47,8 +46,21 @@ public class ListContext : IParseContext
         {
             _disambiguation.Push(new DisambiguationSection(current.GetGenericArguments()));
         }
-
+        
+        ApplyAuto(ref _disambiguation.Peek().Current);
         _disambiguationComplete = _disambiguation.Peek().Current == typeof(Null);
+    }
+
+    /// <summary>
+    /// Apply the current type until it is no longer an <see cref="IAutoDisambiguation"/>.
+    /// </summary>
+    /// <param name="type"></param>
+    private void ApplyAuto(ref Type type)
+    {
+        while (type.IsAssignableTo(typeof(IAutoDisambiguation)))
+        {
+            type = IDisambiguation.ApplyTo(type) ?? typeof(Null);
+        }
     }
 
     public void SetupDisambiguation(Type type)
@@ -69,6 +81,8 @@ public class ListContext : IParseContext
 
     public bool ApplyDisambiguation(Type? type)
     {
+        Parse.Verbose($"Attempting to apply disambiguation {type}");
+        
         // Skip if no state or all sections used
         if (_disambiguation?.Count is null or 0) return type is null;
 
@@ -105,13 +119,11 @@ public class ListContext : IParseContext
         }
 
         // Otherwise, if the type matches, update the current state
-        var match = (type.IsGenericTypeDefinition && current.Current.TryGetTypeArguments(type, out _)) || current.Current == type;
-        if (!match) return false;
+        if (!IDisambiguation.Matches(current.Current, type)) return false;
         
-        Debug.Assert(current.Current.IsAssignableTo(typeof(IDisambiguation)));
-        var next = (Type?) current.Current.GetMethod(nameof(IDisambiguation.Apply), [typeof(Type)])!.Invoke(null, [current.Current]) ?? typeof(Null);
-        current.Current = next;
-        _disambiguationComplete = next == typeof(Null);
+        current.Current = IDisambiguation.ApplyTo(current.Current) ?? typeof(Null);
+        ApplyAuto(ref current.Current);
+        _disambiguationComplete = current.Current == typeof(Null);
         return true;
     }
 

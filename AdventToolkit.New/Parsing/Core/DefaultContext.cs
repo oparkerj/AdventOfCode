@@ -1,4 +1,5 @@
 using AdventToolkit.New.Parsing.Context;
+using AdventToolkit.New.Parsing.Interface;
 
 namespace AdventToolkit.New.Parsing.Core;
 
@@ -11,31 +12,27 @@ public class DefaultContext : ListContext
 
     public static DefaultContext Instance => _instance ??= new DefaultContext();
 
-    public DefaultContext() => AddDefaults();
-
     /// <summary>
-    /// Add builtin conversions and types
+    /// Add definitions for common types.
     /// </summary>
-    public void AddDefaults()
+    /// <param name="context"></param>
+    public static void AddCommonTypes(IParseContext? context = null)
     {
+        context ??= Instance;
+        
         var stringParse = new StringParse();
-        AddParserLookup(stringParse);
-        AddAdapter(stringParse);
-        AddType(stringParse);
+        context.AddParserLookup(stringParse);
+        context.AddAdapter(stringParse);
+        context.AddType(stringParse);
+        
+        context.AddAdapter(new StringAdapter());
 
-        var toString = new StringAdapter();
-        AddAdapter(toString);
-
-        var listParse = new ListParse();
-        AddType(listParse);
-
-        var tupleParse = new TupleParse();
-        AddType(tupleParse);
-
-        var arrayParse = new ArrayParse();
-        AddType(arrayParse);
-
-        var typeParse = new TypeParse();
-        AddParserLookup(typeParse);
+        context.AddParserLookup(new TypeParse());
+        
+        context.AddType(new ListParse());
+        
+        context.AddType(new TupleParse());
+        
+        context.AddType(new ArrayParse());
     }
 }

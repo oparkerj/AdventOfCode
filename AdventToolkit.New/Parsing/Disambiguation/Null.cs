@@ -8,5 +8,7 @@ namespace AdventToolkit.New.Parsing.Disambiguation;
 /// </summary>
 public class Null : IDisambiguation
 {
-    public static Type? Apply(Type type) => null;
+    public static bool Match(Type self, Type type) => false;
+
+    public static Type? Apply(Type self) => null;
 }

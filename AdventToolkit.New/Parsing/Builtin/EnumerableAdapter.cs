@@ -43,8 +43,8 @@ public static class EnumerableAdapter
     public static IParser PartialSingle(Type elements, IParser? parser)
     {
         if (parser is null) return typeof(EnumerableConstructIdentity<>).NewParserGeneric([elements]);
-        var (input, output) = ParseUtil.GetParserTypesOf(parser);
-        return typeof(EnumerableConstructSingle<,>).NewParserGeneric([input, output], parser);
+        var output = ParseUtil.GetParserTypesOf(parser).OutputType;
+        return typeof(EnumerableConstructSingle<,>).NewParserGeneric([elements, output], parser);
     }
 
     /// <summary>

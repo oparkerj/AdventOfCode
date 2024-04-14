@@ -34,6 +34,14 @@ public static class Debugging
     }
 
     /// <summary>
+    /// Extension method to call the debugging ToString method.
+    /// </summary>
+    /// <param name="t"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static string DebugString<T>(this T t) => ToString(t);
+
+    /// <summary>
     /// Identity string function to shortcut the conversion.
     /// </summary>
     /// <param name="s"></param>

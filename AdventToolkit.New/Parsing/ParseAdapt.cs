@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Disambiguation;
@@ -155,6 +154,27 @@ public static class ParseAdapt
     {
         if (first is null) return second?.AddLevels(level);
         return second is null ? first : ParseJoin.InnerJoin(first, second, level, context);
+    }
+
+    /// <summary>
+    /// Convenience method to get a disambiguation type which is returned
+    /// from an outer disambiguation type.
+    /// </summary>
+    /// <param name="context">Parse context.</param>
+    /// <param name="container">A "container" disambiguation type, applying
+    /// this should result in one of the options.</param>
+    /// <param name="options">Possible types to expect from applying the container type.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    private static int GetDisambiguation(IParseContext context, Type container, params Type[] options)
+    {
+        if (!context.ApplyDisambiguation(container)) return 0;
+
+        for (var i = 0; i < options.Length; i++)
+        {
+            if (context.ApplyDisambiguation(options[i])) return i + 1;
+        }
+        throw new ArgumentException($"Invalid disambiguation type for {container.SimpleName()}");
     }
 
     /// <summary>
@@ -449,6 +469,13 @@ public static class ParseAdapt
     /// <returns></returns>
     private static bool TryAdaptInnerEnumerable(IParser? parser, Type output, Type target, IParseContext context, int level, [NotNullIfNotNull(nameof(parser))] out IParser? result)
     {
+        if (context.ApplyDisambiguation(typeof(NoEnter<>).MakeGenericType(output)))
+        {
+            Parse.Verbose($"Using disambiguation to skip entering {output}");
+            result = default;
+            return false;
+        }
+        
         // Check if the output is enumerable
         if (!ParseUtil.TryGetInnerType(output, context, out var outputInner, out var selector))
         {
@@ -539,14 +566,15 @@ public static class ParseAdapt
             itemSize = default;
             return false;
         }
-        
-        var disambiguationAvailable = context.ApplyDisambiguation(typeof(Collect<>));
-        var preferConstruct = disambiguationAvailable && context.ApplyDisambiguation(typeof(Construct));
-        Debug.Assert(!disambiguationAvailable || preferConstruct);
-        Parse.VerboseIf(preferConstruct, "Using disambiguation to prefer construction.");
+
+        const int tuples = 1;
+        const int construct = 2;
+        var disambiguationSkip = GetDisambiguation(context, typeof(Collect<>), typeof(Tuples), typeof(Construct));
+        Parse.VerboseIf(disambiguationSkip == tuples, "Using disambiguation to prefer tuple container.");
+        Parse.VerboseIf(disambiguationSkip == construct, "Using disambiguation to prefer construction.");
         
         // Try to adapt output inner type to target inner type
-        if (!preferConstruct && TryAdaptInner(null, outputInner, targetInner, context, 0, out var enumerableAdapt))
+        if (disambiguationSkip < tuples && TryAdaptInner(null, outputInner, targetInner, context, 0, out var enumerableAdapt))
         {
             Parse.Verbose($"Adapted IEnumerable<{outputInner}> to {target} -> {enumerableAdapt?.GetType()}");
             result = enumerableAdapt is null ? EnumerableAdapter.Collect(outputInner, constructor) : EnumerableAdapter.Collect(outputInner, enumerableAdapt, constructor);
@@ -555,7 +583,7 @@ public static class ParseAdapt
         }
         
         // Try adapt enumerable to container of tuple
-        if (TryAdaptEnumerableTuple(targetInner, outputInner, context, out itemSize, out var innerConstructor))
+        if (disambiguationSkip < construct && TryAdaptEnumerableTuple(targetInner, outputInner, context, out itemSize, out var innerConstructor))
         {
             if (itemSize < 0)
             {
@@ -576,6 +604,7 @@ public static class ParseAdapt
             return true;
         }
 
+        itemSize = default;
         result = default!;
         return false;
     }
@@ -684,9 +713,16 @@ public static class ParseAdapt
         {
             var elementType = tupleTypes[i];
 
+            const int collect = 1;
+            const int construct = 2;
+            var disambiguation = GetDisambiguation(context, typeof(Tuples<>), typeof(Collect), typeof(Construct));
+            Parse.VerboseIf(disambiguation == collect, "Using disambiguation to collect tuple element.");
+            Parse.VerboseIf(disambiguation == construct, "Using disambiguation to construct tuple element.");
+
             // Try to parse a nested tuple
-            if (TryAdaptEnumerableTuple(elementType, outputInner, context, out var innerItemSize, out var innerTuple, sizes))
+            if (disambiguation < collect && TryAdaptEnumerableTuple(elementType, outputInner, context, out var innerItemSize, out var innerTuple, sizes))
             {
+                context.ApplyDisambiguation(null);
                 Parse.Verbose($"Adapted nested tuple at index {i} -> {innerTuple.GetType()}");
                 sections[i] = innerTuple;
                 IncrementSize(Math.Abs(innerItemSize));
@@ -697,8 +733,9 @@ public static class ParseAdapt
             }
 
             // Try to adapt a single value to the element type.
-            if (TryAdapt(outputInner, elementType, context, out var elementAdapt))
+            if (disambiguation < collect && TryAdapt(outputInner, elementType, context, out var elementAdapt))
             {
+                context.ApplyDisambiguation(null);
                 Parse.Verbose($"Adapted element {i} -> {elementAdapt?.GetType()}");
                 sections[i] = EnumerableAdapter.PartialSingle(outputInner, elementAdapt);
                 IncrementSize(1);
@@ -708,13 +745,15 @@ public static class ParseAdapt
             var elementInfo = context.TryLookupType(elementType, out var elementDescriptor);
 
             // Try to collect the element
-            if (elementInfo &&
+            if (disambiguation < construct &&
+                elementInfo &&
                 TryAdaptCollect(elementType, outputInner, elementDescriptor, context, out innerItemSize, out sections[i]))
             {
                 if (innerItemSize > sizes.MaxItemSize)
                 {
                     throw new ArgumentException($"Type {elementType.SimpleName()} at index {i} has an item size of {innerItemSize} but the max item size at this index is {sizes.MaxItemSize}.");
                 }
+                context.ApplyDisambiguation(null);
                 Parse.Verbose($"Adapted element {i} -> {sections[i].GetType()}");
 
                 sizes.ApplyStopSize();
@@ -726,6 +765,7 @@ public static class ParseAdapt
             if (elementInfo
                 && elementDescriptor.TryConstruct(elementType, context, new TypeSpan(in outputInner), out var elementConstructor))
             {
+                context.ApplyDisambiguation(null);
                 Parse.Verbose($"Adapted element {i} via construction -> {elementConstructor.GetType()}");
                 elementConstructor = ProcessConstructor(elementConstructor);
                 sections[i] = EnumerableAdapter.PartialTake(outputInner, elementConstructor, out var constructorSize);

@@ -4,10 +4,12 @@ namespace AdventToolkit.New.Parsing.Disambiguation;
 
 /// <summary>
 /// This disambiguation is used in <see cref="Collect{T}"/> disambiguation.
-/// Specifies tha the parse should try construction instead of entering further
+/// Specifies that the parse should try construction instead of entering further
 /// into an enumerable type.
 /// </summary>
 public class Construct : IDisambiguation
 {
-    public static Type? Apply(Type type) => null;
+    public static bool Match(Type self, Type type) => type == typeof(Construct);
+
+    public static Type? Apply(Type self) => null;
 }
