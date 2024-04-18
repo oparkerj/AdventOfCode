@@ -1,6 +1,9 @@
 using System.Diagnostics;
 using System.Numerics;
 using AdventToolkit.New.Calc;
+using AdventToolkit.New.Parsing;
+using AdventToolkit.New.Parsing.Interface;
+using AdventToolkit.New.Reflect;
 using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space;
@@ -144,4 +147,48 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
     }
 
     public override string ToString() => $"({X}, {Y})";
+
+    public bool Match(Type type) => type.Generic() == typeof(Pos<>);
+
+    public bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
+    {
+        var numType = type.GetSingleTypeArgument();
+        if (types.TryAdaptTuple(Types.CreateTupleType(numType, 2), context, out var convert))
+        {
+            var posConstructor = type.MakeNestedType(nameof(Constructor)).NewParser();
+            constructor = ParseAdapt.MaybeJoin(convert, posConstructor);
+            return true;
+        }
+
+        constructor = default!;
+        return false;
+    }
+
+    public bool TryUnpack(Type type, IParseContext context, int amount, out IParser unpack)
+    {
+        if (amount != 2)
+        {
+            unpack = default!;
+            return false;
+        }
+
+        unpack = type.MakeNestedType(nameof(Unpack)).NewParser();
+        return true;
+    }
+
+    /// <summary>
+    /// Construct a Pos from a pair.
+    /// </summary>
+    public class Constructor : IParser<(T, T), Pos<T>>
+    {
+        public Pos<T> Parse((T, T) input) => new(input.Item1, input.Item2);
+    }
+
+    /// <summary>
+    /// Unpack a Pos into a pair.
+    /// </summary>
+    public class Unpack : IParser<Pos<T>, (T, T)>
+    {
+        public (T, T) Parse(Pos<T> input) => (input.X, input.Y);
+    }
 }

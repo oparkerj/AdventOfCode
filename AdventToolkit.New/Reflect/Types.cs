@@ -143,6 +143,49 @@ public static class Types
 
     /// <summary>
     /// Try to get the type arguments of a particular interface or base class
+    /// implemented by the type.
+    /// </summary>
+    /// <param name="type">Source type to search.</param>
+    /// <param name="which">Target type to find. Must be a generic type definition.</param>
+    /// <param name="closed">Closed type which was found.</param>
+    /// <param name="types">Resulting generic types.</param>
+    /// <returns>True if the search type was found on the given type.</returns>
+    public static bool TryGetTypeArguments(this Type type, Type which, out Type closed, out Type[] types)
+    {
+        Debug.Assert(which.IsGenericTypeDefinition);
+        
+        // Search the interfaces
+        foreach (var @interface in type.GetInterfaces())
+        {
+            if (@interface.Generic() != which) continue;
+            types = @interface.GetGenericArguments();
+            closed = @interface;
+            return true;
+        }
+        
+        // Search base classes
+        while (true)
+        {
+            if (type.Generic() == which)
+            {
+                types = type.GetGenericArguments();
+                closed = type;
+                return true;
+            }
+            if (type.BaseType is { } @base)
+            {
+                type = @base;
+            }
+            else break;
+        }
+
+        closed = default!;
+        types = default!;
+        return false;
+    }
+
+    /// <summary>
+    /// Try to get the type arguments of a particular interface or base class
     /// implemented by the object.
     /// </summary>
     /// <param name="value">Source object to search.</param>
@@ -192,6 +235,22 @@ public static class Types
         var types = type.GetGenericArguments();
         Debug.Assert(types.Length > 0);
         return types[0];
+    }
+
+    /// <summary>
+    /// Get a constructed definition for a nested type that relies on the generic values
+    /// of its container.
+    ///
+    /// This method assumes the nested type exists.
+    /// </summary>
+    /// <param name="type">Current type.</param>
+    /// <param name="name">Name of the nested type.</param>
+    /// <param name="generic">Generic parameters.</param>
+    /// <returns></returns>
+    public static Type MakeNestedType(this Type type, string name, params Type[] generic)
+    {
+        return type.GetNestedType(name)!
+            .MakeGenericType([..type.GetGenericArguments(), ..generic]);
     }
 
     /// <summary>

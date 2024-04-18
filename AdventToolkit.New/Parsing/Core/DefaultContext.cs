@@ -1,5 +1,7 @@
 using AdventToolkit.New.Parsing.Context;
 using AdventToolkit.New.Parsing.Interface;
+using AdventToolkit.New.Space;
+using AdventToolkit.New.Space.Set;
 
 namespace AdventToolkit.New.Parsing.Core;
 
@@ -27,6 +29,8 @@ public class DefaultContext : ListContext
         
         context.AddAdapter(new StringAdapter());
 
+        context.AddAdapter(new CharParse());
+
         context.AddParserLookup(new TypeParse());
         
         context.AddType(new ListParse());
@@ -34,5 +38,13 @@ public class DefaultContext : ListContext
         context.AddType(new TupleParse());
         
         context.AddType(new ArrayParse());
+    }
+
+    public static void AddToolkitTypes(IParseContext? context = null)
+    {
+        context ??= Instance;
+        
+        context.AddType(new Pos<byte>());
+        context.AddAdapter(new Grid<byte>());
     }
 }

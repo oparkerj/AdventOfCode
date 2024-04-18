@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
 using AdventToolkit.New.Calc;
+using AdventToolkit.New.Reflect;
 using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space;
@@ -175,4 +176,6 @@ public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
     }
 
     public override string ToString() => $"({X}, {Y}, {Z})";
+
+    public bool Match(Type type) => type.Generic() == typeof(Pos3<>);
 }

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
 using AdventToolkit.New.Calc;
+using AdventToolkit.New.Reflect;
 using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space;
@@ -159,4 +160,6 @@ public readonly record struct Pos4<T>(T W, T X, T Y, T Z) : IPos<Pos4<T>, T>
     public Pos4<T> Normalize() => new(W.Sign(), X.Sign(), Y.Sign(), Z.Sign());
 
     public override string ToString() => $"({W}, {X}, {Y}, {Z})";
+
+    public bool Match(Type type) => type.Generic() == typeof(Pos4<>);
 }
