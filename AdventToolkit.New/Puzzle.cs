@@ -59,7 +59,7 @@ public abstract class Puzzle<T1, T2> : PuzzleBase
 
     /// <summary>
     /// Get the puzzles input name.
-    /// By default this is the <see cref="InputName(System.Type)"/> of the current type.
+    /// By default, this is the <see cref="InputName(System.Type)"/> of the current type.
     /// </summary>
     /// <returns></returns>
     public virtual string InputName() => InputName(GetType());

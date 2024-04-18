@@ -42,9 +42,9 @@ public interface IParserLookup<in TValue> : IParserLookup
 }
 
 /// <summary>
-/// Parser lookup for a specific builder value type.
+/// Parser lookup for a specific input type.
 /// </summary>
-/// <typeparam name="TInput">Builder value type.</typeparam>
+/// <typeparam name="TInput">Input type.</typeparam>
 public interface IParserLookupByInput<in TInput> : IParserLookup
 {
     bool IParserLookup.TryLookup<T>(Type inputType, T value, string extra, IParseContext context, out IParser parser)

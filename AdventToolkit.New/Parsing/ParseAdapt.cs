@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Disambiguation;
@@ -323,6 +324,7 @@ public static class ParseAdapt
             && context.TryLookupType(from, out var fromDescriptor)
             && fromDescriptor.TryUnpack(from, context, toTypes.Length, out tupleAdapt))
         {
+            Debug.Assert(ParseUtil.GetParserTypesOf(tupleAdapt).OutputType.IsTupleType());
             Parse.Verbose($"Unpacking {from} -> {tupleAdapt.GetType()}");
             return true;
         }

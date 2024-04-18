@@ -75,12 +75,31 @@ public interface ITypeDescriptor
         return true;
     }
 
+    /// <summary>
+    /// Get a parser that constructs this type.
+    /// The input to the constructor can either be a single value, or
+    /// a tuple.
+    /// </summary>
+    /// <param name="type">Current type.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="types">Input types that can be used to try construction.</param>
+    /// <param name="constructor">Type constructor.</param>
+    /// <returns></returns>
     bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
     {
         constructor = default!;
         return false;
     }
 
+    /// <summary>
+    /// Get a parser that can unpack the type into a tuple.
+    /// The output type of unpacking must be a tuple type.
+    /// </summary>
+    /// <param name="type">Current type.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="amount">Number of items to unpack.</param>
+    /// <param name="unpack">Unpack parser.</param>
+    /// <returns></returns>
     bool TryUnpack(Type type, IParseContext context, int amount, out IParser unpack)
     {
         unpack = default!;
