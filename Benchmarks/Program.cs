@@ -2,9 +2,9 @@
 using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing;
 using AdventToolkit.New.Parsing.Core;
-using AdventToolkit.New.Parsing.Disambiguation;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
+using AdventToolkit.New.Space.Set;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -48,10 +48,15 @@ public class BenchmarkMain
         Debugging.EnableLogs();
         
         DefaultContext.AddCommonTypes();
+        DefaultContext.AddToolkitTypes();
         DefaultContext.Instance.AddType(new IntsDescriptor());
-        
-        var input = "1,2,3,4,5,6,7,8,9,10,11,12";
-        var result = input.Parse<(int, (char, char)[]), (Null, StrSpread)>($"{','}");
+
+        var input = """
+                    12345
+                    67890
+                    """;
+        var lines = input.Split(Environment.NewLine);
+        var result = lines.Adapt().Into<Grid<int>>();
         
         Console.WriteLine(result.DebugString());
     }

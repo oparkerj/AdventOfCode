@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Core;
 using AdventToolkit.New.Parsing.Interface;
 
@@ -151,4 +152,12 @@ public static class ParseExtensions
         parser.Context.SetupDisambiguation(typeof(TResolve));
         return parser.ParseMany(strings);
     }
+
+    /// <summary>
+    /// Wrap a value as an instance of <see cref="AdaptValue{T}"/>.
+    /// </summary>
+    /// <param name="t">Value</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static AdaptValue<T> Adapt<T>(this T t) => new(t);
 }

@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Runtime.CompilerServices;
 
 namespace AdventToolkit.New.Collections;
 
@@ -63,7 +64,7 @@ public readonly struct Arr<T> : IDisposable
     /// <summary>
     /// Returns the underlying array to the shared array pool.
     /// </summary>
-    public void Dispose() => ArrayPool<T>.Shared.Return(Data);
+    public void Dispose() => ArrayPool<T>.Shared.Return(Data, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 
     /// <summary>
     /// Copy the array to the destination span.

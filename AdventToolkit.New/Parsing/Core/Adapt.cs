@@ -15,7 +15,7 @@ namespace AdventToolkit.New.Parsing.Core;
 ///
 /// A format specifier of "null" will start a new section that adapts
 /// the input value again. An implicit null is inserted at the beginning
-/// of the format but it may be specified explicitly.
+/// of the format, but it may be specified explicitly.
 /// E.g. To create an adapter that makes a copy of the input: T => (T, T)
 /// The format specifier is $"{null}{null}"
 /// </summary>
