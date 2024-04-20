@@ -16,8 +16,7 @@ public static class Methods
     /// <exception cref="ArgumentException"></exception>
     public static MethodInfo GetInfo(LambdaExpression expr)
     {
-        if (expr.Body is MethodCallExpression call) return call.Method;
-        throw new ArgumentException("Expression is not a method call.");
+        return ((MethodCallExpression) expr.Body).Method;
     }
 
     /// <summary>

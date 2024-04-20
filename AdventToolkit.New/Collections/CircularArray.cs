@@ -42,6 +42,12 @@ public class CircularArray<T> : IEnumerable<T>
     /// </summary>
     /// <param name="data">Input array.</param>
     public CircularArray(T[] data) => Data = data;
+    
+    /// <summary>
+    /// Create a circular array from an existing sequence.
+    /// </summary>
+    /// <param name="source"></param>
+    public CircularArray(IEnumerable<T> source) : this(source.ToArray()) { }
 
     /// <summary>
     /// Create a new array with a given length.

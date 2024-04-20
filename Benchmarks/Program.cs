@@ -56,7 +56,7 @@ public class BenchmarkMain
                     67890
                     """;
         var lines = input.Split(Environment.NewLine);
-        var result = lines.Adapt().Into<Grid<int>>();
+        var result = lines.Adapt().Into<(Grid<int>, char[][])>($"{null}{null}");
         
         Console.WriteLine(result.DebugString());
     }
