@@ -18,6 +18,8 @@ public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
 {
     public static Pos3<T> Zero => default;
 
+    public static Pos3<T> One => new(T.One, T.One, T.One);
+
     public static Pos3<T> AdditiveIdentity => Zero;
 
     public static Pos3<T> Up => new(T.Zero, T.One, T.Zero);
@@ -49,7 +51,27 @@ public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
     public static Pos3<T> operator --(Pos3<T> value) => new(value.X - T.One, value.Y - T.One, value.Z - T.One);
 
     public static Pos3<T> operator ++(Pos3<T> value) => new(value.X + T.One, value.Y + T.One, value.Z + T.One);
-    
+
+    public static bool operator >(Pos3<T> left, Pos3<T> right)
+    {
+        return left.X > right.X && left.Y > right.Y && left.Z > right.Z;
+    }
+
+    public static bool operator >=(Pos3<T> left, Pos3<T> right)
+    {
+        return left.X >= right.X && left.Y >= right.Y && left.Z >= right.Z;
+    }
+
+    public static bool operator <(Pos3<T> left, Pos3<T> right)
+    {
+        return left.X < right.X && left.Y < right.Y && left.Z < right.Z;
+    }
+
+    public static bool operator <=(Pos3<T> left, Pos3<T> right)
+    {
+        return left.X <= right.X && left.Y <= right.Y && left.Z <= right.Z;
+    }
+
     public static Pos3<T> ParseSimple(ReadOnlySpan<char> span, char separator = ',')
     {
         var split0 = span.IndexOf(separator);
@@ -147,7 +169,9 @@ public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
     public Pos3<T> Max(Pos3<T> other) => new(T.Max(X, other.X), T.Max(Y, other.Y), T.Max(Z, other.Z));
 
     public Pos3<T> Normalize() => new(X.Sign(), Y.Sign(), Z.Sign());
-    
+
+    public T Sum() => X + Y + Z;
+
     public static IEnumerable<Pos3<T>> GetNeighbors(Pos3<T> pos) => pos.Adjacent();
 
     public IEnumerable<Pos3<T>> Adjacent()

@@ -19,6 +19,8 @@ public readonly record struct Pos4<T>(T W, T X, T Y, T Z) : IPos<Pos4<T>, T>
 {
     public static Pos4<T> Zero => default;
 
+    public static Pos4<T> One => new(T.One, T.One, T.One, T.One);
+
     public static Pos4<T> AdditiveIdentity => Zero;
 
     public static Pos4<T> operator +(Pos4<T> left, Pos4<T> right) => new(left.W + right.W, left.X + right.X, left.Y + right.Y, left.Z + right.Z);
@@ -38,7 +40,27 @@ public readonly record struct Pos4<T>(T W, T X, T Y, T Z) : IPos<Pos4<T>, T>
     public static Pos4<T> operator --(Pos4<T> value) => new(value.X - T.One, value.X - T.One, value.Y - T.One, value.Z - T.One);
 
     public static Pos4<T> operator ++(Pos4<T> value) => new(value.X + T.One, value.X + T.One, value.Y + T.One, value.Z + T.One);
-    
+
+    public static bool operator >(Pos4<T> left, Pos4<T> right)
+    {
+        return left.W > right.W && left.X > right.X && left.Y > right.Y && left.Z > right.Z;
+    }
+
+    public static bool operator >=(Pos4<T> left, Pos4<T> right)
+    {
+        return left.W >= right.W && left.X >= right.X && left.Y >= right.Y && left.Z >= right.Z;
+    }
+
+    public static bool operator <(Pos4<T> left, Pos4<T> right)
+    {
+        return left.W < right.W && left.X < right.X && left.Y < right.Y && left.Z < right.Z;
+    }
+
+    public static bool operator <=(Pos4<T> left, Pos4<T> right)
+    {
+        return left.W <= right.W && left.X <= right.X && left.Y <= right.Y && left.Z <= right.Z;
+    }
+
     public static Pos4<T> ParseSimple(ReadOnlySpan<char> span, char separator = ',')
     {
         var split0 = span.IndexOf(separator);
@@ -158,6 +180,8 @@ public readonly record struct Pos4<T>(T W, T X, T Y, T Z) : IPos<Pos4<T>, T>
     public Pos4<T> Max(Pos4<T> other) => new(T.Max(W, other.W), T.Max(X, other.X), T.Max(Y, other.Y), T.Max(Z, other.Z));
 
     public Pos4<T> Normalize() => new(W.Sign(), X.Sign(), Y.Sign(), Z.Sign());
+
+    public T Sum() => W + X + Y + Z;
 
     public override string ToString() => $"({W}, {X}, {Y}, {Z})";
 

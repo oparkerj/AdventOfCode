@@ -19,6 +19,8 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
 {
     public static Pos<T> Zero => default;
 
+    public static Pos<T> One => new(T.One, T.One);
+
     public static Pos<T> AdditiveIdentity => default;
     
     public static Pos<T> Up => new(T.Zero, T.One);
@@ -46,6 +48,14 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
     public static Pos<T> operator --(Pos<T> value) => new(value.X - T.One, value.Y - T.One);
 
     public static Pos<T> operator ++(Pos<T> value) => new(value.X + T.One, value.Y + T.One);
+
+    public static bool operator >(Pos<T> left, Pos<T> right) => left.X > right.X && left.Y > right.Y;
+
+    public static bool operator >=(Pos<T> left, Pos<T> right) => left.X >= right.X && left.Y >= right.Y;
+
+    public static bool operator <(Pos<T> left, Pos<T> right) => left.X < right.X && left.Y < right.Y;
+
+    public static bool operator <=(Pos<T> left, Pos<T> right) => left.X <= right.X && left.Y <= right.Y;
 
     public static Pos<T> ParseSimple(ReadOnlySpan<char> span, char separator = ',')
     {
@@ -123,7 +133,9 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
     public Pos<T> Max(Pos<T> other) => new(T.Max(X, other.X), T.Max(Y, other.Y));
 
     public Pos<T> Normalize() => new(X.Sign(), Y.Sign());
-    
+
+    public T Sum() => X + Y;
+
     public static IEnumerable<Pos<T>> GetNeighbors(Pos<T> pos) => pos.Adjacent();
 
     public IEnumerable<Pos<T>> Adjacent()

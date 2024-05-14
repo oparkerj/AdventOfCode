@@ -16,7 +16,7 @@ public interface IPos<T, TNum> :
     IScaleOperators<T, TNum, T>,
     IDivisionOperators<T, T, T>,
     IUnaryNegationOperators<T, T>,
-    IEqualityOperators<T, T, bool>,
+    IComparisonOperators<T, T, bool>,
     IAdditiveIdentity<T, T>,
     IDecrementOperators<T>,
     IIncrementOperators<T>,
@@ -31,6 +31,11 @@ public interface IPos<T, TNum> :
     /// the position type.
     /// </summary>
     static abstract T Zero { get; }
+    
+    /// <summary>
+    /// Value where all components are one.
+    /// </summary>
+    static abstract T One { get; }
 
     /// <summary>
     /// Parse a position from a simplified span.
@@ -84,16 +89,23 @@ public interface IPos<T, TNum> :
     T Normalize();
 
     /// <summary>
+    /// Returns the sum of all components.
+    /// </summary>
+    /// <returns></returns>
+    TNum Sum();
+
+    /// <summary>
     /// Get adjacent positions.
-    /// Adjacent positions are positions with a Manhattan distance of 1.
+    /// Adjacent positions share one full "side" with another position.
+    /// This is typically positions with a Manhattan distance of 1.
     /// </summary>
     /// <returns></returns>
     IEnumerable<T> Adjacent();
 
     /// <summary>
     /// Get positions around.
-    /// This is similar to <see cref="Adjacent"/> positions but also includes
-    /// diagonal positions that are touching this position.
+    /// This is any position which touches the original position.
+    /// This is typically adjacent positions plus diagonals.
     /// </summary>
     /// <returns></returns>
     IEnumerable<T> Around();
