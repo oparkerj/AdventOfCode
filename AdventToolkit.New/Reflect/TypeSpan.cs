@@ -98,7 +98,7 @@ public readonly ref struct TypeSpan
         {
             Debug.Assert(start >= 0 && start <= _length);
             Debug.Assert(length <= _length - start);
-            return new TypeSpan(_span, length);
+            return new TypeSpan(length == 0 ? default : _span, length);
         }
         return new TypeSpan(_span.Slice(start, length));
     }
