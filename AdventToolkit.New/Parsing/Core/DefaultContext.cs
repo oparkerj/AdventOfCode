@@ -29,8 +29,6 @@ public class DefaultContext : ListContext
         
         context.AddAdapter(new StringAdapter());
 
-        context.AddAdapter(new CharParse());
-
         context.AddParserLookup(new TypeParse());
         
         context.AddType(new ListParse());
@@ -38,6 +36,9 @@ public class DefaultContext : ListContext
         context.AddType(new TupleParse());
         
         context.AddType(new ArrayParse());
+        
+        var regexParse = new RegexParse();
+        context.AddParserLookup(regexParse);
     }
 
     public static void AddToolkitTypes(IParseContext? context = null)

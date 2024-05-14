@@ -19,7 +19,7 @@ public class StringAdapter : IAdapterLookupByTarget<string>
 {
     public bool TryLookup(Type from, IParseContext context, out IParser parser)
     {
-        if (from.GetMethod(nameof(ToString), [])!.DeclaringType != typeof(object))
+        if (from.GetMethod(nameof(ToString), [])?.DeclaringType is { } declType && declType != typeof(object))
         {
             parser = typeof(ToString<>).NewParserGeneric([from]);
             return true;

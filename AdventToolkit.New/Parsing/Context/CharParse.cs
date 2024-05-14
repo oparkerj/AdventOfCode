@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
@@ -7,6 +8,7 @@ namespace AdventToolkit.New.Parsing.Context;
 /// <summary>
 /// Provides parse conversions for char.
 /// </summary>
+// TODO figure out what to do with this
 public class CharParse : IAdapterLookup<char>
 {
     public bool TryLookup(Type to, IParseContext context, out IParser parser)
@@ -30,6 +32,11 @@ public class CharParse : IAdapterLookup<char>
     public class CharToDigit<T> : IParser<char, T>
         where T : INumber<T>
     {
-        public T Parse(char input) => T.CreateTruncating(input - '0');
+        public T Parse(char input)
+        {
+            var value = input - '0';
+            Debug.Assert(value is >= 0 and <= 9);
+            return T.CreateTruncating(value);
+        }
     }
 }
