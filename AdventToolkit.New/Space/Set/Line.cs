@@ -1,4 +1,5 @@
 using System.Numerics;
+using AdventToolkit.New.Calc;
 using AdventToolkit.New.Space.Dimension;
 using AdventToolkit.New.Space.Interface;
 
@@ -10,7 +11,7 @@ namespace AdventToolkit.New.Space.Set;
 /// <typeparam name="TNum"></typeparam>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="TDim"></typeparam>
-public class Line<TNum, T, TDim> : SparseSpace<TNum, T>, IAlignedSpace<TNum, T, TDim>
+public class Line<TNum, T, TDim> : SparseSpace<TNum, T, Interval<TNum>>, IAlignedSpace<TNum, T, TDim>
     where TNum : INumber<TNum>
     where TDim : IDimension<TNum>;
 

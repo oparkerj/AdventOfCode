@@ -2,6 +2,7 @@ using System.Numerics;
 using AdventToolkit.New.Parsing;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
+using AdventToolkit.New.Space.Bound;
 using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space.Set;
@@ -12,7 +13,7 @@ namespace AdventToolkit.New.Space.Set;
 /// <typeparam name="TNum"></typeparam>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="TDim"></typeparam>
-public class Grid<TNum, T, TDim> : SparseSpace<Pos<TNum>, T>, IAlignedSpace<Pos<TNum>, T, TDim>, IAdapterLookup
+public class Grid<TNum, T, TDim> : SparseSpace<Pos<TNum>, T, Rect<TNum>>, IGrid<TNum, T, TDim>, IAdapterLookup
     where TNum : INumber<TNum>
     where TDim : IDimension<Pos<TNum>>
 {

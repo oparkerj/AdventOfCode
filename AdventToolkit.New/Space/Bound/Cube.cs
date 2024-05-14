@@ -58,6 +58,11 @@ public record Cube<T>(Interval<T> X, Interval<T> Y, Interval<T> Z) : ICube<Cube<
                && Z.Contains(t.Z);
     }
 
+    public Cube<T> Add(Pos3<T> num)
+    {
+        return Contains(num) ? this : From(Min.Min(num), End.Max(num + Pos3<T>.One));
+    }
+
     public Cube<T> Intersect(Cube<T> other)
     {
         return new Cube<T>(

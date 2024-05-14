@@ -56,6 +56,11 @@ public record Rect<T>(Interval<T> X, Interval<T> Y) : IRect<Rect<T>, T>
     
     public bool Contains(Rect<T> t) => X.Contains(t.X) && Y.Contains(t.Y);
 
+    public Rect<T> Add(Pos<T> num)
+    {
+        return Contains(num) ? this : From(Min.Min(num), End.Max(num + Pos<T>.One));
+    }
+
     public Rect<T> Intersect(Rect<T> other) => new(X.Intersect(other.X), Y.Intersect(other.Y));
 
     public Enumerator GetEnumerator() => new(X, Y);

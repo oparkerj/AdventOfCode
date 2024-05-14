@@ -72,6 +72,13 @@ public interface IBound<T, TNum> : IEnumerable<TNum>
     bool Contains(T t);
 
     /// <summary>
+    /// Create a bound where the given value is included.
+    /// </summary>
+    /// <param name="num"></param>
+    /// <returns></returns>
+    T Add(TNum num);
+
+    /// <summary>
     /// Get the intersection of this bound and another.
     /// </summary>
     /// <param name="other"></param>

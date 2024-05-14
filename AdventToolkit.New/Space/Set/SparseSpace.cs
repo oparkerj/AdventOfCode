@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using AdventToolkit.New.Space.Bound;
 using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space.Set;
@@ -9,8 +10,13 @@ namespace AdventToolkit.New.Space.Set;
 /// </summary>
 /// <typeparam name="TPos"></typeparam>
 /// <typeparam name="TVal"></typeparam>
-public class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IDictionary<TPos, TVal>
+/// <typeparam name="TBound"></typeparam>
+public class SparseSpace<TPos, TVal, TBound> :
+    ISpace<TPos, TVal>,
+    IBounded<TPos, TBound>,
+    IDictionary<TPos, TVal>
     where TPos : notnull
+    where TBound : IBound<TBound, TPos>
 {
     /// <summary>
     /// Internal position mapping.
@@ -21,7 +27,13 @@ public class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IDictionary<TPos, TVa
 
     public TVal Default { get; set; } = default!;
 
-    public void Add(TPos pos, TVal val) => Points[pos] = val;
+    public TBound Bounds { get; set; } = TBound.Empty;
+
+    public void Add(TPos pos, TVal val)
+    {
+        Bounds = Bounds.Add(pos);
+        Points[pos] = val;
+    }
 
     public bool Remove(TPos pos) => Points.Remove(pos);
 
@@ -33,8 +45,12 @@ public class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IDictionary<TPos, TVa
 
     public TVal this[TPos pos]
     {
-        get => Points.GetValueOrDefault(pos, Default);
-        set => Points[pos] = value;
+        get => Points[pos];
+        set
+        {
+            Bounds = Bounds.Add(pos);
+            Points[pos] = value;
+        }
     }
 
     public bool Contains(TPos pos) => Points.ContainsKey(pos);
@@ -75,3 +91,11 @@ public class SparseSpace<TPos, TVal> : ISpace<TPos, TVal>, IDictionary<TPos, TVa
 
     #endregion
 }
+
+/// <summary>
+/// Defines an unbounded space.
+/// </summary>
+/// <typeparam name="TPos"></typeparam>
+/// <typeparam name="TVal"></typeparam>
+public class SparseSpace<TPos, TVal> : SparseSpace<TPos, TVal, Unbounded<TPos>>
+    where TPos : notnull;

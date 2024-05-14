@@ -63,7 +63,14 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     {
         return t.Start >= Start && t.Last <= Last;
     }
-    
+
+    public Interval<T> Add(T num)
+    {
+        if (Length == T.Zero) return new Interval<T>(num, T.One);
+        if (num < Start) return From(num, End);
+        return num >= End ? From(Start, num + T.One) : this;
+    }
+
     public Interval<T> Intersect(Interval<T> other)
     {
         if (other.Start < Start)
@@ -89,18 +96,6 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     public bool Intersects(Interval<T> other)
     {
         return other.Start < Start ? Start < other.End : other.Start < End;
-    }
-
-    /// <summary>
-    /// Expand the interval to fit the given value.
-    /// </summary>
-    /// <param name="i">Value.</param>
-    /// <returns>Expanded interval.</returns>
-    public Interval<T> Fit(T i)
-    {
-        if (Length == T.Zero) return new Interval<T>(i, T.One);
-        var start = T.Min(Start, i);
-        return new Interval<T>(start, T.Max(Length, i - start + T.One));
     }
 
     /// <summary>
