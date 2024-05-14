@@ -32,9 +32,10 @@ namespace AdventToolkit.New.Parsing;
 ///   - Create target via construction
 ///   ~ Adapt enumerable to tuple
 ///     - Try to recurse into inner tuple
-///     - Adapt item to tuple component
 ///     - Collect tuple component
 ///     - Construct tuple component
+///     - Adapt item to tuple component
+///   - Adapt first element to target type
 ///
 /// Plans/Possibilities:
 /// - Ability to have one collectable in the Enumerable to tuple conversion
@@ -543,6 +544,16 @@ public static class ParseAdapt
             return true;
         }
 
+        // Adapt first element
+        if (TryAdaptInner(null, outputInner, target, context, 0, out var convert))
+        {
+            Parse.Verbose($"Adapted enumerable {parser?.GetType()} to {target} by first element -> {convert?.GetType()}");
+            var takeOne = MaybeJoin(selector, EnumerableAdapter.First(outputInner));
+            var convertFirst = MaybeJoin(takeOne, convert);
+            result = MaybeInnerJoin(parser, convertFirst, context, level);
+            return true;
+        }
+
         Parse.Verbose($"Failed to use {output} as IEnumerable<{outputInner}>");
         result = default;
         return false;
@@ -717,7 +728,8 @@ public static class ParseAdapt
 
             const int collect = 1;
             const int construct = 2;
-            var disambiguation = GetDisambiguation(context, typeof(Tuples<>), typeof(Collect), typeof(Construct));
+            const int adapt = 3;
+            var disambiguation = GetDisambiguation(context, typeof(Tuples<>), typeof(Collect), typeof(Construct), typeof(Adapt));
             Parse.VerboseIf(disambiguation == collect, "Using disambiguation to collect tuple element.");
             Parse.VerboseIf(disambiguation == construct, "Using disambiguation to construct tuple element.");
 
@@ -734,22 +746,12 @@ public static class ParseAdapt
                 continue;
             }
 
-            // Try to adapt a single value to the element type.
-            if (disambiguation < collect && TryAdapt(outputInner, elementType, context, out var elementAdapt))
-            {
-                context.ApplyDisambiguation(null);
-                Parse.Verbose($"Adapted element {i} -> {elementAdapt?.GetType()}");
-                sections[i] = EnumerableAdapter.PartialSingle(outputInner, elementAdapt);
-                IncrementSize(1);
-                continue;
-            }
-
             var elementInfo = context.TryLookupType(elementType, out var elementDescriptor);
 
             // Try to collect the element
-            if (disambiguation < construct &&
-                elementInfo &&
-                TryAdaptCollect(elementType, outputInner, elementDescriptor, context, out innerItemSize, out sections[i]))
+            if (disambiguation < construct
+                && elementInfo
+                && TryAdaptCollect(elementType, outputInner, elementDescriptor, context, out innerItemSize, out sections[i]))
             {
                 if (innerItemSize > sizes.MaxItemSize)
                 {
@@ -764,7 +766,8 @@ public static class ParseAdapt
             }
                 
             // Take many values and try using construction.
-            if (elementInfo
+            if (disambiguation < adapt
+                && elementInfo
                 && elementDescriptor.TryConstruct(elementType, context, new TypeSpan(in outputInner), out var elementConstructor))
             {
                 context.ApplyDisambiguation(null);
@@ -772,6 +775,16 @@ public static class ParseAdapt
                 elementConstructor = ProcessConstructor(elementConstructor);
                 sections[i] = EnumerableAdapter.PartialTake(outputInner, elementConstructor, out var constructorSize);
                 IncrementSize(constructorSize);
+                continue;
+            }
+            
+            // Try to adapt a single value to the element type.
+            if (TryAdapt(outputInner, elementType, context, out var elementAdapt))
+            {
+                context.ApplyDisambiguation(null);
+                Parse.Verbose($"Adapted element {i} -> {elementAdapt?.GetType()}");
+                sections[i] = EnumerableAdapter.PartialSingle(outputInner, elementAdapt);
+                IncrementSize(1);
                 continue;
             }
 
