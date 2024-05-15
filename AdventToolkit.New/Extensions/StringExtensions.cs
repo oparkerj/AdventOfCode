@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using AdventToolkit.New.Calc;
 using AdventToolkit.New.Data;
+using AdventToolkit.New.Space.Bound;
 
 namespace AdventToolkit.New.Extensions;
 

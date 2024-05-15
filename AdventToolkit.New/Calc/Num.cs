@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Numerics;
+using AdventToolkit.New.Space.Bound;
 
 namespace AdventToolkit.New.Calc;
 

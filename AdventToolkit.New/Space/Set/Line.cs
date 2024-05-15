@@ -1,5 +1,5 @@
 using System.Numerics;
-using AdventToolkit.New.Calc;
+using AdventToolkit.New.Space.Bound;
 using AdventToolkit.New.Space.Dimension;
 using AdventToolkit.New.Space.Interface;
 

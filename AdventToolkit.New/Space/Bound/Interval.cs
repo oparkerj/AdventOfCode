@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using AdventToolkit.New.Extensions;
 using AdventToolkit.New.Space.Interface;
 
-namespace AdventToolkit.New.Calc;
+namespace AdventToolkit.New.Space.Bound;
 
 // TODO: .NET 10?, make generic and create alias
 /// <summary>

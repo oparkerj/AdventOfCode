@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Numerics;
+using AdventToolkit.New.Space.Bound;
 
-namespace AdventToolkit.New.Calc;
+namespace AdventToolkit.New.Space.Set;
 
 /// <summary>
 /// Represents multiple discontinuous intervals.
@@ -27,6 +28,7 @@ public class MultiInterval<T> : IEnumerable<Interval<T>>
     /// <summary>
     /// Get the total length of all intervals
     /// </summary>
+    // TODO Calculate during add/remove
     public T TotalLength
     {
         get
