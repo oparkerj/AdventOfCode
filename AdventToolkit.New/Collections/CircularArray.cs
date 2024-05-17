@@ -28,7 +28,7 @@ public class CircularArray<T> : IEnumerable<T>
     /// </summary>
     public int Pointer
     {
-        get => _internalPointer;
+        get => _pointer;
         set => _internalPointer = (_pointer = value).Mod(Data.Length);
     }
     
