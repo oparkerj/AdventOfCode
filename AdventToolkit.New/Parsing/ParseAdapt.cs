@@ -571,7 +571,7 @@ public static class ParseAdapt
     ///     and collects it to the target type.</param>
     /// <returns>True if the target is collectable and the sequence elements
     /// were adapted to the collection elements.</returns>
-    private static bool TryAdaptCollect(Type target, Type outputInner, ITypeDescriptor targetDescriptor, IParseContext context, out int itemSize, out IParser result)
+    private static bool TryAdaptCollect(Type target, Type outputInner, ITypeLookup targetDescriptor, IParseContext context, out int itemSize, out IParser result)
     {
         if (!targetDescriptor.TryCollectSelf(target, context, out var targetInner, out var constructor))
         {

@@ -10,7 +10,7 @@ namespace AdventToolkit.New.Parsing.Core;
 /// </summary>
 public class ListContext : IParseContext
 {
-    private readonly List<ITypeDescriptor> _types = [];
+    private readonly List<ITypeLookup> _types = [];
     private readonly List<IParserLookup> _parserLookups = [];
     private readonly List<IModifier> _modifiers = [];
     private readonly List<IAdapterLookup> _adapterLookups = [];
@@ -18,7 +18,7 @@ public class ListContext : IParseContext
     private Stack<DisambiguationSection>? _disambiguation;
     private bool _disambiguationComplete;
 
-    public IEnumerable<ITypeDescriptor> Types => _types;
+    public IEnumerable<ITypeLookup> Types => _types;
     public IEnumerable<IParserLookup> ParserLookups => _parserLookups;
     public IEnumerable<IModifier> Modifiers => _modifiers;
     public IEnumerable<IAdapterLookup> AdapterLookups => _adapterLookups;
@@ -127,7 +127,7 @@ public class ListContext : IParseContext
         return true;
     }
 
-    public virtual bool TryLookupType(Type type, out ITypeDescriptor descriptor)
+    public virtual bool TryLookupType(Type type, out ITypeLookup descriptor)
     {
         foreach (var typeDescriptor in _types)
         {
@@ -181,7 +181,7 @@ public class ListContext : IParseContext
         return false;
     }
 
-    public virtual void AddType(ITypeDescriptor descriptor) => _types.Add(descriptor);
+    public virtual void AddType(ITypeLookup descriptor) => _types.Add(descriptor);
 
     public virtual void AddParserLookup(IParserLookup parserLookup) => _parserLookups.Add(parserLookup);
 

@@ -6,7 +6,7 @@ namespace AdventToolkit.New.Parsing.Context;
 /// <summary>
 /// Parse support for strings.
 /// </summary>
-public class StringParse : ITypeDescriptor, IParserLookupByInput<string>, IAdapterLookup<string>
+public class StringParse : ITypeLookup, IParserLookupByInput<string>, IAdapterLookup<string>
 {
     public bool Match(Type type) => type == typeof(string);
 

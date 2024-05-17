@@ -160,4 +160,22 @@ public static class ParseExtensions
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     public static AdaptValue<T> Adapt<T>(this T t) => new(t);
+    
+    /// <summary>
+    /// Add a type lookup to the context.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <typeparam name="T"></typeparam>
+    public static void AddLookup<T>(this IParseContext context)
+        where T : ITypeLookup, new() =>
+        context.AddType(new T());
+
+    /// <summary>
+    /// Add a type descriptor to the context.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <typeparam name="T"></typeparam>
+    public static void AddType<T>(this IParseContext context)
+        where T : ITypeDescriptor =>
+        context.AddType(new TypeLookup<T>());
 }

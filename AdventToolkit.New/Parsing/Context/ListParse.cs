@@ -8,7 +8,7 @@ namespace AdventToolkit.New.Parsing.Context;
 ///
 /// This allows a list to be collected.
 /// </summary>
-public class ListParse : ITypeDescriptor
+public class ListParse : ITypeLookup
 {
     public bool Match(Type type) => type.Generic() == typeof(List<>);
 

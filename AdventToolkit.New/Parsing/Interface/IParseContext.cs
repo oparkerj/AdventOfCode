@@ -8,7 +8,7 @@ public interface IParseContext
     /// <summary>
     /// All known type descriptors.
     /// </summary>
-    IEnumerable<ITypeDescriptor> Types { get; }
+    IEnumerable<ITypeLookup> Types { get; }
     
     /// <summary>
     /// All known parser lookups.
@@ -45,7 +45,7 @@ public interface IParseContext
     /// <param name="type">Search type.</param>
     /// <param name="descriptor">Matching type descriptor.</param>
     /// <returns>True if a type descriptor was found, false otherwise.</returns>
-    bool TryLookupType(Type type, out ITypeDescriptor descriptor);
+    bool TryLookupType(Type type, out ITypeLookup descriptor);
     
     /// <summary>
     /// Try to find a matching parser lookup.
@@ -88,12 +88,12 @@ public interface IParseContext
     /// element type and produces the container type.</param>
     /// <returns>True if a container constructor is found, false otherwise.</returns>
     bool TryCollect(Type container, Type inner, out IParser constructor);
-    
+
     /// <summary>
     /// Add a type descriptor to the context.
     /// </summary>
     /// <param name="descriptor"></param>
-    void AddType(ITypeDescriptor descriptor);
+    void AddType(ITypeLookup descriptor);
 
     /// <summary>
     /// Add a parser lookup to the context.

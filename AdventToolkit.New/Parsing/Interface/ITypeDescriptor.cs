@@ -14,7 +14,7 @@ public interface ITypeDescriptor
     /// </summary>
     /// <param name="type"></param>
     /// <returns>True if this descriptor applies to the type, false otherwise.</returns>
-    bool Match(Type type);
+    static abstract bool Match(Type type);
 
     /// <summary>
     /// When true, a parse builder will not automatically descend into the elements
@@ -23,7 +23,7 @@ public interface ITypeDescriptor
     /// For example, if the current type is a string, you typically want to stop there
     /// and operate on the string rather than descending and parsing each character.
     /// </summary>
-    bool PassiveSelect => false;
+    static abstract bool PassiveSelect { get; }
 
     /// <summary>
     /// Get the element type and selector from a type which can be enumerated.
@@ -34,12 +34,7 @@ public interface ITypeDescriptor
     /// <param name="inner">Element type.</param>
     /// <param name="selector">Parser that turns the type into an enumerable.</param>
     /// <returns>True if the given type is enumerable, false otherwise.</returns>
-    bool TrySelect(Type type, out Type inner, out IParser selector)
-    {
-        inner = default!;
-        selector = default!;
-        return false;
-    }
+    static abstract bool TrySelect(Type type, out Type inner, out IParser selector);
 
     /// <summary>
     /// Get the collector that turns a sequence of elements into an instance of this type.
@@ -53,11 +48,7 @@ public interface ITypeDescriptor
     ///     of the element type and produces the container.</param>
     /// <returns>True if the type from this type descriptor can can be constructed
     /// from a sequence of the element type, false otherwise.</returns>
-    bool TryCollect(Type type, Type inner, IParseContext context, out IParser collector)
-    {
-        collector = default!;
-        return false;
-    }
+    static abstract bool TryCollect(Type type, Type inner, IParseContext context, out IParser collector);
 
     /// <summary>
     /// Get the element type for a sequence that could be used to construct this type.
@@ -69,11 +60,7 @@ public interface ITypeDescriptor
     /// <param name="context">Parse context.</param>
     /// <param name="inner">Element type.</param>
     /// <returns>True if the type can be constructed from a sequence, false otherwise.</returns>
-    bool TryGetCollectType(Type type, IParseContext context, out Type inner)
-    {
-        inner = default!;
-        return true;
-    }
+    static abstract bool TryGetCollectType(Type type, IParseContext context, out Type inner);
 
     /// <summary>
     /// Get a parser that constructs this type.
@@ -85,11 +72,7 @@ public interface ITypeDescriptor
     /// <param name="types">Input types that can be used to try construction.</param>
     /// <param name="constructor">Type constructor.</param>
     /// <returns></returns>
-    bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
-    {
-        constructor = default!;
-        return false;
-    }
+    static abstract bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor);
 
     /// <summary>
     /// Get a parser that can unpack the type into a tuple.
@@ -100,9 +83,5 @@ public interface ITypeDescriptor
     /// <param name="amount">Number of items to unpack.</param>
     /// <param name="unpack">Unpack parser.</param>
     /// <returns></returns>
-    bool TryUnpack(Type type, IParseContext context, int amount, out IParser unpack)
-    {
-        unpack = default!;
-        return false;
-    }
+    static abstract bool TryUnpack(Type type, IParseContext context, int amount, out IParser unpack);
 }

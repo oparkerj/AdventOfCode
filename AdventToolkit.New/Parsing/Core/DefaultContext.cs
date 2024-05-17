@@ -31,11 +31,11 @@ public class DefaultContext : ListContext
 
         context.AddParserLookup(new TypeParse());
         
-        context.AddType(new ListParse());
+        context.AddLookup<ListParse>();
         
-        context.AddType(new TupleParse());
+        context.AddLookup<TupleParse>();
         
-        context.AddType(new ArrayParse());
+        context.AddLookup<ArrayParse>();
         
         var regexParse = new RegexParse();
         context.AddParserLookup(regexParse);
@@ -45,7 +45,7 @@ public class DefaultContext : ListContext
     {
         context ??= Instance;
         
-        context.AddType(new Pos<byte>());
+        context.AddType<Pos<byte>>();
         context.AddAdapter(new Grid<byte>());
     }
 }

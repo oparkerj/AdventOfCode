@@ -7,7 +7,7 @@ namespace AdventToolkit.New.Parsing.Context;
 ///
 /// This allows an array to be collected.
 /// </summary>
-public class ArrayParse : ITypeDescriptor
+public class ArrayParse : ITypeLookup
 {
     /// <summary>
     /// Check whether every element in a span is the same type.

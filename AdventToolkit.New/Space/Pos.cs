@@ -5,6 +5,7 @@ using AdventToolkit.New.Parsing;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 using AdventToolkit.New.Space.Interface;
+using AdventToolkit.New.Util;
 
 namespace AdventToolkit.New.Space;
 
@@ -160,9 +161,9 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
 
     public override string ToString() => $"({X}, {Y})";
 
-    public bool Match(Type type) => type.Generic() == typeof(Pos<>);
+    public static bool Match(Type type) => type.Generic() == typeof(Pos<>);
 
-    public bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
+    public static bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
     {
         var numType = type.GetSingleTypeArgument();
         if (types.TryAdaptTuple(Types.CreateTupleType(numType, 2), context, out var convert))
@@ -176,7 +177,7 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
         return false;
     }
 
-    public bool TryUnpack(Type type, IParseContext context, int amount, out IParser unpack)
+    public static bool TryUnpack(Type type, IParseContext context, int amount, out IParser unpack)
     {
         if (amount != 2)
         {
@@ -186,6 +187,23 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
 
         unpack = type.MakeNestedType(nameof(Unpack)).NewParser();
         return true;
+    }
+
+    public static bool PassiveSelect => false;
+    
+    public static bool TrySelect(Type type, out Type inner, out IParser selector)
+    {
+        return Impl.Default(out inner, out selector);
+    }
+
+    public static bool TryCollect(Type type, Type inner, IParseContext context, out IParser collector)
+    {
+        return Impl.Default(out collector);
+    }
+
+    public static bool TryGetCollectType(Type type, IParseContext context, out Type inner)
+    {
+        return Impl.Default(out inner);
     }
 
     /// <summary>

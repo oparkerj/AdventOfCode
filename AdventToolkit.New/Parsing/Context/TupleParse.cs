@@ -9,7 +9,7 @@ namespace AdventToolkit.New.Parsing.Context;
 ///
 /// This allows a tuple to be enumerated if every element is the same type.
 /// </summary>
-public class TupleParse : ITypeDescriptor
+public class TupleParse : ITypeLookup
 {
     private static IndexOutOfRangeException NoElement => new("Reached end of enumerator before end of tuple.");
     
