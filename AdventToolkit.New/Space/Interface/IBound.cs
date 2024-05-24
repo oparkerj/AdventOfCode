@@ -24,6 +24,13 @@ public interface IBound<T, TNum> : IEnumerable<TNum>
     /// <param name="end"></param>
     /// <returns></returns>
     static abstract T From(TNum start, TNum end);
+
+    /// <summary>
+    /// Create a bound over a single value.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    static abstract T Single(TNum value);
     
     /// <summary>
     /// Get an empty bound.

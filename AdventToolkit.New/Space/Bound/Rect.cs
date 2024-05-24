@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Numerics;
-using AdventToolkit.New.Calc;
 using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space.Bound;
@@ -17,12 +16,19 @@ public record Rect<T>(Interval<T> X, Interval<T> Y) : IRect<Rect<T>, T>
 {
     public Rect(Pos<T> a, Pos<T> b) : this(Interval<T>.Span(a.X, b.X), Interval<T>.Span(a.Y, b.Y)) { }
     
+    public Rect(T width, T height) : this(new Interval<T>(width), new Interval<T>(height)) { }
+    
     public static Rect<T> From(Pos<T> start, Pos<T> end)
     {
         return new Rect<T>(Interval<T>.From(start.X, end.X), Interval<T>.From(start.Y, end.Y));
     }
 
     public static Rect<T> Span(Pos<T> a, Pos<T> b) => new(a, b);
+
+    public static Rect<T> Single(Pos<T> value)
+    {
+        return new Rect<T>(Interval<T>.Single(value.X), Interval<T>.Single(value.Y));
+    }
 
     public static Rect<T> Empty => new(Interval<T>.Empty, Interval<T>.Empty);
     
@@ -51,6 +57,8 @@ public record Rect<T>(Interval<T> X, Interval<T> Y) : IRect<Rect<T>, T>
     public Pos<T> End => new(EndX, EndY);
 
     public Pos<T> Size => new(Width, Height);
+
+    public Rect<TOut> As<TOut>() where TOut : INumber<TOut> => new(X.As<TOut>(), Y.As<TOut>());
 
     public bool Contains(Pos<T> p) => X.Contains(p.X) && Y.Contains(p.Y);
     

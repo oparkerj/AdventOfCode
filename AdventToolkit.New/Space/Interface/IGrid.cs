@@ -9,6 +9,8 @@ namespace AdventToolkit.New.Space.Interface;
 /// <typeparam name="TNum"></typeparam>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="TDim"></typeparam>
-public interface IGrid<TNum, T, TDim> : IAlignedSpace<Pos<TNum>, T, TDim>, IBounded<Pos<TNum>, Rect<TNum>>
+public interface IGrid<TNum, T, TDim> :
+    IAlignedSpace<Pos<TNum>, T, TDim>,
+    IBounded<Pos<TNum>, Rect<TNum>>
     where TNum : INumber<TNum>
     where TDim : IDimension<Pos<TNum>>;

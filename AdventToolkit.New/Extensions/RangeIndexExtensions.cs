@@ -1,4 +1,5 @@
 using System.Numerics;
+using AdventToolkit.New.Space.Bound;
 
 namespace AdventToolkit.New.Extensions;
 
@@ -29,5 +30,32 @@ public static class RangeIndexExtensions
         where T : INumber<T>
     {
         return (r.Start.GetOffset(length), r.End.GetOffset(length));
+    }
+
+    /// <summary>
+    /// Convert a range to an interval.
+    /// </summary>
+    /// <param name="r"></param>
+    /// <param name="length"></param>
+    /// <returns></returns>
+    public static Interval<int> ToInterval(this Range r, int length)
+    {
+        var (start, count) = r.GetOffsetAndLength(length);
+        return new Interval<int>(start, count);
+    }
+    
+    /// <summary>
+    /// Convert a range to an interval.
+    /// </summary>
+    /// <param name="r"></param>
+    /// <param name="length"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static Interval<T> ToInterval<T>(this Range r, T length)
+        where T : INumber<T>
+    {
+        var start = r.Start.GetOffset(length);
+        var end = r.End.GetOffset(length);
+        return Interval<T>.From(start, end);
     }
 }

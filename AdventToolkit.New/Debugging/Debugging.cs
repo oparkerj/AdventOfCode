@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AdventToolkit.New.Reflect;
@@ -192,5 +193,19 @@ public static class Debugging
         }
         
         builder.Append('}');
+    }
+
+    /// <summary>
+    /// Test if a number can be converted to another number type via truncation.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <typeparam name="TIn"></typeparam>
+    /// <typeparam name="TOut"></typeparam>
+    /// <returns></returns>
+    public static bool CanTruncate<TIn, TOut>(this TIn input)
+        where TIn : INumber<TIn>
+        where TOut : INumber<TOut>
+    {
+        return TOut.CreateTruncating(input) == TOut.CreateSaturating(input);
     }
 }

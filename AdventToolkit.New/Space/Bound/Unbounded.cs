@@ -19,6 +19,8 @@ public readonly struct Unbounded<T> : IBound<Unbounded<T>, T>
 
     public static Unbounded<T> From(T start, T end) => Empty;
 
+    public static Unbounded<T> Single(T value) => Empty;
+
     public static implicit operator Unbounded<T>(T num) => Empty;
     
     public T Min => throw new NotSupportedException();

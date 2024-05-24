@@ -123,6 +123,12 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
         return false;
     }
 
+    public Pos<TNew> As<TNew>()
+        where TNew : INumber<TNew>
+    {
+        return new Pos<TNew>(TNew.CreateTruncating(X), TNew.CreateTruncating(Y));
+    }
+
     public T Dist(Pos<T> other) => T.Abs(X - other.X) + T.Abs(Y - other.Y);
 
     public T Min() => T.Min(X, Y);

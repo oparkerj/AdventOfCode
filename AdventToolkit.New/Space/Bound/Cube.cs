@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Numerics;
-using AdventToolkit.New.Calc;
 using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space.Bound;
@@ -30,6 +29,14 @@ public record Cube<T>(Interval<T> X, Interval<T> Y, Interval<T> Z) : ICube<Cube<
             Interval<T>.From(start.X, end.X),
             Interval<T>.From(start.Y, end.Y),
             Interval<T>.From(start.Z, end.Z));
+    }
+
+    public static Cube<T> Single(Pos3<T> value)
+    {
+        return new Cube<T>(
+            Interval<T>.Single(value.X),
+            Interval<T>.Single(value.Y),
+            Interval<T>.Single(value.Z));
     }
 
     public static Cube<T> Empty => new(Interval<T>.Empty, Interval<T>.Empty, Interval<T>.Empty);

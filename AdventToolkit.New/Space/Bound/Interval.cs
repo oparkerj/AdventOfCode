@@ -32,7 +32,9 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     }
     
     public static Interval<T> Span(T a, T b) => new(T.Min(a, b), T.Abs(a - b) + T.One);
-    
+
+    public static Interval<T> Single(T value) => new(value, T.One);
+
     public static implicit operator Interval<T>(T t) => new(t, T.One);
 
     /// <summary>
