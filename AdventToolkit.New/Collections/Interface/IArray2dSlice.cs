@@ -39,6 +39,12 @@ public interface IArray2dSlice<T, out TSlice> : IArray2d<T>
     TSlice this[Range x, int y] { get; }
     
     /// <summary>
+    /// 2d slice indexer for rect inputs.
+    /// </summary>
+    /// <param name="rect"></param>
+    TSlice this[Rect<int> rect] { get; }
+    
+    /// <summary>
     /// Get the given rows, this is the same as slicing with ".." for the columns
     /// </summary>
     /// <param name="interval"></param>

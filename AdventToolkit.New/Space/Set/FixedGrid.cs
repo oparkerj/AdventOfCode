@@ -11,7 +11,7 @@ namespace AdventToolkit.New.Space.Set;
 /// <typeparam name="TNum"></typeparam>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="TDim"></typeparam>
-public class FixedGrid<TNum, T, TDim> : IGrid<TNum, T, TDim>
+public class FixedGrid<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos<TNum>, T, FixedGridView<TNum, T, TDim>, Rect<TNum>>
     where TNum : INumber<TNum>
     where TDim : IDimension<Pos<TNum>>
 {
@@ -19,9 +19,9 @@ public class FixedGrid<TNum, T, TDim> : IGrid<TNum, T, TDim>
     
     public Rect<TNum> Bounds { get; }
 
-    public T Default { get; set; } = default!;
-    
     public int Count { get; }
+    
+    public T Default { get; set; } = default!;
 
     public FixedGrid(FastArray2d<T> data, Rect<TNum> bounds, int count)
     {
@@ -67,8 +67,7 @@ public class FixedGrid<TNum, T, TDim> : IGrid<TNum, T, TDim>
     {
         if (Contains(pos))
         {
-            var (x, y) = pos.As<int>();
-            val = Data[x, y];
+            val = Data[pos.As<int>()];
             return true;
         }
 
@@ -97,4 +96,6 @@ public class FixedGrid<TNum, T, TDim> : IGrid<TNum, T, TDim>
             Data[x, y] = value;
         }
     }
+
+    public FixedGridView<TNum, T, TDim> View(Rect<TNum> bound) => new(Data, bound);
 }

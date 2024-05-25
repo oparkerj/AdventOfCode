@@ -11,7 +11,7 @@ namespace AdventToolkit.New.Space.Bound;
 /// <param name="X"></param>
 /// <param name="Y"></param>
 /// <typeparam name="T"></typeparam>
-public record struct ValueRect<T>(Interval<T> X, Interval<T> Y) : IRect<ValueRect<T>, T>
+public readonly record struct ValueRect<T>(Interval<T> X, Interval<T> Y) : IRect<ValueRect<T>, T>
     where T : INumber<T>
 {
     public ValueRect(Pos<T> a, Pos<T> b) : this(Interval<T>.Span(a.X, b.X), Interval<T>.Span(a.Y, b.Y)) { }
@@ -57,6 +57,15 @@ public record struct ValueRect<T>(Interval<T> X, Interval<T> Y) : IRect<ValueRec
     public Pos<T> End => new(EndX, EndY);
 
     public Pos<T> Size => new(Width, Height);
+
+    /// <summary>
+    /// Convert this rect to a different number type
+    /// </summary>
+    /// <typeparam name="TNew"></typeparam>
+    /// <returns></returns>
+    public ValueRect<TNew> As<TNew>()
+        where TNew : INumber<TNew> =>
+        new(X.As<TNew>(), Y.As<TNew>());
 
     public bool Contains(Pos<T> p) => X.Contains(p.X) && Y.Contains(p.Y);
     

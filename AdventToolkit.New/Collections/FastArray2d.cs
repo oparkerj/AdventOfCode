@@ -36,6 +36,8 @@ public readonly struct FastArray2d<T> : IArray2dSlice<T, Array2d<T>>
     
     public void Clear() => Array.Clear(Data);
 
+    public bool Contains(T t) => Array.IndexOf(Data, t) > -1;
+
     public int Index(int x, int y) => y * Width + x;
 
     public T this[int x, int y]
@@ -61,6 +63,8 @@ public readonly struct FastArray2d<T> : IArray2dSlice<T, Array2d<T>>
     public Array2d<T> this[int x, Range y] => this[x, y.ToInterval(Height)];
 
     public Array2d<T> this[Range x, int y] => this[x.ToInterval(Width), y];
+
+    public Array2d<T> this[Rect<int> rect] => this[rect.X, rect.Y];
 
     /// <summary>
     /// Get a view of the full array.

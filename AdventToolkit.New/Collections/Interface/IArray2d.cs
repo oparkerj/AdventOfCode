@@ -25,6 +25,13 @@ public interface IArray2d<T> : IEnumerable<T>
     /// Clear the array
     /// </summary>
     void Clear();
+
+    /// <summary>
+    /// Check if the array contains a value.
+    /// </summary>
+    /// <param name="t"></param>
+    /// <returns></returns>
+    bool Contains(T t);
     
     /// <summary>
     /// Array indexer

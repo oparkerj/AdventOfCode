@@ -110,7 +110,6 @@ public interface ISpace<TPos, TVal> : ISpaceKeys<TPos>, ISpaceValues<TVal>
     /// Returns a default value if the position is not mapped.
     /// </summary>
     /// <param name="pos"></param>
-    // TODO decide whether this indexer should have "strict" semantics
     TVal this[TPos pos] { get; set; }
     
     /// <summary>
