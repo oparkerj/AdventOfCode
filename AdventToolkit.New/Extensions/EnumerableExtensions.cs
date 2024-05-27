@@ -30,4 +30,48 @@ public static class EnumerableExtensions
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     public static EnumeratorWrap<T> Wrap<T>(this IEnumerator<T> e) => new(e);
+
+    /// <summary>
+    /// Collect the items in a sequence.
+    /// The main use of this method is when a collection needs to be
+    /// modified while iterating over its values.
+    /// </summary>
+    /// <param name="items"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static Span<T> Collect<T>(this IEnumerable<T> items)
+    {
+        if (items is T[] array) return array;
+        
+        if (items is ICollection<T> col)
+        {
+            var result = new T[col.Count];
+            col.CopyTo(result, 0);
+            return result;
+        }
+
+        var buf = new T[4];
+        var i = 0;
+        
+        foreach (var item in items)
+        {
+            if (i >= buf.Length)
+            {
+                var size = buf.Length * 2;
+                if ((uint) size > Array.MaxLength)
+                {
+                    size = Array.MaxLength;
+                }
+                if (size < i + 1)
+                {
+                    size = i + 1;
+                }
+                Array.Resize(ref buf, size);
+            }
+
+            buf[i++] = item;
+        }
+
+        return buf.AsSpan(0, i);
+    }
 }

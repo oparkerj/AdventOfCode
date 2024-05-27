@@ -11,7 +11,7 @@ namespace AdventToolkit.New.Space.Set;
 /// <typeparam name="TNum"></typeparam>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="TDim"></typeparam>
-public class FixedGrid<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos<TNum>, T, FixedGridView<TNum, T, TDim>, Rect<TNum>>
+public class FixedGrid<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos<TNum>, T, FixedGridView<TNum, T, TDim>, Rect<TNum>>, ISpacePartial<Pos<TNum>, Rect<TNum>>
     where TNum : INumber<TNum>
     where TDim : IDimension<Pos<TNum>>
 {
@@ -58,7 +58,17 @@ public class FixedGrid<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos<TNu
     public IEnumerable<Pos<TNum>> Positions => Bounds;
 
     public IEnumerable<T> Values => Data;
-    
+
+    public IEnumerable<Pos<TNum>> PositionsIn(Rect<TNum> bound) => Bounds.Intersect(bound);
+
+    public IEnumerable<Pos<TNum>> GetNeighbors(Pos<TNum> pos)
+    {
+        foreach (var neighbor in TDim.GetNeighbors(pos))
+        {
+            if (Bounds.Contains(neighbor)) yield return neighbor;
+        }
+    }
+
     public bool ContainsValue(T val) => Data.Contains(val);
 
     public void Add(Pos<TNum> pos, T val) => this[pos] = val;
@@ -97,5 +107,5 @@ public class FixedGrid<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos<TNu
         }
     }
 
-    public FixedGridView<TNum, T, TDim> View(Rect<TNum> bound) => new(Data, bound);
+    public FixedGridView<TNum, T, TDim> View(Rect<TNum> bound) => new(this, bound);
 }

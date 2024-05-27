@@ -140,7 +140,7 @@ public class PackedLine<TNum, T, TDim> : IAlignedSpace<TNum, T, TDim>
 
     public T Default { get; set; } = default!;
 
-    public virtual IEnumerable<TNum> GetNeighbors(TNum pos)
+    public IEnumerable<TNum> GetNeighbors(TNum pos)
     {
         foreach (var neighbor in TDim.GetNeighbors(pos))
         {

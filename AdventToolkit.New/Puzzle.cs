@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace AdventToolkit.New;
 
 /// <summary>
@@ -84,6 +86,11 @@ public abstract class Puzzle<T1, T2> : PuzzleBase
         }
         return lines.ToArray();
     }
+
+    /// <summary>
+    /// Enumerate the input as spans of each line.
+    /// </summary>
+    public SpanLineEnumerator Lines => RawInput.AsSpan().EnumerateLines();
 }
 
 /// <summary>

@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
-using AdventToolkit.New.Collections;
 using AdventToolkit.New.Space.Bound;
 using AdventToolkit.New.Space.Interface;
 
@@ -15,18 +14,13 @@ namespace AdventToolkit.New.Space.Set;
 /// <typeparam name="TNum"></typeparam>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="TDim"></typeparam>
-public class FixedGridView<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos<TNum>, T, FixedGridView<TNum, T, TDim>, Rect<TNum>>
+public class FixedGridView<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos<TNum>, T, FixedGridView<TNum, T, TDim>, Rect<TNum>>, ISpacePartial<Pos<TNum>, Rect<TNum>>
     where TNum : INumber<TNum>
     where TDim : IDimension<Pos<TNum>>
 {
-    public FastArray2d<T> Source;
+    public FixedGrid<TNum, T, TDim> Source;
     
     private Rect<TNum> _bounds;
-
-    /// <summary>
-    /// Bounds of the full array.
-    /// </summary>
-    public Rect<TNum> FullBounds { get; }
 
     /// <summary>
     /// Effective area of the view.
@@ -37,10 +31,9 @@ public class FixedGridView<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos
 
     public T Default { get; set; } = default!;
 
-    public FixedGridView(FastArray2d<T> source, Rect<TNum> bounds)
+    public FixedGridView(FixedGrid<TNum, T, TDim> source, Rect<TNum> bounds)
     {
         Source = source;
-        FullBounds = new Rect<TNum>(TNum.CreateTruncating(source.Width), TNum.CreateTruncating(source.Height));
         Bounds = bounds;
     }
     
@@ -52,16 +45,26 @@ public class FixedGridView<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos
         set
         {
             _bounds = value;
-            ViewBounds = FullBounds.Intersect(_bounds);
+            ViewBounds = Source.Bounds.Intersect(value);
             Count = int.CreateTruncating(ViewBounds.Area());
         }
     }
 
     public IEnumerable<Pos<TNum>> Positions => ViewBounds;
 
-    public IEnumerable<T> Values => Source[ViewBounds.As<int>()];
+    public IEnumerable<T> Values => Source.Data[ViewBounds.As<int>()];
 
-    public void Clear() => Source[ViewBounds.As<int>()].Clear();
+    public IEnumerable<Pos<TNum>> PositionsIn(Rect<TNum> bound) => ViewBounds.Intersect(bound);
+
+    public IEnumerable<Pos<TNum>> GetNeighbors(Pos<TNum> pos)
+    {
+        foreach (var neighbor in TDim.GetNeighbors(pos))
+        {
+            if (ViewBounds.Contains(neighbor)) yield return neighbor;
+        }
+    }
+
+    public void Clear() => Source.Data[ViewBounds.As<int>()].Clear();
 
     public bool Remove(Pos<TNum> pos)
     {
@@ -74,13 +77,13 @@ public class FixedGridView<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos
 
     public bool Contains(Pos<TNum> pos) => ViewBounds.Contains(pos);
 
-    public bool ContainsValue(T val) => Source[ViewBounds.As<int>()].Contains(val);
+    public bool ContainsValue(T val) => Source.Data[ViewBounds.As<int>()].Contains(val);
 
     public bool TryGet(Pos<TNum> pos, out T val)
     {
         if (Contains(pos))
         {
-            val = Source[pos.As<int>()];
+            val = Source.Data[pos.As<int>()];
             return true;
         }
 
@@ -88,15 +91,15 @@ public class FixedGridView<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos
         return false;
     }
 
-    public T GetStrict(Pos<TNum> pos) => Source[pos.As<int>()];
+    public T GetStrict(Pos<TNum> pos) => Source.Data[pos.As<int>()];
 
     public T this[Pos<TNum> pos]
     {
-        get => !Contains(pos) ? Default : Source[pos.As<int>()];
+        get => !Contains(pos) ? Default : Source.Data[pos.As<int>()];
         set
         {
             if (!Contains(pos)) return;
-            Source[pos.As<int>()] = value;
+            Source.Data[pos.As<int>()] = value;
         }
     }
 

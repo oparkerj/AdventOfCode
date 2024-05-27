@@ -38,7 +38,7 @@ public static class PuzzleRunner
 
     /// <summary>
     /// Executes <see cref="RunCapture"/>, then copy the text
-    /// to the clipboard and call the puzzles <see cref="PuzzleBase.WriteLn(string)"/>
+    /// to the clipboard and call the puzzle's <see cref="PuzzleBase.WriteLn(string)"/>
     /// method.
     /// </summary>
     /// <param name="puzzle"></param>
