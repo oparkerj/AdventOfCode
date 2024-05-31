@@ -41,8 +41,10 @@ public static class EnumerableExtensions
     /// <returns></returns>
     public static Span<T> Collect<T>(this IEnumerable<T> items)
     {
+        // Fast path for arrays
         if (items is T[] array) return array;
         
+        // Fast path for collections
         if (items is ICollection<T> col)
         {
             var result = new T[col.Count];
@@ -50,14 +52,14 @@ public static class EnumerableExtensions
             return result;
         }
 
-        var buf = new T[4];
+        var buffer = new T[4];
         var i = 0;
         
         foreach (var item in items)
         {
-            if (i >= buf.Length)
+            if (i >= buffer.Length)
             {
-                var size = buf.Length * 2;
+                var size = buffer.Length * 2;
                 if ((uint) size > Array.MaxLength)
                 {
                     size = Array.MaxLength;
@@ -66,12 +68,14 @@ public static class EnumerableExtensions
                 {
                     size = i + 1;
                 }
-                Array.Resize(ref buf, size);
+                var next = new T[size];
+                Array.Copy(buffer, next, buffer.Length);
+                buffer = next;
             }
 
-            buf[i++] = item;
+            buffer[i++] = item;
         }
 
-        return buf.AsSpan(0, i);
+        return buffer.AsSpan(0, i);
     }
 }
