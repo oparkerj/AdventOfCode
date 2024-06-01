@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Diagnostics;
 using AdventToolkit.New.Collections.Interface;
+using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Extensions;
 using AdventToolkit.New.Space;
 using AdventToolkit.New.Space.Bound;
@@ -132,28 +133,21 @@ public readonly struct Array2d<T> : IArray2dSlice<T, Array2d<T>>
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
-    public struct IndexEnumerator : IEnumerable<int>, IEnumerator<int>
+    public struct IndexEnumerator(int start, int stride, int last, int wrapSubtract = 0)
+        : IEnumerable<int>, IEnumerator<int>
     {
-        public readonly int Stride;
-        public readonly int Last;
-        public readonly int WrapSubtract;
+        public readonly int Stride = stride;
+        public readonly int Last = last;
+        public readonly int WrapSubtract = wrapSubtract;
         
-        public int Current { get; private set; }
-        
+        public int Current { get; private set; } = start - stride;
+
         public IndexEnumerator(int x, int y, int width, int height, int arrayWidth) :
             this(y * arrayWidth + x,
                 width == arrayWidth ? 1 : arrayWidth,
                 (y + height - 1) * arrayWidth + x + width - 1,
                 arrayWidth * height - 1)
         { }
-        
-        public IndexEnumerator(int start, int stride, int last, int wrapSubtract = 0)
-        {
-            Stride = stride;
-            Last = last;
-            WrapSubtract = wrapSubtract;
-            Current = start - stride;
-        }
 
         object IEnumerator.Current => Current;
 
@@ -176,15 +170,16 @@ public readonly struct Array2d<T> : IArray2dSlice<T, Array2d<T>>
 
         public IEnumerator<int> GetEnumerator() => this;
 
-        public void Reset() => throw new NotSupportedException();
+        public void Reset() => Err.NotSupported();
 
         public void Dispose() { }
     }
 
-    public struct Enumerator : IEnumerable<T>, IEnumerator<T>
+    public struct Enumerator(T[] data, int start, int stride, int last, int wrapSubtract = 0)
+        : IEnumerable<T>, IEnumerator<T>
     {
-        public readonly T[] Data;
-        public IndexEnumerator IndexEnumerator;
+        public readonly T[] Data = data;
+        public IndexEnumerator IndexEnumerator = new(start, stride, last, wrapSubtract);
         
         public Enumerator(T[] data, int x, int y, int width, int height, int arrayWidth) :
             this(data,
@@ -193,12 +188,6 @@ public readonly struct Array2d<T> : IArray2dSlice<T, Array2d<T>>
                 (y + height - 1) * arrayWidth + x + width - 1,
                 arrayWidth * height - 1)
         { }
-        
-        public Enumerator(T[] data, int start, int stride, int last, int wrapSubtract = 0)
-        {
-            Data = data;
-            IndexEnumerator = new IndexEnumerator(start, stride, last, wrapSubtract);
-        }
 
         public T Current => Data[IndexEnumerator.Current];
 
@@ -208,7 +197,7 @@ public readonly struct Array2d<T> : IArray2dSlice<T, Array2d<T>>
 
         public void Dispose() { }
 
-        public void Reset() => throw new NotSupportedException();
+        public void Reset() => Err.NotSupported();
 
         public Enumerator GetEnumerator() => this;
 

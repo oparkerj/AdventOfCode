@@ -1,3 +1,4 @@
+using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing.Disambiguation;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
@@ -93,7 +94,7 @@ public class ListContext : IParseContext
         {
             if (!_disambiguationComplete)
             {
-                throw new ArgumentException("Disambiguation was not fully applied when advancing state.");
+                Err.InvalidOperation("Disambiguation was not fully applied when advancing state.");
             }
 
             // Find the next type

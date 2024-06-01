@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using AdventToolkit.New.Collections;
+using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 using AdventToolkit.New.Util;
@@ -22,11 +23,11 @@ public static class EnumerableAdapter
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public static TTuple Take<T, TTuple>(IEnumerator<T> source, int count)
     {
-        using var arr = Arr<object?>.Get(count);
+        using Arr<object?> arr = new(count);
 
         for (var i = 0; i < count; i++)
         {
-            if (!source.MoveNext()) throw new ArgumentOutOfRangeException(nameof(source));
+            if (!source.MoveNext()) Err.EndOfSequence();
             arr[i] = source.Current;
         }
 
@@ -198,7 +199,7 @@ public static class EnumerableAdapter
             5 => typeof(EnumerableToTuple<,,,,,>).NewParserGeneric([elements, ..generic], [..parsers]),
             6 => typeof(EnumerableToTuple<,,,,,,>).NewParserGeneric([elements, ..generic], [..parsers]),
             7 => typeof(EnumerableToTuple<,,,,,,,>).NewParserGeneric([elements, ..generic], [..parsers]),
-            _ => throw new UnreachableException()
+            _ => Err.Unreachable<IParser>()
         };
     }
 }
@@ -269,7 +270,7 @@ public class EnumerableConstructIdentity<T> : IEnumerableParser<T, T>
 
     public T Parse(BufferedEnumerator<T> input)
     {
-        if (!input.MoveNext()) throw new ArgumentOutOfRangeException(nameof(input));
+        if (!input.MoveNext()) Err.EndOfSequence();
         return input.Current;
     }
 }
@@ -287,7 +288,7 @@ public class EnumerableConstructSingle<TIn, TOut>(IParser<TIn, TOut> constructor
     
     public TOut Parse(BufferedEnumerator<TIn> input)
     {
-        if (!input.MoveNext()) throw new ArgumentOutOfRangeException(nameof(input));
+        if (!input.MoveNext()) Err.EndOfSequence();
         return constructor.Parse(input.Current);
     }
 

@@ -1,3 +1,4 @@
+using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
@@ -178,7 +179,7 @@ public class ParseBuilder
         }
         else if (!context.TryApplyModifier(this, inputType, value, extra))
         {
-            throw new ArgumentException($"Could not add parser or modifier. (Value = {Types.SimpleValueString(value)}, Extra = \"{extra}\")");
+            Err.InvalidOperation($"Could not add parser or modifier. (Value = {Types.SimpleValueString(value)}, Extra = \"{extra}\")");
         }
     }
 

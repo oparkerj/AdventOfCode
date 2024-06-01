@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Space.Bound;
 
 namespace AdventToolkit.New.Collections;
@@ -82,20 +83,17 @@ public readonly struct ArrayView<T> : IEnumerable<T>
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
-    public struct Enumerator : IEnumerator<T>
+    public struct Enumerator(T[] data, Interval<int> range, int stride) : IEnumerator<T>
     {
-        public readonly T[] Data;
-        public readonly int Stride;
-        public readonly int Last;
-        public int Index;
-
-        public Enumerator(T[] data, Interval<int> range, int stride)
-        {
-            Data = data;
-            Stride = stride;
-            Last = range.Start + Math.Max(range.Length - 1, 0) * stride;
-            Index = range.Start - stride;
-        }
+        public readonly T[] Data = data;
+        public readonly int Stride = stride;
+        
+        // This still works for length = 0.
+        // Index is initialized to one step before the start.
+        // For length = 0, Last is also set to the step before the start,
+        // which will cause the first move to return false.
+        public readonly int Last = range.Start + (range.Length - 1) * stride;
+        public int Index = range.Start - stride;
 
         public T Current { get; private set; } = default!;
 
@@ -110,6 +108,6 @@ public readonly struct ArrayView<T> : IEnumerable<T>
 
         public void Dispose() { }
 
-        public void Reset() => throw new NotSupportedException();
+        public void Reset() => Err.NotSupported();
     }
 }

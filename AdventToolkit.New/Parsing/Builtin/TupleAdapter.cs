@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 
@@ -152,7 +153,7 @@ public static class TupleAdapter
                 5 => typeof(TupleCompress<,,,,,,,,,,>).NewParserGeneric([sourceType, ..generic], args),
                 6 => typeof(TupleCompress<,,,,,,,,,,,,>).NewParserGeneric([sourceType, ..generic], args),
                 7 => typeof(TupleCompress<,,,,,,,,,,,,,,>).NewParserGeneric([sourceType, ..generic], args),
-                _ => throw new UnreachableException()
+                _ => Err.Unreachable<IParser>()
             };
         }
     }
@@ -230,8 +231,7 @@ public class TupleFirst<TTuple, TOut> : IParser<TTuple, TOut>
 {
     public TOut Parse(TTuple input)
     {
-        if (input is [TOut first, ..]) return first;
-        throw new UnreachableException();
+        return input is [TOut first, ..] ? first : Err.Unreachable<TOut>();
     }
 }
 

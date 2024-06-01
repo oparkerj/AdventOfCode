@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AdventToolkit.New.Collections;
+using AdventToolkit.New.Debugging;
 
 namespace AdventToolkit.New.Reflect;
 
@@ -208,7 +209,7 @@ public static class Types
     public static Type[] GetTypeArguments(this Type type, Type which)
     {
         if (type.TryGetTypeArguments(which, out var types)) return types;
-        throw new ArgumentException($"Could not get generic arguments. Search = {which}, Given = {type}");
+        return Err.Argument<Type[]>($"Could not get generic arguments. Search = {which}, Given = {type}");
     }
 
     /// <summary>

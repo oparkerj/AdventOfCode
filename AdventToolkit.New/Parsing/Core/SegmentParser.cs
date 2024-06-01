@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Disambiguation;
 using AdventToolkit.New.Parsing.Interface;
@@ -133,7 +134,7 @@ public class SegmentParser<T> : ParseBase<string, T>
             if (!endSection && _anchors.Count == 1 && _anchors[0] != string.Empty)
             {
                 // Cannot specify just a literal
-                throw new ArgumentException("Invalid parse format. No sections given.");
+                Err.InvalidFormat("Invalid parse format. No sections given.");
             }
             // Here means the format consists of only literals and null splits
             return (IParser<string, T>) ParseAdapt.Adapt(AnchorSplit.Create(_anchors, _firstIsLiteral, endSection), typeof(T), Context);

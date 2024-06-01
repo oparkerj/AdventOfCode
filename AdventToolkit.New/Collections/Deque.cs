@@ -77,8 +77,8 @@ public class Deque<T> : IEnumerable<T>
     /// <returns></returns>
     private T GetWrap(int i)
     {
-        Debug.Assert(i >= 0 && i < _data.Length + Capacity);
         var target = i + _back;
+        Debug.Assert(target >= 0 && target < _data.Length + Capacity);
         return target < _data.Length ? _data[target] : _data[target - _data.Length];
     }
 
@@ -148,8 +148,15 @@ public class Deque<T> : IEnumerable<T>
     /// </summary>
     /// <param name="i"></param>
     /// <exception cref="IndexOutOfRangeException"></exception>
-    public T this[int i] => i >= 0 && i < Count ? GetWrap(i) : throw new IndexOutOfRangeException();
-    
+    public T this[int i]
+    {
+        get
+        {
+            Debug.Assert(i >= 0 && i < Count);
+            return GetWrap(i);
+        }
+    }
+
     /// <summary>
     /// Alias for <see cref="PushFront"/>
     /// </summary>

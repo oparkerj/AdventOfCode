@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing.Builtin;
 using AdventToolkit.New.Parsing.Disambiguation;
 using AdventToolkit.New.Parsing.Interface;
@@ -57,7 +58,7 @@ public static class ParseAdapt
         {
             return result;
         }
-        throw new ArgumentException($"Could not adapt to target type. (Output = {output.SimpleName()}, Target = {target.SimpleName()})");
+        return Err.Argument<IParser>($"Could not adapt to target type. (Output = {output.SimpleName()}, Target = {target.SimpleName()})");
     }
 
     /// <summary>
@@ -75,7 +76,7 @@ public static class ParseAdapt
         {
             return result;
         }
-        throw new ArgumentException($"Could not adapt to target type. (Type = {from.SimpleName()}, Target = {target.SimpleName()})");
+        return Err.Argument<IParser?>($"Could not adapt to target type. (Type = {from.SimpleName()}, Target = {target.SimpleName()})");
     }
 
     /// <summary>
@@ -176,7 +177,7 @@ public static class ParseAdapt
         {
             if (context.ApplyDisambiguation(options[i])) return i + 1;
         }
-        throw new ArgumentException($"Invalid disambiguation type for {container.SimpleName()}");
+        return Err.Argument<int>($"Invalid disambiguation type for {container.SimpleName()}");
     }
 
     /// <summary>
@@ -600,7 +601,7 @@ public static class ParseAdapt
         {
             if (itemSize < 0)
             {
-                throw new ArgumentException("Cannot nest collectors.");
+                Err.Argument("Cannot nest collectors.");
             }
             
             Parse.Verbose($"Adapted IEnumerable<{outputInner}> to {target} of tuple {targetInner} -> {innerConstructor.GetType()}");
@@ -755,7 +756,7 @@ public static class ParseAdapt
             {
                 if (innerItemSize > sizes.MaxItemSize)
                 {
-                    throw new ArgumentException($"Type {elementType.SimpleName()} at index {i} has an item size of {innerItemSize} but the max item size at this index is {sizes.MaxItemSize}.");
+                    Err.Argument($"Type {elementType.SimpleName()} at index {i} has an item size of {innerItemSize} but the max item size at this index is {sizes.MaxItemSize}.");
                 }
                 context.ApplyDisambiguation(null);
                 Parse.Verbose($"Adapted element {i} -> {sections[i].GetType()}");
