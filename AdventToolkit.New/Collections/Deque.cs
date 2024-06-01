@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using AdventToolkit.New.Collections.Util;
 
 namespace AdventToolkit.New.Collections;
 
@@ -336,45 +337,9 @@ public class Deque<T> : IEnumerable<T>
         return true;
     }
 
-    public Enumerator GetEnumerator() => new(_data, _back, Prev(_front));
+    public ArrayEnumerator<T> GetEnumerator() => new(_data, _back, Prev(_front));
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public struct Enumerator : IEnumerable<T>, IEnumerator<T>
-    {
-        public readonly T[] Data;
-        public readonly int Last;
-        public int Index;
-
-        public Enumerator(T[] data, int start, int last)
-        {
-            Data = data;
-            Last = last;
-            Index = start - 1;
-        }
-
-        public T Current => Data[Index];
-
-        object? IEnumerator.Current => Current;
-
-        public bool MoveNext()
-        {
-            if (Index == Last) return false;
-            if (++Index >= Data.Length)
-            {
-                Index = 0;
-            }
-            return true;
-        }
-
-        public void Reset() => throw new NotSupportedException();
-
-        public void Dispose() { }
-
-        public IEnumerator<T> GetEnumerator() => this;
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 }

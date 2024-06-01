@@ -1,5 +1,6 @@
 using System.Collections;
 using AdventToolkit.New.Calc;
+using AdventToolkit.New.Collections.Util;
 
 namespace AdventToolkit.New.Collections;
 
@@ -11,6 +12,7 @@ public class CircularArray<T> : IEnumerable<T>
 {
     public readonly T[] Data;
 
+    // Internal pointer is the same as pointer but wrapped
     private int _internalPointer;
     private int _pointer;
 
@@ -124,30 +126,10 @@ public class CircularArray<T> : IEnumerable<T>
         Array.Clear(Data);
         _internalPointer = _pointer = 0;
     }
+
+    public ArrayEnumerator<T> GetEnumerator() => ArrayEnumerator<T>.From(Data, _internalPointer);
     
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    
-    public IEnumerator<T> GetEnumerator()
-    {
-        if (_internalPointer == 0)
-        {
-            foreach (var t in Data)
-            {
-                yield return t;
-            }
-        }
-        else
-        {
-            if (Data.Length == 0) yield break;
-            var i = _internalPointer;
-            do
-            {
-                yield return Data[i];
-                if (++i >= Data.Length)
-                {
-                    i = 0;
-                }
-            } while (i != _internalPointer);
-        }
-    }
+
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 }
