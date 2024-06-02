@@ -2,9 +2,7 @@
 using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Parsing;
 using AdventToolkit.New.Parsing.Core;
-using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
-using AdventToolkit.New.Space.Set;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -14,49 +12,28 @@ namespace Benchmarks;
 [MemoryDiagnoser]
 public class BenchmarkMain
 {
-    public record IntPair(int A, int B);
-
-    // Test descriptor that allows IntPair to be constructed
-    public class IntsDescriptor : ITypeDescriptor
-    {
-        public bool Match(Type type) => type == typeof(IntPair);
-
-        public bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
-        {
-            if (types.TryAdaptTuple(typeof((int, int)), context, out var convert))
-            {
-                constructor = ParseAdapt.MaybeJoin(convert, new FromInts());
-                return true;
-            }
-
-            constructor = default!;
-            return false;
-        }
-
-        public class FromInts : IParser<(int, int), IntPair>
-        {
-            public IntPair Parse((int, int) input) => new(input.Item1, input.Item2);
-        }
-    }
-    
     public static void Main(string[] args)
     {
         // var summary = BenchmarkRunner.Run<BenchmarkMain>();
+        // return;
         // var summary = BenchmarkPuzzle<TestPuzzle>();
         // var summary = ComparePuzzle<Day1, Day1Better>();
+        
+        return;
 
         Debugging.EnableLogs();
         
         DefaultContext.AddCommonTypes();
         DefaultContext.AddToolkitTypes();
-        DefaultContext.Instance.AddType(new IntsDescriptor());
 
-        var input = """
-                    12345
-                    67890
-                    """;
-        var lines = input.Split(Environment.NewLine);
-        var result = lines.Adapt().Into<(Grid<int>, char[][])>($"{null}{null}");
+        var input = "1a,22b,3c,41d";
+        var result = input.Parse<(int, char)[]>($"{@"(\d+)(.)":+}");
+
+        // var input = """
+        //             12345
+        //             45678
+        //             """;
+        // var result = input.Parse<Grid<int>>($"{@"":+}");
         
         Console.WriteLine(result.DebugString());
     }
