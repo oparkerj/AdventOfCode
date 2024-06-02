@@ -138,8 +138,6 @@ public readonly record struct Pos4<T>(T W, T X, T Y, T Z) : IPos<Pos4<T>, T>
             return false;
         }
     }
-    
-    public static IEnumerable<Pos4<T>> GetNeighbors(Pos4<T> pos) => pos.Adjacent();
 
     public IEnumerable<Pos4<T>> Adjacent()
     {

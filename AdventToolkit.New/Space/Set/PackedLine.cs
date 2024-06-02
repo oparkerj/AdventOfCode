@@ -16,13 +16,15 @@ namespace AdventToolkit.New.Space.Set;
 /// <typeparam name="TDim"></typeparam>
 public class PackedLine<TNum, T, TDim> : IAlignedSpace<TNum, T, TDim>
     where TNum : INumber<TNum>
-    where TDim : IDimension<TNum>
+    where TDim : IDimension<TNum>, new()
 {
     /// <summary>
     /// Underlying position data.
     /// </summary>
     public T[] Data { get; private set; }
-    
+
+    public TDim Dimension { get; set; } = new();
+
     /// <summary>
     /// Range of values represented by this line.
     /// </summary>
@@ -142,7 +144,7 @@ public class PackedLine<TNum, T, TDim> : IAlignedSpace<TNum, T, TDim>
 
     public IEnumerable<TNum> GetNeighbors(TNum pos)
     {
-        foreach (var neighbor in TDim.GetNeighbors(pos))
+        foreach (var neighbor in Dimension.GetNeighbors(pos))
         {
             if (TypeInterval.Contains(neighbor)) yield return neighbor;
         }

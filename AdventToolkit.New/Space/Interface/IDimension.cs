@@ -7,9 +7,9 @@ namespace AdventToolkit.New.Space.Interface;
 public interface IDimension<T>
 {
     /// <summary>
-    /// Get adjacent values.
+    /// Get neighbor values.
     /// </summary>
-    /// <param name="pos">Current position.</param>
+    /// <param name="pos"></param>
     /// <returns></returns>
-    static abstract IEnumerable<T> GetNeighbors(T pos);
+    IEnumerable<T> GetNeighbors(T pos);
 }

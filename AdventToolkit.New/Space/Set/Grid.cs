@@ -3,6 +3,7 @@ using AdventToolkit.New.Parsing;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 using AdventToolkit.New.Space.Bound;
+using AdventToolkit.New.Space.Dimension;
 using AdventToolkit.New.Space.Interface;
 
 namespace AdventToolkit.New.Space.Set;
@@ -15,8 +16,10 @@ namespace AdventToolkit.New.Space.Set;
 /// <typeparam name="TDim"></typeparam>
 public class Grid<TNum, T, TDim> : SparseSpace<Pos<TNum>, T, Rect<TNum>>, IGrid<TNum, T, TDim>, IAdapterLookup
     where TNum : INumber<TNum>
-    where TDim : IDimension<Pos<TNum>>
+    where TDim : IDimension<Pos<TNum>>, new()
 {
+    public TDim Dimension { get; set; } = new();
+
     public bool TryLookup(Type from, Type to, IParseContext context, out IParser parser)
     {
         if (!to.TryGetTypeArguments(typeof(Grid<,,>), out var baseType, out var toTypes))
@@ -71,7 +74,7 @@ public class Grid<TNum, T, TDim> : SparseSpace<Pos<TNum>, T, Rect<TNum>>, IGrid<
 }
 
 /// <inheritdoc cref="Grid{TNum,T,TDim}"/>
-public class Grid<TNum, T> : Grid<TNum, T, Pos<TNum>>
+public class Grid<TNum, T> : Grid<TNum, T, PosAdjacent<Pos<TNum>>>
     where TNum : INumber<TNum>;
 
 /// <inheritdoc cref="Grid{TNum,T,TDim}"/>

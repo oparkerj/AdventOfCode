@@ -16,10 +16,10 @@ namespace AdventToolkit.New.Space.Set;
 /// <typeparam name="TDim"></typeparam>
 public class FixedGridView<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos<TNum>, T, FixedGridView<TNum, T, TDim>, Rect<TNum>>, ISpacePartial<Pos<TNum>, Rect<TNum>>
     where TNum : INumber<TNum>
-    where TDim : IDimension<Pos<TNum>>
+    where TDim : IDimension<Pos<TNum>>, new()
 {
     public FixedGrid<TNum, T, TDim> Source;
-    
+
     private Rect<TNum> _bounds;
 
     /// <summary>
@@ -36,7 +36,13 @@ public class FixedGridView<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos
         Source = source;
         Bounds = bounds;
     }
-    
+
+    public TDim Dimension
+    {
+        get => Source.Dimension;
+        set => Source.Dimension = value;
+    }
+
     public Rect<TNum> Bounds
     {
         get => _bounds;
@@ -58,7 +64,7 @@ public class FixedGridView<TNum, T, TDim> : IGrid<TNum, T, TDim>, ISpaceView<Pos
 
     public IEnumerable<Pos<TNum>> GetNeighbors(Pos<TNum> pos)
     {
-        foreach (var neighbor in TDim.GetNeighbors(pos))
+        foreach (var neighbor in Dimension.GetNeighbors(pos))
         {
             if (ViewBounds.Contains(neighbor)) yield return neighbor;
         }

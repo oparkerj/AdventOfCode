@@ -7,10 +7,10 @@ namespace AdventToolkit.New.Space.Dimension;
 /// Dimension for single-dimensional space.
 /// </summary>
 /// <typeparam name="TNum"></typeparam>
-public class LineDim<TNum> : IDimension<TNum>
+public class LineDim<TNum> : IStaticDimension<LineDim<TNum>, TNum>
     where TNum : INumber<TNum>
 {
-    public static IEnumerable<TNum> GetNeighbors(TNum pos)
+    public static IEnumerable<TNum> GetNeighborsStatic(TNum pos)
     {
         yield return pos + TNum.One;
         yield return pos - TNum.One;

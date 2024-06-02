@@ -143,8 +143,6 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
 
     public T Sum() => X + Y;
 
-    public static IEnumerable<Pos<T>> GetNeighbors(Pos<T> pos) => pos.Adjacent();
-
     public IEnumerable<Pos<T>> Adjacent()
     {
         yield return this with {Y = Y + T.One};

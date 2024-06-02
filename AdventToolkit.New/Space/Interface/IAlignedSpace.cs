@@ -24,5 +24,7 @@ public interface IAlignedSpace<TPos, TVal> : ISpace<TPos, TVal>
 public interface IAlignedSpace<TPos, TVal, TDim> : IAlignedSpace<TPos, TVal>
     where TDim : IDimension<TPos>
 {
-    IEnumerable<TPos> IAlignedSpace<TPos, TVal>.GetNeighbors(TPos pos) => TDim.GetNeighbors(pos);
+    TDim Dimension { get; set; }
+
+    IEnumerable<TPos> IAlignedSpace<TPos, TVal>.GetNeighbors(TPos pos) => Dimension.GetNeighbors(pos);
 }

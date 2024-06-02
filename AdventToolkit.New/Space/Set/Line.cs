@@ -13,7 +13,10 @@ namespace AdventToolkit.New.Space.Set;
 /// <typeparam name="TDim"></typeparam>
 public class Line<TNum, T, TDim> : SparseSpace<TNum, T, Interval<TNum>>, IAlignedSpace<TNum, T, TDim>
     where TNum : INumber<TNum>
-    where TDim : IDimension<TNum>;
+    where TDim : IDimension<TNum>, new()
+{
+    public TDim Dimension { get; set; } = new();
+}
 
 /// <inheritdoc cref="Line{TNum, T, TDim}"/>
 public class Line<TNum, T> : Line<TNum, T, LineDim<TNum>>

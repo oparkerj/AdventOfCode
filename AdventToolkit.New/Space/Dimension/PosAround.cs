@@ -7,10 +7,8 @@ namespace AdventToolkit.New.Space.Dimension;
 /// just adjacent positions.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-/// <typeparam name="TPos"></typeparam>
-public class PosAround<T, TPos> : IDimension<TPos>
-    where TPos : IPos<TPos, T>
-    where T : notnull
+public struct PosAround<T> : IStaticDimension<PosAround<T>, T>
+    where T : IPos<T>
 {
-    public static IEnumerable<TPos> GetNeighbors(TPos pos) => pos.Around();
+    public static IEnumerable<T> GetNeighborsStatic(T pos) => pos.Around();
 }
