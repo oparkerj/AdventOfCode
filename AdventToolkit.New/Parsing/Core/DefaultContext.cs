@@ -45,7 +45,7 @@ public class DefaultContext : ListContext
     {
         context ??= Instance;
         
-        context.AddType<Pos<byte>>();
+        context.AddType<Pos.Descriptor>();
         context.AddAdapter(new Grid<byte>());
     }
 }

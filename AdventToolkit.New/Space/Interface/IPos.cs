@@ -1,6 +1,5 @@
 using System.Numerics;
 using AdventToolkit.New.Interface;
-using AdventToolkit.New.Parsing.Interface;
 
 namespace AdventToolkit.New.Space.Interface;
 
@@ -18,8 +17,7 @@ public interface IPos<T> :
     IAdditiveIdentity<T, T>,
     IDecrementOperators<T>,
     IIncrementOperators<T>,
-    ISpanParsable<T>,
-    ITypeDescriptor
+    ISpanParsable<T>
     where T : IPos<T>
 {
     /// <summary>
