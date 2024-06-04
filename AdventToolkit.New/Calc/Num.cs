@@ -63,7 +63,7 @@ public static class Num
         where T : INumber<T>
     {
         Debug.Assert(min <= max);
-        return (max - min + T.One) * (max + min) / NumVal<T>.Two;
+        return (max - min + T.One) * ((max + min) / NumVal<T>.Two);
     }
 
     /// <summary>
@@ -76,6 +76,6 @@ public static class Num
         where T : INumber<T>
     {
         Debug.Assert(interval.Length >= T.Zero);
-        return interval.Length * (interval.Min + interval.Last) / NumVal<T>.Two;
+        return interval.Length * ((interval.Min + interval.Last) / NumVal<T>.Two);
     }
 }
