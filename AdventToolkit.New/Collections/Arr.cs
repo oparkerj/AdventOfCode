@@ -1,5 +1,7 @@
 using System.Buffers;
+using System.Collections;
 using System.Runtime.CompilerServices;
+using AdventToolkit.New.Collections.Util;
 
 namespace AdventToolkit.New.Collections;
 
@@ -7,7 +9,7 @@ namespace AdventToolkit.New.Collections;
 /// Represents a shared array.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public readonly struct Arr<T> : IDisposable
+public readonly struct Arr<T> : IDisposable, IEnumerable<T>
 {
     /// <summary>
     /// Underlying array.
@@ -70,7 +72,7 @@ public readonly struct Arr<T> : IDisposable
     /// Copy the array to the destination span.
     /// </summary>
     /// <param name="destination"></param>
-    public void CopyTo(Span<T> destination) => ((Span<T>) this).CopyTo(destination);
+    public void CopyTo(Span<T> destination) => Span.CopyTo(destination);
 
     /// <summary>
     /// Implicit conversion to span.
@@ -106,4 +108,8 @@ public readonly struct Arr<T> : IDisposable
     /// </summary>
     /// <returns></returns>
     public Span<T>.Enumerator GetEnumerator() => Span.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>) this).GetEnumerator();
+
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() => ArrayEnumerator<T>.From(Data, 0, Length);
 }
