@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Diagnostics;
 using AdventToolkit.New.Collections.Interface;
+using AdventToolkit.New.Collections.Util;
 using AdventToolkit.New.Extensions;
 using AdventToolkit.New.Space;
 using AdventToolkit.New.Space.Bound;
@@ -86,7 +87,7 @@ public readonly struct FastArray2d<T> : IArray2dSlice<T, Array2d<T>>
     
     public Array2d<T> Cols(Range range) => Cols(range.ToInterval(Width));
 
-    public Array2d<T>.Enumerator GetEnumerator() => new(Data, 0, Data.Length, 1);
+    public Array2d<T>.Enumerator GetEnumerator() => new(Data, new IndexEnumerator(0, 1, Data.Length - 1));
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

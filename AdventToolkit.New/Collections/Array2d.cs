@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Diagnostics;
 using AdventToolkit.New.Collections.Interface;
+using AdventToolkit.New.Collections.Util;
 using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Extensions;
 using AdventToolkit.New.Space;
@@ -125,69 +126,19 @@ public readonly struct Array2d<T> : IArray2dSlice<T, Array2d<T>>
 
     public Array2d<T> Cols(Range range) => Cols(range.ToInterval(FullWidth));
 
-    public IndexEnumerator GetIndexEnumerator() => new(Bounds.MinX, Bounds.MinY, Width, Height, FullWidth);
+    public IndexEnumerator GetIndexEnumerator() => IndexEnumerator.From(Bounds.MinX, Bounds.MinY, Width, Height, FullWidth);
 
-    public Enumerator GetEnumerator() => new(Data, Bounds.MinX, Bounds.MinY, Width, Height, FullWidth);
+    public Enumerator GetEnumerator() => new(Data, GetIndexEnumerator());
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
-    public struct IndexEnumerator(int start, int stride, int last, int wrapSubtract = 0)
-        : IEnumerable<int>, IEnumerator<int>
-    {
-        public readonly int Stride = stride;
-        public readonly int Last = last;
-        public readonly int WrapSubtract = wrapSubtract;
-        
-        public int Current { get; private set; } = start - stride;
-
-        public IndexEnumerator(int x, int y, int width, int height, int arrayWidth) :
-            this(y * arrayWidth + x,
-                width == arrayWidth ? 1 : arrayWidth,
-                (y + height - 1) * arrayWidth + x + width - 1,
-                arrayWidth * height - 1)
-        { }
-
-        object IEnumerator.Current => Current;
-
-        public bool MoveNext()
-        {
-            if (Current == Last) return false;
-            if ((Current += Stride) > Last)
-            {
-                Current -= WrapSubtract;
-                if (Current > Last)
-                {
-                    Current = Last;
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public IEnumerator<int> GetEnumerator() => this;
-
-        public void Reset() => Err.NotSupported();
-
-        public void Dispose() { }
-    }
-
-    public struct Enumerator(T[] data, int start, int stride, int last, int wrapSubtract = 0)
+    public struct Enumerator(T[] data, IndexEnumerator indexEnumerator)
         : IEnumerable<T>, IEnumerator<T>
     {
         public readonly T[] Data = data;
-        public IndexEnumerator IndexEnumerator = new(start, stride, last, wrapSubtract);
-        
-        public Enumerator(T[] data, int x, int y, int width, int height, int arrayWidth) :
-            this(data,
-                y * arrayWidth + x,
-                width == arrayWidth ? 1 : arrayWidth,
-                (y + height - 1) * arrayWidth + x + width - 1,
-                arrayWidth * height - 1)
-        { }
+        public IndexEnumerator IndexEnumerator = indexEnumerator;
 
         public T Current => Data[IndexEnumerator.Current];
 
