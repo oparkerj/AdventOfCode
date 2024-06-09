@@ -96,7 +96,10 @@ public class Deque<T> : IEnumerable<T>
         }
         // +2 because we want at least Capacity + 1 but the internal
         // array is always one larger than the desired capacity.
-        size = Math.Max(size, Capacity + 2);
+        if (size < Capacity + 2)
+        {
+            size = Capacity + 2;
+        }
         
         var next = new T[size];
         if (Empty)
@@ -106,15 +109,15 @@ public class Deque<T> : IEnumerable<T>
         }
         else if (_front < _back)
         {
-            _data[.._front].CopyTo(next, 0);
-            _data[_back..].CopyTo(next, _front);
+            _data.AsSpan(0, _front).CopyTo(next);
+            _data.AsSpan(_back).CopyTo(next.AsSpan(_front));
             _front = _data.Length - _back + _front;
             _back = 0;
             _data = next;
         }
         else
         {
-            _data[_back.._front].CopyTo(next, 0);
+            _data.AsSpan(_back, _front - _back).CopyTo(next);
             _front -= _back;
             _back = 0;
             _data = next;
@@ -185,7 +188,7 @@ public class Deque<T> : IEnumerable<T>
     public bool TryPop(out T item) => TryPopFront(out item);
 
     /// <summary>
-    /// Push an item on the front of thq queue.
+    /// Push an item on the front of the queue.
     /// If the queue is full and <see cref="GrowIfFull"/> if true,
     /// the capacity will be increase to add the item.
     /// </summary>
