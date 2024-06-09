@@ -30,7 +30,7 @@ public struct ArrayEnumerator<T>(T[] data, int start, int last) : IEnumerable<T>
         Debug.Assert(length >= 0 && length <= data.Length);
         Debug.Assert(start >= 0 && start < data.Length);
 
-        var last = start + length - 1;
+        var last = length == 0 ? start : start + length - 1;
         if (last >= data.Length)
         {
             last -= data.Length;
