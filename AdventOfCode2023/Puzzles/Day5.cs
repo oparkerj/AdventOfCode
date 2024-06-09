@@ -1,6 +1,6 @@
 using AdventToolkit;
 using AdventToolkit.Extensions;
-using AdventToolkit.New.Extensions;
+using AdventToolkit.New.Space;
 using AdventToolkit.New.Space.Bound;
 using AdventToolkit.New.Space.Set;
 

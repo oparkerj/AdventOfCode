@@ -39,7 +39,12 @@ public readonly struct FastArray2d<T> : IArray2dSlice<T, Array2d<T>>
 
     public bool Contains(T t) => Array.IndexOf(Data, t) > -1;
 
-    public int Index(int x, int y) => y * Width + x;
+    public int Index(int x, int y)
+    {
+        Debug.Assert(x >= 0 && x < Width);
+        Debug.Assert(y >= 0 && y < Height);
+        return y * Width + x;
+    }
 
     public T this[int x, int y]
     {

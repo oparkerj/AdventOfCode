@@ -79,6 +79,8 @@ public readonly struct Array2d<T> : IArray2dSlice<T, Array2d<T>>
     /// <returns></returns>
     public int Index(int x, int y)
     {
+        Debug.Assert(x >= 0 && x < Width);
+        Debug.Assert(y >= 0 && y < Height);
         return (y + Bounds.MinY) * FullWidth + x + Bounds.MinX;
     }
 

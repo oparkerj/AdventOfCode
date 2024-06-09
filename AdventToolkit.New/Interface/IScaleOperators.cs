@@ -21,11 +21,5 @@ public interface IScaleOperators<in TSelf, in TOther, out TResult>
     static abstract TResult operator *(TSelf left, TOther right);
     
     /// <inheritdoc cref="op_Multiply"/>
-    static virtual TResult operator checked *(TSelf left, TOther right) => left * right;
-    
-    /// <inheritdoc cref="op_Multiply"/>
     static abstract TResult operator /(TSelf left, TOther right);
-    
-    /// <inheritdoc cref="op_Multiply"/>
-    static virtual TResult operator checked /(TSelf left, TOther right) => left / right;
 }

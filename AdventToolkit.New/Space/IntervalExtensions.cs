@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Numerics;
 using AdventToolkit.New.Space.Bound;
 
-namespace AdventToolkit.New.Extensions;
+namespace AdventToolkit.New.Space;
 
 public static class IntervalExtensions
 {
