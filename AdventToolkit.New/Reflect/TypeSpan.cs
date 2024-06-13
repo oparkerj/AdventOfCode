@@ -79,7 +79,7 @@ public readonly ref struct TypeSpan
     {
         get
         {
-            Debug.Assert(_length <= 0 || i < _length);
+            Debug.Assert(_length < 0 || i < Length);
             return _length != 0 ? _span[0] : _span[i];
         }
     }
@@ -93,11 +93,13 @@ public readonly ref struct TypeSpan
     /// <returns></returns>
     public TypeSpan Slice(int start, int length)
     {
+        // If this span represents an unknown length, slicing does not change anything
         if (_length < 0) return this;
+        
         if (_length > 0)
         {
             Debug.Assert(start >= 0 && start <= _length);
-            Debug.Assert(length <= _length - start);
+            Debug.Assert(length >= 0 && length <= _length - start);
             return new TypeSpan(length == 0 ? default : _span, length);
         }
         return new TypeSpan(_span.Slice(start, length));
@@ -111,11 +113,13 @@ public readonly ref struct TypeSpan
     public bool StartsWith(ReadOnlySpan<Type> types)
     {
         if (_length == 0) return _span.CommonPrefixLength(types) == types.Length;
+        // If the prefix is longer than this span, it can't be contained within the span
         if (_length > 0 && _length < types.Length) return false;
-            
+
+        var value = _span[0];
         foreach (var type in types)
         {
-            if (type != _span[0]) return false;
+            if (type != value) return false;
         }
         return true;
     }
@@ -134,12 +138,14 @@ public readonly ref struct TypeSpan
         Debug.Assert(type.IsTupleType());
         var size = type.GetTupleSize();
         
+        // If we have a known length and the tuple has more elements, we can't adapt
         if ((_length == 0 && _span.Length < size) || (_length > 0 && _length < size))
         {
             adapter = default;
             return false;
         }
         
+        // Take the same number of elements as in the tuple 
         var tuple = _length == 0 ? Types.CreateTupleType(_span[..size]) : Types.CreateTupleType(_span[0], size);
         return ParseAdapt.TryAdapt(tuple, type, context, out adapter);
     }

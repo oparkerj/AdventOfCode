@@ -79,7 +79,7 @@ public static class Types
 
     /// <summary>
     /// Get the <see cref="SimpleName"/> of a type followed by its string
-    /// representation in parenthesis.
+    /// representation in parentheses.
     /// </summary>
     /// <param name="t"></param>
     /// <typeparam name="T"></typeparam>
