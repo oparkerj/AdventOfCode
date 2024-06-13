@@ -80,16 +80,14 @@ public class StringParse : ITypeLookup, IParserLookupByInput<string>, IAdapterLo
     /// <summary>
     /// Split a string by a character
     /// </summary>
-    public class CharSplit : IParser<string, string[]>
+    public class CharSplit(char split) : IParser<string, string[]>
     {
         /// <summary>
         /// Split character.
         /// </summary>
-        public readonly char Split;
+        public readonly char Split = split;
 
         private readonly StringSplitOptions _options;
-
-        public CharSplit(char split) => Split = split;
 
         /// <summary>
         /// Whether to trim the split sections
@@ -136,7 +134,7 @@ public class StringParse : ITypeLookup, IParserLookupByInput<string>, IAdapterLo
 
     /// <summary>
     /// Special case converting string to char.
-    /// This will just take the first character, while the built in implementation
+    /// This will just take the first character, whereas the built-in implementation
     /// will throw if the string is not exactly one character long.
     /// </summary>
     public class ToChar : IParser<string, char>

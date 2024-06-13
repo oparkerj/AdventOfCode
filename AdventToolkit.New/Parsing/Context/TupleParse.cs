@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 
@@ -19,27 +18,17 @@ public class TupleParse : ITypeLookup
 
     public bool TrySelect(Type type, out Type inner, out IParser selector)
     {
-        if (ArrayParse.IsSingleType(type.GetTupleTypes()))
+        var types = type.GetTupleTypes();
+        if (ArrayParse.IsSingleType(types))
         {
-            inner = type.GetSingleTypeArgument();
-            selector = GetEnumerator(type);
+            inner = types[0];
+            selector = GetEnumerator(types);
             return true;
         }
 
         inner = default!;
         selector = default!;
         return false;
-    }
-
-    /// <summary>
-    /// Get an enumerator for a tuple.
-    /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
-    private IParser GetEnumerator(Type type)
-    {
-        Debug.Assert(type.IsTupleType());
-        return GetEnumerator(type.GetGenericArguments());
     }
 
     /// <summary>

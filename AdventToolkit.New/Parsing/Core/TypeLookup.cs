@@ -3,6 +3,11 @@ using AdventToolkit.New.Reflect;
 
 namespace AdventToolkit.New.Parsing.Core;
 
+/// <summary>
+/// Wrapper class for an <see cref="ITypeDescriptor"/>.
+/// This provides access to static descriptors through a class instance.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class TypeLookup<T> : ITypeLookup
     where T : ITypeDescriptor
 {

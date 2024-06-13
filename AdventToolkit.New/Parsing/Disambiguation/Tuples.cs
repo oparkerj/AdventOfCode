@@ -5,7 +5,7 @@ namespace AdventToolkit.New.Parsing.Disambiguation;
 
 /// <summary>
 /// This disambiguation is used in <see cref="Collect{T}"/> disambiguation.
-/// Specifies that the should try to collect a container of tuples instead of
+/// Specifies that the parse should try to collect a container of tuples instead of
 /// entering further into an enumerable type.
 /// </summary>
 public class Tuples : IDisambiguation

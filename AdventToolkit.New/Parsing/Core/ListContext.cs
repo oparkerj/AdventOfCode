@@ -41,8 +41,10 @@ public class ListContext : IParseContext
     /// </summary>
     private void EnterSection()
     {
+        // Are there any disambiguations?
         if (!(_disambiguation?.Count > 0)) return;
 
+        // Nest into tuples
         while (_disambiguation.Peek() is {Current: var current} && current.IsTupleType())
         {
             _disambiguation.Push(new DisambiguationSection(current.GetGenericArguments()));
@@ -101,10 +103,9 @@ public class ListContext : IParseContext
             while (true)
             {
                 _disambiguation.Pop();
-                // If the index reaches the end, pop the stack
                 if (current.Index + 1 >= current.Parts.Length)
                 {
-                    // Keep going until we find a section to advance
+                    // If the index reaches the end, keep going until we find a section to advance
                     if (!_disambiguation.TryPeek(out current)) break;
                 }
                 else

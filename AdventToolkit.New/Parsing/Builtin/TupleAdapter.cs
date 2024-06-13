@@ -52,6 +52,7 @@ public static class TupleAdapter
     
     /// <summary>
     /// Create a tuple adapter.
+    /// This takes a tuple, applies parsers to each element, and returns the resulting tuple.
     /// </summary>
     /// <param name="inputTypes">Input type for each tuple element.</param>
     /// <param name="outputTypes">Output type for each tuple element.</param>
@@ -107,8 +108,8 @@ public static class TupleAdapter
         
         IParser CreateCompress(int size, int sectionOffset, ReadOnlySpan<Type> sourceSection, ReadOnlySpan<TupleChunkParse> section)
         {
-            const int genericSection = 2;
-            const int argSection = 3;
+            const int genericSection = 2; // Number of generic arguments per chunk
+            const int argSection = 3; // Number of constructor arguments per chunk
             
             // Set up generic type arguments and constructor arguments
             var sections = Math.Min(section.Length, Types.PrimaryTupleSize);
@@ -118,9 +119,11 @@ public static class TupleAdapter
             for (var i = 0; i < sections; i++)
             {
                 var (offset, types, parser) = section[i];
+                // Generic types: <Tuple chunk, chunk result>
                 generic[i * genericSection] = Types.CreateTupleType(types);
                 generic[i * genericSection + 1] = ParseUtil.GetParserTypesOf(parser).OutputType;
 
+                // Args: Chunk index, parser, types
                 args[i * argSection] = offset - sectionOffset;
                 args[i * argSection + 1] = parser;
                 args[i * argSection + 2] = types;
@@ -167,7 +170,7 @@ public static class TupleAdapter
     {
         Debug.Assert(type.IsTupleType());
 
-        var firstType = type.GetGenericArguments()[0];
+        var firstType = type.GetSingleTypeArgument();
         return typeof(TupleFirst<,>).NewParserGeneric([type, firstType]);
     }
 }

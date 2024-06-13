@@ -20,7 +20,7 @@ public class RegexParse : IParserLookup
     /// <param name="resultType">Output type of the regex parse.</param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public bool AsRegex<T>(T value, out Regex regex, out IParser matchExtract, out Type resultType)
+    public static bool AsRegex<T>(T value, out Regex regex, out IParser matchExtract, out Type resultType)
     {
         // string or regex can be used as regex
         if (value is not Regex r)

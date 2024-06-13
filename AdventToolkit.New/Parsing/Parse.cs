@@ -43,6 +43,7 @@ public static class Parse
     [Conditional("DEBUG")]
     internal static void VerboseIf(bool condition, SimpleTypeString strTrue, SimpleTypeString strFalse)
     {
+        // One string gets used, the other gets disposed
         if (condition)
         {
             Verbose(strTrue);

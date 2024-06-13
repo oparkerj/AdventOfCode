@@ -53,15 +53,22 @@ public class AnchorSplit<T> : IStringParser<T>
         _anchorFirst = anchorFirst;
 
         // If every string is empty, then every section will receive the entire input string
-        if (anchors.All(s => s == string.Empty))
+        var allEmpty = true;
+        foreach (var s in anchors)
         {
-            _splits = Array.Empty<string>();
+            if (s == string.Empty) continue;
+            allEmpty = false;
+            break;
+        }
+        if (allEmpty)
+        {
+            _splits = [];
             return;
         }
         
-        // Reverse every split section. Every sequence of empty strings followed
-        // by a split value will be reversed. This is so splits can be processed
-        // in order during parsing.
+        // The following block reverses every split section. Every sequence of empty strings followed
+        // by a split value will be reversed. This is so splits can be processed in order during parsing.
+
         // If the split starts with a section, drop the first anchor (which should be empty anyway)
         var i = anchorFirst ? 0 : 1;
         var last = i;
@@ -115,21 +122,25 @@ public class AnchorSplit<T> : IStringParser<T>
                 if (effective < _splits.Length)
                 {
                     var split = _splits[effective];
-                    // If the split is empty, repeat the last section
+                    // When the split is empty, leave as-is to repeat the last section
                     if (split.Length > 0)
                     {
+                        // Otherwise find the next portion of the input
                         var at = span.IndexOf(split);
                         last = span[..at].ToString();
                         span = span[(at + 1)..];
                     }
-                }
-                else
-                {
-                    // If there are no more split points, use the remainder of the input
-                    last = span.ToString();
+                    parts[i] = last;
+                    continue;
                 }
                 
-                parts[i] = last;
+                // If there are no more split points, use the remainder to fill the rest
+                last = span.ToString();
+                do
+                {
+                    parts[i] = last;
+                } while (i++ < parts.Length);
+                break;
             }
         }
 

@@ -155,8 +155,7 @@ public class SegmentParser<T> : ParseBase<string, T>
 
         // If the output type is a tuple, each section will be adapted to the
         // corresponding output type. If not, the raw output type is a tuple of
-        // whatever each section produces, and the resulting tuple is adapted
-        // to the output type.
+        // whatever each section produces, which is adapted to the output type.
         var parsers = new IParser[_sections.Count];
         var outputTypes = new Type[_sections.Count];
         for (var i = 0; i < parsers.Length; i++)

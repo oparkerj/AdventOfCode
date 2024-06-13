@@ -132,8 +132,7 @@ public static class ParseAdapt
     /// <param name="first">First parser, possibly null.</param>
     /// <param name="second">Second parser.</param>
     /// <returns>Joined parser.</returns>
-    [return: NotNullIfNotNull(nameof(first))]
-    [return: NotNullIfNotNull(nameof(second))]
+    [return: NotNullIfNotNull(nameof(first)), NotNullIfNotNull(nameof(second))]
     public static IParser? MaybeJoin(IParser? first, IParser? second)
     {
         if (first is null) return second;
@@ -151,8 +150,7 @@ public static class ParseAdapt
     /// <param name="context">Parse context.</param>
     /// <param name="level">Inner join level.</param>
     /// <returns>Joined parser.</returns>
-    [return: NotNullIfNotNull(nameof(first))]
-    [return: NotNullIfNotNull(nameof(second))]
+    [return: NotNullIfNotNull(nameof(first)), NotNullIfNotNull(nameof(second))]
     public static IParser? MaybeInnerJoin(IParser? first, IParser? second, IParseContext context, int level)
     {
         if (first is null) return second?.AddLevels(level);
@@ -249,6 +247,7 @@ public static class ParseAdapt
 
         if (!fromTuple && !toTuple)
         {
+            // Both the input and output are not tuples so nothing to do here
             tupleAdapt = default!;
             return false;
         }
@@ -278,7 +277,7 @@ public static class ParseAdapt
             && targetDescriptor.TryConstruct(target, context, fromTypes, out tupleAdapt))
         {
             Parse.Verbose($"Converting {from} to {target} via construction: {tupleAdapt.GetType()}");
-            // Slice the input if the constructor took less elements
+            // Slice the input if the constructor took fewer elements
             var input = ParseUtil.GetParserTypesOf(tupleAdapt).InputType;
             if (input.IsTupleType())
             {
@@ -452,6 +451,7 @@ public static class ParseAdapt
         result = TupleAdapter.Create(fromTypes, targetTypes, parsers);
         if (fromTypesFull.Length > targetTypes.Length)
         {
+            // Slice to the actual number of elements needed
             Parse.Verbose($"Slicing tuple {from} to {fromTuple}");
             result = ParseJoin.Create(TupleAdapter.Slice(from, 0, targetTypes.Length), result);
         }
@@ -596,7 +596,7 @@ public static class ParseAdapt
             return true;
         }
         
-        // Try adapt enumerable to container of tuple
+        // Try to adapt enumerable to container of tuple
         if (disambiguationSkip < construct && TryAdaptEnumerableTuple(targetInner, outputInner, context, out itemSize, out var innerConstructor))
         {
             if (itemSize < 0)
@@ -706,8 +706,6 @@ public static class ParseAdapt
     /// <returns></returns>
     private static bool TryAdaptEnumerableTuple(Type target, Type outputInner, IParseContext context, out int itemSize, out IParser result, CollectInfo? sizes = null)
     {
-        // Enter a level if a nested tuple
-        sizes?.Enter();
         sizes ??= new CollectInfo();
         
         if (!target.TryGetTupleTypes(out var tupleTypes))
@@ -720,12 +718,12 @@ public static class ParseAdapt
         Parse.Verbose($"Try adapt IEnumerable<{outputInner}> to {target}");
 
         var currentItemSize = 0;
-        
         var sections = new IParser[tupleTypes.Length];
 
         for (var i = 0; i < tupleTypes.Length; i++)
         {
             var elementType = tupleTypes[i];
+            int innerItemSize;
 
             const int collect = 1;
             const int construct = 2;
@@ -735,16 +733,21 @@ public static class ParseAdapt
             Parse.VerboseIf(disambiguation == construct, "Using disambiguation to construct tuple element.");
 
             // Try to parse a nested tuple
-            if (disambiguation < collect && TryAdaptEnumerableTuple(elementType, outputInner, context, out var innerItemSize, out var innerTuple, sizes))
+            if (disambiguation < collect)
             {
-                context.ApplyDisambiguation(null);
-                Parse.Verbose($"Adapted nested tuple at index {i} -> {innerTuple.GetType()}");
-                sections[i] = innerTuple;
-                IncrementSize(Math.Abs(innerItemSize));
-                // Make sure stop sizes only apply to collections before the nested tuple
-                sizes.ApplyStopSize();
+                sizes.Enter();
+                if (TryAdaptEnumerableTuple(elementType, outputInner, context, out innerItemSize, out var innerTuple, sizes))
+                {
+                    context.ApplyDisambiguation(null);
+                    Parse.Verbose($"Adapted nested tuple at index {i} -> {innerTuple.GetType()}");
+                    sections[i] = innerTuple;
+                    IncrementSize(Math.Abs(innerItemSize));
+                    // Make sure stop sizes only apply to collections before the nested tuple
+                    sizes.ApplyStopSize();
+                    sizes.Exit();
+                    continue;
+                }
                 sizes.Exit();
-                continue;
             }
 
             var elementInfo = context.TryLookupType(elementType, out var elementDescriptor);
@@ -761,6 +764,7 @@ public static class ParseAdapt
                 context.ApplyDisambiguation(null);
                 Parse.Verbose($"Adapted element {i} -> {sections[i].GetType()}");
 
+                // Apply stop size in case there are elements between collectors
                 sizes.ApplyStopSize();
                 sizes.AddCollector(sections[i], innerItemSize);
                 continue;
