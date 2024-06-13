@@ -9,7 +9,7 @@ throughout my time working on the puzzles. The overall goal of the toolkit is to
 available for common data manipulation, so that I can spend more time focusing on the problem itself
 rather than the underlying implementations used to solve the problem.
 
-#### AdventToolkit v2
+### AdventToolkit v2
 Slightly before AoC 2023 began, I started on the first major overhaul to the toolkit
 (by overhaul I mean remaking it from scratch). I started with a few goals in mind:
 * Rework any code patterns that I think could be improved.
