@@ -80,7 +80,7 @@ public abstract class Puzzle<T1, T2> : PuzzleBase
     public string[] GetLines()
     {
         var lines = new List<string>();
-        foreach (var line in RawInput.AsSpan().EnumerateLines())
+        foreach (var line in Lines)
         {
             lines.Add(line.ToString());
         }
