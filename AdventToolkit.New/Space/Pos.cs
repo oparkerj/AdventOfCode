@@ -54,6 +54,8 @@ public readonly record struct Pos<T>(T X, T Y) : IPos<Pos<T>, T>
 
     public static bool operator <=(Pos<T> left, Pos<T> right) => left.X <= right.X && left.Y <= right.Y;
 
+    public static implicit operator Pos<T>((T, T) tuple) => new(tuple.Item1, tuple.Item2);
+
     public static Pos<T> ParseSimple(ReadOnlySpan<char> span, char separator = ',')
     {
         var index = span.IndexOf(separator);

@@ -51,6 +51,8 @@ public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
 
     public static Pos3<T> operator ++(Pos3<T> value) => new(value.X + T.One, value.Y + T.One, value.Z + T.One);
 
+    public static implicit operator Pos3<T>((T, T, T) tuple) => new(tuple.Item1, tuple.Item2, tuple.Item3);
+
     public static bool operator >(Pos3<T> left, Pos3<T> right)
     {
         return left.X > right.X && left.Y > right.Y && left.Z > right.Z;

@@ -40,6 +40,8 @@ public readonly record struct Pos4<T>(T W, T X, T Y, T Z) : IPos<Pos4<T>, T>
 
     public static Pos4<T> operator ++(Pos4<T> value) => new(value.X + T.One, value.X + T.One, value.Y + T.One, value.Z + T.One);
 
+    public static implicit operator Pos4<T>((T, T, T, T) t) => new(t.Item1, t.Item2, t.Item3, t.Item4);
+
     public static bool operator >(Pos4<T> left, Pos4<T> right)
     {
         return left.W > right.W && left.X > right.X && left.Y > right.Y && left.Z > right.Z;

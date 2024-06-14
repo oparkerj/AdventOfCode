@@ -28,6 +28,8 @@ public class Grid<TNum, T, TDim> : SparseSpace<Pos<TNum>, T, Rect<TNum>>, IGrid<
             return false;
         }
         
+        // If the input is 2D enumerable and the inner type can be adapted to the
+        // grid type, then we can make a grid.
         if (ParseUtil.TryGetInnerType(from, context, out var inner, out var selector)
             && ParseUtil.TryGetInnerType(inner, context, out var inner1, out var selector1)
             && ParseAdapt.TryAdapt(inner1, toTypes[1], context, out var adapt))
