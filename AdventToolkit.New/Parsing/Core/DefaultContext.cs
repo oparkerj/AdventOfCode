@@ -46,6 +46,8 @@ public class DefaultContext : ListContext
         context ??= Instance;
         
         context.AddType<Pos.Descriptor>();
+        context.AddType<Pos3.Descriptor>();
+        context.AddType<Pos4.Descriptor>();
         context.AddAdapter(new Grid<byte>());
     }
 }

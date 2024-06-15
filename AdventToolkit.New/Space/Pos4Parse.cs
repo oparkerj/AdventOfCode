@@ -1,3 +1,5 @@
+using System.Numerics;
+using AdventToolkit.New.Parsing;
 using AdventToolkit.New.Parsing.Interface;
 using AdventToolkit.New.Reflect;
 using AdventToolkit.New.Util;
@@ -9,6 +11,33 @@ public class Pos4
     public class Descriptor : ITypeDescriptor
     {
         public static bool Match(Type type) => type.Generic() == typeof(Pos4<>);
+        
+        public static bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
+        {
+            var numType = type.GetSingleTypeArgument();
+            if (types.TryAdaptTuple(Types.CreateTupleType(numType, 4), context, out var convert))
+            {
+                var posConstructor = typeof(Constructor<>).NewParserGeneric([numType]);
+                constructor = ParseAdapt.MaybeJoin(convert, posConstructor);
+                return true;
+            }
+    
+            constructor = default!;
+            return false;
+        }
+
+        public static bool TryUnpack(Type type, IParseContext context, int amount, out IParser unpack)
+        {
+            if (amount != 4)
+            {
+                unpack = default!;
+                return false;
+            }
+
+            var numType = type.GetSingleTypeArgument();
+            unpack = typeof(Unpack<>).NewParserGeneric([numType]);
+            return true;
+        }
 
         public static bool PassiveSelect => false;
     
@@ -26,17 +55,23 @@ public class Pos4
         {
             return Impl.Default(out inner);
         }
-
-        public static bool TryConstruct(Type type, IParseContext context, TypeSpan types, out IParser constructor)
+        
+        /// <summary>
+        /// Construct a Pos from a pair.
+        /// </summary>
+        public class Constructor<T> : IParser<(T, T, T, T), Pos4<T>>
+            where T : INumber<T>
         {
-            return Impl.Default(out constructor);
+            public Pos4<T> Parse((T, T, T, T) input) => new(input.Item1, input.Item2, input.Item3, input.Item4);
         }
-
-        public static bool TryUnpack(Type type, IParseContext context, int amount, out IParser unpack)
+    
+        /// <summary>
+        /// Unpack a Pos into a pair.
+        /// </summary>
+        public class Unpack<T> : IParser<Pos4<T>, (T, T, T, T)>
+            where T : INumber<T>
         {
-            return Impl.Default(out unpack);
+            public (T, T, T, T) Parse(Pos4<T> input) => (input.W, input.X, input.Y, input.Z);
         }
-
-        // TODO make constructor and unpack
     }
 }
