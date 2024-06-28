@@ -67,6 +67,19 @@ public static class Num
     }
 
     /// <summary>
+    /// Sum the values between <see cref="INumberBase{T}.Zero"/> and a given value.
+    /// </summary>
+    /// <param name="n"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T Sum0ToN<T>(T n)
+        where T : INumber<T>
+    {
+        Debug.Assert(n >= T.Zero);
+        return (n + T.One) * (n / NumVal<T>.Two);
+    }
+
+    /// <summary>
     /// Sum the values in the interval.
     /// </summary>
     /// <param name="interval"></param>
