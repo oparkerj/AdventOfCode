@@ -163,7 +163,7 @@ public static class EnumerableExtensions
             result.InsertRight(search, e.Current);
         }
 
-        // Keep track of the current largest minimum
+        // Keep track of the current smallest maximum
         var minMax = result[0];
         
         while (e.MoveNext())
