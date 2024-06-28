@@ -31,7 +31,7 @@ public readonly struct FastArray2d<T> : IArray2dSlice<T, Array2d<T>>
         Height = height;
     }
 
-    public FastArray2d(int width, int height) : this(new T[width * height], width, height) { }
+    public FastArray2d(int width, int height) : this(width * height == 0 ? [] : new T[width * height], width, height) { }
 
     public int Count => Data.Length;
     
@@ -78,18 +78,32 @@ public readonly struct FastArray2d<T> : IArray2dSlice<T, Array2d<T>>
     /// <returns></returns>
     public Array2d<T> View() => new(Data, Width, Height);
 
-    public ArrayView<T> Row(int y) => new(Data, new Interval<int>(y * Width, Width));
+    public ArrayView<T> Row(int y)
+    {
+        Debug.Assert(y >= 0 && y < Height);
+        return new ArrayView<T>(Data, new Interval<int>(y * Width, Width));
+    }
 
-    public Array2d<T> Rows(Interval<int> interval) => 
-        new(Data, Width, Height, new ValueRect<int>(new Interval<int>(Width), interval));
-    
+    public Array2d<T> Rows(Interval<int> interval)
+    {
+        Debug.Assert(new Interval<int>(Height).Contains(interval));
+        return new Array2d<T>(Data, Width, Height, new ValueRect<int>(new Interval<int>(Width), interval));
+    }
+
     public Array2d<T> Rows(Range range) => Rows(range.ToInterval(Height));
 
-    public ArrayView<T> Col(int x) => new(Data, new Interval<int>(x, Height), Width);
+    public ArrayView<T> Col(int x)
+    {
+        Debug.Assert(x >= 0 && x < Width);
+        return new ArrayView<T>(Data, new Interval<int>(x, Height), Width);
+    }
 
-    public Array2d<T> Cols(Interval<int> interval) =>
-        new(Data, Width, Height, new ValueRect<int>(interval, new Interval<int>(Height)));
-    
+    public Array2d<T> Cols(Interval<int> interval)
+    {
+        Debug.Assert(new Interval<int>(Width).Contains(interval));
+        return new Array2d<T>(Data, Width, Height, new ValueRect<int>(interval, new Interval<int>(Height)));
+    }
+
     public Array2d<T> Cols(Range range) => Cols(range.ToInterval(Width));
 
     public Array2d<T>.Enumerator GetEnumerator() => new(Data, new IndexEnumerator(0, 1, Data.Length - 1));

@@ -77,23 +77,51 @@ public readonly struct ArrayView<T> : IEnumerable<T>
         return new ArrayView<T>(Data, Range.Slice(start, length), Stride);
     }
 
-    public Enumerator GetEnumerator() => new(Data, Range, Stride);
+    public IndexEnumerator GetIndexEnumerator() => new(Range, Stride);
+
+    public Enumerator GetEnumerator() => new(Data, GetIndexEnumerator());
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
-    public struct Enumerator(T[] data, Interval<int> range, int stride) : IEnumerator<T>
+    public struct IndexEnumerator(Interval<int> range, int stride) : IEnumerable<int>, IEnumerator<int>
     {
-        public readonly T[] Data = data;
-        public readonly int Stride = stride;
-        
         // This still works for length = 0.
         // Index is initialized to one step before the start.
         // For length = 0, Last is also set to the step before the start,
         // which will cause the first move to return false.
         public readonly int Last = range.Start + (range.Length - 1) * stride;
+        public readonly int Stride = stride;
         public int Index = range.Start - stride;
+
+        public int Current { get; private set; }
+        
+        object IEnumerator.Current => Current;
+
+        public bool MoveNext()
+        {
+            if (Index >= Last) return false;
+            Current = Index += Stride;
+            return true;
+        }
+
+        public void Reset() => Err.NotSupported();
+
+        public void Dispose() { }
+
+        public IndexEnumerator GetEnumerator() => this;
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        IEnumerator<int> IEnumerable<int>.GetEnumerator() => GetEnumerator();
+    }
+
+    public struct Enumerator(T[] data, IndexEnumerator indexEnumerator) : IEnumerator<T>
+    {
+        public readonly T[] Data = data;
+
+        public IndexEnumerator IndexEnumerator = indexEnumerator;
 
         public T Current { get; private set; } = default!;
 
@@ -101,8 +129,8 @@ public readonly struct ArrayView<T> : IEnumerable<T>
 
         public bool MoveNext()
         {
-            if (Index >= Last) return false;
-            Current = Data[Index += Stride];
+            if (!IndexEnumerator.MoveNext()) return false;
+            Current = Data[IndexEnumerator.Current];
             return true;
         }
 
