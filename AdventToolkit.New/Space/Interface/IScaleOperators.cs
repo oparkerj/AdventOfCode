@@ -1,4 +1,4 @@
-namespace AdventToolkit.New.Interface;
+namespace AdventToolkit.New.Space.Interface;
 
 /// <summary>
 /// Add operators for scaling. This is meant for compound types with multiple values.
