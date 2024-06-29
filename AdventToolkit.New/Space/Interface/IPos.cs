@@ -40,6 +40,13 @@ public interface IPos<T> :
     /// <param name="separator">Component separator.</param>
     /// <returns>Parsed position.</returns>
     static abstract T ParseSimple(ReadOnlySpan<char> span, char separator = ',');
+
+    /// <summary>
+    /// On a position, this is an alias for the <see cref="Normalize"/> function.
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    static abstract T operator ~(T pos);
     
     /// <summary>
     /// Get a component-wise minimum between this and another position.

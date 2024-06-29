@@ -73,6 +73,8 @@ public readonly record struct Pos3<T>(T X, T Y, T Z) : IPos<Pos3<T>, T>
         return left.X <= right.X && left.Y <= right.Y && left.Z <= right.Z;
     }
 
+    public static Pos3<T> operator ~(Pos3<T> pos) => pos.Normalize();
+
     public static Pos3<T> ParseSimple(ReadOnlySpan<char> span, char separator = ',')
     {
         var split0 = span.IndexOf(separator);
