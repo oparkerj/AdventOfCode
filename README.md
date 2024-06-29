@@ -7,7 +7,8 @@ or made improvements to the toolkit. Although most of the solutions have roughly
 This is the collection of utilities, extensions, wrappers, and algorithms that I have accumulated
 throughout my time working on the puzzles. The overall goal of the toolkit is to have algorithms
 available for common data manipulation, so that I can spend more time focusing on the problem itself
-rather than the underlying implementations used to solve the problem.
+rather than the underlying implementations used to solve the problem. The second focus is to be able
+to write solutions in a more concise way.
 
 ### AdventToolkit v2
 Slightly before AoC 2023 began, I started on the first major overhaul to the toolkit
@@ -24,3 +25,18 @@ Slightly before AoC 2023 began, I started on the first major overhaul to the too
   configuration will reveal where the data was not as expected. Once everything is correct, the checks
   will be omitted when it comes time to run benchmarks.
 * Add documentation so myself or others can come back and understand what everything does.
+
+### Organization
+The top level folders organize the toolkit into sections for each capability.
+* **&lt;Top Level&gt;**: Contains the base classes used to create puzzles.
+* **Calc**: Extensions and algorithms that don't fit in other sections.
+* **Collections**: Implementations of containers for storing data.
+* **Data**: Wrapper types.
+* **Debugging**: Utilities for error handling and debugging.
+* **Extensions**: For extensions on builtin types. Extensions on toolkit types should be placed
+within the corresponding section folder.
+* **Graphing**: Types for creating graphs.
+* **Parsing**: Framework designed to allow a concise way to extract data from inputs.
+* **Reflect**: Utilities to aid with reflection.
+* **Space**: Utilities to work with various spacial dimensions (2D, 3D, etc.).
+* **Util**: Uncategorized utilities.
