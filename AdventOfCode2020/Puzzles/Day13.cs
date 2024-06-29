@@ -33,6 +33,12 @@ public class Day13 : Puzzle
         {
             if (schedule[i] == "x") continue;
             var mi = int.Parse(schedule[i]);
+            // First value is the modulo, second value is the remainder
+            // for this bus when the first bus shows up.
+            // E.g. the second bus has remainder m - 1, because one minute
+            // after the first bus comes, the second bus arrives and the remainder
+            // should be 0.
+            // (It's okay if this remainder value is negative)
             busses.Add((mi, mi - i));
         }
 
