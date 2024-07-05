@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics;
 using AdventToolkit.New.Calc;
 using AdventToolkit.New.Debugging;
 
@@ -38,6 +39,8 @@ public static class EnumerableExtensions
     /// The main use of this method is when a collection needs to be
     /// modified while iterating over its values.
     /// </summary>
+    /// <remarks>If the input is an array, then the span wraps the original array.
+    /// This means modifications also apply to the array.</remarks>
     /// <param name="items"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
@@ -186,5 +189,76 @@ public static class EnumerableExtensions
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// This wrapper will create an <see cref="ExcludeEnumerator{T}"/>.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="start"></param>
+    /// <param name="length"></param>
+    /// <typeparam name="T"></typeparam>
+    public readonly struct ExcludeEnumerable<T>(IEnumerable<T> source, int start, int length) : IEnumerable<T>
+    {
+        public ExcludeEnumerator<T> GetEnumerator() => new(source.GetEnumerator(), start, length);
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <inheritdoc cref="EnumerableExtensions.Exclude{T}"/>
+    public struct ExcludeEnumerator<T>(IEnumerator<T> source, int start, int length) : IEnumerator<T>
+    {
+        private State _state = length == 0 ? State.After : State.Before;
+
+        public T Current => source.Current;
+
+        object? IEnumerator.Current => Current;
+
+        public bool MoveNext()
+        {
+            switch (_state)
+            {
+                case State.Before when start > 0:
+                    start--;
+                    return source.MoveNext();
+                case State.Before:
+                    for (var i = 0; i < length; i++)
+                    {
+                        if (!source.MoveNext()) return false;
+                    }
+                    _state = State.After;
+                    return source.MoveNext();
+                default:
+                    return source.MoveNext();
+            }
+        }
+
+        public void Reset() => Err.NotSupported();
+
+        public void Dispose() => source.Dispose();
+
+        public enum State
+        {
+            Before,
+            After,
+        }
+    }
+
+    /// <summary>
+    /// Excludes a contiguous range of items.
+    /// It is not an error if the sequence is shorter than the exclude range.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="start">Index of the first item to exclude.</param>
+    /// <param name="length">Number of items to exclude.</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static ExcludeEnumerable<T> Exclude<T>(this IEnumerable<T> source, int start, int length)
+    {
+        Debug.Assert(start >= 0);
+        Debug.Assert(length >= 0);
+        return new ExcludeEnumerable<T>(source, start, length);
     }
 }
