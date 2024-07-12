@@ -14,11 +14,11 @@ namespace AdventToolkit.New.Space.Set;
 /// <typeparam name="TNum"></typeparam>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="TDim"></typeparam>
-public class Grid<TNum, T, TDim> : SparseSpace<Pos<TNum>, T, Rect<TNum>>, IGrid<TNum, T, TDim>, IAdapterLookup
+public class Grid<TNum, T, TDim>(TDim dimension) : SparseSpace<Pos<TNum>, T, Rect<TNum>>, IGrid<TNum, T, TDim>, IAdapterLookup
     where TNum : INumber<TNum>
-    where TDim : IDimension<Pos<TNum>>, new()
+    where TDim : IDimension<Pos<TNum>>
 {
-    public TDim Dimension { get; set; } = new();
+    public TDim Dimension { get; set; } = dimension;
 
     public bool TryLookup(Type from, Type to, IParseContext context, out IParser parser)
     {
@@ -76,7 +76,7 @@ public class Grid<TNum, T, TDim> : SparseSpace<Pos<TNum>, T, Rect<TNum>>, IGrid<
 }
 
 /// <inheritdoc cref="Grid{TNum,T,TDim}"/>
-public class Grid<TNum, T> : Grid<TNum, T, PosAdjacent<Pos<TNum>>>
+public class Grid<TNum, T>() : Grid<TNum, T, PosAdjacent<Pos<TNum>>>(new PosAdjacent<Pos<TNum>>())
     where TNum : INumber<TNum>;
 
 /// <inheritdoc cref="Grid{TNum,T,TDim}"/>
