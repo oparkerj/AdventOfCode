@@ -1,7 +1,7 @@
 using System.Numerics;
 using AdventToolkit.New.Space.Interface;
 
-namespace AdventToolkit.New.Space.Side;
+namespace AdventToolkit.New.Space.Direction;
 
 /// <summary>
 /// The sides of the 2d pos, without corners.

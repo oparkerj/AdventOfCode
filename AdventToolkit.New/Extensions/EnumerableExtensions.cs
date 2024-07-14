@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Numerics;
 using AdventToolkit.New.Calc;
 using AdventToolkit.New.Debugging;
 
@@ -261,4 +262,27 @@ public static class EnumerableExtensions
         Debug.Assert(length >= 0);
         return new ExcludeEnumerable<T>(source, start, length);
     }
+
+    /// <summary>
+    /// Determine if every item in a sequence passes a test.
+    /// This function includes an incrementing index with each value.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="test"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TNum"></typeparam>
+    /// <returns>True if the test returns true for all values, false otherwise.</returns>
+    public static bool All<T, TNum>(this IEnumerable<T> source, Func<T, TNum, bool> test)
+        where TNum : INumber<TNum>
+    {
+        var i = TNum.Zero;
+        foreach (var t in source)
+        {
+            if (!test(t, i++)) return false;
+        }
+        return true;
+    }
+
+    /// <inheritdoc cref="All{T,TNum}"/>
+    public static bool All<T>(this IEnumerable<T> source, Func<T, int, bool> test) => source.All<T, int>(test);
 }

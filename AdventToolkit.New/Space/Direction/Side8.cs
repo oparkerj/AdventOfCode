@@ -1,9 +1,9 @@
-namespace AdventToolkit.New.Space.Side;
+namespace AdventToolkit.New.Space.Direction;
 
 /// <summary>
 /// Typical sides of a position in 2D space.
 /// </summary>
-public enum Side
+public enum Side8
 {
     Up,
     Right,

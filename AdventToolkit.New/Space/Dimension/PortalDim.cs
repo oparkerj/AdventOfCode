@@ -30,7 +30,7 @@ public class PortalDim<TPos, TDim, TSides, TSide, TMap>(Dictionary<TPos, TMap> s
     /// Whenever a position is mapped, it is assumed that all sides
     /// are defined in the mapping.
     /// </summary>
-    public Dictionary<TPos, TMap> SideMap = sideMap;
+    public readonly Dictionary<TPos, TMap> SideMap = sideMap;
 
     public PortalDim(TDim dimension, TSides sides) : this([], dimension, sides) { }
 
