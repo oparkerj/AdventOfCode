@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Numerics;
 using AdventToolkit.New.Data;
 using AdventToolkit.New.Space.Bound;
 
@@ -18,6 +19,13 @@ public static class StringExtensions
         Debug.Assert(interval.Length >= 0);
         Debug.Assert(interval.End <= s.Length);
         return s.AsSpan(interval.Start, interval.Length);
+    }
+
+    /// <inheritdoc cref="Slice"/>
+    public static ReadOnlySpan<char> Slice<T>(this string s, Interval<T> interval)
+        where T : INumber<T>
+    {
+        return s.Slice(interval.As<int>());
     }
 
     /// <summary>

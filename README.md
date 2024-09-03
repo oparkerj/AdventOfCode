@@ -29,7 +29,8 @@ Slightly before AoC 2023 began, I started on the first major overhaul to the too
 ### Organization
 The top level folders organize the toolkit into sections for each capability.
 * **&lt;Top Level&gt;**: Contains the base classes used to create puzzles.
-* **Calc**: Extensions and algorithms that don't fit in other sections.
+* **Alg**: Algorithms that use a class instance to setup and function.
+* **Calc**: Static extensions and algorithms that don't fit in other sections.
 * **Collections**: Implementations of containers for storing data.
 * **Data**: Wrapper types.
 * **Debugging**: Utilities for error handling and debugging.

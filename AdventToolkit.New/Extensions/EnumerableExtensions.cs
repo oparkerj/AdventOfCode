@@ -174,7 +174,7 @@ public static class EnumerableExtensions
         {
             if (!Compare.Gt(e.Current, minMax)) continue;
 
-            // If we have found a new maximum, then insert it into the array
+            // We have found a new maximum, insert it into the array
             var search = span.BinarySearch(e.Current, Compare<T>.DefaultComparer);
             if (search < 0)
             {

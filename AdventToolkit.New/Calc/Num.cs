@@ -25,6 +25,7 @@ public static class Num
 {
     /// <summary>
     /// Get the product of numbers in a sequence.
+    /// If the sequence is empty this returns <see cref="INumberBase{TSelf}.One"/>
     /// </summary>
     /// <param name="source"></param>
     /// <typeparam name="T"></typeparam>
@@ -233,9 +234,9 @@ public static class Num
     /// <summary>
     /// Compute the modular multiplicative inverse.
     /// This is the integer x such that a*x ≡ 1 (mod M).
-    /// In other words, M evenly divides a*x - 1, or, a*x / M has a remainder of 1.
+    /// In other words, M evenly divides a*x - 1, or alternatively, a*x / M has a remainder of 1.
     ///
-    /// There is only a solution to a*x ≡ b (mod M) if GCD(a, M) divides b, and since
+    /// In general, there is only a solution to a*x ≡ b (mod M) if GCD(a, M) divides b, and since
     /// b = 1, then GCD(a, M) must equal 1, meaning a and M must be coprime.
     /// (It also means there is exactly one solution).
     ///
@@ -243,7 +244,7 @@ public static class Num
     /// In this case, a*x + M*y = 1
     /// or a*x - 1 = -y*M
     /// or a*x ≡ 1 (mod M) (the y goes away because -y*M (mod M) is 0)
-    /// So we can use the extended Euclidean algorithm to find the modular inverse.
+    /// Therefore, we can use the extended Euclidean algorithm to find the modular inverse.
     /// </summary>
     /// <param name="a"></param>
     /// <param name="mod"></param>
@@ -261,7 +262,7 @@ public static class Num
     /// <summary>
     /// Apply the Chinese Remainder Theorem.
     /// For sets of integers a and m where the values of m are pairwise coprime,
-    /// the solution N to the relations N ≡ a_i (mod m_i) is
+    /// this find the solution N to the relations N ≡ a_i (mod m_i), which is
     /// sum(a_i * b_i * M / m_i (mod M))
     /// where M = product(m)
     /// where b_i * M / m_i ≡ 1 (mod m_i)

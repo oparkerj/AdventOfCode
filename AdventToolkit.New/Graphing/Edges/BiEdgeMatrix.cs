@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using AdventToolkit.New.Calc;
 using AdventToolkit.New.Debugging;
 using AdventToolkit.New.Graphing.Interface;
 
@@ -25,7 +26,16 @@ public class BiEdgeMatrix : IEdgeModel<(int, int), int>
         _edges = capacity == 0 ? [] : new bool[capacity];
     }
 
-    private static int InternalLength(int capacity) => (capacity + 1) * (capacity / 2);
+    /// <summary>
+    /// The adjacency matrix is flattened into a 1d array. Since this model is
+    /// bidirectional, approximately half of the matrix can be removed. Because
+    /// the edge (1, 0) is equivalent to the edge (0, 1).
+    /// The lengths of the matrix columns will be 1, 2, 3, 4...
+    /// So the length of the flattened array is the formula to sum 1 to N elements.
+    /// </summary>
+    /// <param name="capacity"></param>
+    /// <returns></returns>
+    private static int InternalLength(int capacity) => Num.Sum1ToN(capacity);
 
     private int Index(int from, int to)
     {
