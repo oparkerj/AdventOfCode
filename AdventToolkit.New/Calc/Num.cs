@@ -120,17 +120,31 @@ public static class Num
     }
 
     /// <summary>
+    /// Sum the values between <see cref="INumberBase{TSelf}.One"/> and a given value.
+    /// </summary>
+    /// <param name="n"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T Sum1ToN<T>(T n)
+        where T : INumber<T>
+    {
+        Debug.Assert(n >= T.Zero);
+        return n * ((n + T.One) / NumVal<T>.Two);
+    }
+
+    /// <summary>
     /// Sum the values between <see cref="INumberBase{T}.Zero"/> and a given value.
+    /// The requested value is 0 + 1 + 2 + ... + N
+    /// = 0 + SUM(1...N)
+    /// = SUM(1...N)
+    /// So this method just delegates to <see cref="Sum1ToN{T}"/>.
     /// </summary>
     /// <param name="n"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     public static T Sum0ToN<T>(T n)
-        where T : INumber<T>
-    {
-        Debug.Assert(n >= T.Zero);
-        return (n + T.One) * (n / NumVal<T>.Two);
-    }
+        where T : INumber<T> =>
+        Sum1ToN(n);
 
     /// <summary>
     /// Sum the values in the interval.
