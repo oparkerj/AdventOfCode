@@ -18,6 +18,8 @@ public class UniEdgeSet<T> : IEdgeModel<(T, T), T>
 
     public void EnsureVertexCapacity(int capacity)
     {
+        // This is an estimate that can be adjusted as needed.
+        // For now, estimate twice the number of edges as vertices.
         Edges.EnsureCapacity(capacity * 2);
     }
 

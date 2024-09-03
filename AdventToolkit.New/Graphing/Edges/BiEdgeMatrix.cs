@@ -36,17 +36,25 @@ public class BiEdgeMatrix : IEdgeModel<(int, int), int>
     /// <param name="capacity"></param>
     /// <returns></returns>
     private static int InternalLength(int capacity) => Num.Sum1ToN(capacity);
-
+    
+    /// <summary>
+    /// Get the index of the requested edge in the backing array.
+    /// </summary>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    /// <returns></returns>
     private int Index(int from, int to)
     {
         Debug.Assert(from >= 0 && from < _vertexCapacity);
         Debug.Assert(to >= 0 && to < _vertexCapacity);
         
+        // Normalize the input
         if (to < from)
         {
             (from, to) = (to, from);
         }
-        return (to + 1) * (to / 2) + from;
+        // Offset to the requested column and add the row index.
+        return InternalLength(to) + from;
     }
 
     public int Count { get; private set; }
@@ -125,12 +133,13 @@ public class BiEdgeMatrix : IEdgeModel<(int, int), int>
         var end = start + vertex + 1;
         var delta = end - start;
 
-        // Check for adjacency with lower values
+        // Check for adjacency with lower values (same column)
+        // This will also check for the self edge.
         for (var i = start; i < end; ++i)
         {
             if (_edges[i]) yield return (end - i - 1, vertex);
         }
-        // Check for adjacency with higher values
+        // Check for adjacency with higher values (same row)
         var v = vertex + 1;
         for (var i = end + delta - 1; i < _edges.Length; v++, delta++, i += delta)
         {
