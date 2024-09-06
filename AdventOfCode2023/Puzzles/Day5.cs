@@ -1,8 +1,8 @@
 using AdventToolkit;
 using AdventToolkit.Extensions;
-using AdventToolkit.New.Space;
-using AdventToolkit.New.Space.Bound;
-using AdventToolkit.New.Space.Set;
+using AdventToolkit2.Space;
+using AdventToolkit2.Space.Bound;
+using AdventToolkit2.Space.Set;
 
 namespace AdventOfCode2023.Puzzles;
 

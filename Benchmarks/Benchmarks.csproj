@@ -10,16 +10,18 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AdventOfCode2023\AdventOfCode2023.csproj" />
-      <ProjectReference Include="..\AdventToolkit.New\AdventToolkit.New.csproj" />
+      <ProjectReference Include="..\AdventToolkit2\AdventToolkit2.csproj" />
       <ProjectReference Include="..\AdventToolkit\AdventToolkit.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <Compile Include="..\AdventToolkit.New\Common.cs"/>
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\AdventToolkit2\Common.cs">
+        <Link>Common.cs</Link>
+      </Compile>
     </ItemGroup>
 
 </Project>

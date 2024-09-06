@@ -24,7 +24,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Be
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode2023", "AdventOfCode2023\AdventOfCode2023.csproj", "{0262612F-127E-4241-A29C-DEB4C8568C19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventToolkit.New", "AdventToolkit.New\AdventToolkit.New.csproj", "{7477F1C4-31AA-4F17-8A5F-05265761C083}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventToolkit2", "AdventToolkit2\AdventToolkit2.csproj", "{7477F1C4-31AA-4F17-8A5F-05265761C083}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{3B05A211-F855-482C-9240-BF9643AF9D17}"
 EndProject

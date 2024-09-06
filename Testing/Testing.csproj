@@ -23,7 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AdventToolkit.New\AdventToolkit.New.csproj" />
+      <ProjectReference Include="..\AdventToolkit2\AdventToolkit2.csproj" />
     </ItemGroup>
 
 </Project>

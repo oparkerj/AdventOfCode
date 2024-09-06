@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AdventToolkit.New\AdventToolkit.New.csproj" />
+      <ProjectReference Include="..\AdventToolkit2\AdventToolkit2.csproj" />
       <ProjectReference Include="..\AdventToolkit\AdventToolkit.csproj" />
       <ProjectReference Include="..\Z3Helper\Z3Helper.csproj" />
     </ItemGroup>

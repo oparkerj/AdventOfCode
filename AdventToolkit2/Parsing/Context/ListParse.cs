@@ -1,0 +1,35 @@
+using AdventToolkit2.Parsing.Interface;
+using AdventToolkit2.Reflect;
+
+namespace AdventToolkit2.Parsing.Context;
+
+/// <summary>
+/// Parse support for lists.
+///
+/// This allows a list to be collected.
+/// </summary>
+public class ListParse : ITypeLookup
+{
+    public bool Match(Type type) => type.Generic() == typeof(List<>);
+
+    public bool TryCollect(Type type, Type inner, IParseContext context, out IParser collector)
+    {
+        collector = typeof(ListCollector<>).NewParserGeneric([inner]);
+        return true;
+    }
+
+    public bool TryGetCollectType(Type type, IParseContext context, out Type inner)
+    {
+        inner = type.GetSingleTypeArgument();
+        return true;
+    }
+
+    /// <summary>
+    /// List collector.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class ListCollector<T> : IParser<IEnumerable<T>, List<T>>
+    {
+        public List<T> Parse(IEnumerable<T> input) => input.ToList();
+    }
+}

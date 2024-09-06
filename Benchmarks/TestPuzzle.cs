@@ -1,4 +1,4 @@
-using AdventToolkit.New;
+using AdventToolkit2;
 
 namespace Benchmarks;
 

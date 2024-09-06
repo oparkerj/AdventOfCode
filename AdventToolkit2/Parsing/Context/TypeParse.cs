@@ -1,0 +1,22 @@
+using AdventToolkit2.Parsing.Builtin;
+using AdventToolkit2.Parsing.Interface;
+
+namespace AdventToolkit2.Parsing.Context;
+
+/// <summary>
+/// Parser lookup which will try to adapt the current input to the given type.
+/// </summary>
+public class TypeParse : IParserLookup<Type>
+{
+    public bool TryLookup(Type inputType, Type value, string extra, IParseContext context, out IParser parser)
+    {
+        if (ParseAdapt.TryAdapt(inputType, value, context, out var adapt))
+        {
+            parser = adapt ?? IdentityAdapter.Create(value);
+            return true;
+        }
+
+        parser = default!;
+        return false;
+    }
+}
