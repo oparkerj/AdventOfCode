@@ -6,8 +6,8 @@ using AdventToolkit2.Reflect;
 namespace AdventToolkit2.Parsing.Core;
 
 /// <summary>
-/// Looks up input stages and joins the resulting parsers together
-/// to create a single parsing pipeline.
+/// Used to construct a single chain of a parsing pipeline.
+/// Looks up input stages and joins the resulting parsers together.
 /// </summary>
 public class ParseBuilder
 {

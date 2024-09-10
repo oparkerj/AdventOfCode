@@ -25,6 +25,11 @@ public abstract class Puzzle<T1, T2> : PuzzleBase
     }
 
     /// <summary>
+    /// Get the first line of input.
+    /// </summary>
+    public string Line => Input[0];
+
+    /// <summary>
     /// Run the first part of the puzzle
     /// </summary>
     /// <returns>Part one solution.</returns>

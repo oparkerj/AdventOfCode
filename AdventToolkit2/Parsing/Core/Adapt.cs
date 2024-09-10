@@ -14,10 +14,11 @@ namespace AdventToolkit2.Parsing.Core;
 /// This class does not use anchors, so literal text is ignored.
 ///
 /// A format specifier of "null" will start a new section that adapts
-/// the input value again. An implicit null is inserted at the beginning
-/// of the format, but it may be specified explicitly.
+/// the input value again. If the first format value is non-null, an
+/// implicit null is inserted at the beginning of the format.
+/// In the special case
 /// E.g. To create an adapter that makes a copy of the input: T => (T, T)
-/// The format specifier is $"{null}{null}"
+/// both nulls must be specified $"{null}{null}"
 /// </summary>
 /// <typeparam name="TIn"></typeparam>
 /// <typeparam name="TOut"></typeparam>

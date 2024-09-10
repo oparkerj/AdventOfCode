@@ -77,7 +77,7 @@ public class RegexParse : IParserLookup
             var collectionMode = ReadOptions(extra);
             var parserType = collectionMode ? typeof(MatchMany<>) : typeof(MatchSingle<>);
             var matcher = parserType.NewParserGeneric([resultType], regex, extract);
-            parser = ParseAdapt.MaybeJoin(selector, SelectAdapter.Create(matcher));
+            parser = ParseJoin.MaybeJoin(selector, SelectAdapter.Create(matcher));
             return true;
         }
 

@@ -34,11 +34,11 @@ public class Grid<TNum, T, TDim>(TDim dimension) : SparseSpace<Pos<TNum>, T, Rec
             && ParseUtil.TryGetInnerType(inner, context, out var inner1, out var selector1)
             && ParseAdapt.TryAdapt(inner1, toTypes[1], context, out var adapt))
         {
-            var input = ParseAdapt.MaybeInnerJoin(selector1, adapt, context, 1);
-            input = ParseAdapt.MaybeInnerJoin(selector, input, context, 1);
+            var input = ParseJoin.MaybeInnerJoin(selector1, adapt, context, 1);
+            input = ParseJoin.MaybeInnerJoin(selector, input, context, 1);
             
             var adapter = baseType.MakeNestedType(typeof(Adapter<>).Name, to).NewParser();
-            parser = ParseAdapt.MaybeJoin(input, adapter);
+            parser = ParseJoin.MaybeJoin(input, adapter);
             return true;
         }
 

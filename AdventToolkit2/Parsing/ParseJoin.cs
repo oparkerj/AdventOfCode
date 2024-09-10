@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using AdventToolkit2.Parsing.Interface;
 
 namespace AdventToolkit2.Parsing;
@@ -66,6 +67,39 @@ public static class ParseJoin
     {
         if (current is IParseJoin parseJoin) return parseJoin.InnerJoin(join, level, context);
         return Create(current, join.AddLevels(level));
+    }
+
+    /// <summary>
+    /// Join two possibly-null parsers.
+    /// If the first parser is null, then the second parser is returned.
+    /// If the second parser is null, then the first parser is returned.
+    /// </summary>
+    /// <param name="first">First parser, possibly null.</param>
+    /// <param name="second">Second parser.</param>
+    /// <returns>Joined parser.</returns>
+    [return: NotNullIfNotNull(nameof(first)), NotNullIfNotNull(nameof(second))]
+    public static IParser? MaybeJoin(IParser? first, IParser? second)
+    {
+        if (first is null) return second;
+        return second is null ? first : Create(first, second);
+    }
+
+    /// <summary>
+    /// Inner-join two possibly-null parsers.
+    /// If the first parser is null, then the second parser is returned at the given
+    /// enumerable level.
+    /// If the second parser is null, then the first parser is returned.
+    /// </summary>
+    /// <param name="first">First parser, possibly null.</param>
+    /// <param name="second">Second parser.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="level">Inner join level.</param>
+    /// <returns>Joined parser.</returns>
+    [return: NotNullIfNotNull(nameof(first)), NotNullIfNotNull(nameof(second))]
+    public static IParser? MaybeInnerJoin(IParser? first, IParser? second, IParseContext context, int level)
+    {
+        if (first is null) return second?.AddLevels(level);
+        return second is null ? first : InnerJoin(first, second, level, context);
     }
 }
 

@@ -18,7 +18,7 @@ public class Pos
             if (types.TryAdaptTuple(Types.CreateTupleType(numType, 2), context, out var convert))
             {
                 var posConstructor = typeof(Constructor<>).NewParserGeneric([numType]);
-                constructor = ParseAdapt.MaybeJoin(convert, posConstructor);
+                constructor = ParseJoin.MaybeJoin(convert, posConstructor);
                 return true;
             }
     
