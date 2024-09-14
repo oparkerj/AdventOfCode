@@ -24,6 +24,23 @@ public record Rect<T>(Interval<T> X, Interval<T> Y) : IRect<Rect<T>, T>
     }
 
     public static Rect<T> Span(Pos<T> a, Pos<T> b) => new(a, b);
+    
+    public static Rect<T> SpanAll(IEnumerable<Pos<T>> points)
+    {
+        using var enumerator = points.GetEnumerator();
+        if (!enumerator.MoveNext()) return Empty;
+
+        var min = enumerator.Current;
+        var max = enumerator.Current;
+
+        while (enumerator.MoveNext())
+        {
+            min = min.Min(enumerator.Current);
+            max = max.Max(enumerator.Current);
+        }
+
+        return new Rect<T>(min, max);
+    }
 
     public static Rect<T> Single(Pos<T> value)
     {

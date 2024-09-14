@@ -17,6 +17,8 @@ public readonly struct Unbounded<T> : IBound<Unbounded<T>, T>
 
     public static Unbounded<T> Span(T a, T b) => Empty;
 
+    public static Unbounded<T> SpanAll(IEnumerable<T> values) => Empty;
+    
     public static Unbounded<T> From(T start, T end) => Empty;
 
     public static Unbounded<T> Single(T value) => Empty;

@@ -24,6 +24,23 @@ public readonly record struct ValueRect<T>(Interval<T> X, Interval<T> Y) : IRect
     }
 
     public static ValueRect<T> Span(Pos<T> a, Pos<T> b) => new(a, b);
+    
+    public static ValueRect<T> SpanAll(IEnumerable<Pos<T>> points)
+    {
+        using var enumerator = points.GetEnumerator();
+        if (!enumerator.MoveNext()) return Empty;
+
+        var min = enumerator.Current;
+        var max = enumerator.Current;
+
+        while (enumerator.MoveNext())
+        {
+            min = min.Min(enumerator.Current);
+            max = max.Max(enumerator.Current);
+        }
+
+        return new ValueRect<T>(min, max);
+    }
 
     public static ValueRect<T> Single(Pos<T> value)
     {

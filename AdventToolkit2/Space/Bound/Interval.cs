@@ -32,6 +32,30 @@ public readonly record struct Interval<T>(T Start, T Length) : IBound<Interval<T
     }
     
     public static Interval<T> Span(T a, T b) => new(T.Min(a, b), T.Abs(a - b) + T.One);
+    
+    
+    /// <summary>
+    /// Calculates the smallest interval that spans all given values.
+    /// </summary>
+    /// <param name="values">The collection of values.</param>
+    /// <returns>An interval spanning all the given values or empty interval if the collection is empty.</returns>
+    public static Interval<T> SpanAll(IEnumerable<T> values)
+    {
+        using var enumerator = values.GetEnumerator();
+        if (!enumerator.MoveNext()) return Empty;
+
+        var min = enumerator.Current;
+        var max = enumerator.Current;
+
+        while (enumerator.MoveNext())
+        {
+            var current = enumerator.Current;
+            if (current < min) min = current;
+            if (current > max) max = current;
+        }
+
+        return Span(min, max);
+    }
 
     public static Interval<T> Single(T value) => new(value, T.One);
 

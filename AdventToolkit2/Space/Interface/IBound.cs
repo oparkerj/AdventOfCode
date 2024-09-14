@@ -16,6 +16,13 @@ public interface IBound<T, TNum> : IEnumerable<TNum>
     /// <param name="b"></param>
     /// <returns></returns>
     static abstract T Span(TNum a, TNum b);
+    
+    /// <summary>
+    /// Create a bound which contains all the given values.
+    /// </summary>
+    /// <param name="values"></param>
+    /// <returns></returns>
+    static abstract T SpanAll(IEnumerable<TNum> values);
 
     /// <summary>
     /// Create a bound from start (inclusive) to end (exclusive).

@@ -22,6 +22,27 @@ public record Cube<T>(Interval<T> X, Interval<T> Y, Interval<T> Z) : ICube<Cube<
             Interval<T>.Span(a.Y, b.Y),
             Interval<T>.Span(a.Z, b.Z));
     }
+    
+    
+    public static Cube<T> SpanAll(IEnumerable<Pos3<T>> points)
+    {
+        using var enumerator = points.GetEnumerator();
+        if (!enumerator.MoveNext()) return Empty;
+        
+        var minPoint = enumerator.Current;
+        var maxPoint = enumerator.Current;
+
+        while (enumerator.MoveNext())
+        {
+            minPoint = minPoint.Min(enumerator.Current);
+            maxPoint = maxPoint.Max(enumerator.Current);
+        }
+
+        return new Cube<T>(
+            Interval<T>.Span(minPoint.X, maxPoint.X),
+            Interval<T>.Span(minPoint.Y, maxPoint.Y),
+            Interval<T>.Span(minPoint.Z, maxPoint.Z));
+    }
 
     public static Cube<T> From(Pos3<T> start, Pos3<T> end)
     {
