@@ -24,6 +24,70 @@ public static class NumVal<T>
 public static class Num
 {
     /// <summary>
+    /// Get a dictionary that maps from names to the int value.
+    /// </summary>
+    /// <returns></returns>
+    public static Dictionary<string, int> NameToDigit()
+    {
+        return new Dictionary<string, int>
+        {
+            ["zero"] = 0,
+            ["one"] = 1,
+            ["two"] = 2,
+            ["three"] = 3,
+            ["four"] = 4,
+            ["five"] = 5,
+            ["six"] = 6,
+            ["seven"] = 7,
+            ["eight"] = 8,
+            ["nine"] = 9,
+        };
+    }
+    
+    /// <summary>
+    /// Get a dictionary that maps from names to the string representation
+    /// of the int value.
+    /// </summary>
+    /// <returns></returns>
+    public static Dictionary<string, string> NameToDigitStr()
+    {
+        return new Dictionary<string, string>
+        {
+            ["zero"] = "0",
+            ["one"] = "1",
+            ["two"] = "2",
+            ["three"] = "3",
+            ["four"] = "4",
+            ["five"] = "5",
+            ["six"] = "6",
+            ["seven"] = "7",
+            ["eight"] = "8",
+            ["nine"] = "9",
+        };
+    }
+
+    /// <summary>
+    /// Get a dictionary that maps from digits to their name.
+    /// </summary>
+    /// <returns></returns>
+    public static Dictionary<int, string> DigitToName()
+    {
+        return new Dictionary<int, string>
+        {
+            [0] = "0",
+            [1] = "1",
+            [2] = "2",
+            [3] = "3",
+            [4] = "4",
+            [5] = "5",
+            [6] = "6",
+            [7] = "7",
+            [8] = "8",
+            [9] = "9",
+        };
+    }
+    
+    /// <summary>
     /// Get the product of numbers in a sequence.
     /// If the sequence is empty this returns <see cref="INumberBase{TSelf}.One"/>
     /// </summary>

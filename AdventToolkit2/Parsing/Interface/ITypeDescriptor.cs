@@ -84,4 +84,17 @@ public interface ITypeDescriptor
     /// <param name="unpack">Unpack parser.</param>
     /// <returns></returns>
     static abstract bool TryUnpack(Type type, IParseContext context, int amount, out IParser unpack);
+
+    /// <summary>
+    /// Get a parser that can convert the current type to string.
+    /// This may be used to override or disable an existing type's ToString
+    /// method for parsing.
+    /// This is intended to be used in adapters to disable automatic conversions
+    /// to string while still leaving the option to convert manually.
+    /// </summary>
+    /// <param name="type">Current type.</param>
+    /// <param name="context">Parse context.</param>
+    /// <param name="toString">ToString parser, or null to use the object's ToString method.</param>
+    /// <returns>True if the parser may convert this type to string, false otherwise.</returns>
+    static abstract bool TryToString(Type type, IParseContext context, out IParser? toString);
 }

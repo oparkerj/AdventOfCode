@@ -31,6 +31,12 @@ public class TupleParse : ITypeLookup
         return false;
     }
 
+    public bool TryToString(Type type, IParseContext context, out IParser? toString)
+    {
+        toString = null;
+        return false;
+    }
+
     /// <summary>
     /// Get an enumerator for the given tuple types.
     /// </summary>

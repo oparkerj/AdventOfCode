@@ -11,6 +11,23 @@ namespace AdventToolkit2.Parsing.Core;
 /// of a string separated by known anchors in the string.
 /// 
 /// This class is designed to be constructed using an interpolated string.
+///
+/// Literal values in the interpolated string are used to define anchors, and interpolated
+/// values are passed to a <see cref="ParseBuilder"/> per section.
+/// For example, the interpolated string $"{a}{b},{c}{d}" would create two parse builders,
+/// passing "a" and "b" to the first, and "c" and "d" to the second.
+/// During parsing, the input string is split at the first occurrence of each anchor.
+/// In this case, the input string is split at the first comma, and the two strings are passed
+/// to each of the parse builders.
+/// We currently have an output from each of the parse builders, say T1 and T2.
+/// A tuple (T1, T2), would be adapted to the desired output type T to get the result.
+///
+/// The default mode for the parser uses literal portions of the string to specify anchor
+/// points, and interpolated values to transform the string. A literal null value will begin
+/// parsing the same input again for multiple transformations.
+/// Using a null literal with a format specifier allows to select data in the input
+/// for further transformation. After selecting data, the parser will then behave like
+/// an <see cref="Adapt{TIn,TOut}"/>.
 /// </summary>
 /// <typeparam name="T">The result parse type.</typeparam>
 [InterpolatedStringHandler]
@@ -20,9 +37,8 @@ public class SegmentParser<T> : ParseBase<string, T>
 
     private readonly List<ParseBuilder> _sections = [];
 
+    // Current section index
     private int _selected = -1;
-
-    private IParser<string, T>? _built;
 
     // Current number of empty splits
     private int _empty;
@@ -30,6 +46,12 @@ public class SegmentParser<T> : ParseBase<string, T>
     private bool _firstIsLiteral;
     // Whether the parse ends with a literal
     private bool _lastIsLiteral;
+
+    // Most recent constructed parser section
+    private IParser? _input;
+    
+    // Used by the Parse functions to cache the constructed parser
+    private IParser<string, T>? _built;
     
     public SegmentParser(int literalLength, int formattedCount, IParseContext context)
         : base(context)
@@ -40,13 +62,20 @@ public class SegmentParser<T> : ParseBase<string, T>
     { }
 
     /// <summary>
+    /// Get the input for the current section.
+    /// </summary>
+    /// <returns></returns>
+    private Type GetEffectiveInputType() => _input is null ? typeof(string) : ParseUtil.GetParserTypesOf(_input).OutputType;
+
+    /// <summary>
     /// Create a parse section.
     /// </summary>
+    /// <param name="inputType"></param>
     /// <param name="identity">If this section is an identity parse.</param>
     /// <returns></returns>
     private ParseBuilder CreateBuilder(bool identity = false)
     {
-        var builder = new ParseBuilder {InputType = typeof(string)};
+        var builder = new ParseBuilder {InputType = GetEffectiveInputType()};
         if (identity)
         {
             builder.SetupIdentity();
@@ -101,17 +130,24 @@ public class SegmentParser<T> : ParseBase<string, T>
         _empty = 0;
         return true;
     }
-
+    
     /// <summary>
     /// Create the parser that will split a string using the anchors and return
     /// a tuple with the result.
+    ///
+    /// When <paramref name="adapt"/> is true, the output is non-null and can safely
+    /// be cast to IParser&lt;string, T&gt;.
+    /// Otherwise, this will do all the construction except for converting the
+    /// output to type <typeparamref name="T"/>. In this case the output may be null if no
+    /// transformation is performed on the input.
     /// </summary>
+    /// <param name="adapt"></param>
     /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
-    public IParser<string, T> Build()
+    private IParser? BuildInternal(bool adapt)
     {
         var endEmpty = FlushEmpty();
         var endSection = endEmpty || !_lastIsLiteral;
+        var inputType = GetEffectiveInputType();
 
         // Add missing identity parsers if needed
         if (_sections.Count > 0)
@@ -129,7 +165,8 @@ public class SegmentParser<T> : ParseBase<string, T>
             if (_anchors.Count == 0)
             {
                 // This means the parse format was empty, so just adapt string to the output type
-                return (IParser<string, T>) (ParseAdapt.Adapt(typeof(string), typeof(T), Context) ?? IdentityAdapter.Create(typeof(T)));
+                if (!adapt) return null;
+                return ParseAdapt.Adapt(typeof(string), typeof(T), Context) ?? IdentityAdapter.Create(typeof(T));
             }
             if (!endSection && _anchors.Count == 1 && _anchors[0] != string.Empty)
             {
@@ -137,20 +174,24 @@ public class SegmentParser<T> : ParseBase<string, T>
                 Err.InvalidFormat("Invalid parse format. No sections given.");
             }
             // Here means the format consists of only literals and null splits
-            return (IParser<string, T>) ParseAdapt.Adapt(AnchorSplit.Create(_anchors, _firstIsLiteral, endSection), typeof(T), Context);
+            var splitParse = _input is null
+                ? AnchorSplit.Create(_anchors, _firstIsLiteral, endSection)
+                : SplitParse.Create(inputType, _anchors.Count);
+            return adapt ? ParseAdapt.Adapt(splitParse, typeof(T), Context) : splitParse;
         }
         
         // If there is one section, then adapt it to the output type.
         if (_sections.Count == 1)
         {
-            var single = _sections[0].Build<string, T>(Context);
+            var single = adapt ? _sections[0].Build<T>(Context) : _sections[0].Current;
             
             // If there are no literals, then the input does not need to be split
             if (!_firstIsLiteral && !_lastIsLiteral) return single;
             
+            // This path is not reachable in secondary input mode as literals cannot be specified
             var split = AnchorSplit.Create(_anchors, _firstIsLiteral, endSection);
             var unwrap = TupleAdapter.UnwrapSingle(split);
-            return (IParser<string, T>) ParseJoin.Create(unwrap, single);
+            return ParseJoin.Create(unwrap, single);
         }
 
         // If the output type is a tuple, each section will be adapted to the
@@ -166,11 +207,25 @@ public class SegmentParser<T> : ParseBase<string, T>
         }
         
         var segmentTypes = new Type[_sections.Count];
-        Array.Fill(segmentTypes, typeof(string));
+        Array.Fill(segmentTypes, inputType);
         
         // Adapt the result tuple to the output type
-        var tupleParser = ParseJoin.Create(AnchorSplit.Create(_anchors, _firstIsLiteral, endSection), TupleAdapter.Create(segmentTypes, outputTypes, parsers));
-        return (IParser<string, T>) ParseAdapt.Adapt(tupleParser, typeof(T), Context);
+        var inputSplit = _input is null
+            ? AnchorSplit.Create(_anchors, _firstIsLiteral, endSection)
+            : SplitParse.Create(inputType, _anchors.Count);
+        var tupleParser = ParseJoin.Create(inputSplit, TupleAdapter.Create(segmentTypes, outputTypes, parsers));
+        return adapt ? ParseAdapt.Adapt(tupleParser, typeof(T), Context) : tupleParser;
+    }
+
+    /// <summary>
+    /// Construct the full parser given the current sequence of anchors
+    /// and sections.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public IParser<string, T> Build()
+    {
+        return (IParser<string, T>) ParseJoin.MaybeJoin(_input, BuildInternal(true)!);
     }
 
     /// <summary>
@@ -199,12 +254,14 @@ public class SegmentParser<T> : ParseBase<string, T>
     }
 
     /// <summary>
-    /// This method is called for the raw string portions of the interpolated string.
+    /// This method is called for the literal string portions of the interpolated string.
     /// This adds an anchor to the parse and moves on to the next section.
     /// </summary>
     /// <param name="s"></param>
     public void AppendLiteral(string s)
     {
+        if (_input is not null) return;
+
         FlushEmpty();
         if (_anchors.Count == 0)
         {
@@ -217,12 +274,30 @@ public class SegmentParser<T> : ParseBase<string, T>
 
     /// <summary>
     /// This overload is for the case when "null" is passed into the string interpolation.
-    /// This will call <see cref="AppendLiteral"/> with an empty string.
     /// Effectively this will begin a new parse section that operates on the same portion
     /// of string as the previous section.
     /// </summary>
     /// <param name="null"></param>
     public void AppendFormatted(Null? @null) => _empty++;
+
+    /// <summary>
+    /// This overload is the case when "null" is passed along with a format string.
+    /// The format string specifies how to select data to begin transforming all 
+    /// the previous sections.
+    /// </summary>
+    /// <param name="null"></param>
+    /// <param name="format"></param>
+    public void AppendFormatted(Null? @null, string format)
+    {
+        // TODO experiment with more granular selection
+        _input = ParseJoin.MaybeJoin(_input, BuildInternal(false));
+        
+        _anchors.Clear();
+        _sections.Clear();
+        _selected = -1;
+        _lastIsLiteral = false;
+        _firstIsLiteral = false;
+    }
 
     /// <inheritdoc cref="AppendFormatted{TItem}(TItem, string)"/>
     public void AppendFormatted<TItem>(TItem item) => AppendFormatted(item, string.Empty);

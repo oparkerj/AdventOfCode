@@ -38,7 +38,13 @@ public class Pos
             unpack = typeof(Unpack<>).NewParserGeneric([numType]);
             return true;
         }
-    
+
+        public static bool TryToString(Type type, IParseContext context, out IParser? toString)
+        {
+            toString = null;
+            return true;
+        }
+
         public static bool PassiveSelect => false;
         
         public static bool TrySelect(Type type, out Type inner, out IParser selector)

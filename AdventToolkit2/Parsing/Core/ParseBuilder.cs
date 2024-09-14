@@ -204,6 +204,18 @@ public class ParseBuilder
     {
         return ParseAdapt.Adapt(Current, outputType, context);
     }
+    
+    /// <summary>
+    /// Generic variant of <see cref="Build"/>
+    /// </summary>
+    /// <seealso cref="Build"/>
+    /// <param name="context">Parse context.</param>
+    /// <typeparam name="TOut">Output type.</typeparam>
+    /// <returns>Build parser.</returns>
+    public IParser Build<TOut>(IParseContext context)
+    {
+        return Build(context, typeof(TOut));
+    }
 
     /// <summary>
     /// Build the parser for a specific type and get a strongly typed result.

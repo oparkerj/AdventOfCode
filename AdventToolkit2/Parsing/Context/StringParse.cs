@@ -1,3 +1,4 @@
+using AdventToolkit2.Parsing.Builtin;
 using AdventToolkit2.Parsing.Interface;
 using AdventToolkit2.Reflect;
 
@@ -51,6 +52,12 @@ public class StringParse : ITypeLookup, IParserLookupByInput<string>, IAdapterLo
     // Adapter lookup
     public bool TryLookup(Type to, IParseContext context, out IParser parser)
     {
+        if (to == typeof(string))
+        {
+            parser = IdentityAdapter<string>.Instance;
+            return true;
+        }
+        
         // Use custom implementation for char instead of IParsable.
         if (to == typeof(char))
         {

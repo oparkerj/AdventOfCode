@@ -19,6 +19,21 @@ public class StringAdapter : IAdapterLookupByTarget<string>
 {
     public bool TryLookup(Type from, IParseContext context, out IParser parser)
     {
+        IParser? toString = null;
+        if (context.TryLookupType(from, out var descriptor) && !descriptor.TryToString(from, context, out toString))
+        {
+            // Type descriptor has opted out of ToString conversion
+            parser = default!;
+            return false;
+        }
+        if (toString is not null)
+        {
+            // Custom defined ToString parser
+            parser = toString;
+            return true;
+        }
+        
+        // Use the object's ToString method only if the default implementation is overriden
         if (from.GetMethod(nameof(ToString), [])?.DeclaringType is { } declType && declType != typeof(object))
         {
             parser = typeof(ToString<>).NewParserGeneric([from]);

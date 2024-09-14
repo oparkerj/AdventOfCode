@@ -44,4 +44,13 @@ public interface ITypeLookup
     {
         return Impl.Default(out unpack);
     }
+
+    /// <inheritdoc cref="ITypeDescriptor.TryToString"/>
+    bool TryToString(Type type, IParseContext context, out IParser? toString)
+    {
+        // This is the only implementation that is "enabled" by default and
+        // can be overriden to opt out.
+        toString = null;
+        return true;
+    }
 }

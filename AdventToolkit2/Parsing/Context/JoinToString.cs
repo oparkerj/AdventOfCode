@@ -14,25 +14,41 @@ public class JoinToString : IParserLookup
     {
         if (value is "")
         {
-            // If there is an existing conversion to string, then use it
-            if (context.TryLookupAdapter(inputType, typeof(string), out parser))
+            // If the type is passive select, then try to adapt before trying to enumerate
+            if (context.TryLookupType(inputType, out var descriptor) && descriptor.PassiveSelect)
             {
-                return true;
+                if (TryAdapt(out parser)) return true;
+                if (TryEnumerate(out parser)) return true;
             }
+            else
+            {
+                // For type that are not passive select, you normally still want to try to adapt
+                // first, but for the "join to string" parser, nested elements are preferred.
+                if (TryEnumerate(out parser)) return true;
+                if (TryAdapt(out parser)) return true;
+            }
+        }
 
-            // Check if enumerable and try to convert the inner element to string
-            if (context.TryLookupType(inputType, out var descriptor)
-                && descriptor.TryGetInnerType(inputType, out var inner, out var selector)
+        parser = default!;
+        return false;
+
+        // If enumerable, then try to convert the inner element to string.
+        bool TryEnumerate(out IParser parser)
+        {
+            if (ParseUtil.TryGetInnerType(inputType, context, out var inner, out var selector)
                 && context.TryLookupParser(inner, value, extra, out var innerToString))
             {
                 var strings = ParseJoin.MaybeInnerJoin(selector, innerToString, context, 1);
                 parser = ParseJoin.Create(strings, GetJoiner(extra));
                 return true;
             }
+
+            parser = default!;
+            return false;
         }
 
-        parser = default!;
-        return false;
+        // Check if there is an adapter to convert the type to string
+        bool TryAdapt(out IParser parser) => context.TryLookupAdapter(inputType, typeof(string), out parser);
     }
 
     /// <summary>

@@ -33,6 +33,8 @@ public class DefaultContext : ListContext
 
         context.AddParserLookup(new TypeParse());
         
+        context.AddParserLookup(new DictParse());
+        
         context.AddLookup<ListParse>();
         
         context.AddLookup<TupleParse>();
