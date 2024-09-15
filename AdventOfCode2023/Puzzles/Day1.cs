@@ -2,6 +2,8 @@ using System.Collections.Frozen;
 using AdventToolkit;
 using AdventToolkit.Collections.Tree;
 using AdventToolkit.Extensions;
+using AdventToolkit2.Parsing;
+using Num = AdventToolkit2.Calc.Num;
 
 namespace AdventOfCode2023.Puzzles;
 
@@ -56,5 +58,23 @@ public class Day1 : Puzzle<int>
             reverseTrie.TryFindValueLast(s, out var last);
             return numbers[first] * 10 + numbers[last];
         }).Sum();
+    }
+}
+
+public class Day1New : AdventToolkit2.Puzzle<int>
+{
+    public override string InputName() => $"{nameof(Day1)}.txt";
+    
+    public override int PartOne()
+    {
+        return Input.Parse<int>($"{@"(\d)"}{null}{@".*(\d)"}{null:*}{""}").Sum();
+    }
+
+    public override int PartTwo()
+    {
+        var toDigit = Num.NameToDigitStr();
+        toDigit.Remove("zero");
+        var names = string.Join('|', toDigit.Keys);
+        return Input.Parse<int>($"{$@"(\d|{names})"}{toDigit}{null}{$@".*(\d|{names})"}{toDigit}{null:*}{""}").Sum();
     }
 }

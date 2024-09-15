@@ -1,4 +1,11 @@
 ﻿using AdventOfCode2023.Puzzles;
-using AdventToolkit;
+using AdventToolkit2;
+using AdventToolkit2.Parsing.Core;
 
-PuzzleBase.Run<Day25>();
+// Run puzzles using the old toolkit
+// PuzzleBase.Run<Day1New>();
+
+// Run puzzles using the new toolkit
+DefaultContext.AddCommonTypes();
+// DefaultContext.AddToolkitTypes();
+PuzzleRunner.Run<Day1New>();
