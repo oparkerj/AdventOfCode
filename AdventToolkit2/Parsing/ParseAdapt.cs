@@ -32,6 +32,7 @@ namespace AdventToolkit2.Parsing;
 ///     - Try to construct the inner type
 ///   - Create target via construction
 ///   ~ Adapt enumerable to tuple
+///     - If the type is directly assignable, pull one item from sequence
 ///     - Try to recurse into inner tuple
 ///     - Collect tuple component
 ///     - Construct tuple component
@@ -715,6 +716,14 @@ public static class ParseAdapt
                     continue;
                 }
                 sizes.Exit();
+            }
+
+            if (elementType.IsAssignableTo(outputInner))
+            {
+                Parse.Verbose($"Element {i} is directory assignable to {outputInner}");
+                sections[i] = EnumerableAdapter.PartialSingle(outputInner, null);
+                IncrementSize(1);
+                continue;
             }
 
             var elementInfo = context.TryLookupType(elementType, out var elementDescriptor);
