@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using AdventToolkit2.Parsing.Builtin;
 using AdventToolkit2.Parsing.Interface;
+using AdventToolkit2.Reflect;
 
 namespace AdventToolkit2.Parsing;
 
@@ -30,6 +32,18 @@ public static class ParseJoin
     /// <returns>Joined parser.</returns>
     public static IParser Create(IParser first, IParser second)
     {
+        // Skip joining identity adapters
+        if (first.TryGetTypeArgumentsOf(typeof(IdentityAdapter<>), out _))
+        {
+            // It's okay if second is also IdentityAdapter, as long as both
+            // are not joined together.
+            return second;
+        }
+        if (second.TryGetTypeArgumentsOf(typeof(IdentityAdapter<>), out _))
+        {
+            return first;
+        }
+        
         var inType = ParseUtil.GetParserTypesOf(first).InputType;
         var (joinType, outType) = ParseUtil.GetParserTypesOf(second);
 
