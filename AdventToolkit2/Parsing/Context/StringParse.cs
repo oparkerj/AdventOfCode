@@ -53,6 +53,12 @@ public class StringParse : ITypeLookup, IParserLookupByInput<string>, IAdapterLo
             return true;
         }
 
+        if (value?.TryGetTypeArgumentsOf(typeof(INumberBase<>), out var types) == true)
+        {
+            parser = typeof(ToParsable<>).NewParserGeneric([types[0]]);
+            return true;
+        }
+
         parser = default!;
         return false;
     }
