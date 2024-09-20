@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Numerics;
+using AdventToolkit2.Parsing.Disambiguation;
 using AdventToolkit2.Parsing.Interface;
 using AdventToolkit2.Reflect;
 
@@ -8,11 +9,16 @@ namespace AdventToolkit2.Parsing.Context;
 /// <summary>
 /// Provides parse conversions for char.
 /// </summary>
-// TODO figure out what to do with this
 public class CharParse : IAdapterLookup<char>
 {
     public bool TryLookup(Type to, IParseContext context, out IParser parser)
     {
+        if (context.ApplyDisambiguation(typeof(No<char>)))
+        {
+            parser = default!;
+            return false;
+        }
+        
         // If the result is a number type, parse as a digit
         if (to.TryGetTypeArguments(typeof(INumber<>), out _))
         {

@@ -29,6 +29,8 @@ public class DefaultContext : ListContext
         context.AddAdapter(stringParse);
         context.AddType(stringParse);
         
+        context.AddAdapter(new CharParse());
+        
         context.AddAdapter(new StringAdapter());
 
         context.AddParserLookup(new TypeParse());
