@@ -47,6 +47,17 @@ public static class EnumerableAdapter
         var output = ParseUtil.GetParserTypesOf(parser).OutputType;
         return typeof(EnumerableConstructSingle<,>).NewParserGeneric([elements, output], parser);
     }
+    
+    
+    /// <summary>
+    /// Get a parser that flattens an enumerable by one level.
+    /// </summary>
+    /// <param name="innerType">Inner element type of the enumerables.</param>
+    /// <returns></returns>
+    public static IParser Flatten(Type innerType)
+    {
+        return typeof(EnumerableFlatten<>).NewParserGeneric([innerType]);
+    }
 
     /// <summary>
     /// Get a parser that takes a fixed number of elements from the enumerator
@@ -232,6 +243,24 @@ public class EnumerableToValue<T, TTuple, TOut>(IParser<TTuple, TOut> constructo
     public IEnumerable<IParser> GetChildren()
     {
         yield return constructor;
+    }
+}
+
+/// <summary>
+/// Flattens a double enumerable into a single enumerable.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class EnumerableFlatten<T> : IParser<IEnumerable<IEnumerable<T>>, IEnumerable<T>>
+{
+    public IEnumerable<T> Parse(IEnumerable<IEnumerable<T>> input)
+    {
+        foreach (var inner in input)
+        {
+            foreach (var item in inner)
+            {
+                yield return item;
+            }
+        }
     }
 }
 

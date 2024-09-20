@@ -37,6 +37,8 @@ public class DefaultContext : ListContext
         
         context.AddParserLookup(new DictParse());
         
+        context.AddParserLookup(new EnumerableActions());
+        
         context.AddLookup<ListParse>();
         
         context.AddLookup<TupleParse>();
