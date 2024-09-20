@@ -299,6 +299,56 @@ public class SegmentParser<T> : ParseBase<string, T>
         _firstIsLiteral = false;
     }
 
+    /// <inheritdoc cref="AppendFormatted(Range, string)"/>
+    public void AppendFormatted(Range range) => AppendFormatted(range, string.Empty);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="range"></param>
+    /// <param name="format"></param>
+    public void AppendFormatted(Range range, string format)
+    {
+        if (range.Equals(..))
+        {
+            if (format.StartsWith('+'))
+            {
+                if (!int.TryParse(format.AsSpan(1), out var count))
+                {
+                    count = 1;
+                }
+                for (var i = 0; i < count; i++)
+                {
+                    if (!GetCurrentSlot().TryEnterEnumerable(Context))
+                    {
+                        Err.InvalidFormat();
+                    }
+                }
+
+                return;
+            }
+            
+            if (format.StartsWith('-'))
+            {
+                if (!int.TryParse(format.AsSpan(1), out var count))
+                {
+                    count = 1;
+                }
+                for (var i = 0; i < count; i++)
+                {
+                    if (!GetCurrentSlot().TryExitEnumerable(Context))
+                    {
+                        Err.InvalidFormat();
+                    }
+                }
+
+                return;
+            }
+        }
+        
+        AppendFormatted<Range>(range, format);
+    }
+
     /// <inheritdoc cref="AppendFormatted{TItem}(TItem, string)"/>
     public void AppendFormatted<TItem>(TItem item) => AppendFormatted(item, string.Empty);
 
