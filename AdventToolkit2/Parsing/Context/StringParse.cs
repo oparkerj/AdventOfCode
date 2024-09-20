@@ -1,3 +1,4 @@
+using System.Numerics;
 using AdventToolkit2.Parsing.Builtin;
 using AdventToolkit2.Parsing.Interface;
 using AdventToolkit2.Reflect;
@@ -37,6 +38,13 @@ public class StringParse : ITypeLookup, IParserLookupByInput<string>, IAdapterLo
         // char value will split a string
         if (value is char ch)
         {
+            // Special case for newlines
+            if (ch == '\n')
+            {
+                parser = new LineSplit();
+                return true;
+            }
+            
             parser = new CharSplit(ch)
             {
                 Trim = extra.Contains('t'),
@@ -127,6 +135,22 @@ public class StringParse : ITypeLookup, IParserLookupByInput<string>, IAdapterLo
         }
 
         public string[] Parse(string input) => input.Split(Split, _options);
+    }
+
+    /// <summary>
+    /// Split a string by lines.
+    /// </summary>
+    public class LineSplit : IParser<string, List<string>>
+    {
+        public List<string> Parse(string input)
+        {
+            var result = new List<string>();
+            foreach (var line in input.AsSpan().EnumerateLines())
+            {
+                result.Add(line.ToString());
+            }
+            return result;
+        }
     }
 
     /// <summary>
