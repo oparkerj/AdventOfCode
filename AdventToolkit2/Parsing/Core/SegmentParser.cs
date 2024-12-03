@@ -257,6 +257,39 @@ public class SegmentParser<T> : ParseBase<string, T>
     }
 
     /// <summary>
+    /// Try to parse a special section out of a string.
+    /// A special section is a substring at the beginning of the input
+    /// surrounded by the separator char.
+    /// For example, with '@' as a separator, and input "@special@rest",
+    /// the return value would be "special" and the input string would become "rest".
+    /// The special section is only searched at the beginning of the string.
+    /// If the opening separator is found but no closing separator is found,
+    /// The entire string is assumed to be part of the special section.
+    /// </summary>
+    /// <param name="format"></param>
+    /// <param name="separator"></param>
+    /// <returns></returns>
+    private ReadOnlySpan<char> GetSpecialFormat(ref string format, char separator)
+    {
+        if (!format.StartsWith(separator)) return ReadOnlySpan<char>.Empty;
+
+        var end = format.IndexOf(separator, 1);
+
+        if (end == -1)
+        {
+            var result = format.AsSpan(1);
+            format = string.Empty;
+            return result;
+        }
+        else
+        {
+            var result = format[1..end];
+            format = format[(end + 1)..];
+            return result;
+        }
+    }
+
+    /// <summary>
     /// This method is called for the literal string portions of the interpolated string.
     /// This adds an anchor to the parse and moves on to the next section.
     /// </summary>
@@ -306,7 +339,7 @@ public class SegmentParser<T> : ParseBase<string, T>
     public void AppendFormatted(Range range) => AppendFormatted(range, string.Empty);
 
     /// <summary>
-    /// 
+    /// Append a special format specifier that affects the parser.
     /// </summary>
     /// <param name="range"></param>
     /// <param name="format"></param>
@@ -314,9 +347,34 @@ public class SegmentParser<T> : ParseBase<string, T>
     {
         if (range.Equals(..))
         {
-            if (format.StartsWith('+'))
+            AppendSpecial(format);
+        }
+        else
+        {
+            AppendFormatted<Range>(range, format);
+        }
+    }
+
+    public void AppendSpecial(ReadOnlySpan<char> format)
+    {
+        while (!format.IsEmpty)
+        {
+            var end = format.IndexOf(';');
+            ReadOnlySpan<char> cmd;
+            if (end > -1)
             {
-                if (!int.TryParse(format.AsSpan(1), out var count))
+                cmd = format[..end];
+                format = format[(end + 1)..];
+            }
+            else
+            {
+                cmd = format;
+                format = ReadOnlySpan<char>.Empty;
+            }
+            
+            if (cmd is ['+', .. var plus])
+            {
+                if (!int.TryParse(plus, out var count))
                 {
                     count = 1;
                 }
@@ -328,12 +386,12 @@ public class SegmentParser<T> : ParseBase<string, T>
                     }
                 }
 
-                return;
+                continue;
             }
             
-            if (format.StartsWith('-'))
+            if (cmd is ['-', .. var minus])
             {
-                if (!int.TryParse(format.AsSpan(1), out var count))
+                if (!int.TryParse(minus, out var count))
                 {
                     count = 1;
                 }
@@ -345,11 +403,11 @@ public class SegmentParser<T> : ParseBase<string, T>
                     }
                 }
 
-                return;
+                continue;
             }
+            
+            AppendFormatted<Range>(.., cmd.ToString());
         }
-        
-        AppendFormatted<Range>(range, format);
     }
 
     /// <inheritdoc cref="AppendFormatted{TItem}(TItem, string)"/>
@@ -366,7 +424,21 @@ public class SegmentParser<T> : ParseBase<string, T>
     {
         FlushEmpty();
         _lastIsLiteral = false;
+
+        var specialBefore = GetSpecialFormat(ref format, '@');
+        var specialAfter = GetSpecialFormat(ref format, '!');
+
+        if (!specialBefore.IsEmpty)
+        {
+            AppendSpecial(specialBefore);
+        }
+        
         GetCurrentSlot().AddStage(item, format, Context);
+
+        if (!specialAfter.IsEmpty)
+        {
+            AppendSpecial(specialAfter);
+        }
     }
 
     public override IEnumerable<IParser> GetChildren()
