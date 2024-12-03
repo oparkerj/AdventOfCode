@@ -60,6 +60,17 @@ public static class EnumerableAdapter
     }
 
     /// <summary>
+    /// Get a parser that sorts an enumerable.
+    /// </summary>
+    /// <param name="innerType"></param>
+    /// <param name="ascending"></param>
+    /// <returns></returns>
+    public static IParser Sort(Type innerType, bool ascending = true)
+    {
+        return ascending ? typeof(EnumerableSort<>).NewParserGeneric([innerType]) : typeof(EnumerableSortDescending<>).NewParserGeneric([innerType]);
+    }
+
+    /// <summary>
     /// Get a parser that takes a fixed number of elements from the enumerator
     /// and passes it to the constructor parser.
     /// </summary>
@@ -262,6 +273,24 @@ public class EnumerableFlatten<T> : IParser<IEnumerable<IEnumerable<T>>, IEnumer
             }
         }
     }
+}
+
+/// <summary>
+/// Sort the elements of an enumerable.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class EnumerableSort<T> : IParser<IEnumerable<T>, IEnumerable<T>>
+{
+    public IEnumerable<T> Parse(IEnumerable<T> input) => input.Order();
+}
+
+/// <summary>
+/// Sort the elements of an enumerable descending.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class EnumerableSortDescending<T> : IParser<IEnumerable<T>, IEnumerable<T>>
+{
+    public IEnumerable<T> Parse(IEnumerable<T> input) => input.OrderDescending();
 }
 
 /// <summary>

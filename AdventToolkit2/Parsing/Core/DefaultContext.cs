@@ -22,6 +22,8 @@ public class DefaultContext : ListContext
     {
         context ??= Instance;
         
+        context.AddParserLookup(new LiteralParser());
+        
         context.AddParserLookup(new JoinToString());
         
         var stringParse = new StringParse();

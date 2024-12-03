@@ -37,6 +37,28 @@ public static class TupleAdapter
     }
 
     /// <summary>
+    /// Get a parser that swaps the elements of a 2-tuple.
+    /// </summary>
+    /// <param name="type1"></param>
+    /// <param name="type2"></param>
+    /// <returns></returns>
+    public static IParser Swap(Type type1, Type type2)
+    {
+        return typeof(TupleSwap<,>).NewParserGeneric([type1, type2]);
+    }
+    
+    /// <summary>
+    /// Get a parser that swaps the elements of a 2-tuple.
+    /// </summary>
+    /// <param name="tuple"></param>
+    /// <returns></returns>
+    public static IParser Swap(Type tuple)
+    {
+        Debug.Assert(tuple == typeof(ValueTuple<,>));
+        return typeof(TupleSwap<,>).NewParserGeneric(tuple.GetGenericArguments());
+    }
+
+    /// <summary>
     /// Get a parser that slices a tuple to the given range.
     /// </summary>
     /// <param name="tuple"></param>
@@ -206,6 +228,16 @@ public class TupleUnwrap<TIn, TOut>(IParser<TIn, ValueTuple<TOut>> parser) : IPa
 public class TupleUnwrap<T> : IParser<ValueTuple<T>, T>
 {
     public T Parse(ValueTuple<T> input) => input.Item1;
+}
+
+/// <summary>
+/// Swap the elements of a 2-tuple.
+/// </summary>
+/// <typeparam name="T1"></typeparam>
+/// <typeparam name="T2"></typeparam>
+public class TupleSwap<T1, T2> : IParser<(T1, T2), (T2, T1)>
+{
+    public (T2, T1) Parse((T1, T2) input) => (input.Item2, input.Item1);
 }
 
 /// <summary>
