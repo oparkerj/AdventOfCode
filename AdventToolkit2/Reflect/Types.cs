@@ -439,17 +439,14 @@ public static class Types
         {
             return remaining switch
             {
-                1 => typeof(ValueTuple<>).MakeGenericType([type]),
-                2 => typeof(ValueTuple<,>).MakeGenericType([type, type]),
-                3 => typeof(ValueTuple<,,>).MakeGenericType([type, type, type]),
-                4 => typeof(ValueTuple<,,,>).MakeGenericType([type, type, type, type]),
-                5 => typeof(ValueTuple<,,,,>).MakeGenericType([type, type, type, type, type]),
-                6 => typeof(ValueTuple<,,,,,>).MakeGenericType([type, type, type, type, type, type]),
-                7 => typeof(ValueTuple<,,,,,,>).MakeGenericType([type, type, type, type, type, type, type]),
-                _ => typeof(ValueTuple<,,,,,,,>).MakeGenericType([
-                    type, type, type, type, type, type, type,
-                    TupleTypeInner(remaining - PrimaryTupleSize)
-                ])
+                1 => typeof(ValueTuple<>).MakeGenericType(type),
+                2 => typeof(ValueTuple<,>).MakeGenericType(type, type),
+                3 => typeof(ValueTuple<,,>).MakeGenericType(type, type, type),
+                4 => typeof(ValueTuple<,,,>).MakeGenericType(type, type, type, type),
+                5 => typeof(ValueTuple<,,,,>).MakeGenericType(type, type, type, type, type),
+                6 => typeof(ValueTuple<,,,,,>).MakeGenericType(type, type, type, type, type, type),
+                7 => typeof(ValueTuple<,,,,,,>).MakeGenericType(type, type, type, type, type, type, type),
+                _ => typeof(ValueTuple<,,,,,,,>).MakeGenericType(type, type, type, type, type, type, type, TupleTypeInner(remaining - PrimaryTupleSize))
             };
         }
     }

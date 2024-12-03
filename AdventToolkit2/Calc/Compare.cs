@@ -28,7 +28,16 @@ public static class Compare
             other = value;
         }
     }
-    
+
+    /// <summary>
+    /// Return the lesser of two values.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="other"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T Min<T>(this T value, T other) => Lt(value, other) ? value : other;
+
     /// <summary>
     /// Compare values, if the new value is greater, overwrite the reference.
     /// </summary>
@@ -42,6 +51,15 @@ public static class Compare
             other = value;
         }
     }
+    
+    /// <summary>
+    /// Return the greater of two values.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="other"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T Max<T>(this T value, T other) => Gt(value, other) ? value : other;
 }
 
 /// <summary>

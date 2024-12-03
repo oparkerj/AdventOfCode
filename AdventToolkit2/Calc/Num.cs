@@ -86,6 +86,19 @@ public static class Num
             [9] = "nine",
         };
     }
+
+    /// <summary>
+    /// Get the absolute difference between two numbers.
+    /// </summary>
+    /// <param name="num"></param>
+    /// <param name="other"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T Diff<T>(this T num, T other)
+        where T : INumber<T>
+    {
+        return T.Abs(num - other);
+    }
     
     /// <summary>
     /// Get the product of numbers in a sequence.
