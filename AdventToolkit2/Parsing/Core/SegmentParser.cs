@@ -177,6 +177,7 @@ public class SegmentParser<T> : ParseBase<string, T>
             var splitParse = _input is null
                 ? AnchorSplit.Create(_anchors, _firstIsLiteral, endSection)
                 : SplitParse.Create(inputType, _anchors.Count);
+            Parsing.Parse.Verbose($"Raw type of parse is {ParseUtil.GetParserTypesOf(splitParse).OutputType})");
             return adapt ? ParseAdapt.Adapt(splitParse, typeof(T), Context) : splitParse;
         }
         
@@ -214,6 +215,7 @@ public class SegmentParser<T> : ParseBase<string, T>
             ? AnchorSplit.Create(_anchors, _firstIsLiteral, endSection)
             : SplitParse.Create(inputType, _anchors.Count);
         var tupleParser = ParseJoin.Create(inputSplit, TupleAdapter.Create(segmentTypes, outputTypes, parsers));
+        Parsing.Parse.Verbose($"Raw type of parse is {ParseUtil.GetParserTypesOf(tupleParser).OutputType}");
         return adapt ? ParseAdapt.Adapt(tupleParser, typeof(T), Context) : tupleParser;
     }
 
@@ -235,6 +237,7 @@ public class SegmentParser<T> : ParseBase<string, T>
     /// <returns></returns>
     public override T Parse(string input)
     {
+        Parsing.Parse.Verbose($"========== Begin parse ==========");
         _built ??= Build();
         return _built.Parse(input);
     }

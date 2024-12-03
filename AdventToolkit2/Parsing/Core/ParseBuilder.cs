@@ -202,6 +202,7 @@ public class ParseBuilder
     /// <returns>Built parser.</returns>
     public IParser Build(IParseContext context, Type outputType)
     {
+        Parse.Verbose($"Raw output type of parse builder is: {ParseUtil.GetParserTypesOf(Current).OutputType}");
         return ParseAdapt.Adapt(Current, outputType, context);
     }
     
