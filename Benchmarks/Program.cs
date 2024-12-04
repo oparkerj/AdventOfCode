@@ -19,22 +19,20 @@ public class BenchmarkMain
         // return;
         // var summary = BenchmarkPuzzle<TestPuzzle>();
         // var summary = ComparePuzzle<Day1, Day1Better>();
-        
-        return;
 
         Debugging.EnableLogs();
         
         DefaultContext.AddCommonTypes();
         DefaultContext.AddToolkitTypes();
 
-        var input = "1a,22b,3c,41d";
-        var result = input.Parse<(int, char)[]>($"{@"(\d+)(.)":+}");
+        // var input = "1aa,22bb,3cc,41dd";
+        // var result = input.Parse<(int, string)[]>($"{','}{@"(\d+)(.+)"}");
 
-        // var input = """
-        //             12345
-        //             45678
-        //             """;
-        // var result = input.Parse<Grid<int>>($"{@"":+}");
+        var input = """
+                    12345
+                    45678
+                    """;
+        var result = input.Parse<Grid<int>>($"{'\n'}");
         
         Console.WriteLine(result.DebugString());
     }

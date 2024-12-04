@@ -8,4 +8,4 @@ using AdventToolkit2.Parsing.Core;
 // Run puzzles using the new toolkit
 DefaultContext.AddCommonTypes();
 // DefaultContext.AddToolkitTypes();
-PuzzleRunner.Run<Day1New>();
+PuzzleRunner.Run<Day2New>();
