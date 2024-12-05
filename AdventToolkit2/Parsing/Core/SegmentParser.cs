@@ -428,17 +428,9 @@ public class SegmentParser<T> : ParseBase<string, T>
         var specialBefore = GetSpecialFormat(ref format, '@');
         var specialAfter = GetSpecialFormat(ref format, '!');
 
-        if (!specialBefore.IsEmpty)
-        {
-            AppendSpecial(specialBefore);
-        }
-        
+        AppendSpecial(specialBefore);
         GetCurrentSlot().AddStage(item, format, Context);
-
-        if (!specialAfter.IsEmpty)
-        {
-            AppendSpecial(specialAfter);
-        }
+        AppendSpecial(specialAfter);
     }
 
     public override IEnumerable<IParser> GetChildren()
