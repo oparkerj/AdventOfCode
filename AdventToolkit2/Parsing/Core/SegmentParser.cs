@@ -269,7 +269,7 @@ public class SegmentParser<T> : ParseBase<string, T>
     /// <param name="format"></param>
     /// <param name="separator"></param>
     /// <returns></returns>
-    private ReadOnlySpan<char> GetSpecialFormat(ref string format, char separator)
+    private static ReadOnlySpan<char> GetSpecialFormat(ref string format, char separator)
     {
         if (!format.StartsWith(separator)) return ReadOnlySpan<char>.Empty;
 
@@ -327,6 +327,10 @@ public class SegmentParser<T> : ParseBase<string, T>
     {
         // TODO experiment with more granular selection
         _input = ParseJoin.MaybeJoin(_input, BuildInternal(false));
+        
+        // TODO Selection concept
+        // - Indexing
+        //   0.1.2
         
         _anchors.Clear();
         _sections.Clear();
@@ -407,6 +411,7 @@ public class SegmentParser<T> : ParseBase<string, T>
             }
             
             AppendFormatted<Range>(.., cmd.ToString());
+            break;
         }
     }
 

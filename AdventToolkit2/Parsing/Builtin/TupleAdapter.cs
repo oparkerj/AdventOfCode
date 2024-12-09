@@ -195,6 +195,14 @@ public static class TupleAdapter
         var firstType = type.GetSingleTypeArgument();
         return typeof(TupleFirst<,>).NewParserGeneric([type, firstType]);
     }
+
+    public static IParser Get(Type type, int index)
+    {
+        Debug.Assert(type.IsTupleType());
+
+        var elementType = type.GetTupleTypes()[index];
+        return typeof(TupleGet<,>).NewParserGeneric([type, elementType], index);
+    }
 }
 
 /// <summary>
@@ -900,5 +908,23 @@ public class TupleCompress<
         yield return parser6;
         yield return parser7;
         yield return parserRest;
+    }
+}
+
+/// <summary>
+/// Get the tuple element at the specified index.
+///
+/// TODO: Specialize this parser.
+/// </summary>
+/// <param name="index">Component index.</param>
+/// <typeparam name="TTuple">Tuple type.</typeparam>
+/// <typeparam name="T">Component type.</typeparam>
+public class TupleGet<TTuple, T>(int index) : IParser<TTuple, T>
+    where TTuple : ITuple
+{
+    public T Parse(TTuple input)
+    {
+        Debug.Assert(index >= 0 && index < input.Length);
+        return (T) input[index]!;
     }
 }
