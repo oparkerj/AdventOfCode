@@ -256,6 +256,16 @@ public class SegmentParser<T> : ParseBase<string, T>
         }
     }
 
+    private static void ApplyIndex(string spec)
+    {
+        var indices = spec.Split('.');
+        
+        
+        
+        // In order for a value to be indexed, it must be a list
+        // or convertible to a list.
+    }
+
     /// <summary>
     /// Try to parse a special section out of a string.
     /// A special section is a substring at the beginning of the input
@@ -330,7 +340,10 @@ public class SegmentParser<T> : ParseBase<string, T>
         
         // TODO Selection concept
         // - Indexing
-        //   0.1.2
+        //   0.(0,1,%1)
+        // Parenthesis can be used to create a tuple.
+        // The indices in a tuple will come from the source value,
+        // unless prefixed with %, then it is an absolute path.
         
         _anchors.Clear();
         _sections.Clear();
